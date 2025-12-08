@@ -5,7 +5,7 @@ import { AppShowcase } from "@/components/app-showcase"
 import { ValueProps } from "@/components/value-props"
 import { ThreePillars } from "@/components/three-pillars"
 import { EmotionalHero } from "@/components/emotional-hero"
-import { FeatureDeepDive } from "@/components/feature-deep-dive"
+import { HowItWorks } from "@/components/how-it-works"
 import { WhyChoose } from "@/components/why-choose"
 import { FinalCta } from "@/components/final-cta"
 import { Footer } from "@/components/footer"
@@ -20,7 +20,7 @@ export default function Page() {
       <ValueProps />
       <ThreePillars />
       <EmotionalHero />
-      <FeatureDeepDive />
+      <HowItWorks />
       <WhyChoose />
       <FinalCta />
       <Footer />

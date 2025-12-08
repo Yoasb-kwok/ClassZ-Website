@@ -3,78 +3,89 @@ import { Instagram, Facebook } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="bg-slate-50 pt-20 pb-10 border-t border-slate-200">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
-          <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <span className="text-3xl font-bold text-[#00C9B7] tracking-tight">Z.Classz</span>
-            </Link>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Company</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+    <footer className="bg-[#D8F4F3] border-t border-[#E9E9E9]">
+      <div className="flex flex-col justify-end gap-20 pt-5 w-full">
+        <div className="max-w-[1280px] w-full mx-auto flex flex-col">
+        {/* Main Content */}
+        <div className="flex flex-col justify-center items-center gap-10 px-10 py-10 pb-[60px]">
+          {/* Top Section */}
+          <div className="flex flex-col lg:flex-row justify-stretch items-start lg:items-stretch gap-[107px] w-full py-5 border-b border-[#E9E9E9]">
+            {/* Logo */}
+            <div className="flex justify-center lg:justify-start items-center gap-2.5 px-0 lg:px-[60px] flex-1">
+              <Link href="/" className="flex items-center gap-2.5">
+                <img
+                  src="/ZClassZ.png"
+                  alt="Z.Classz logo"
+                  className="h-[63px] w-auto"
+                />
+              </Link>
+            </div>
+
+            {/* Nav Items */}
+            <div className="flex flex-col sm:flex-row justify-stretch items-stretch gap-[35px] px-6 sm:px-[50px] sm:pl-6 flex-1 backdrop-blur-[30px] rounded-[100px] py-5 bg-white/40">
+              {/* Company */}
+              <div className="flex flex-col justify-center gap-2.5">
+                <h4 className="text-base font-semibold text-[#292929] leading-[1.4] tracking-[-0.025em]">
+                  Company
+                </h4>
+                <Link href="/our-features" className="text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity text-center sm:text-left">
                   What we do?
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+                <Link href="/our-mission" className="text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity text-center sm:text-left">
                   Our Missions
                 </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Resources</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+              </div>
+
+              {/* Resources */}
+              <div className="flex flex-col justify-center gap-2.5">
+                <h4 className="text-base font-semibold text-[#292929] leading-[1.4] tracking-[-0.025em]">
+                  Resources
+                </h4>
+                <Link href="/partnership" className="text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity text-center sm:text-left">
                   Partnership
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+                <Link href="/faqs" className="text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity text-center sm:text-left">
                   FAQs
                 </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Legal</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+              </div>
+
+              {/* Legal */}
+              <div className="flex flex-col justify-center gap-2.5">
+                <h4 className="text-base font-semibold text-[#292929] leading-[1.4] tracking-[-0.025em]">
+                  Legal
+                </h4>
+                <Link href="#" className="text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity text-center sm:text-left">
                   Privacy Policy
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+                <Link href="#" className="text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity text-center sm:text-left">
                   Terms of Service
                 </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Follow</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-[#00C9B7]">
-                  <Instagram className="w-4 h-4" /> Classz.hk
+              </div>
+
+              {/* Follow */}
+              <div className="flex flex-col justify-center gap-2.5">
+                <h4 className="text-base font-semibold text-[#292929] leading-[1.4] tracking-[-0.025em]">
+                  Follow
+                </h4>
+                <Link href="#" className="flex items-center gap-2.5 text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity">
+                  <Instagram className="w-[18.55px] h-[18.55px] text-white" strokeWidth={1.5} />
+                  classz.hk
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-[#00C9B7]">
-                  <Facebook className="w-4 h-4" /> Classz.hk
+                <Link href="#" className="flex items-center gap-2.5 text-base font-normal text-[#292929] leading-[1.4] tracking-[-0.025em] hover:opacity-70 transition-opacity">
+                  <Facebook className="w-[18.55px] h-[18.55px] text-white" strokeWidth={1.5} />
+                  Classz HK
                 </Link>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-200 text-center text-xs text-slate-400">
-          © 2025 Classz Limited. All rights reserved.
+        {/* Copyright */}
+        <div className="flex justify-end items-center px-[50px] lg:pl-[120px] pb-5">
+          <p className="text-base font-normal text-[#485C11] leading-[1.4] tracking-[-0.01em]">
+            © 2025 ClassZ Limited. All rights reserved.
+          </p>
+        </div>
         </div>
       </div>
     </footer>
