@@ -1,0 +1,37 @@
+[00:00:00.546] Server  LOG      ✓ Ready in 339ms
+[00:05:46.118] Browser ERROR   ./components/navbar.tsx:2:10
+Ecmascript file had an error
+  1 | import Link from "next/link"
+> 2 | import { usePathname } from "next/navigation"
+    |          ^^^^^^^^^^^
+  3 | import { Button } from "@/components/ui/button"
+  4 | import { Menu } from "lucide-react"
+  5 |
+
+You're importing a component that needs `usePathname`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./components/navbar.tsx
+    ./app/contact-us/page.tsx
+[00:05:47.032] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:05:47.032] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/our-features","route":"/our-features"}
+[00:05:47.032] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/our-features color: rgb(120, 120, 120) color: inherit {"dp":"/our-features","o":"http://localhost:3000/our-features","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193973086}
+[00:05:49.137] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/partnership color: rgb(120, 120, 120) color: inherit {"dp":"/partnership","o":"http://localhost:3000/partnership","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193975189}
+[00:05:50.130] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/contact-us color: rgb(120, 120, 120) color: inherit {"dp":"/contact-us","o":"http://localhost:3000/contact-us","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193976182}
+[00:05:51.209] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/partnership color: rgb(120, 120, 120) color: inherit {"dp":"/partnership","o":"http://localhost:3000/partnership","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193977262}
+[00:05:51.907] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/our-features color: rgb(120, 120, 120) color: inherit {"dp":"/our-features","o":"http://localhost:3000/our-features","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193977959}
+[00:05:54.610] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/our-mission color: rgb(120, 120, 120) color: inherit {"dp":"/our-mission","o":"http://localhost:3000/our-mission","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193980662}
+[00:06:00.706] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/contact-us color: rgb(120, 120, 120) color: inherit {"dp":"/contact-us","o":"http://localhost:3000/contact-us","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765193986758}
+[03:46:50.411] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/faqs color: rgb(120, 120, 120) color: inherit {"dp":"/faqs","o":"http://localhost:3000/faqs","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207236426}
+[03:46:54.240] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/partnership color: rgb(120, 120, 120) color: inherit {"dp":"/partnership","o":"http://localhost:3000/partnership","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207240254}
+[03:46:55.193] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/contact-us color: rgb(120, 120, 120) color: inherit {"dp":"/contact-us","o":"http://localhost:3000/contact-us","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207241208}
+[03:48:47.511] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/partnership color: rgb(120, 120, 120) color: inherit {"dp":"/partnership","o":"http://localhost:3000/partnership","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207353525}
+[03:48:48.636] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/our-features color: rgb(120, 120, 120) color: inherit {"dp":"/our-features","o":"http://localhost:3000/our-features","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207354651}
+[03:48:50.199] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/our-mission color: rgb(120, 120, 120) color: inherit {"dp":"/our-mission","o":"http://localhost:3000/our-mission","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207356214}
+[03:49:44.215] Server  LOG      ✓ Compiled in 345ms
+[03:49:47.773] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[03:49:47.773] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/our-mission","route":"/our-mission"}
+[03:49:47.773] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/our-mission color: rgb(120, 120, 120) color: inherit {"dp":"/our-mission","o":"http://localhost:3000/our-mission","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765207413748}
