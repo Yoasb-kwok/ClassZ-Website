@@ -3,9 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu } from "lucide-react"
+import { Menu, X } from "lucide-react"
+import { useState } from "react"
 
 export function Navbar() {
+  const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
 
@@ -49,10 +51,68 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <button className="md:hidden p-2 text-slate-600">
-          <Menu className="w-6 h-6" />
+        <button
+          className="md:hidden p-2 text-slate-600"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
+
+      {/* Mobile panel */}
+      {open && (
+        <div className="md:hidden bg-white/95 backdrop-blur border-t border-slate-100 shadow-sm">
+          <div className="px-4 py-4 space-y-3 text-sm font-medium text-slate-700">
+            <NavLinkMobile href="/our-mission" active={isActive("/our-mission")} onClick={() => setOpen(false)}>
+              Our Mission
+            </NavLinkMobile>
+            <NavLinkMobile href="/our-features" active={isActive("/our-features")} onClick={() => setOpen(false)}>
+              Our Features
+            </NavLinkMobile>
+            <NavLinkMobile href="/partnership" active={isActive("/partnership")} onClick={() => setOpen(false)}>
+              Partnership
+            </NavLinkMobile>
+            <NavLinkMobile href="/contact-us" active={isActive("/contact-us")} onClick={() => setOpen(false)}>
+              Contact Us
+            </NavLinkMobile>
+            <NavLinkMobile href="/faqs" active={isActive("/faqs")} onClick={() => setOpen(false)}>
+              FAQs
+            </NavLinkMobile>
+            <button className="w-full text-left text-slate-700 hover:text-[#00C9B7] transition-colors">Eng/繁</button>
+            <div className="pt-2 flex flex-col gap-2">
+              <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7]" onClick={() => setOpen(false)}>
+                Log in
+              </Link>
+              <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full w-full" onClick={() => setOpen(false)}>
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
+  )
+}
+
+function NavLinkMobile({
+  href,
+  children,
+  active,
+  onClick,
+}: {
+  href: string
+  children: React.ReactNode
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`block ${active ? "text-[#00C9B7]" : "text-slate-700"} hover:text-[#00C9B7] transition-colors`}
+    >
+      {children}
+    </Link>
   )
 }
