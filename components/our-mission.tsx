@@ -1,25 +1,31 @@
 import { Heart, TrendingUp, Users, Building2, Calendar, CreditCard } from "lucide-react"
 
-export function OurMission() {
+interface OurMissionProps {
+  hideHeader?: boolean
+}
+
+export function OurMission({ hideHeader = false }: OurMissionProps) {
   return (
     <section id="our-mission" className="relative bg-black">
       {/* Hero Image Section */}
-      <div className="relative h-[592px] flex items-center justify-center overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-[rgba(10,186,181,0.2)]" />
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url('/family-snow-winter-happy.jpg')",
-          }}
-        />
-        <div className="relative z-10 w-full px-4 md:px-[251px] text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-[50px] font-medium text-white leading-[1.1] tracking-[-0.05em] drop-shadow-[0_0_30px_rgba(0,0,0,0.4)]">
-            Shaping Futures,
-            <br />
-            One Child at a Time.
-          </h2>
+      {!hideHeader && (
+        <div className="relative h-[592px] flex items-center justify-center overflow-hidden bg-black">
+          <div className="absolute inset-0 bg-[rgba(10,186,181,0.2)]" />
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: "url('/family-snow-winter-happy.jpg')",
+            }}
+          />
+          <div className="relative z-10 w-full px-4 md:px-[251px] text-center">
+            <h2 className="text-4xl md:text-5xl lg:text-[50px] font-medium text-white leading-[1.1] tracking-[-0.05em] drop-shadow-[0_0_30px_rgba(0,0,0,0.4)]">
+              Shaping Futures,
+              <br />
+              One Child at a Time.
+            </h2>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Our Mission Text Section */}
       <div className="border-b border-[#E9E9E9] bg-white">
@@ -53,7 +59,7 @@ export function OurMission() {
                     Because wanting the best for your child shouldn't feel overwhelming:
                   </p>
                 </div>
-                
+
                 {/* Numbered List */}
                 <div className="flex flex-col">
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
@@ -87,8 +93,8 @@ export function OurMission() {
             {/* Image */}
             <div className="hidden md:flex items-center justify-center">
               <div className="rounded-[30px] overflow-hidden w-[493px] h-[463px]">
-                <img 
-                  src="/family-looking-at-tablet.jpg" 
+                <img
+                  src="/family-looking-at-tablet.jpg"
                   alt="Family learning together"
                   className="w-full h-full object-cover"
                 />
@@ -103,7 +109,7 @@ export function OurMission() {
         {/* Background blur circles */}
         <div className="absolute w-96 h-96 bg-[rgba(10,186,181,0.08)] rounded-full blur-[128px] top-[384px] left-[705px] hidden xl:block" />
         <div className="absolute w-96 h-96 bg-[rgba(10,186,181,0.05)] rounded-full blur-[128px] top-0 right-[845px] hidden xl:block" />
-        
+
         <div className="relative container mx-auto px-4 md:px-8">
           {/* Header */}
           <div className="flex flex-col items-center gap-5 py-[120px] px-10 w-full max-w-[1280px] mx-auto h-[316px]">
@@ -114,7 +120,7 @@ export function OurMission() {
                 Our Commitment to You
               </span>
             </div>
-            
+
             <h3 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em] text-center">
               Nurturing Growth, Building Trust
             </h3>
@@ -162,10 +168,10 @@ export function OurMission() {
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Workshops & family activities
+                  Book in few clicks
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Empowering parents on their journey
+                  No forms, no hassle, no confusion
                 </p>
               </div>
             </div>
@@ -177,10 +183,10 @@ export function OurMission() {
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Support for centres
+                  Flexible payment options
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Free Learning Management System (LMS), digital exposure, and tools to grow with purpose
+                  Bridging families and centres with smarter ways to pay
                 </p>
               </div>
             </div>
@@ -192,10 +198,10 @@ export function OurMission() {
                   <Calendar className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Book in few clicks
+                  Workshops & family activities
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  No forms, no hassle, no confusion
+                  Empowering parents on their journey
                 </p>
               </div>
             </div>
@@ -207,10 +213,10 @@ export function OurMission() {
                   <CreditCard className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Flexible payment options
+                  Support for centres
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Bridging families and centres with smarter ways to pay
+                  Free Learning Management System (LMS), digital exposure, and tools to grow with purpose
                 </p>
               </div>
             </div>

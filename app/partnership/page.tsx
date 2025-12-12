@@ -16,32 +16,32 @@ const overviewCards = [
   {
     title: "List Programs & Schedules",
     text: "Parents can discover and enroll in students directly to your programs.",
-    image: "/app-interface-class-details.jpg",
+    image: "/card1.png",
   },
   {
     title: "Manage Bookings & Attendance",
     text: "Handle your admin work through a centralized platform.",
-    image: "/calendar-app-ui.jpg",
+    image: "/card2.png",
   },
   {
     title: "Free CRM Access",
     text: "Manage scheduling, attendance, and class operations in one place.",
-    image: "/photo-feed-app-ui.jpg",
+    image: "/card3.png",
   },
   {
     title: "Share Progress Feedback",
     text: "Provide student performance feedback through built-in tools.",
-    image: "/kid-reading.jpg",
+    image: "/card4.png",
   },
   {
     title: "Connect with Parents",
     text: "Reply to inquiries, arrange schedules, build rapport.",
-    image: "/kid-coding.jpg",
+    image: "/card5.png",
   },
   {
     title: "Gain Exposure",
     text: "Reach families via ClassZ community and boost visibility.",
-    image: "/kid-painting.jpg",
+    image: "/card6.png",
   },
 ]
 
@@ -49,28 +49,31 @@ const obligationItems = [
   {
     badge: "Essential requirement",
     title: "Mandatory After-Class Reporting",
+    description: "For every student who attends a lesson, centres must submit:",
     bullets: [
       "A class photo of the student during the session",
-      "Performance feedback via ClassZ in-app feedback system",
+      "Performance feedback via ClassZ's in-app feedback system",
     ],
     image: "/kid-music.jpg",
   },
   {
     badge: "Quality Standards",
     title: "Commitment to Quality & Inclusion",
+    description: "",
     bullets: [
       "Provide accurate information on courses, coaches, and qualifications",
-      "Ensure a safe, professional, and preferably SEN-inclusive environment",
-      "Maintain timely communication with parents and ClassZ support",
+      "Ensure a safe, professional, and preferably SEN-inclusive learning environment",
+      "Maintain timely communication with parents and ClassZ team support",
     ],
     image: "/kid-science.jpg",
   },
   {
     badge: "System Guidelines",
     title: "Use ClassZ Systems Responsibly",
+    description: "",
     bullets: [
-      "Payments and enrolments must be completed through ClassZ",
-      "Follow ClassZ Terms of Service and Data Privacy Policy",
+      "Payments and enrollments must be completed through ClassZ to remain valid and protected.",
+      "Accept and follow ClassZ's Terms of Service and Data Privacy Policy",
     ],
     image: "/kid-dancing.jpg",
   },
@@ -104,16 +107,20 @@ export default function PartnershipPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[420px] w-full overflow-hidden border-b border-[#E9E9E9]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/family-looking-at-tablet.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
-            <h1 className="text-white text-4xl md:text-5xl font-semibold mb-3 drop-shadow-lg">ClassZ Partnership</h1>
-            <p className="text-white/90 text-lg md:text-xl max-w-2xl drop-shadow-md">
+      <section className="relative w-full overflow-hidden border-b border-[#E9E9E9]">
+        <div className="relative w-full h-[400px] sm:h-[450px] md:h-auto" style={{ paddingBottom: '0' }}>
+          <div className="absolute inset-0 md:relative md:pb-[33.33%]">
+            <div
+              className="absolute inset-0 md:absolute bg-cover"
+              style={{ backgroundImage: "url('/headerPartnership.png')" }}
+            />
+          </div>
+        </div>
+        <div className="absolute inset-0 bg-black/35 md:bg-black/30 pointer-events-none h-[400px] sm:h-[450px] md:h-full" />
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none h-[400px] sm:h-[450px] md:h-full">
+          <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center pointer-events-auto">
+            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 md:mb-3 drop-shadow-lg">ClassZ Partnership</h1>
+            <p className="text-white/90 text-sm sm:text-base md:text-xl max-w-2xl mx-auto drop-shadow-md px-2">
               Join a community of trusted educators transforming children’s learning journeys.
             </p>
           </div>
@@ -135,9 +142,8 @@ export default function PartnershipPage() {
               <button
                 key={tab.id}
                 onClick={() => setActive(tab.id)}
-                className={`px-5 py-2 rounded-full border ${
-                  active === tab.id ? "bg-[#0ABAB5] text-white border-[#0ABAB5]" : "bg-white text-[#00A3A0] border-[#0ABAB5]"
-                } transition-colors`}
+                className={`px-5 py-2 rounded-full border ${active === tab.id ? "bg-[#0ABAB5] text-white border-[#0ABAB5]" : "bg-white text-[#00A3A0] border-[#0ABAB5]"
+                  } transition-colors`}
               >
                 {tab.label}
               </button>
@@ -165,8 +171,8 @@ function CentreOverview() {
           style={{ backgroundImage: "url('/kid-coding.jpg')" }}
         />
         <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 text-center">
             <h3 className="text-white text-3xl md:text-4xl font-semibold drop-shadow-lg">Centre Overview</h3>
           </div>
         </div>
@@ -174,7 +180,7 @@ function CentreOverview() {
 
       <section className="py-12">
         <div className="max-w-[1080px] mx-auto px-6 md:px-10">
-          <h3 className="text-2xl md:text-[26px] font-semibold text-[#111929] mb-3">Centre Overview</h3>
+          <h3 className="text-2xl md:text-[26px] font-semibold text-[#111929] mb-3">Your Hub for Centre Management and Growth.</h3>
           <p className="text-sm md:text-base text-[#485A69] leading-relaxed">
             Grow opportunities with digital exposure, gain trusted relationships from parents.
           </p>
@@ -186,15 +192,9 @@ function CentreOverview() {
           {overviewCards.map((card) => (
             <div
               key={card.title}
-              className="rounded-2xl border border-[#E9E9E9] bg-white shadow-[0_18px_48px_rgba(0,0,0,0.05)] overflow-hidden"
+              className="rounded-2xl overflow-hidden"
             >
-              <div className="h-[220px] w-full overflow-hidden">
-                <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
-              </div>
-              <div className="p-6 space-y-2">
-                <h4 className="text-lg font-semibold text-[#111929]">{card.title}</h4>
-                <p className="text-sm text-[#485A69] leading-relaxed">{card.text}</p>
-              </div>
+              <img src={card.image} alt={card.title} className="w-full h-auto object-contain" />
             </div>
           ))}
         </div>
@@ -206,17 +206,42 @@ function CentreOverview() {
 }
 
 function CentreObligation() {
+  const renderBulletText = (text: string, itemIdx: number) => {
+    if (itemIdx === 0) {
+      // First item: highlight "A class photo" and "Performance feedback"
+      if (text.includes("A class photo")) {
+        const parts = text.split("A class photo");
+        return (
+          <>
+            <span className="text-[#0ABAB5] font-medium">A class photo</span>
+            <span className="text-[#111929]">{parts[1]}</span>
+          </>
+        );
+      }
+      if (text.includes("Performance feedback")) {
+        const parts = text.split("Performance feedback");
+        return (
+          <>
+            <span className="text-[#0ABAB5] font-medium">Performance feedback</span>
+            <span className="text-[#111929]">{parts[1]}</span>
+          </>
+        );
+      }
+    }
+    return <span className="text-[#111929]">{text}</span>;
+  };
+
   return (
     <>
       {/* Obligation Hero */}
       <section className="relative h-[240px] w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/centre-obligation.jpg')" }}
+          style={{ backgroundImage: "url('/kid-music.jpg')" }}
         />
         <div className="absolute inset-0 bg-black/35" />
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 text-center">
             <h3 className="text-white text-3xl md:text-4xl font-semibold drop-shadow-lg">Centre Obligation</h3>
           </div>
         </div>
@@ -224,36 +249,67 @@ function CentreObligation() {
 
       <section className="py-12">
         <div className="max-w-[1080px] mx-auto px-6 md:px-10">
-          <h3 className="text-2xl md:text-[26px] font-semibold text-[#111929] mb-3">Centre Obligation</h3>
+          <h3 className="text-2xl md:text-[26px] font-semibold text-[#111929] mb-3">Partnership Standards</h3>
           <p className="text-sm md:text-base text-[#485A69] leading-relaxed">
-            Partnership standards to ensure trust and meaningful progress for every child.
+            To ensure trust and meaningful progress for every child, all centres must comply with ClassZ standards.
           </p>
         </div>
       </section>
 
       <section className="pb-16 space-y-12">
-        <div className="max-w-[1180px] mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-10 items-center">
-          {obligationItems.map((item) => (
-            <div key={item.title} className="grid md:grid-cols-2 gap-6 items-start">
-              <div className="order-2 md:order-1 space-y-3">
-                <span className="inline-block text-xs font-semibold text-[#00A3A0] bg-[#E7F9F8] px-3 py-1 rounded-full">
-                  {item.badge}
-                </span>
-                <h4 className="text-xl font-semibold text-[#111929]">{item.title}</h4>
-                <ul className="space-y-2 text-sm text-[#485A69] leading-relaxed list-none">
-                  {item.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#0ABAB5] mt-[2px]" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="order-1 md:order-2 rounded-2xl overflow-hidden shadow-[0_18px_48px_rgba(0,0,0,0.06)]">
-                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-              </div>
+        <div className="max-w-[1180px] mx-auto px-4 md:px-6 space-y-16">
+          {obligationItems.map((item, idx) => (
+            <div key={item.title} className="grid md:grid-cols-2 gap-8 items-center">
+              {idx % 2 === 0 ? (
+                <>
+                  <div className="rounded-2xl overflow-hidden">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="space-y-4">
+                    <span className="inline-block text-xs font-semibold text-[#00A3A0] bg-[#E7F9F8] px-3 py-1 rounded-full">
+                      {item.badge}
+                    </span>
+                    <h4 className="text-2xl md:text-3xl font-semibold text-[#111929]">{item.title}</h4>
+                    {item.description && (
+                      <p className="text-sm md:text-base text-[#485A69] leading-relaxed">{item.description}</p>
+                    )}
+                    <ol className="space-y-4 text-sm md:text-base leading-relaxed list-none">
+                      {item.bullets.map((b, bulletIdx) => (
+                        <li key={bulletIdx} className="flex items-start gap-4">
+                          <span className="text-2xl font-bold text-[#111929] flex-shrink-0">{String(bulletIdx + 1).padStart(2, '0')}</span>
+                          <span className="pt-1">{renderBulletText(b, idx)}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <span className="inline-block text-xs font-semibold text-[#00A3A0] bg-[#E7F9F8] px-3 py-1 rounded-full">
+                      {item.badge}
+                    </span>
+                    <h4 className="text-2xl md:text-3xl font-semibold text-[#111929]">{item.title}</h4>
+                    {item.description && (
+                      <p className="text-sm md:text-base text-[#485A69] leading-relaxed">{item.description}</p>
+                    )}
+                    <ol className="space-y-4 text-sm md:text-base leading-relaxed list-none">
+                      {item.bullets.map((b, bulletIdx) => (
+                        <li key={bulletIdx} className="flex items-start gap-4">
+                          <span className="text-2xl font-bold text-[#111929] flex-shrink-0">{String(bulletIdx + 1).padStart(2, '0')}</span>
+                          <span className="pt-1">{renderBulletText(b, idx)}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                  <div className="rounded-2xl overflow-hidden">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                  </div>
+                </>
+              )}
             </div>
           ))}
+
         </div>
       </section>
 
@@ -272,8 +328,8 @@ function HowToJoin() {
           style={{ backgroundImage: "url('/kid-reading.jpg')" }}
         />
         <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 text-center">
             <h3 className="text-white text-3xl md:text-4xl font-semibold drop-shadow-lg">How to Join Us</h3>
           </div>
         </div>

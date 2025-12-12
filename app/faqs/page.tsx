@@ -352,7 +352,7 @@ export default function FAQsPage() {
   const setOpen = activeTab === "parents" ? setOpenParent : setOpenCentre
 
   const collapseAll = () => {
-    // Only collapse centres; parents stay open as per request
+    setOpenParent(null)
     setOpenCentre(null)
   }
 
@@ -361,16 +361,20 @@ export default function FAQsPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative h-[320px] w-full overflow-hidden border-b border-[#E9E9E9]">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/family-looking-at-tablet.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="relative z-10 h-full flex items-center">
-          <div className="max-w-[1180px] mx-auto w-full px-6 md:px-10">
-            <h1 className="text-white text-4xl md:text-5xl font-semibold mb-2 drop-shadow-lg">Frequently Asked Questions</h1>
-            <p className="text-white/90 text-lg md:text-xl drop-shadow">Browse guides and answers for parents and centres.</p>
+      <section className="relative w-full overflow-hidden border-b border-[#E9E9E9] min-h-[280px] md:min-h-0">
+        <div className="relative w-full h-[280px] md:h-auto" style={{ paddingBottom: '0' }}>
+          <div className="absolute inset-0 md:relative md:pb-[33.33%]">
+            <div
+              className="absolute inset-0 md:absolute bg-cover"
+              style={{ backgroundImage: "url('/headerFAQs.png')" }}
+            />
+          </div>
+        </div>
+        <div className="absolute inset-0 bg-black/40 md:bg-black/35 pointer-events-none h-[280px] md:h-full" />
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none h-[280px] md:h-full">
+          <div className="max-w-[1180px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center pointer-events-auto">
+            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 drop-shadow-lg">Frequently Asked Questions</h1>
+            <p className="text-white/90 text-sm sm:text-base md:text-xl drop-shadow">Browse guides and answers for parents and centres.</p>
           </div>
         </div>
       </section>
@@ -416,12 +420,12 @@ export default function FAQsPage() {
           {activeTab === "parents" ? (
             <div className="space-y-8 text-[#111929]">
               {parentsFaqs.map((item, idx) => {
-                const open = true // always expanded for parents
+                const open = openParent === idx
                 return (
-                  <div key={item.q} className="space-y-4 border-b border-[#E5E7EB] pb-6 last:border-b-0">
+                  <div key={item.q} className="space-y-4 pb-6">
                     <button
-                      onClick={() => { }}
-                      className="w-full flex items-start justify-between gap-4 text-left cursor-default"
+                      onClick={() => setOpenParent(open ? null : idx)}
+                      className="w-full flex items-start justify-between gap-4 text-left"
                     >
                       <div className="flex items-start gap-3">
                         <span className="text-[#5AE0D6] text-base font-semibold">Q</span>
@@ -781,8 +785,7 @@ export default function FAQsPage() {
               return (
                 <div
                   key={item.q}
-                  className={`rounded-[18px] border ${open ? "border-[#0ABAB5]" : "border-[#E5E7EB]"
-                    } bg-white shadow-[0_14px_36px_rgba(0,0,0,0.05)]`}
+                  className="bg-white"
                 >
                   <button
                     onClick={() => setOpenCentre(open ? null : idx)}
@@ -795,7 +798,7 @@ export default function FAQsPage() {
                     <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
                   </button>
                   {open && (
-                    <div className="px-5 pb-5 space-y-2 text-sm text-[#485A69] leading-relaxed border-t border-[#E9E9E9]">
+                    <div className="px-5 pb-5 space-y-2 text-sm text-[#485A69] leading-relaxed">
                       {item.a && item.a.length > 0 && item.q !== "Pricing: does ClassZ charge centres?" && item.q !== "Can I edit or update class schedules after posting?" && item.q !== "What's the difference between Owner, Manager, and Coach accounts?" && item.q !== "Can one Owner manage multiple branches or locations?" && item.q !== "What information is required to set up my centre profile?" && item.q !== "What is the bad-weather arrangement for centres?" && item.q !== "Is my centre a good fit for ClassZ?" && item.q !== "How do I make sure my payouts are released without penalties?" && (
                         <div className="space-y-2">
                           {(item.q === "How do parents pay for classes? Are offline payments allowed?"
