@@ -3,78 +3,152 @@ import { Instagram, Facebook } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="bg-slate-50 pt-20 pb-10 border-t border-slate-200">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
-          <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <span className="text-3xl font-bold text-[#00C9B7] tracking-tight">Z.Classz</span>
-            </Link>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Company</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+    <footer className="bg-[#D8F4F3]">
+      <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 py-10">
+        {/* Mobile Layout */}
+        <div className="flex flex-col md:hidden">
+          {/* Navigation Sections - 2 Columns */}
+          <div className="grid grid-cols-2 gap-6 pb-8">
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-[#111929]">Company</h4>
+              <div className="space-y-2 text-sm text-[#111929]">
+                <Link href="/our-features" className="block hover:opacity-70 transition-opacity">
                   What we do?
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+                <Link href="/our-mission" className="block hover:opacity-70 transition-opacity">
                   Our Missions
                 </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Resources</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-[#111929]">Resources</h4>
+              <div className="space-y-2 text-sm text-[#111929]">
+                <Link href="/partnership" className="block hover:opacity-70 transition-opacity">
                   Partnership
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+                <Link href="/faqs" className="block hover:opacity-70 transition-opacity">
                   FAQs
                 </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Legal</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-[#111929]">Legal</h4>
+              <div className="space-y-2 text-sm text-[#111929]">
+                <Link href="#" className="block hover:opacity-70 transition-opacity">
                   Privacy Policy
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-[#00C9B7]">
+                <Link href="#" className="block hover:opacity-70 transition-opacity">
                   Terms of Service
                 </Link>
-              </li>
-            </ul>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-[#111929]">Follow</h4>
+              <div className="space-y-2 text-sm text-[#111929]">
+                <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+                  <Instagram className="w-4 h-4" />
+                  classz.hk
+                </Link>
+                <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+                  <Facebook className="w-4 h-4" />
+                  Classz HK
+                </Link>
+              </div>
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold text-slate-900 mb-4">Follow</h4>
-            <ul className="space-y-3 text-sm text-slate-600">
-              <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-[#00C9B7]">
-                  <Instagram className="w-4 h-4" /> Classz.hk
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-[#00C9B7]">
-                  <Facebook className="w-4 h-4" /> Classz.hk
-                </Link>
-              </li>
-            </ul>
+
+          {/* Separator Line */}
+          <div className="border-t border-[#B8E4E2] w-full"></div>
+
+          {/* Logo Section - Centered */}
+          <div className="flex justify-center py-8">
+            <Link href="/" className="inline-block">
+              <span className="text-6xl font-bold text-[#0ABAB5] leading-none">
+                Z.<span className="text-5xl">Classz</span>
+              </span>
+            </Link>
+          </div>
+
+          {/* Separator Line */}
+          <div className="border-t border-[#B8E4E2] w-full"></div>
+
+          {/* Copyright - Centered */}
+          <div className="flex justify-center pt-6 pb-2">
+            <p className="text-xs text-[#6B7C5A]">© 2025 ClassZ Limited. All rights reserved.</p>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-200 text-center text-xs text-slate-400">
-          © 2025 Classz Limited. All rights reserved.
+        {/* Desktop Layout */}
+        <div className="hidden md:flex flex-col">
+          {/* Main Footer Content */}
+          <div className="flex flex-row items-center justify-between gap-8 md:gap-12 pb-6">
+            {/* Logo Section */}
+            <div className="flex-shrink-0">
+              <Link href="/" className="inline-block">
+                <span className="text-5xl lg:text-6xl font-bold text-[#0ABAB5]">
+                  Z.<span className="text-4xl lg:text-5xl">Classz</span>
+                </span>
+              </Link>
+            </div>
+
+            {/* Navigation Columns */}
+            <div className="flex flex-wrap gap-8 md:gap-12 flex-1 justify-end">
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-[#111929]">Company</h4>
+                <div className="space-y-2 text-sm text-[#111929]">
+                  <Link href="/our-features" className="block hover:opacity-70 transition-opacity">
+                    What we do?
+                  </Link>
+                  <Link href="/our-mission" className="block hover:opacity-70 transition-opacity">
+                    Our Missions
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-[#111929]">Resources</h4>
+                <div className="space-y-2 text-sm text-[#111929]">
+                  <Link href="/partnership" className="block hover:opacity-70 transition-opacity">
+                    Partnership
+                  </Link>
+                  <Link href="/faqs" className="block hover:opacity-70 transition-opacity">
+                    FAQs
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-[#111929]">Legal</h4>
+                <div className="space-y-2 text-sm text-[#111929]">
+                  <Link href="#" className="block hover:opacity-70 transition-opacity">
+                    Privacy Policy
+                  </Link>
+                  <Link href="#" className="block hover:opacity-70 transition-opacity">
+                    Terms of Service
+                  </Link>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-[#111929]">Follow</h4>
+                <div className="space-y-2 text-sm text-[#111929]">
+                  <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+                    <Instagram className="w-4 h-4" />
+                    classz.hk
+                  </Link>
+                  <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+                    <Facebook className="w-4 h-4" />
+                    Classz HK
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Separator Line */}
+          <div className="border-t border-[#B8E4E2] my-6"></div>
+
+          {/* Copyright */}
+          <div className="flex justify-end">
+            <p className="text-xs text-[#6B7C5A]">© 2025 ClassZ Limited. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>
