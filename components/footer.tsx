@@ -63,9 +63,7 @@ export function Footer() {
           {/* Logo Section - Centered */}
           <div className="flex justify-center py-8">
             <Link href="/" className="inline-block">
-              <span className="text-6xl font-bold text-[#0ABAB5] leading-none">
-                Z.<span className="text-5xl">Classz</span>
-              </span>
+              <img src="/logoWeb.png" alt="ClassZ" className="h-14 w-auto" />
             </Link>
           </div>
 
@@ -85,9 +83,7 @@ export function Footer() {
             {/* Logo Section */}
             <div className="flex-shrink-0">
               <Link href="/" className="inline-block">
-                <span className="text-5xl lg:text-6xl font-bold text-[#0ABAB5]">
-                  Z.<span className="text-4xl lg:text-5xl">Classz</span>
-                </span>
+                <img src="/logoWeb.png" alt="ClassZ" className="h-12 lg:h-14 w-auto" />
               </Link>
             </div>
 

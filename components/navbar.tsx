@@ -19,7 +19,7 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-[#00C9B7] tracking-tight">Z.Classz</span>
+          <img src="/logoWeb.png" alt="ClassZ" className="h-10 w-auto md:h-12" />
         </Link>
 
         {/* Desktop Links */}

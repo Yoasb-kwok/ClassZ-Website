@@ -123,3 +123,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Logo marquee animation for partners strip */
+.logo-marquee {
+  width: max-content;
+  animation: logo-marquee 22s linear infinite;
+}
+
+@keyframes logo-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-marquee {
+    animation: none;
+  }
+}

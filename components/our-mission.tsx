@@ -94,7 +94,7 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
             <div className="hidden md:flex items-center justify-center">
               <div className="rounded-[30px] overflow-hidden w-[493px] h-[463px]">
                 <img
-                  src="/family-looking-at-tablet.jpg"
+                  src="/WWE.png"
                   alt="Family learning together"
                   className="w-full h-full object-cover"
                 />

@@ -9,19 +9,17 @@ export default function OurMissionPage() {
       <Navbar />
 
       {/* Hero Header */}
-      <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden">
-        {/* Background Image */}
+      <section className="relative w-full h-[600px] md:h-[720px] overflow-hidden bg-black">
+        {/* Background Image - full width, accepts slight vertical crop */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url('/family-snow-winter-happy.jpg')",
-          }}
+          style={{ backgroundImage: "url('/headerOurMission.png')" }}
         />
 
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/40 md:bg-black/35" />
+        <div className="pointer-events-none absolute inset-0 bg-black/55 md:bg-black/45" />
 
-        {/* Content */}
+        {/* Content overlay */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4 md:mb-6 drop-shadow-lg">
@@ -44,32 +42,50 @@ export default function OurMissionPage() {
       </section>
 
       {/* Logo Cloud Section */}
-      <section className="bg-white py-8 md:py-12">
+      <section className="bg-white py-10 md:py-14">
         <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10">
-          <img
-            src="/logoClound.png"
-            alt="Funded by and Trusted by partners"
-            className="w-full h-auto object-contain"
-          />
+          <div className="relative w-full overflow-hidden">
+            <div className="logo-marquee flex items-center gap-6 md:gap-10 lg:gap-12 pr-6">
+              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">Funded by:</span>
+              <img src="/logo1.png" alt="Funded by Cyberport" className="h-14 md:h-16 lg:h-20 w-auto" />
+
+              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">Trusted by:</span>
+              <img src="/logo2.png" alt="Trusted partner 1" className="h-12 md:h-14 lg:h-16 w-auto" />
+              <img src="/logo3.png" alt="Trusted partner 2" className="h-12 md:h-14 lg:h-16 w-auto" />
+              <img src="/logo4.png" alt="Trusted partner 3" className="h-12 md:h-14 lg:h-16 w-auto" />
+              <img src="/logo5.png" alt="Trusted partner 4" className="h-12 md:h-14 lg:h-16 w-auto" />
+              <img src="/logo6.png" alt="Trusted partner 5" className="h-12 md:h-14 lg:h-16 w-auto" />
+
+              {/* duplicate sequence for seamless marquee */}
+              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap" aria-hidden="true">Funded by:</span>
+              <img src="/logo1.png" alt="Funded by Cyberport duplicate" className="h-14 md:h-16 lg:h-20 w-auto" aria-hidden="true" />
+
+              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap" aria-hidden="true">Trusted by:</span>
+              <img src="/logo2.png" alt="Trusted partner 1 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
+              <img src="/logo3.png" alt="Trusted partner 2 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
+              <img src="/logo4.png" alt="Trusted partner 3 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
+              <img src="/logo5.png" alt="Trusted partner 4 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
+              <img src="/logo6.png" alt="Trusted partner 5 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Collage & Store CTA */}
       <section className="bg-white py-12 md:py-16">
-        <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-            {/* Left Collage */}
-            <div className="grid grid-cols-2 gap-2 md:gap-4 rotate-[-5deg] w-full md:w-auto">
-              <img src="/kid-reading.jpg" alt="Reading" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-coding.jpg" alt="Coding" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-sports.jpg" alt="Sports" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-dancing.jpg" alt="Dancing" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-swimming.jpg" alt="Swimming" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/family-looking-at-tablet.jpg" alt="Family" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
+        <div className="w-full px-0">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-10">
+            {/* Left Image */}
+            <div className="w-full md:w-1/2 lg:w-[48%] self-start md:mr-auto">
+              <img
+                src="/m1.png"
+                alt="Discovery preview"
+                className="w-full h-[620px] md:h-[680px] lg:h-[720px] rounded-3xl object-cover"
+              />
             </div>
 
             {/* Center Content */}
-            <div className="text-center space-y-6 flex-shrink-0 px-4 w-full md:w-auto">
+            <div className="text-center space-y-6 flex-shrink-0 px-4 w-full md:w-auto md:max-w-sm lg:max-w-md">
               <div className="space-y-3">
                 <p className="text-2xl md:text-3xl font-semibold text-[#485A69]">From</p>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">Overwhelmed to Assured</h2>
@@ -100,14 +116,13 @@ export default function OurMissionPage() {
               </div>
             </div>
 
-            {/* Right Collage */}
-            <div className="grid grid-cols-2 gap-2 md:gap-4 rotate-[5deg] w-full md:w-auto">
-              <img src="/kid-music.jpg" alt="Music" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-painting.jpg" alt="Art" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/mother-hugging-child-happy.jpg" alt="Family hug" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-science.jpg" alt="Science" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-reading.jpg" alt="Reading again" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
-              <img src="/kid-coding.jpg" alt="Coding again" className="w-full h-28 md:h-44 lg:h-56 rounded-3xl object-cover" />
+            {/* Right Image */}
+            <div className="w-full md:w-1/2 lg:w-[48%] self-end md:ml-auto">
+              <img
+                src="/m2.png"
+                alt="Booking preview"
+                className="w-full h-[620px] md:h-[680px] lg:h-[720px] rounded-3xl object-cover"
+              />
             </div>
           </div>
         </div>
