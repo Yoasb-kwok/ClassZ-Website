@@ -1,0 +1,658 @@
+{
+    "ourMission": "Our Mission",
+    "ourFeatures": "Our Features",
+    "partnership": "Partnership",
+    "contactUs": "Contact Us",
+    "faqs": "FAQs",
+    "login": "Log in",
+    "getStarted": "Get Started",
+    "language": "Language",
+    "english": "English",
+    "chinese": "繁體中文",
+    "exploreMore": "Explore More",
+    "mission": {
+        "hero": {
+            "title1": "Unlock Your Child's",
+            "title2": "Full Potential.",
+            "subtitle": "Browse, book, and track your child's learning — all in one trusted platform."
+        },
+        "marquee": {
+            "fundedBy": "Funded by:",
+            "trustedBy": "Trusted by:"
+        },
+        "collage": {
+            "from": "From",
+            "title": "Overwhelmed to Assured"
+        },
+        "discovery": {
+            "badge": "Personalized Discovery",
+            "title": "Discover Your Child's Strengths with Confidence",
+            "description": "Find classes tailored to your child's needs, track real progress, and connect with trusted educators — all in one place.",
+            "bullet1": "Browse curated classes by age, interest & location",
+            "bullet2": "Read verified reviews from other parents",
+            "bullet3": "Connect with trusted educators directly"
+        },
+        "booking": {
+            "badge": "Seamless Booking",
+            "title": "What If Learning Felt Effortless?",
+            "description": "Book classes in seconds, receive meaningful updates, and see your child thrive — without the overwhelm.",
+            "bullet1": "Instant booking with real-time availability",
+            "bullet2": "Secure payment processing",
+            "bullet3": "Automatic confirmations & reminders"
+        },
+        "progress": {
+            "badge": "Record Progress",
+            "title": "Make Every Day Count",
+            "description": "Stay connected with your child's learning journey through daily updates, photos, and meaningful milestones.",
+            "bullet1": "Daily updates and photos from class",
+            "bullet2": "Track milestones and achievements",
+            "bullet3": "Direct messaging with educators"
+        },
+        "steps": {
+            "badge": "Simple 3-Step Process",
+            "title": "A New Standard in Learning",
+            "description": "See how ClassZ transforms the way families and educators connect."
+        },
+        "why": {
+            "title": "Every class is a step in their story.",
+            "subtitle": "Why families choose ClassZ?",
+            "item1": {
+                "title": "Targeted Learning",
+                "description": "Identify what works best for your child and invest in the classes that nurture their strengths."
+            },
+            "item2": {
+                "title": "Inclusive Community",
+                "description": "Discover SEN-friendly, nurturing environments for every child."
+            },
+            "item3": {
+                "title": "Holistic Support",
+                "description": "Workshops, assessments, and activities that grow with your family."
+            }
+        },
+        "cta": {
+            "badge": "Transform Learning Together",
+            "title": "Ready to Transform Your Child's Learning?",
+            "description": "Join the elite families discovering better ways to learn and grow together.",
+            "primary": "Get Started Today",
+            "secondary": "Learn More",
+            "point1": "Quality-Verified Centres",
+            "point2": "More Centres Added Monthly",
+            "point3": "Trusted by Parents"
+        }
+    },
+    "ourMissionComp": {
+        "hero": {
+            "title1": "Shaping Futures,",
+            "title2": "One Child at a Time."
+        },
+        "text": {
+            "title": "Our Mission",
+            "p1": "At ClassZ, we believe every child deserves a learning journey that's meaningful — not just busy.",
+            "p2": "Parents shouldn't have to guess whether their time, money, and care are truly helping their child grow. Our mission is to build an inclusive education ecosystem where parents, children, and education centres grow together through trust, transparency, and meaningful support."
+        },
+        "exist": {
+            "title": "Why We Exist",
+            "subtitle": "Because wanting the best for your child shouldn't feel overwhelming:",
+            "b1": "Countless class options, but no way to know what truly works",
+            "b2": "Reports that stop at attendance — not actual progress or development",
+            "b3": "SEN-friendly learning environments are hard to find",
+            "b4": "Smaller quality centres struggle to be seen, valued, or trusted"
+        },
+        "commit": {
+            "badge": "Our Commitment to You",
+            "title": "Nurturing Growth, Building Trust",
+            "desc": "We're here to support your family's learning journey with care, transparency, and purpose.",
+            "card1": {
+                "title": "Track real growth",
+                "desc": "Performance feedback that shows true development, not just check-ins"
+            },
+            "card2": {
+                "title": "SEN support",
+                "desc": "Filters that highlight safe, inclusive learning spaces"
+            },
+            "card3": {
+                "title": "Book in few clicks",
+                "desc": "No forms, no hassle, no confusion"
+            },
+            "card4": {
+                "title": "Flexible payment options",
+                "desc": "Bridging families and centres with smarter ways to pay"
+            },
+            "card5": {
+                "title": "Workshops & family activities",
+                "desc": "Empowering parents on their journey"
+            },
+            "card6": {
+                "title": "Support for centres",
+                "desc": "Free Learning Management System (LMS), digital exposure, and tools to grow with purpose"
+            }
+        }
+    },
+    "featuresPage": {
+        "hero": {
+            "title1": "Shaping Futures,",
+            "title2": "One Child at a Time."
+        }
+    },
+    "partnershipPage": {
+        "hero": {
+            "title": "ClassZ Partnership",
+            "subtitle": "Join a community of trusted educators transforming children’s learning journeys."
+        },
+        "intro": {
+            "title": "For Learning Centres & Educators",
+            "description": "Welcome to ClassZ — a unified platform where trusted centres, parents, and learners grow together through meaningful education. Here’s a simplified overview of how your centre can join and succeed on ClassZ."
+        },
+        "tabs": {
+            "overview": "Centre Overview",
+            "obligation": "Centre Obligation",
+            "join": "How to Join Us"
+        },
+        "overview": {
+            "title": "Centre Overview",
+            "subTitle": "Your Hub for Centre Management and Growth.",
+            "subDesc": "Grow opportunities with digital exposure, gain trusted relationships from parents.",
+            "card1": {
+                "title": "List Programs & Schedules",
+                "text": "Parents can discover and enroll in students directly to your programs."
+            },
+            "card2": {
+                "title": "Manage Bookings & Attendance",
+                "text": "Handle your admin work through a centralized platform."
+            },
+            "card3": {
+                "title": "Free CRM Access",
+                "text": "Manage scheduling, attendance, and class operations in one place."
+            },
+            "card4": {
+                "title": "Share Progress Feedback",
+                "text": "Provide student performance feedback through built-in tools."
+            },
+            "card5": {
+                "title": "Connect with Parents",
+                "text": "Reply to inquiries, arrange schedules, build rapport."
+            },
+            "card6": {
+                "title": "Gain Exposure",
+                "text": "Reach families via ClassZ community and boost visibility."
+            }
+        },
+        "obligation": {
+            "title": "Centre Obligation",
+            "subTitle": "Partnership Standards",
+            "subDesc": "To ensure trust and meaningful progress for every child, all centres must comply with ClassZ standards.",
+            "item1": {
+                "badge": "Essential requirement",
+                "title": "Mandatory After-Class Reporting",
+                "description": "For every student who attends a lesson, centres must submit:",
+                "b1": "A class photo of the student during the session",
+                "b2": "Performance feedback via ClassZ's in-app feedback system",
+                "b3": "Complete and submit reporting consistently after each class"
+            },
+            "item2": {
+                "badge": "Quality Standards",
+                "title": "Commitment to Quality & Inclusion",
+                "description": "",
+                "b1": "Provide accurate information on courses, coaches, and qualifications",
+                "b2": "Ensure a safe, professional, and preferably SEN-inclusive learning environment",
+                "b3": "Maintain timely communication with parents and ClassZ team support"
+            },
+            "item3": {
+                "badge": "System Guidelines",
+                "title": "Use ClassZ Systems Responsibly",
+                "description": "",
+                "b1": "Payments and enrollments must be completed through ClassZ to remain valid and protected.",
+                "b2": "Accept and follow ClassZ's Terms of Service and Data Privacy Policy",
+                "b3": "Protect learner data and keep information accurate"
+            }
+        },
+        "priorities": {
+            "p1": {
+                "title": "Priority Consideration",
+                "text": "Priority onboarding for children-oriented programs under 14."
+            },
+            "p2": {
+                "title": "Priority Listing",
+                "text": "Child-oriented programs for ages under 14 listed prominently on our platform."
+            },
+            "p3": {
+                "title": "Quality Screening",
+                "text": "All centres are carefully screened to ensure they meet our quality standards."
+            }
+        },
+        "join": {
+            "title": "How to Join Us",
+            "subTitle": "ClassZ Centre Onboarding Guide",
+            "subDesc": "Choose one option to start onboarding.",
+            "option1": {
+                "title": "Option 1",
+                "desc": "Create a centre via ClassZ App",
+                "s1": "Download the ClassZ mobile app",
+                "s2": "Register an Owner Account",
+                "s3": "Complete the account setup",
+                "s4": "Tap “Create a Centre Profile” and complete centre information"
+            },
+            "option2": {
+                "title": "Option 2",
+                "desc": "Submit a Centre Request below:",
+                "f1": "Full name (Centre owner)",
+                "f2": "Full name of the centre",
+                "f3": "Email",
+                "f4": "Contact phone number (WhatsApp available)",
+                "linkPlaceholder": "Webpage link - e.g. Instagram/Facebook/Website (Optional)",
+                "statusLabel": "Centre status",
+                "status1": "Registered Company (with BR/CR)",
+                "status2": "Individual Educator (with BR/CR)",
+                "interestTitle": "Interest in ClassZ",
+                "interest": {
+                    "i1": "Free Learning Management System (LMS)",
+                    "i2": "Extra recruitment streamline",
+                    "i3": "Workshop and event opportunity",
+                    "i4": "Systematic administrative system (roles of Owner/Manager/Coach)",
+                    "i5": "In-build Performance Feedback System",
+                    "i6": "Promotion or exposure",
+                    "i7": "Customer engagement"
+                },
+                "hearTitle": "How did you hear about us?",
+                "hear": {
+                    "h1": "Social media (e.g. Threads, Instagram)",
+                    "h2": "Newspaper or magazine",
+                    "h3": "Search engine (e.g. Google, Bing)",
+                    "h4": "Event",
+                    "h5": "Online ads",
+                    "h6": "Word of mouth (e.g. friend or customer)",
+                    "h7": "Blogs or articles"
+                },
+                "submit": "Submit",
+                "note": "Our team will review your submission and contact you for verification within 3-5 business days."
+            }
+        },
+        "cta": {
+            "title": "Ready to Join ClassZ?",
+            "desc": "Discover how your centre can get listed, reach more families, and start managing classes with ease.",
+            "linkOverview": "Centre Overview",
+            "linkJoin": "How To Join Us"
+        }
+    },
+    "contactPage": {
+        "hero": {
+            "title": "Contact Us"
+        },
+        "intro": {
+            "title": "We’re here to help",
+            "subtitle": "— whether you’re a parent, educator, or partner.",
+            "description": "If you have questions, feedback, or need assistance, simply fill out the form here. Our team will review your request and get back to you via email within a few working days."
+        },
+        "form": {
+            "name": {
+                "label": "Name",
+                "placeholder": "Jane Smith"
+            },
+            "email": {
+                "label": "Email",
+                "placeholder": "janesmith@classz.com"
+            },
+            "category": {
+                "label": "Category",
+                "placeholder": "Select a category",
+                "optionGeneral": "General",
+                "optionPartnership": "Partnership",
+                "optionSupport": "Support",
+                "optionFeedback": "Feedback"
+            },
+            "priority": {
+                "label": "Priority",
+                "placeholder": "Select a priority"
+            },
+            "description": {
+                "label": "Description",
+                "placeholder": "Please provide detail information about your issue"
+            },
+            "submit": "Submit"
+        },
+        "quick": {
+            "title": "Need Quick Help?",
+            "subtitle": "Before submitting, you may want to visit:",
+            "linkFaqs": "FAQs",
+            "linkFaqsDesc": "— find answers to common questions",
+            "linkCentres": "For Centres",
+            "linkCentresDesc": "— onboarding guide & resources"
+        }
+    },
+    "faqsPage": {
+        "hero": {
+            "title": "Frequently Asked Questions",
+            "subtitle": "Browse guides and answers for parents and centres."
+        },
+        "tabs": {
+            "description": "Browse popular questions from parents and centres. Tap a question to see the details.",
+            "parents": "Parents FAQs",
+            "centres": "Centres FAQs"
+        },
+        "collapseAll": "Collapse all",
+        "weatherSignal": "Weather Signal",
+        "arrangement": "Arrangement",
+        "needMoreHelp": {
+            "title": "Need More Help?",
+            "subtitle": "Can't find what you're looking for?",
+            "description": "Create a support ticket and we'll get back to you via email soon.",
+            "button": "Create Support Ticket"
+        },
+        "parents": {
+            "registerEnroll": {
+                "q": "How do I register and enrol my child in a class?",
+                "note": "Each enrolment is linked to a specific child profile, so make sure you select the right one before checkout."
+            },
+            "viewPerformance": {
+                "q": "How can I view my child's performance or progress?",
+                "a1": "These insights help you understand not just what your child learns, but how they learn best.",
+                "extraTitle": "Insights are divided into three parts:",
+                "extraBullets": [
+                    "Overall Analysis: see how your child performs across enrolled programs.",
+                    "Class Performance: view feedback from each centre for completed lessons.",
+                    "Character Analysis: After attending 10 or more classes, your child will receive a personalized character profile reflecting their learning style and strengths."
+                ]
+            },
+            "subscription": {
+                "q": "Do I need a subscription to use ClassZ?",
+                "a1": "A subscription is optional but offers extra benefits:",
+                "bullets": [
+                    "Enroll without platform fees",
+                    "Better pricing on selected classes and events",
+                    "Access to exclusive programs or events",
+                    "Priority customer support"
+                ],
+                "note": "You can still book classes and pay with credit cards without subscribing."
+            },
+            "zing": {
+                "q": "What is Zing and how does it work?",
+                "a1": "Zing is the credit used in ClassZ to pay for programs and events.",
+                "bullets": [
+                    "It never expires",
+                    "Works for both subscribers and non-subscribers",
+                    "Can be used even after unsubscribing"
+                ],
+                "note": "It's a flexible way to pay and save within the ClassZ ecosystem."
+            },
+            "refund": {
+                "q": "What happens if a class is cancelled or I need a refund? What if I couldn't attend a rearranged class?",
+                "a1": "We offer \"Protected Booking\" for parents. You are eligible for Zing refunds if:",
+                "a2": "However, to maintain fairness and quality:",
+                "bullets": [
+                    "The centre cancels the class",
+                    "Service provided is different from what was described",
+                    "Centre fails to provide performance feedback within 10 days (discount compensation applies)",
+                    "Fraud or misconduct occurs",
+                    "Rearranged classes that you were unable to attend"
+                ],
+                "bulletsSecondary": [
+                    "No refund, replacement class, or feedback will be provided if your child is absent without valid reason",
+                    "All refunds are issued in Zing at the best-value exchange rate",
+                    "To request a refund, please [create a support ticket] anytime before the class starts and up to 48 hours after the rearranged class ends.",
+                    "Requests made beyond this period will be considered unattended and not eligible for refund."
+                ]
+            },
+            "badWeather": {
+                "q": "What happens during bad weather (typhoons, heavy rain)?",
+                "weatherRows": [
+                    {
+                        "signal": "Amber Rain / Typhoon Signal No.1",
+                        "arrangement": "Class continues as normal"
+                    },
+                    {
+                        "signal": "Red Rain / Typhoon Signal No.3",
+                        "arrangement": "Centre may choose to continue, cancel, or reschedule"
+                    },
+                    {
+                        "signal": "Black Rain / Signal No.8 or above / Extreme Weather Warning",
+                        "arrangement": "Classes must be cancelled or rescheduled"
+                    }
+                ],
+                "weatherNotes": [
+                    "Cancelled classes are refunded via Zing.",
+                    "If the rearranged time doesn't work for you, please [create a support ticket] anytime before the class starts and up to 48 hours after the rearranged class ends to arrange a refund.",
+                    "Requests made after this period will be considered unattended and not eligible for refund."
+                ]
+            },
+            "sen": {
+                "q": "Do centres support SEN (Special Educational Needs) students?",
+                "a1": "Centres with an SEN tag on their profile welcome students with special educational needs.",
+                "a2": "You can also check individual program details for SEN-friendly options.",
+                "a3": "During enrolment, you may provide your child's background or SEN requirements for the centre's reference.",
+                "bullets": [
+                    "SEN support is not guaranteed and varies depending on each centre's capability."
+                ]
+            },
+            "multipleChildren": {
+                "q": "Can I enroll multiple children under one account?",
+                "a1": "Yes.",
+                "bullets": [
+                    "Zing credits are shared across all children.",
+                    "All enrolments are final and non-refundable once payment is made."
+                ]
+            },
+            "classPhotos": {
+                "q": "Where can I see my child's class photos?",
+                "bullets": [
+                    "Photo uploads depend on each centre.",
+                    "Centres are encouraged to upload photos or work outcomes when appropriate and when allowed by venue rules (e.g. no photography in swimming pools)."
+                ]
+            },
+            "contactHelp": {
+                "q": "How can I contact a centre or get help?",
+                "a1": "If you experience any issues or wish to report a centre, please contact ClassZ support by [create a support ticket] or email.",
+                "a2": "Our team will respond as soon as possible."
+            }
+        },
+        "centres": {
+            "pricing": {
+                "q": "Pricing: does ClassZ charge centres?",
+                "a1": "Contact us via [How to Join Us] to confirm eligibility in your region.",
+                "bullets": [
+                    "Free to list and use our CRM for eligible centres.",
+                    "0% commission on bookings for eligible partners.",
+                    "ClassZ covers standard third-party payment processor fees—centres don't pay these."
+                ]
+            },
+            "payment": {
+                "q": "How do parents pay for classes? Are offline payments allowed?",
+                "a1": "All bookings and payments happen within ClassZ using integrated third-party payment methods (e.g., credit/debit cards).",
+                "a2": "Offline payments are not allowed and are not protected by ClassZ. Bypassing the platform may lead to account actions up to permanent removal.",
+                "bullets": [
+                    "This gives parents more ways to pay without centres paying any additional or third-party processing charges—ClassZ covers the standard processor fees for eligible centres."
+                ]
+            },
+            "mandatoryFeedback": {
+                "q": "Are lesson photos and performance feedback mandatory after every class? What if we don't submit?",
+                "a1": "Yes—mandatory for every attended lesson.",
+                "a2": "Submit one class photo and provide feedback via our built-in Student Performance Feedback system.",
+                "a3": "Repeated or serious misses may lead to fees, suspension, or permanent removal.",
+                "bullets": [
+                    "It's simplified and typically takes under a minute to complete while ensuring clear, consistent insights for parents with our system."
+                ]
+            },
+            "editSchedule": {
+                "q": "Can I edit or update class schedules after posting?",
+                "a1": "Yes—by request only. Edits require approval and follow strict fairness rules.",
+                "sections": {
+                    "howItWorks": {
+                        "title": "How it works:",
+                        "bullets": [
+                            "Open the corresponding class schedule in the app and submit an class schedule edit request (rearrangement).",
+                            "We'll review your request. Approval is rare and usually limited to emergencies or safety concerns.",
+                            "If approved, the system automatically moves all enrolled students to the updated timeslot and notifies families."
+                        ],
+                        "highlights": [
+                            "Approval is rare"
+                        ]
+                    },
+                    "fairnessRules": {
+                        "title": "Fairness rules & impact:",
+                        "bullets": [
+                            {
+                                "text": "If a class is rearranged (approved edit), any student who can't attend the new time may no-show without penalty.",
+                                "subBullet": "→ They receive a full refund for that session, and the centre will not receive payment for that student's session.",
+                                "highlights": [
+                                    "rearranged (approved edit)",
+                                    "full refund for that session"
+                                ]
+                            },
+                            {
+                                "text": "If an edit isn't approved, you must run the class as originally scheduled.",
+                                "subBullet": "→ If the class is not provided as scheduled, the session is treated as centre responsibility; all students receive a full refund for that session, and the incident is recorded and may lead to consequences.",
+                                "highlights": [
+                                    "isn't approved",
+                                    "full refund for that session"
+                                ]
+                            }
+                        ]
+                    },
+                    "noEnrollment": {
+                        "title": "Does not have enrollment yet? Create a new slot with the correct details. If the original slot has no enrollments, you may cancel it and re-release.",
+                        "bullets": [
+                            "Accuracy first: Please publish only final, confirmed details.",
+                            "No direct renegotiation: Messaging parents to change slot details is not allowed and may result in penalties if reported."
+                        ],
+                        "highlights": [
+                            "Accuracy first",
+                            "No direct renegotiation"
+                        ],
+                        "tealBullets": true
+                    }
+                },
+                "note": "For severe weather situations, follow the Bad-Weather Arrangement policy—the system handles those cases separately."
+            },
+            "registerCentre": {
+                "q": "How do I register my centre and get listed on ClassZ?",
+                "a1": "Start on [How to Join Us] and submit the short form.",
+                "bullets": [
+                    "We verify your details and program quality.",
+                    "Once approved, create branches, publish programs, and accept enrollments on ClassZ."
+                ]
+            },
+            "accountTypes": {
+                "q": "What's the difference between Owner, Manager, and Coach accounts?",
+                "a1": "Owner: full control—branches, programs, payouts, roles, compliance.",
+                "a2": "Manager: promoted from Coach by the Owner, can publish programs, manage schedules, and message.",
+                "a3": "Coach: runs classes—takes attendance, uploads lesson photos, submits feedback.",
+                "a4": "In each branch, you can have unlimited Coaches and Managers; but only one Owner.",
+                "a5": "See: [Centre Overview]"
+            },
+            "multipleBranches": {
+                "q": "Can one Owner manage multiple branches or locations?",
+                "a1": "Yes—an Owner can manage unlimited branches.",
+                "a2": "Each branch is reviewed before it appears to parents.",
+                "a3": "You can set a different venue per program schedule (e.g., pool, museum, sports ground) than your branch address—this keeps coaching locations flexible and accurate for parents."
+            },
+            "profileInfo": {
+                "q": "What information is required to set up my centre profile?",
+                "a1": "Basics: name, description, categories, SEN readiness, contact info, logo/photos.",
+                "a2": "Verification: Owner HKID (e.g., HKID for >25% ownership or equivalent), business/company details, and where permitted, background checks for child-facing roles.",
+                "a3": "Not sure what applies? Submit [How to Join Us]—we'll review and advise for free."
+            },
+            "badWeatherCentres": {
+                "q": "What is the bad-weather arrangement for centres?",
+                "a1": "During official bad-weather signals, your dashboard unlocks the action buttons so you can choose Continue / Cancel / Reschedule for affected sessions.",
+                "weatherRows": [
+                    {
+                        "signal": "Amber Rain / Typhoon Signal No.1",
+                        "arrangement": "Proceed as normal"
+                    },
+                    {
+                        "signal": "Red Rain / Typhoon Signal No.3",
+                        "arrangement": "You may choose to continue, cancel, or reschedule"
+                    },
+                    {
+                        "signal": "Black Rain / Signal No.8 or above / Extreme Weather Warning",
+                        "arrangement": "Cancel or reschedule (classes must not proceed)"
+                    }
+                ],
+                "classzBullets": [
+                    "Select Continue / Cancel / Reschedule in your dashboard; parents are notified automatically.",
+                    "Cancelled classes: parents receive a full refund.",
+                    "Rescheduled classes: If a parent cannot attend the new time, they can opt for a full refund for that session."
+                ],
+                "highlights": [
+                    {
+                        "text": "full refund",
+                        "inBullet": 1
+                    },
+                    {
+                        "text": "cannot attend the new time",
+                        "inBullet": 2
+                    },
+                    {
+                        "text": "full refund",
+                        "inBullet": 2
+                    }
+                ]
+            },
+            "goodFit": {
+                "q": "Is my centre a good fit for ClassZ?",
+                "bullets": [
+                    "Best fit: Small to medium-sized centres focused on quality, inclusivity (SEN-friendly), and transparent growth feedback, providing child-oriented program aged under 14.",
+                    "Benefits: free CRM, multi-branch management, direct enrolment, messaging, and parent trust through lesson photos + feedback."
+                ],
+                "a1": "See [ClassZ Partnership] for specific benefits and examples. If it resonates, apply via [How to Join Us] and we'll guide you through next steps."
+            },
+            "payouts": {
+                "q": "How do I make sure my payouts are released without penalties?",
+                "checklistTitle": "Follow this checklist:",
+                "checklistBullets": [
+                    {
+                        "text": "Publish final, accurate details (date, time, venue, price, capacity, and assigned coach).",
+                        "highlight": "Publish final, accurate details",
+                        "rest": " (date, time, venue, price, capacity, and assigned coach)."
+                    },
+                    {
+                        "text": "Don't edit schedules after publishing. If changes are needed, create a new slot.",
+                        "highlight": "Don't edit schedules",
+                        "rest": " after publishing. If changes are needed, create a new slot."
+                    },
+                    {
+                        "text": "No offline payments. All bookings and payments must go through ClassZ.",
+                        "highlight": "No offline payments.",
+                        "rest": " All bookings and payments must go through ClassZ."
+                    },
+                    {
+                        "text": "Submit attendance, one class photo, and performance feedback via the built-in system after each class (same day recommended).",
+                        "highlight": "Submit attendance, one class photo, and performance feedback via the built-in system",
+                        "rest": " after each class (same day recommended)."
+                    },
+                    {
+                        "text": "Follow platform policies (e.g., don't message parents to renegotiate slot details).",
+                        "highlight": "Follow platform policies",
+                        "rest": " (e.g., don't message parents to renegotiate slot details)."
+                    }
+                ],
+                "note": "Violations (missing feedback/photos, offline payments, schedule manipulation, or other T&C breaches) can lead to payout holds, fees, suspension, or removal."
+            }
+        }
+    },
+    "howItWorks": {
+        "title": "Experience the Journey",
+        "subtitle": "With moments in our growing community"
+    },
+    "joinUsCta": {
+        "title": "Join Us in Building the Future of Learning.",
+        "subtitle": "A learning-driven platform that empowers parents, children, and educators to thrive together.",
+        "primary": "Get Started Today",
+        "secondary": "Learn More",
+        "point1": "Quality-Verified Centres",
+        "point2": "More Centres Added Monthly",
+        "point3": "Trusted by Parents"
+    },
+    "footer": {
+        "company": "Company",
+        "whatWeDo": "What we do?",
+        "ourMission": "Our Missions",
+        "resources": "Resources",
+        "partnership": "Partnership",
+        "faqs": "FAQs",
+        "legal": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "follow": "Follow",
+        "copyright": "© 2025 ClassZ Limited. All rights reserved."
+    }
+}

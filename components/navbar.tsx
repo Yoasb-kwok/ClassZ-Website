@@ -3,12 +3,15 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, ChevronDown } from "lucide-react"
 import { useState } from "react"
+import { useLanguage } from "@/components/language-provider"
 
 export function Navbar() {
   const [open, setOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
   const pathname = usePathname()
+  const { locale, setLocale, t } = useLanguage()
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
 
   const linkClasses = (path: string) =>
@@ -25,29 +28,61 @@ export function Navbar() {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
           <Link href="/our-mission" className={linkClasses("/our-mission")}>
-            Our Mission
+            {t("ourMission")}
           </Link>
           <Link href="/our-features" className={linkClasses("/our-features")}>
-            Our Features
+            {t("ourFeatures")}
           </Link>
           <Link href="/partnership" className={linkClasses("/partnership")}>
-            Partnership
+            {t("partnership")}
           </Link>
           <Link href="/contact-us" className={linkClasses("/contact-us")}>
-            Contact Us
+            {t("contactUs")}
           </Link>
           <Link href="/faqs" className={linkClasses("/faqs")}>
-            FAQs
+            {t("faqs")}
           </Link>
-          <button className="hover:text-[#00C9B7] transition-colors">Eng/繁</button>
+          <div className="relative">
+            <button
+              className="flex items-center gap-1 hover:text-[#00C9B7] transition-colors"
+              onClick={() => setLangOpen((v) => !v)}
+            >
+              {locale === "en" ? t("english") : t("chinese")}
+              <ChevronDown className="w-4 h-4" />
+            </button>
+            {langOpen && (
+              <div className="absolute right-0 mt-2 w-32 rounded-md border border-slate-200 bg-white shadow-md">
+                <button
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50"
+                  onClick={() => {
+                    setLocale("en")
+                    setLangOpen(false)
+                  }}
+                >
+                  {t("english")}
+                </button>
+                <button
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50"
+                  onClick={() => {
+                    setLocale("zh-TW")
+                    setLangOpen(false)
+                  }}
+                >
+                  {t("chinese")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-4">
           <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7]">
-            Log in
+            {t("login")}
           </Link>
-          <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full px-6">Get Started</Button>
+          <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full px-6">
+            {t("getStarted")}
+          </Button>
         </div>
 
         {/* Mobile Menu */}
@@ -65,27 +100,46 @@ export function Navbar() {
         <div className="md:hidden bg-white/95 backdrop-blur border-t border-slate-100 shadow-sm">
           <div className="px-4 py-4 space-y-3 text-sm font-medium text-slate-700">
             <NavLinkMobile href="/our-mission" active={isActive("/our-mission")} onClick={() => setOpen(false)}>
-              Our Mission
+              {t("ourMission")}
             </NavLinkMobile>
             <NavLinkMobile href="/our-features" active={isActive("/our-features")} onClick={() => setOpen(false)}>
-              Our Features
+              {t("ourFeatures")}
             </NavLinkMobile>
             <NavLinkMobile href="/partnership" active={isActive("/partnership")} onClick={() => setOpen(false)}>
-              Partnership
+              {t("partnership")}
             </NavLinkMobile>
             <NavLinkMobile href="/contact-us" active={isActive("/contact-us")} onClick={() => setOpen(false)}>
-              Contact Us
+              {t("contactUs")}
             </NavLinkMobile>
             <NavLinkMobile href="/faqs" active={isActive("/faqs")} onClick={() => setOpen(false)}>
-              FAQs
+              {t("faqs")}
             </NavLinkMobile>
-            <button className="w-full text-left text-slate-700 hover:text-[#00C9B7] transition-colors">Eng/繁</button>
+            <div className="pt-2 flex gap-2">
+              <button
+                className={`flex-1 px-3 py-2 rounded-md border ${locale === "en" ? "border-[#00C9B7] text-[#00C9B7]" : "border-slate-200 text-slate-700"}`}
+                onClick={() => {
+                  setLocale("en")
+                  setOpen(false)
+                }}
+              >
+                {t("english")}
+              </button>
+              <button
+                className={`flex-1 px-3 py-2 rounded-md border ${locale === "zh-TW" ? "border-[#00C9B7] text-[#00C9B7]" : "border-slate-200 text-slate-700"}`}
+                onClick={() => {
+                  setLocale("zh-TW")
+                  setOpen(false)
+                }}
+              >
+                {t("chinese")}
+              </button>
+            </div>
             <div className="pt-2 flex flex-col gap-2">
               <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7]" onClick={() => setOpen(false)}>
-                Log in
+                {t("login")}
               </Link>
               <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full w-full" onClick={() => setOpen(false)}>
-                Get Started
+                {t("getStarted")}
               </Button>
             </div>
           </div>

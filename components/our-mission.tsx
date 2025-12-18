@@ -1,10 +1,15 @@
+"use client"
+
 import { Heart, TrendingUp, Users, Building2, Calendar, CreditCard } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 interface OurMissionProps {
   hideHeader?: boolean
 }
 
 export function OurMission({ hideHeader = false }: OurMissionProps) {
+  const { t } = useLanguage()
+
   return (
     <section id="our-mission" className="relative bg-black">
       {/* Hero Image Section */}
@@ -19,9 +24,9 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
           />
           <div className="relative z-10 w-full px-4 md:px-[251px] text-center">
             <h2 className="text-4xl md:text-5xl lg:text-[50px] font-medium text-white leading-[1.1] tracking-[-0.05em] drop-shadow-[0_0_30px_rgba(0,0,0,0.4)]">
-              Shaping Futures,
+              {t("ourMissionComp.hero.title1")}
               <br />
-              One Child at a Time.
+              {t("ourMissionComp.hero.title2")}
             </h2>
           </div>
         </div>
@@ -32,13 +37,13 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
         <div className="container mx-auto px-4 md:px-8 lg:px-20 xl:px-[100px] py-[60px]">
           <div className="flex flex-col items-start gap-[50px]">
             <h3 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em]">
-              Our Mission
+              {t("ourMissionComp.text.title")}
             </h3>
             <p className="text-base font-medium text-[#292929] leading-[1.4] tracking-[-0.005em]">
-              At ClassZ, we believe every child deserves a learning journey that's meaningful — not just busy.
+              {t("ourMissionComp.text.p1")}
             </p>
             <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
-              Parents shouldn't have to guess whether their time, money, and care are truly helping their child grow. Our mission is to build an inclusive education ecosystem where parents, children, and education centres grow together through trust, transparency, and meaningful support.
+              {t("ourMissionComp.text.p2")}
             </p>
           </div>
         </div>
@@ -53,10 +58,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
               <div className="flex flex-col gap-10">
                 <div className="flex flex-col gap-10 pr-20">
                   <h3 className="text-3xl md:text-4xl font-medium text-black leading-[0.9] tracking-[-0.03em]">
-                    Why We Exist
+                    {t("ourMissionComp.exist.title")}
                   </h3>
                   <p className="text-base font-medium text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
-                    Because wanting the best for your child shouldn't feel overwhelming:
+                    {t("ourMissionComp.exist.subtitle")}
                   </p>
                 </div>
 
@@ -65,25 +70,25 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
                     <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">01</span>
                     <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
-                      Countless class options, but no way to know what truly works
+                      {t("ourMissionComp.exist.b1")}
                     </p>
                   </div>
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
                     <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">02</span>
                     <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
-                      Reports that stop at attendance — not actual progress or development
+                      {t("ourMissionComp.exist.b2")}
                     </p>
                   </div>
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
                     <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">03</span>
                     <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
-                      SEN-friendly learning environments are hard to find
+                      {t("ourMissionComp.exist.b3")}
                     </p>
                   </div>
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
                     <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">04</span>
                     <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
-                      Smaller quality centres struggle to be seen, valued, or trusted
+                      {t("ourMissionComp.exist.b4")}
                     </p>
                   </div>
                 </div>
@@ -117,15 +122,15 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
             <div className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-[rgba(10,186,181,0.2)] bg-white">
               <Heart className="w-[18px] h-[18px] text-[#0ABAB5]" />
               <span className="text-sm font-normal text-[#0ABAB5] leading-[1.43] tracking-[0.014em] uppercase">
-                Our Commitment to You
+                {t("ourMissionComp.commit.badge")}
               </span>
             </div>
 
             <h3 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em] text-center">
-              Nurturing Growth, Building Trust
+              {t("ourMissionComp.commit.title")}
             </h3>
             <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] text-center max-w-2xl">
-              We're here to support your family's learning journey with care, transparency, and purpose.
+              {t("ourMissionComp.commit.desc")}
             </p>
           </div>
 
@@ -138,10 +143,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Track real growth
+                  {t("ourMissionComp.commit.card1.title")}
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Performance feedback that shows true development, not just check-ins
+                  {t("ourMissionComp.commit.card1.desc")}
                 </p>
               </div>
             </div>
@@ -153,10 +158,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  SEN support
+                  {t("ourMissionComp.commit.card2.title")}
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Filters that highlight safe, inclusive learning spaces
+                  {t("ourMissionComp.commit.card2.desc")}
                 </p>
               </div>
             </div>
@@ -168,10 +173,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <Users className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Book in few clicks
+                  {t("ourMissionComp.commit.card3.title")}
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  No forms, no hassle, no confusion
+                  {t("ourMissionComp.commit.card3.desc")}
                 </p>
               </div>
             </div>
@@ -183,10 +188,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Flexible payment options
+                  {t("ourMissionComp.commit.card4.title")}
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Bridging families and centres with smarter ways to pay
+                  {t("ourMissionComp.commit.card4.desc")}
                 </p>
               </div>
             </div>
@@ -198,10 +203,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <Calendar className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Workshops & family activities
+                  {t("ourMissionComp.commit.card5.title")}
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Empowering parents on their journey
+                  {t("ourMissionComp.commit.card5.desc")}
                 </p>
               </div>
             </div>
@@ -213,10 +218,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <CreditCard className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
-                  Support for centres
+                  {t("ourMissionComp.commit.card6.title")}
                 </h4>
                 <p className="text-base font-normal text-[#737373] leading-[1.6] tracking-[-0.02em] pr-12 flex-1">
-                  Free Learning Management System (LMS), digital exposure, and tools to grow with purpose
+                  {t("ourMissionComp.commit.card6.desc")}
                 </p>
               </div>
             </div>

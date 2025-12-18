@@ -6,347 +6,369 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { ChevronDown } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
-const tabs = [
-  { id: "parents", label: "Parents FAQs" },
-  { id: "centres", label: "Centres FAQs" },
+type TranslateFunction = (key: string) => string
+
+const getTabs = (t: TranslateFunction) => [
+  { id: "parents", label: t("faqsPage.tabs.parents") },
+  { id: "centres", label: t("faqsPage.tabs.centres") },
 ]
 
-const parentsFaqs = [
+const getParentsFaqs = (t: TranslateFunction) => [
   {
-    q: "How do I register and enrol my child in a class?",
+    id: "registerEnroll",
+    q: t("faqsPage.parents.registerEnroll.q"),
     a: [],
     steps: [
       { image: "/Q1_1.png" },
-      {
-
-        image: "/Q1_2.png",
-      },
-      {
-
-        image: "/Q1_3.png",
-      },
+      { image: "/Q1_2.png" },
+      { image: "/Q1_3.png" },
       { title: "", desc: "", image: "/Q1_4.png" },
     ],
+    note: t("faqsPage.parents.registerEnroll.note"),
   },
   {
-    q: "How can I view my child’s performance or progress?",
-    a: [
-      "These insights help you understand not just what your child learns, but how they learn best.",
-    ],
+    id: "viewPerformance",
+    q: t("faqsPage.parents.viewPerformance.q"),
+    a: [t("faqsPage.parents.viewPerformance.a1")],
     steps: [
       { image: "/Q2_1.png" },
       { title: "", desc: "", image: "/Q2_2.png" },
     ],
-    extraTitle: "Insights are divided into three parts:",
+    extraTitle: t("faqsPage.parents.viewPerformance.extraTitle"),
     extraBullets: [
-      "Overall Analysis: see how your child performs across enrolled programs.",
-      "Class Performance: view feedback from each centre for completed lessons.",
-      "Character Analysis: After attending 10 or more classes, your child will receive a personalized character profile reflecting their learning style and strengths.",
+      t("faqsPage.parents.viewPerformance.extraBullets.0"),
+      t("faqsPage.parents.viewPerformance.extraBullets.1"),
+      t("faqsPage.parents.viewPerformance.extraBullets.2"),
     ],
   },
   {
-    q: "Do I need a subscription to use ClassZ?",
-    a: [
-      "A subscription is optional but offers extra benefits:",
-    ],
+    id: "subscription",
+    q: t("faqsPage.parents.subscription.q"),
+    a: [t("faqsPage.parents.subscription.a1")],
     bullets: [
-      "Enroll without platform fees",
-      "Better pricing on selected classes and events",
-      "Access to exclusive programs or events",
-      "Priority customer support",
+      t("faqsPage.parents.subscription.bullets.0"),
+      t("faqsPage.parents.subscription.bullets.1"),
+      t("faqsPage.parents.subscription.bullets.2"),
+      t("faqsPage.parents.subscription.bullets.3"),
     ],
-    note: "You can still book classes and pay with credit cards without subscribing.",
+    note: t("faqsPage.parents.subscription.note"),
     intro: "",
   },
   {
-    q: "What is Zing and how does it work?",
-    a: [
-      "Zing is the credit used in ClassZ to pay for programs and events.",
+    id: "zing",
+    q: t("faqsPage.parents.zing.q"),
+    a: [t("faqsPage.parents.zing.a1")],
+    bullets: [
+      t("faqsPage.parents.zing.bullets.0"),
+      t("faqsPage.parents.zing.bullets.1"),
+      t("faqsPage.parents.zing.bullets.2"),
     ],
-
-
-    bullets: ["It never expires",
-      "Works for both subscribers and non-subscribers",
-      "Can be used even after unsubscribing",],
-    note: "It’s a flexible way to pay and save within the ClassZ ecosystem.",
+    note: t("faqsPage.parents.zing.note"),
     intro: "",
   },
   {
-    q: "What happens if a class is cancelled or I need a refund? What if I couldn’t attend a rearranged class?",
+    id: "refund",
+    q: t("faqsPage.parents.refund.q"),
     a: [
-      "We offer “Protected Booking” for parents. You are eligible for Zing refunds if:",
-      "However, to maintain fairness and quality:",
+      t("faqsPage.parents.refund.a1"),
+      t("faqsPage.parents.refund.a2"),
     ],
     bullets: [
-      "The centre cancels the class",
-      "Service provided is different from what was described",
-      "Centre fails to provide performance feedback within 10 days (discount compensation applies)",
-      "Fraud or misconduct occurs",
-      "Rearranged classes that you were unable to attend",
+      t("faqsPage.parents.refund.bullets.0"),
+      t("faqsPage.parents.refund.bullets.1"),
+      t("faqsPage.parents.refund.bullets.2"),
+      t("faqsPage.parents.refund.bullets.3"),
+      t("faqsPage.parents.refund.bullets.4"),
     ],
     bulletsSecondary: [
-      "No refund, replacement class, or feedback will be provided if your child is absent without valid reason",
-      "All refunds are issued in Zing at the best-value exchange rate",
-      "To request a refund, please [create a support ticket] anytime before the class starts and up to 48 hours after the rearranged class ends.",
-      "Requests made beyond this period will be considered unattended and not eligible for refund.",
+      t("faqsPage.parents.refund.bulletsSecondary.0"),
+      t("faqsPage.parents.refund.bulletsSecondary.1"),
+      t("faqsPage.parents.refund.bulletsSecondary.2"),
+      t("faqsPage.parents.refund.bulletsSecondary.3"),
     ],
     intro: "",
   },
   {
-    q: "What happens during bad weather (typhoons, heavy rain)?",
+    id: "badWeather",
+    q: t("faqsPage.parents.badWeather.q"),
     a: [],
     weatherRows: [
-      { signal: "Amber Rain / Typhoon Signal No.1", arrangement: "Class continues as normal" },
-      { signal: "Red Rain / Typhoon Signal No.3", arrangement: "Centre may choose to continue, cancel, or reschedule" },
       {
-        signal: "Black Rain / Signal No.8 or above / Extreme Weather Warning",
-        arrangement: "Classes must be cancelled or rescheduled",
+        signal: t("faqsPage.parents.badWeather.weatherRows.0.signal"),
+        arrangement: t("faqsPage.parents.badWeather.weatherRows.0.arrangement"),
+      },
+      {
+        signal: t("faqsPage.parents.badWeather.weatherRows.1.signal"),
+        arrangement: t("faqsPage.parents.badWeather.weatherRows.1.arrangement"),
+      },
+      {
+        signal: t("faqsPage.parents.badWeather.weatherRows.2.signal"),
+        arrangement: t("faqsPage.parents.badWeather.weatherRows.2.arrangement"),
       },
     ],
     weatherNotes: [
-      "Cancelled classes are refunded via Zing.",
-      "If the rearranged time doesn’t work for you, please [create a support ticket] anytime before the class starts and up to 48 hours after the rearranged class ends to arrange a refund.",
-      "Requests made after this period will be considered unattended and not eligible for refund.",
+      t("faqsPage.parents.badWeather.weatherNotes.0"),
+      t("faqsPage.parents.badWeather.weatherNotes.1"),
+      t("faqsPage.parents.badWeather.weatherNotes.2"),
     ],
     intro: "",
   },
   {
-    q: "Do centres support SEN (Special Educational Needs) students?",
+    id: "sen",
+    q: t("faqsPage.parents.sen.q"),
     a: [
-      "Centres with an SEN tag on their profile welcome students with special educational needs.",
-      "You can also check individual program details for SEN-friendly options.",
-      "During enrolment, you may provide your child’s background or SEN requirements for the centre’s reference.",
+      t("faqsPage.parents.sen.a1"),
+      t("faqsPage.parents.sen.a2"),
+      t("faqsPage.parents.sen.a3"),
     ],
     senImage: "/q7.png",
-    bullets: ["SEN support is not guaranteed and varies depending on each centre’s capability."],
+    bullets: [t("faqsPage.parents.sen.bullets.0")],
     intro: "",
   },
   {
-    q: "Can I enroll multiple children under one account?",
-    a: [
-      "Yes.",
-    ],
+    id: "multipleChildren",
+    q: t("faqsPage.parents.multipleChildren.q"),
+    a: [t("faqsPage.parents.multipleChildren.a1")],
     gallery: ["/Q81.png", "/Q82.png"],
     bullets: [
-      "Zing credits are shared across all children.",
-      "All enrolments are final and non-refundable once payment is made.",
+      t("faqsPage.parents.multipleChildren.bullets.0"),
+      t("faqsPage.parents.multipleChildren.bullets.1"),
     ],
     intro: "",
   },
   {
-    q: "Where can I see my child’s class photos?",
-    a: [
-    ],
+    id: "classPhotos",
+    q: t("faqsPage.parents.classPhotos.q"),
+    a: [],
     gallery: ["/Q91.png", "/Q92.png"],
     bullets: [
-      "Photo uploads depend on each centre.",
-      "Centres are encouraged to upload photos or work outcomes when appropriate and when allowed by venue rules (e.g. no photography in swimming pools).",
+      t("faqsPage.parents.classPhotos.bullets.0"),
+      t("faqsPage.parents.classPhotos.bullets.1"),
     ],
     intro: "",
   },
   {
-    q: "How can I contact a centre or get help?",
+    id: "contactHelp",
+    q: t("faqsPage.parents.contactHelp.q"),
     a: [
-      "If you experience any issues or wish to report a centre, please contact ClassZ support by [create a support ticket] or email.",
-      "Our team will respond as soon as possible.",
+      t("faqsPage.parents.contactHelp.a1"),
+      t("faqsPage.parents.contactHelp.a2"),
     ],
     gallery: ["/Q10.png"],
     bullets: [],
     intro: "",
-    note: " ", // prevent default enrolment note
+    note: " ",
   },
-
 ]
 
-const centresFaqs = [
+const getCentresFaqs = (t: TranslateFunction) => [
   {
-    q: "Pricing: does ClassZ charge centres?",
-    a: ["Contact us via [How to Join Us] to confirm eligibility in your region."],
+    id: "pricing",
+    q: t("faqsPage.centres.pricing.q"),
+    a: [t("faqsPage.centres.pricing.a1")],
     bullets: [
-      "Free to list and use our CRM for eligible centres.",
-      "0% commission on bookings for eligible partners.",
-      "ClassZ covers standard third-party payment processor fees—centres don't pay these.",
+      t("faqsPage.centres.pricing.bullets.0"),
+      t("faqsPage.centres.pricing.bullets.1"),
+      t("faqsPage.centres.pricing.bullets.2"),
     ],
   },
   {
-    q: "How do parents pay for classes? Are offline payments allowed?",
+    id: "payment",
+    q: t("faqsPage.centres.payment.q"),
     a: [
-      "All bookings and payments happen within ClassZ using integrated third-party payment methods (e.g., credit/debit cards).",
-      "Offline payments are not allowed and are not protected by ClassZ. Bypassing the platform may lead to account actions up to permanent removal.",
+      t("faqsPage.centres.payment.a1"),
+      t("faqsPage.centres.payment.a2"),
     ],
     bullets: [
-      "This gives parents more ways to pay without centres paying any additional or third-party processing charges—ClassZ covers the standard processor fees for eligible centres.",
+      t("faqsPage.centres.payment.bullets.0"),
     ],
   },
   {
-    q: "Are lesson photos and performance feedback mandatory after every class? What if we don't submit?",
+    id: "mandatoryFeedback",
+    q: t("faqsPage.centres.mandatoryFeedback.q"),
     a: [
-      "Yes—mandatory for every attended lesson.",
-      "Submit one class photo and provide feedback via our built-in Student Performance Feedback system.",
-      "Repeated or serious misses may lead to fees, suspension, or permanent removal.",
+      t("faqsPage.centres.mandatoryFeedback.a1"),
+      t("faqsPage.centres.mandatoryFeedback.a2"),
+      t("faqsPage.centres.mandatoryFeedback.a3"),
     ],
     bullets: [
-      "It's simplified and typically takes under a minute to complete while ensuring clear, consistent insights for parents with our system.",
+      t("faqsPage.centres.mandatoryFeedback.bullets.0"),
     ],
   },
   {
-    q: "Can I edit or update class schedules after posting?",
-    a: [
-      "Yes—by request only. Edits require approval and follow strict fairness rules.",
-    ],
+    id: "editSchedule",
+    q: t("faqsPage.centres.editSchedule.q"),
+    a: [t("faqsPage.centres.editSchedule.a1")],
     sections: [
       {
-        title: "How it works:",
+        title: t("faqsPage.centres.editSchedule.sections.howItWorks.title"),
         bullets: [
-          "Open the corresponding class schedule in the app and submit an class schedule edit request (rearrangement).",
-          "We'll review your request. Approval is rare and usually limited to emergencies or safety concerns.",
-          "If approved, the system automatically moves all enrolled students to the updated timeslot and notifies families.",
+          t("faqsPage.centres.editSchedule.sections.howItWorks.bullets.0"),
+          t("faqsPage.centres.editSchedule.sections.howItWorks.bullets.1"),
+          t("faqsPage.centres.editSchedule.sections.howItWorks.bullets.2"),
         ],
         highlights: [
-          { text: "Approval is rare", inBullet: 1 },
+          { text: t("faqsPage.centres.editSchedule.sections.howItWorks.highlights.0"), inBullet: 1 },
         ],
       },
       {
-        title: "Fairness rules & impact:",
+        title: t("faqsPage.centres.editSchedule.sections.fairnessRules.title"),
         bullets: [
           {
-            text: "If a class is rearranged (approved edit), any student who can't attend the new time may no-show without penalty.",
-            subBullet: "→ They receive a full refund for that session, and the centre will not receive payment for that student's session.",
-            highlights: ["rearranged (approved edit)", "full refund for that session"],
+            text: t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.0.text"),
+            subBullet: t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.0.subBullet"),
+            highlights: [
+              t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.0.highlights.0"),
+              t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.0.highlights.1"),
+            ],
           },
           {
-            text: "If an edit isn't approved, you must run the class as originally scheduled.",
-            subBullet: "→ If the class is not provided as scheduled, the session is treated as centre responsibility; all students receive a full refund for that session, and the incident is recorded and may lead to consequences.",
-            highlights: ["isn't approved", "full refund for that session"],
+            text: t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.1.text"),
+            subBullet: t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.1.subBullet"),
+            highlights: [
+              t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.1.highlights.0"),
+              t("faqsPage.centres.editSchedule.sections.fairnessRules.bullets.1.highlights.1"),
+            ],
           },
         ],
       },
       {
-        title: "Does not have enrollment yet? Create a new slot with the correct details. If the original slot has no enrollments, you may cancel it and re-release.",
+        title: t("faqsPage.centres.editSchedule.sections.noEnrollment.title"),
         bullets: [
-          "Accuracy first: Please publish only final, confirmed details.",
-          "No direct renegotiation: Messaging parents to change slot details is not allowed and may result in penalties if reported.",
+          t("faqsPage.centres.editSchedule.sections.noEnrollment.bullets.0"),
+          t("faqsPage.centres.editSchedule.sections.noEnrollment.bullets.1"),
         ],
-        highlights: ["Accuracy first", "No direct renegotiation"],
+        highlights: [
+          t("faqsPage.centres.editSchedule.sections.noEnrollment.highlights.0"),
+          t("faqsPage.centres.editSchedule.sections.noEnrollment.highlights.1"),
+        ],
         tealBullets: true,
       },
     ],
-    note: "For severe weather situations, follow the Bad-Weather Arrangement policy—the system handles those cases separately.",
+    note: t("faqsPage.centres.editSchedule.note"),
   },
   {
-    q: "How do I register my centre and get listed on ClassZ?",
-    a: ["Start on [How to Join Us] and submit the short form."],
+    id: "registerCentre",
+    q: t("faqsPage.centres.registerCentre.q"),
+    a: [t("faqsPage.centres.registerCentre.a1")],
     bullets: [
-      "We verify your details and program quality.",
-      "Once approved, create branches, publish programs, and accept enrollments on ClassZ.",
+      t("faqsPage.centres.registerCentre.bullets.0"),
+      t("faqsPage.centres.registerCentre.bullets.1"),
     ],
   },
   {
-    q: "What's the difference between Owner, Manager, and Coach accounts?",
+    id: "accountTypes",
+    q: t("faqsPage.centres.accountTypes.q"),
     a: [
-      "Owner: full control—branches, programs, payouts, roles, compliance.",
-      "Manager: promoted from Coach by the Owner, can publish programs, manage schedules, and message.",
-      "Coach: runs classes—takes attendance, uploads lesson photos, submits feedback.",
-      "In each branch, you can have unlimited Coaches and Managers; but only one Owner.",
-      "See: [Centre Overview]",
+      t("faqsPage.centres.accountTypes.a1"),
+      t("faqsPage.centres.accountTypes.a2"),
+      t("faqsPage.centres.accountTypes.a3"),
+      t("faqsPage.centres.accountTypes.a4"),
+      t("faqsPage.centres.accountTypes.a5"),
     ],
   },
   {
-    q: "Can one Owner manage multiple branches or locations?",
+    id: "multipleBranches",
+    q: t("faqsPage.centres.multipleBranches.q"),
     a: [
-      "Yes—an Owner can manage unlimited branches.",
-      "Each branch is reviewed before it appears to parents.",
-      "You can set a different venue per program schedule (e.g., pool, museum, sports ground) than your branch address—this keeps coaching locations flexible and accurate for parents.",
+      t("faqsPage.centres.multipleBranches.a1"),
+      t("faqsPage.centres.multipleBranches.a2"),
+      t("faqsPage.centres.multipleBranches.a3"),
     ],
   },
   {
-    q: "What information is required to set up my centre profile?",
+    id: "profileInfo",
+    q: t("faqsPage.centres.profileInfo.q"),
     a: [
-      "Basics: name, description, categories, SEN readiness, contact info, logo/photos.",
-      "Verification: Owner HKID (e.g., HKID for >25% ownership or equivalent), business/company details, and where permitted, background checks for child-facing roles.",
-      "Not sure what applies? Submit [How to Join Us]—we'll review and advise for free.",
+      t("faqsPage.centres.profileInfo.a1"),
+      t("faqsPage.centres.profileInfo.a2"),
+      t("faqsPage.centres.profileInfo.a3"),
     ],
   },
   {
-    q: "What is the bad-weather arrangement for centres?",
-    a: [
-      "During official bad-weather signals, your dashboard unlocks the action buttons so you can choose Continue / Cancel / Reschedule for affected sessions.",
-    ],
+    id: "badWeatherCentres",
+    q: t("faqsPage.centres.badWeatherCentres.q"),
+    a: [t("faqsPage.centres.badWeatherCentres.a1")],
     weatherRows: [
       {
-        signal: "Amber Rain / Typhoon Signal No.1",
-        arrangement: "Proceed as normal",
+        signal: t("faqsPage.centres.badWeatherCentres.weatherRows.0.signal"),
+        arrangement: t("faqsPage.centres.badWeatherCentres.weatherRows.0.arrangement"),
       },
       {
-        signal: "Red Rain / Typhoon Signal No.3",
-        arrangement: "You may choose to continue, cancel, or reschedule",
+        signal: t("faqsPage.centres.badWeatherCentres.weatherRows.1.signal"),
+        arrangement: t("faqsPage.centres.badWeatherCentres.weatherRows.1.arrangement"),
       },
       {
-        signal: "Black Rain / Signal No.8 or above / Extreme Weather Warning",
-        arrangement: "Cancel or reschedule (classes must not proceed)",
+        signal: t("faqsPage.centres.badWeatherCentres.weatherRows.2.signal"),
+        arrangement: t("faqsPage.centres.badWeatherCentres.weatherRows.2.arrangement"),
       },
     ],
     classzBullets: [
-      "Select Continue / Cancel / Reschedule in your dashboard; parents are notified automatically.",
-      "Cancelled classes: parents receive a full refund.",
-      "Rescheduled classes: If a parent cannot attend the new time, they can opt for a full refund for that session.",
+      t("faqsPage.centres.badWeatherCentres.classzBullets.0"),
+      t("faqsPage.centres.badWeatherCentres.classzBullets.1"),
+      t("faqsPage.centres.badWeatherCentres.classzBullets.2"),
     ],
     highlights: [
-      { text: "full refund", inBullet: 1 },
-      { text: "cannot attend the new time", inBullet: 2 },
-      { text: "full refund", inBullet: 2 },
+      { text: t("faqsPage.centres.badWeatherCentres.highlights.0.text"), inBullet: 1 },
+      { text: t("faqsPage.centres.badWeatherCentres.highlights.1.text"), inBullet: 2 },
+      { text: t("faqsPage.centres.badWeatherCentres.highlights.2.text"), inBullet: 2 },
     ],
   },
   {
-    q: "Is my centre a good fit for ClassZ?",
+    id: "goodFit",
+    q: t("faqsPage.centres.goodFit.q"),
     bullets: [
-      "Best fit: Small to medium-sized centres focused on quality, inclusivity (SEN-friendly), and transparent growth feedback, providing child-oriented program aged under 14.",
-      "Benefits: free CRM, multi-branch management, direct enrolment, messaging, and parent trust through lesson photos + feedback.",
+      t("faqsPage.centres.goodFit.bullets.0"),
+      t("faqsPage.centres.goodFit.bullets.1"),
     ],
-    a: [
-      "See [ClassZ Partnership] for specific benefits and examples. If it resonates, apply via [How to Join Us] and we'll guide you through next steps.",
-    ],
+    a: [t("faqsPage.centres.goodFit.a1")],
   },
   {
-    q: "How do I make sure my payouts are released without penalties?",
-    checklistTitle: "Follow this checklist:",
+    id: "payouts",
+    q: t("faqsPage.centres.payouts.q"),
+    checklistTitle: t("faqsPage.centres.payouts.checklistTitle"),
     checklistBullets: [
       {
-        text: "Publish final, accurate details (date, time, venue, price, capacity, and assigned coach).",
-        highlight: "Publish final, accurate details",
-        rest: " (date, time, venue, price, capacity, and assigned coach).",
+        text: t("faqsPage.centres.payouts.checklistBullets.0.text"),
+        highlight: t("faqsPage.centres.payouts.checklistBullets.0.highlight"),
+        rest: t("faqsPage.centres.payouts.checklistBullets.0.rest"),
       },
       {
-        text: "Don't edit schedules after publishing. If changes are needed, create a new slot.",
-        highlight: "Don't edit schedules",
-        rest: " after publishing. If changes are needed, create a new slot.",
+        text: t("faqsPage.centres.payouts.checklistBullets.1.text"),
+        highlight: t("faqsPage.centres.payouts.checklistBullets.1.highlight"),
+        rest: t("faqsPage.centres.payouts.checklistBullets.1.rest"),
       },
       {
-        text: "No offline payments. All bookings and payments must go through ClassZ.",
-        highlight: "No offline payments.",
-        rest: " All bookings and payments must go through ClassZ.",
+        text: t("faqsPage.centres.payouts.checklistBullets.2.text"),
+        highlight: t("faqsPage.centres.payouts.checklistBullets.2.highlight"),
+        rest: t("faqsPage.centres.payouts.checklistBullets.2.rest"),
       },
       {
-        text: "Submit attendance, one class photo, and performance feedback via the built-in system after each class (same day recommended).",
-        highlight: "Submit attendance, one class photo, and performance feedback via the built-in system",
-        rest: " after each class (same day recommended).",
+        text: t("faqsPage.centres.payouts.checklistBullets.3.text"),
+        highlight: t("faqsPage.centres.payouts.checklistBullets.3.highlight"),
+        rest: t("faqsPage.centres.payouts.checklistBullets.3.rest"),
       },
       {
-        text: "Follow platform policies (e.g., don't message parents to renegotiate slot details).",
-        highlight: "Follow platform policies",
-        rest: " (e.g., don't message parents to renegotiate slot details).",
+        text: t("faqsPage.centres.payouts.checklistBullets.4.text"),
+        highlight: t("faqsPage.centres.payouts.checklistBullets.4.highlight"),
+        rest: t("faqsPage.centres.payouts.checklistBullets.4.rest"),
       },
     ],
-    note: "Violations (missing feedback/photos, offline payments, schedule manipulation, or other T&C breaches) can lead to payout holds, fees, suspension, or removal.",
+    note: t("faqsPage.centres.payouts.note"),
   },
 ]
 
 export default function FAQsPage() {
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<"parents" | "centres">("parents")
   const [openParent, setOpenParent] = useState<number | null>(null)
   const [openCentre, setOpenCentre] = useState<number | null>(null)
 
+  const tabs = getTabs(t)
+  const parentsFaqs = getParentsFaqs(t)
+  const centresFaqs = getCentresFaqs(t)
   const list = activeTab === "parents" ? parentsFaqs : centresFaqs
   const openIdx = activeTab === "parents" ? openParent : openCentre
   const setOpen = activeTab === "parents" ? setOpenParent : setOpenCentre
@@ -373,8 +395,8 @@ export default function FAQsPage() {
         <div className="absolute inset-0 bg-black/40 md:bg-black/35 pointer-events-none h-[280px] md:h-full" />
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none h-[280px] md:h-full">
           <div className="max-w-[1180px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center pointer-events-auto">
-            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 drop-shadow-lg">Frequently Asked Questions</h1>
-            <p className="text-white/90 text-sm sm:text-base md:text-xl drop-shadow">Browse guides and answers for parents and centres.</p>
+            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 drop-shadow-lg">{t("faqsPage.hero.title")}</h1>
+            <p className="text-white/90 text-sm sm:text-base md:text-xl drop-shadow">{t("faqsPage.hero.subtitle")}</p>
           </div>
         </div>
       </section>
@@ -383,7 +405,7 @@ export default function FAQsPage() {
       <section className="py-10 border-b border-[#E9E9E9] bg-[#F9FBFD]">
         <div className="max-w-[1080px] mx-auto px-6 md:px-10 space-y-4 text-center">
           <p className="text-sm text-[#485A69]">
-            Browse popular questions from parents and centres. Tap a question to see the details.
+            {t("faqsPage.tabs.description")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             {tabs.map((tab) => (
@@ -395,7 +417,7 @@ export default function FAQsPage() {
                   : "bg-white text-[#00A3A0] border-[#0ABAB5]"
                   } transition-colors shadow-sm`}
               >
-                {tab.label}
+                {tab.id === "parents" ? t("faqsPage.tabs.parents") : t("faqsPage.tabs.centres")}
               </button>
             ))}
           </div>
@@ -407,13 +429,13 @@ export default function FAQsPage() {
         <div className="max-w-[1080px] mx-auto px-6 md:px-10 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold text-[#111929]">
-              {activeTab === "parents" ? "Parents FAQs" : "Centres FAQs"}
+              {activeTab === "parents" ? t("faqsPage.tabs.parents") : t("faqsPage.tabs.centres")}
             </h2>
             <button
               onClick={collapseAll}
               className="text-xs font-medium text-[#00A3A0] hover:text-[#008f8a] underline decoration-dotted"
             >
-              Collapse all
+              {t("faqsPage.collapseAll")}
             </button>
           </div>
 
@@ -422,7 +444,7 @@ export default function FAQsPage() {
               {parentsFaqs.map((item, idx) => {
                 const open = openParent === idx
                 return (
-                  <div key={item.q} className="space-y-4 pb-6">
+                  <div key={item.id} className="space-y-4 pb-6">
                     <button
                       onClick={() => setOpenParent(open ? null : idx)}
                       className="w-full flex items-start justify-between gap-4 text-left"
@@ -440,8 +462,8 @@ export default function FAQsPage() {
                         {item.weatherRows && (
                           <div className="space-y-3">
                             <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] gap-x-8 text-sm font-semibold text-[#00A3A0]">
-                              <span>Weather Signal</span>
-                              <span>Arrangement</span>
+                              <span>{t("faqsPage.weatherSignal")}</span>
+                              <span>{t("faqsPage.arrangement")}</span>
                             </div>
                             <div className="divide-y divide-[#E5E7EB] border-y border-[#E5E7EB]">
                               {item.weatherRows.map((row, i) => (
@@ -473,7 +495,7 @@ export default function FAQsPage() {
                                 </>
                               )
                             }
-                            if (item.q === "Do I need a subscription to use ClassZ?" && line.includes("optional")) {
+                            if (item.id === "subscription" && line.includes("optional")) {
                               const [before, after] = line.split("optional")
                               return (
                                 <>
@@ -483,7 +505,7 @@ export default function FAQsPage() {
                                 </>
                               )
                             }
-                            if (item.q === "What is Zing and how does it work?" && line.includes("Zing")) {
+                            if (item.id === "zing" && line.includes("Zing")) {
                               const [before, after] = line.split("Zing")
                               return (
                                 <>
@@ -493,7 +515,7 @@ export default function FAQsPage() {
                                 </>
                               )
                             }
-                            if (item.q === "Can I enroll multiple children under one account?" && line.includes("Yes")) {
+                            if (item.id === "multipleChildren" && line.includes("Yes")) {
                               const [before, after] = line.split("Yes")
                               return (
                                 <>
@@ -506,7 +528,7 @@ export default function FAQsPage() {
                             return line
                           }
 
-                          const isContactHelp = item.q === "How can I contact a centre or get help?"
+                          const isContactHelp = item.id === "contactHelp"
 
                           return (
                             <>
@@ -521,7 +543,7 @@ export default function FAQsPage() {
                                 </div>
                               )}
                               {/* For "Can I enroll multiple children..." show gallery before bullets */}
-                              {item.gallery && item.gallery.length > 0 && item.q === "Can I enroll multiple children under one account?" && (
+                              {item.gallery && item.gallery.length > 0 && item.id === "multipleChildren" && (
                                 <div
                                   className={
                                     item.gallery.length > 1
@@ -541,11 +563,11 @@ export default function FAQsPage() {
                                 </div>
                               )}
 
-                              {item.bullets && item.bullets.length > 0 && item.q !== "Where can I see my child’s class photos?" && item.q !== "How can I contact a centre or get help?" && (
+                              {item.bullets && item.bullets.length > 0 && item.id !== "classPhotos" && item.id !== "contactHelp" && (
                                 <ul className="space-y-2 list-disc list-inside text-[#4B5563] text-sm pl-1">
                                   {item.bullets.map((b, i) => {
                                     const highlightFinal = (text: string) => {
-                                      if (item.q === "Can I enroll multiple children under one account?") {
+                                      if (item.id === "multipleChildren") {
                                         let out: (string | JSX.Element)[] = []
                                         const parts = text.split(/(final|non-refundable)/i)
                                         parts.forEach((p, idx) => {
@@ -596,7 +618,7 @@ export default function FAQsPage() {
                           </>
                         )}
 
-                        {item.gallery && item.gallery.length > 0 && item.q !== "Can I enroll multiple children under one account?" && item.q !== "Where can I see my child’s class photos?" && item.q !== "How can I contact a centre or get help?" && (
+                        {item.gallery && item.gallery.length > 0 && item.id !== "multipleChildren" && item.id !== "classPhotos" && item.id !== "contactHelp" && (
                           <div
                             className={
                               item.gallery.length > 1
@@ -616,7 +638,7 @@ export default function FAQsPage() {
                           </div>
                         )}
 
-                        {item.gallery && item.gallery.length > 0 && item.q === "How can I contact a centre or get help?" && (
+                        {item.gallery && item.gallery.length > 0 && item.id === "contactHelp" && (
                           <div className="pt-2 flex justify-center">
                             {item.gallery.map((src, i) => (
                               <div key={i} className="w-full max-w-4xl">
@@ -626,7 +648,7 @@ export default function FAQsPage() {
                           </div>
                         )}
 
-                        {item.bullets && item.bullets.length > 0 && item.q === "How can I contact a centre or get help?" && (
+                        {item.bullets && item.bullets.length > 0 && item.id === "contactHelp" && (
                           <ul className="space-y-2 list-disc list-inside text-[#4B5563] text-sm pl-1 pt-2">
                             {item.bullets.map((b, i) => (
                               <li key={i}>{b}</li>
@@ -634,7 +656,7 @@ export default function FAQsPage() {
                           </ul>
                         )}
 
-                        {item.a && item.a.length > 0 && item.q === "How can I contact a centre or get help?" && (
+                        {item.a && item.a.length > 0 && item.id === "contactHelp" && (
                           <div className="space-y-2 text-[#4B5563] text-sm pt-4">
                             {item.a.map((line, i) => (
                               <p key={i} className={i === 0 ? "text-[#111929]" : ""}>
@@ -659,7 +681,7 @@ export default function FAQsPage() {
                           </div>
                         )}
 
-                        {item.gallery && item.gallery.length > 0 && item.q === "Where can I see my child’s class photos?" && (
+                        {item.gallery && item.gallery.length > 0 && item.id === "classPhotos" && (
                           <div
                             className={
                               item.gallery.length > 1
@@ -679,7 +701,7 @@ export default function FAQsPage() {
                           </div>
                         )}
 
-                        {item.bullets && item.bullets.length > 0 && item.q === "Where can I see my child’s class photos?" && (
+                        {item.bullets && item.bullets.length > 0 && item.id === "classPhotos" && (
                           <ul className="space-y-2 list-disc list-inside text-[#4B5563] text-sm pl-1 pt-2">
                             {item.bullets.map((b, i) => (
                               <li key={i}>{b}</li>
@@ -741,7 +763,7 @@ export default function FAQsPage() {
                                 item.extraTitle
                               )}
                             </p>
-                            {item.extraBullets && item.q === "How can I view my child’s performance or progress?" ? (
+                            {item.extraBullets && item.id === "viewPerformance" ? (
                               <div className="space-y-4 text-sm md:text-base text-[#4B5563]">
                                 {item.extraBullets.map((b, i) => {
                                   const [head, ...rest] = b.split(":")
@@ -768,7 +790,7 @@ export default function FAQsPage() {
                           <p className="text-xs text-[#00A3A0] font-semibold pt-1 leading-relaxed">{item.note}</p>
                         )}
 
-                        {!item.note && item.q === "How do I register and enrol my child in a class?" && (
+                        {!item.note && item.id === "registerEnroll" && (
                           <p className="text-xs text-[#00A3A0] font-semibold pt-1 leading-relaxed">
                             Each enrolment is linked to a specific child profile, so make sure you select the right one before checkout.
                           </p>
@@ -784,7 +806,7 @@ export default function FAQsPage() {
               const open = openCentre === idx
               return (
                 <div
-                  key={item.q}
+                  key={item.id}
                   className="bg-white"
                 >
                   <button
@@ -799,16 +821,16 @@ export default function FAQsPage() {
                   </button>
                   {open && (
                     <div className="px-5 pb-5 space-y-2 text-sm text-[#485A69] leading-relaxed">
-                      {item.a && item.a.length > 0 && item.q !== "Pricing: does ClassZ charge centres?" && item.q !== "Can I edit or update class schedules after posting?" && item.q !== "What's the difference between Owner, Manager, and Coach accounts?" && item.q !== "Can one Owner manage multiple branches or locations?" && item.q !== "What information is required to set up my centre profile?" && item.q !== "What is the bad-weather arrangement for centres?" && item.q !== "Is my centre a good fit for ClassZ?" && item.q !== "How do I make sure my payouts are released without penalties?" && (
+                      {item.a && item.a.length > 0 && item.id !== "pricing" && item.id !== "editSchedule" && item.id !== "accountTypes" && item.id !== "multipleBranches" && item.id !== "profileInfo" && item.id !== "badWeatherCentres" && item.id !== "goodFit" && item.id !== "payouts" && (
                         <div className="space-y-2">
-                          {(item.q === "How do parents pay for classes? Are offline payments allowed?"
+                          {(item.id === "payment"
                             ? [item.a[0]]
-                            : item.q === "Are lesson photos and performance feedback mandatory after every class? What if we don't submit?"
+                            : item.id === "mandatoryFeedback"
                               ? [item.a[0], item.a[1]]
                               : item.a
                           ).map((line, i) => {
                             const renderLine = (text: string) => {
-                              if (item.q === "How do parents pay for classes? Are offline payments allowed?") {
+                              if (item.id === "payment") {
                                 if (text.includes("third-party payment methods")) {
                                   const parts = text.split("third-party payment methods")
                                   return (
@@ -820,7 +842,7 @@ export default function FAQsPage() {
                                   )
                                 }
                               }
-                              if (item.q === "Are lesson photos and performance feedback mandatory after every class? What if we don't submit?") {
+                              if (item.id === "mandatoryFeedback") {
                                 // Highlight "Yes—mandatory for every attended lesson." (first line)
                                 if (text.includes("Yes—mandatory for every attended lesson.")) {
                                   return <span className="text-[#00A3A0]">{text}</span>
@@ -848,7 +870,7 @@ export default function FAQsPage() {
                                   return <>{result}</>
                                 }
                               }
-                              if (item.q === "How do I register my centre and get listed on ClassZ?") {
+                              if (item.id === "registerCentre") {
                                 if (text.includes("[How to Join Us]")) {
                                   const parts = text.split("[How to Join Us]")
                                   return (
@@ -868,11 +890,11 @@ export default function FAQsPage() {
                           })}
                         </div>
                       )}
-                      {item.bullets && item.bullets.length > 0 && item.q !== "Is my centre a good fit for ClassZ?" && item.q !== "How do I make sure my payouts are released without penalties?" && (
+                      {item.bullets && item.bullets.length > 0 && item.id !== "goodFit" && item.id !== "payouts" && (
                         <ul className="space-y-2 list-disc list-inside">
                           {item.bullets.map((b, i) => {
                             const highlightText = (text: string) => {
-                              if (item.q === "How do parents pay for classes? Are offline payments allowed?") {
+                              if (item.id === "payment") {
                                 if (text.includes("ClassZ covers the standard processor fees for eligible centres.")) {
                                   const parts = text.split("ClassZ covers the standard processor fees for eligible centres.")
                                   return (
@@ -887,7 +909,7 @@ export default function FAQsPage() {
                                 }
                                 return text
                               }
-                              if (item.q === "Pricing: does ClassZ charge centres?") {
+                              if (item.id === "pricing") {
                                 const parts: (string | JSX.Element)[] = []
                                 // Highlight "Free" (bold)
                                 let remaining = text
@@ -943,7 +965,7 @@ export default function FAQsPage() {
                           })}
                         </ul>
                       )}
-                      {item.a && item.a.length > 0 && item.q === "Pricing: does ClassZ charge centres?" && (
+                      {item.a && item.a.length > 0 && item.id === "pricing" && (
                         <div className="space-y-2 pt-2">
                           {item.a.map((line, i) => {
                             const renderLine = (text: string) => {
@@ -965,19 +987,19 @@ export default function FAQsPage() {
                           })}
                         </div>
                       )}
-                      {item.a && item.a.length > 1 && item.q === "How do parents pay for classes? Are offline payments allowed?" && (
+                      {item.a && item.a.length > 1 && item.id === "payment" && (
                         <div className="space-y-2 pt-2">
                           {item.a.slice(1).map((line, i) => (
                             <p key={i}>{line}</p>
                           ))}
                         </div>
                       )}
-                      {item.a && item.a.length > 2 && item.q === "Are lesson photos and performance feedback mandatory after every class? What if we don't submit?" && (
+                      {item.a && item.a.length > 2 && item.id === "mandatoryFeedback" && (
                         <div className="space-y-2 pt-2">
                           <p>{item.a[2]}</p>
                         </div>
                       )}
-                      {'sections' in item && item.sections && item.q === "Can I edit or update class schedules after posting?" && (
+                      {'sections' in item && item.sections && item.id === "editSchedule" && (
                         <div className="space-y-4 pt-2">
                           {/* Intro line with highlight */}
                           {item.a && item.a.length > 0 && (
@@ -1114,7 +1136,7 @@ export default function FAQsPage() {
                           )}
                         </div>
                       )}
-                      {item.a && item.a.length > 0 && item.q === "Can I edit or update class schedules after posting?" && !('sections' in item && item.sections) && (
+                      {item.a && item.a.length > 0 && item.id === "editSchedule" && !('sections' in item && item.sections) && (
                         <div className="space-y-2">
                           {item.a.map((line, i) => {
                             const renderLine = (text: string) => {
@@ -1133,7 +1155,7 @@ export default function FAQsPage() {
                           })}
                         </div>
                       )}
-                      {item.a && item.a.length > 0 && item.q === "What's the difference between Owner, Manager, and Coach accounts?" && (
+                      {item.a && item.a.length > 0 && item.id === "accountTypes" && (
                         <div className="space-y-2">
                           {item.a.map((line, i) => {
                             const renderLine = (text: string) => {
@@ -1168,7 +1190,7 @@ export default function FAQsPage() {
                           })}
                         </div>
                       )}
-                      {item.a && item.a.length > 0 && item.q === "Can one Owner manage multiple branches or locations?" && (
+                      {item.a && item.a.length > 0 && item.id === "multipleBranches" && (
                         <div className="space-y-2">
                           {item.a.map((line, i) => {
                             const renderLine = (text: string) => {
@@ -1193,7 +1215,7 @@ export default function FAQsPage() {
                           })}
                         </div>
                       )}
-                      {item.a && item.a.length > 0 && item.q === "What information is required to set up my centre profile?" && (
+                      {item.a && item.a.length > 0 && item.id === "profileInfo" && (
                         <div className="space-y-2">
                           {item.a.map((line, i) => {
                             const renderLine = (text: string) => {
@@ -1239,7 +1261,7 @@ export default function FAQsPage() {
                           })}
                         </div>
                       )}
-                      {item.q === "What is the bad-weather arrangement for centres?" && (
+                      {item.id === "badWeatherCentres" && (
                         <div className="space-y-4 pt-2">
                           {/* Intro paragraph */}
                           {item.a && item.a.length > 0 && (
@@ -1266,10 +1288,10 @@ export default function FAQsPage() {
                               {/* Table headers */}
                               <div className="grid grid-cols-2 bg-[#F9FAFB] border-b border-[#E9E9E9]">
                                 <div className="px-4 py-2">
-                                  <span className="text-[#00A3A0] font-semibold">Weather Signal</span>
+                                  <span className="text-[#00A3A0] font-semibold">{t("faqsPage.weatherSignal")}</span>
                                 </div>
                                 <div className="px-4 py-2 border-l border-[#E9E9E9]">
-                                  <span className="text-[#00A3A0] font-semibold">Arrangement</span>
+                                  <span className="text-[#00A3A0] font-semibold">{t("faqsPage.arrangement")}</span>
                                 </div>
                               </div>
                               {/* Table rows */}
@@ -1371,7 +1393,7 @@ export default function FAQsPage() {
                           )}
                         </div>
                       )}
-                      {item.q === "Is my centre a good fit for ClassZ?" && (
+                      {item.id === "goodFit" && (
                         <div className="space-y-2 pt-2">
                           {/* Bullets */}
                           {item.bullets && item.bullets.length > 0 && (
@@ -1454,7 +1476,7 @@ export default function FAQsPage() {
                           )}
                         </div>
                       )}
-                      {item.q === "How do I make sure my payouts are released without penalties?" && (
+                      {item.id === "payouts" && (
                         <div className="space-y-2 pt-2">
                           {/* Checklist title */}
                           {'checklistTitle' in item && item.checklistTitle && (
@@ -1492,17 +1514,17 @@ export default function FAQsPage() {
       {/* Need more help */}
       <section className="py-16 bg-gradient-to-br from-[#F0FAF8] via-white to-[#E5F7F4]">
         <div className="max-w-[960px] mx-auto px-6 md:px-10 text-center space-y-6">
-          <h3 className="text-3xl md:text-4xl font-semibold text-[#0B1B1C]">Need More Help?</h3>
-          <p className="text-base md:text-lg text-[#4A5563]">Can’t find what you’re looking for?</p>
+          <h3 className="text-3xl md:text-4xl font-semibold text-[#0B1B1C]">{t("faqsPage.needMoreHelp.title")}</h3>
+          <p className="text-base md:text-lg text-[#4A5563]">{t("faqsPage.needMoreHelp.subtitle")}</p>
           <p className="text-sm md:text-base text-[#4A5563]">
-            Create a support ticket and we’ll get back to you via email soon.
+            {t("faqsPage.needMoreHelp.description")}
           </p>
           <div className="flex justify-center pt-2">
             <Link
               href="/contact-us"
               className="px-7 md:px-8 py-3.5 rounded-full bg-[#0ABAB5] text-white text-sm md:text-base font-semibold shadow-[0_16px_28px_rgba(10,186,181,0.28)] hover:bg-[#00a6a1] transition-colors"
             >
-              Create Support Ticket
+              {t("faqsPage.needMoreHelp.button")}
             </Link>
           </div>
         </div>
