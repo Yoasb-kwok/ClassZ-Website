@@ -129,7 +129,7 @@ export function generateStructuredData(type: 'organization' | 'website' | 'bread
                 '@type': 'Organization',
                 name: siteConfig.name,
                 url: baseUrl,
-                logo: `${baseUrl}/logoWeb.png`,
+                logo: `${baseUrl}/ZClassZ.png`,
                 description: siteConfig.description,
                 sameAs: [
                     // Add your social media URLs here
