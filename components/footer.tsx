@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { Instagram, Facebook } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 export function Footer() {
+  const { t } = useLanguage()
   return (
     <footer className="bg-[#D8F4F3]">
       <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 py-10">
@@ -10,40 +12,40 @@ export function Footer() {
           {/* Navigation Sections - 2 Columns */}
           <div className="grid grid-cols-2 gap-6 pb-8">
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[#111929]">Company</h4>
+              <h4 className="text-sm font-semibold text-[#111929]">{t("footer.company")}</h4>
               <div className="space-y-2 text-sm text-[#111929]">
                 <Link href="/our-features" className="block hover:opacity-70 transition-opacity">
-                  What we do?
+                  {t("footer.whatWeDo")}
                 </Link>
                 <Link href="/our-mission" className="block hover:opacity-70 transition-opacity">
-                  Our Missions
+                  {t("footer.ourMission")}
                 </Link>
               </div>
             </div>
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[#111929]">Resources</h4>
+              <h4 className="text-sm font-semibold text-[#111929]">{t("footer.resources")}</h4>
               <div className="space-y-2 text-sm text-[#111929]">
                 <Link href="/partnership" className="block hover:opacity-70 transition-opacity">
-                  Partnership
+                  {t("footer.partnership")}
                 </Link>
                 <Link href="/faqs" className="block hover:opacity-70 transition-opacity">
-                  FAQs
+                  {t("footer.faqs")}
                 </Link>
               </div>
             </div>
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[#111929]">Legal</h4>
+              <h4 className="text-sm font-semibold text-[#111929]">{t("footer.legal")}</h4>
               <div className="space-y-2 text-sm text-[#111929]">
                 <Link href="#" className="block hover:opacity-70 transition-opacity">
-                  Privacy Policy
+                  {t("footer.privacy")}
                 </Link>
                 <Link href="#" className="block hover:opacity-70 transition-opacity">
-                  Terms of Service
+                  {t("footer.terms")}
                 </Link>
               </div>
             </div>
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[#111929]">Follow</h4>
+              <h4 className="text-sm font-semibold text-[#111929]">{t("footer.follow")}</h4>
               <div className="space-y-2 text-sm text-[#111929]">
                 <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
                   <Instagram className="w-4 h-4" />
@@ -63,9 +65,7 @@ export function Footer() {
           {/* Logo Section - Centered */}
           <div className="flex justify-center py-8">
             <Link href="/" className="inline-block">
-              <span className="text-6xl font-bold text-[#0ABAB5] leading-none">
-                Z.<span className="text-5xl">Classz</span>
-              </span>
+              <img src="/logoWeb.png" alt="ClassZ" className="h-14 w-auto" />
             </Link>
           </div>
 
@@ -74,7 +74,7 @@ export function Footer() {
 
           {/* Copyright - Centered */}
           <div className="flex justify-center pt-6 pb-2">
-            <p className="text-xs text-[#6B7C5A]">© 2025 ClassZ Limited. All rights reserved.</p>
+            <p className="text-xs text-[#6B7C5A]">{t("footer.copyright")}</p>
           </div>
         </div>
 
@@ -85,49 +85,47 @@ export function Footer() {
             {/* Logo Section */}
             <div className="flex-shrink-0">
               <Link href="/" className="inline-block">
-                <span className="text-5xl lg:text-6xl font-bold text-[#0ABAB5]">
-                  Z.<span className="text-4xl lg:text-5xl">Classz</span>
-                </span>
+                <img src="/logoWeb.png" alt="ClassZ" className="h-12 lg:h-14 w-auto" />
               </Link>
             </div>
 
             {/* Navigation Columns */}
             <div className="flex flex-wrap gap-8 md:gap-12 flex-1 justify-end">
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-[#111929]">Company</h4>
+                <h4 className="text-sm font-semibold text-[#111929]">{t("footer.company")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="/our-features" className="block hover:opacity-70 transition-opacity">
-                    What we do?
+                    {t("footer.whatWeDo")}
                   </Link>
                   <Link href="/our-mission" className="block hover:opacity-70 transition-opacity">
-                    Our Missions
+                    {t("footer.ourMission")}
                   </Link>
                 </div>
               </div>
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-[#111929]">Resources</h4>
+                <h4 className="text-sm font-semibold text-[#111929]">{t("footer.resources")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="/partnership" className="block hover:opacity-70 transition-opacity">
-                    Partnership
+                    {t("footer.partnership")}
                   </Link>
                   <Link href="/faqs" className="block hover:opacity-70 transition-opacity">
-                    FAQs
+                    {t("footer.faqs")}
                   </Link>
                 </div>
               </div>
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-[#111929]">Legal</h4>
+                <h4 className="text-sm font-semibold text-[#111929]">{t("footer.legal")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="#" className="block hover:opacity-70 transition-opacity">
-                    Privacy Policy
+                    {t("footer.privacy")}
                   </Link>
                   <Link href="#" className="block hover:opacity-70 transition-opacity">
-                    Terms of Service
+                    {t("footer.terms")}
                   </Link>
                 </div>
               </div>
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-[#111929]">Follow</h4>
+                <h4 className="text-sm font-semibold text-[#111929]">{t("footer.follow")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
                     <Instagram className="w-4 h-4" />
@@ -147,7 +145,7 @@ export function Footer() {
 
           {/* Copyright */}
           <div className="flex justify-end">
-            <p className="text-xs text-[#6B7C5A]">© 2025 ClassZ Limited. All rights reserved.</p>
+            <p className="text-xs text-[#6B7C5A]">{t("footer.copyright")}</p>
           </div>
         </div>
       </div>

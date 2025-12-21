@@ -1,4 +1,9 @@
+"use client"
+
+import { useLanguage } from "@/components/language-provider"
+
 export function HowItWorks() {
+  const { t } = useLanguage()
   return (
     <section className="border-t border-[#E9E9E9] bg-white">
       <div className="container mx-auto px-4 md:px-10 py-[120px]">
@@ -8,10 +13,10 @@ export function HowItWorks() {
             <div className="flex flex-col items-center gap-[50px] py-5">
               <div className="flex flex-col justify-center items-center gap-5 w-full">
                 <h2 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em] text-center">
-                  Experience the Journey
+                {t("howItWorks.title")}
                 </h2>
                 <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] text-center">
-                  With moments in our growing community
+                {t("howItWorks.subtitle")}
                 </p>
               </div>
             </div>
