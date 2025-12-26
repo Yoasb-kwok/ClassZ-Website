@@ -36,11 +36,14 @@ export function Footer() {
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-[#111929]">{t("footer.legal")}</h4>
               <div className="space-y-2 text-sm text-[#111929]">
-                <Link href="#" className="block hover:opacity-70 transition-opacity">
+                <Link href="/privacy" className="block hover:opacity-70 transition-opacity">
                   {t("footer.privacy")}
                 </Link>
-                <Link href="#" className="block hover:opacity-70 transition-opacity">
+                <Link href="/terms" className="block hover:opacity-70 transition-opacity">
                   {t("footer.terms")}
+                </Link>
+                <Link href="/refund" className="block hover:opacity-70 transition-opacity">
+                  {t("footer.refund")}
                 </Link>
               </div>
             </div>
@@ -116,11 +119,14 @@ export function Footer() {
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-[#111929]">{t("footer.legal")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
-                  <Link href="#" className="block hover:opacity-70 transition-opacity">
+                  <Link href="/privacy" className="block hover:opacity-70 transition-opacity">
                     {t("footer.privacy")}
                   </Link>
-                  <Link href="#" className="block hover:opacity-70 transition-opacity">
+                  <Link href="/terms" className="block hover:opacity-70 transition-opacity">
                     {t("footer.terms")}
+                  </Link>
+                  <Link href="/refund" className="block hover:opacity-70 transition-opacity">
+                    {t("footer.refund")}
                   </Link>
                 </div>
               </div>
