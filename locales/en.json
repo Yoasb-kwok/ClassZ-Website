@@ -652,7 +652,315 @@
         "legal": "Legal",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service",
+        "refund": "Refund Policy",
         "follow": "Follow",
         "copyright": "© 2025 ClassZ Limited. All rights reserved."
+    },
+    "policyNavigation": {
+        "title": "You may also want to review:"
+    },
+    "sharedSection": {
+        "contactUs": {
+            "title": "Contact Us",
+            "content": "If you have questions, concerns, or requests regarding our policies or your data, please contact ClassZ through the Platform's support channels."
+        }
+    },
+    "privacyPage": {
+        "hero": {
+            "title": "Privacy Policy",
+            "lastUpdated": "LLast updated on 24/12/2025"
+        },
+        "sections": {
+            "section1": {
+                "title": "1. Introduction",
+                "content": "This Privacy Policy explains how ClassZ (\"ClassZ\", \"we\", \"us\", or \"our\") collects, uses, stores, shares, and protects personal data when you access or use the ClassZ platform, including our website, mobile application, subscription services, credit system (\"Zing\"), booking features, feedback tools, and related services (collectively, the \"Platform\").\n\nThis Privacy Policy applies to parents, guardians, centres, coaches, and other users of the Platform and should be read together with our Terms & Conditions."
+            },
+            "section2": {
+                "title": "2. Compliance with Law",
+                "content": "ClassZ complies with the Personal Data (Privacy) Ordinance (Cap. 486 of the Laws of Hong Kong) (\"PDPO\").\n\nWe collect and process personal data in accordance with the data protection principles under the PDPO, including lawful purpose, data minimisation, transparency, security, and retention limitation."
+            },
+            "section3": {
+                "title": "3. Types of Personal Data We Collect",
+                "subsection1": {
+                    "title": "3.1 Parent Account Data",
+                    "content": "We may collect:\n\n• Name\n• Email address\n• Phone number\n• Location (district or region level)\n• Account identifiers\n• Payment and subscription status (no full card numbers stored)"
+                },
+                "subsection2": {
+                    "title": "3.2 Child Profile Data",
+                    "content": "Child data is provided solely by parents or legal guardians. We may collect:\n\n• Child's name\n• Hong Kong Identity Card number (or equivalent identifier)\n• Date of birth\n• School name\n• SEN indication (if voluntarily provided)\n• Emergency contact number\n• Class enrolment records\n• Attendance records\n• Class-related feedback and insights\n• Photos or media uploaded by centres in relation to attended classes\n\nClassZ does not independently verify child data and relies on information provided by parents and centres."
+                },
+                "subsection3": {
+                    "title": "3.3 Centre Owner and Coach Data",
+                    "content": "We may collect:\n\n• Name\n• Email address\n• Phone number\n• Hong Kong Identity Card number\n• Professional background, qualifications, or accreditations (if submitted)\n• Centre ownership or control information\n• Business registration details (where applicable)\n• Criminal conviction record declarations or equivalents (for individual educators, where permitted by law)\n• Account activity and platform usage records"
+                },
+                "subsection4": {
+                    "title": "3.4 Transaction and Technical Data",
+                    "content": "We may collect:\n\n• Booking records\n• Payment status\n• Zing credit balances and usage\n• Refund and voucher history\n• Device information\n• IP address\n• Log files and usage analytics"
+                }
+            },
+            "section4": {
+                "title": "4. Purpose of Data Collection and Use",
+                "content": "We collect and use personal data for the following purposes:\n\n• Account registration and identity verification\n• Class discovery, enrolment, scheduling, and attendance tracking\n• Payment processing and subscription management\n• Operation of the Zing credit system\n• Generation and display of class-related feedback and insights\n• Platform communication and customer support\n• Safeguarding, fraud prevention, and compliance checks\n• Platform improvement, analytics, and service optimisation\n• Compliance with legal and regulatory obligations\n\nPersonal data will not be used for purposes unrelated to the Platform without consent, unless required or permitted by law."
+            },
+            "section5": {
+                "title": "5. Feedback, Insights, and Character Profiles",
+                "content": "Feedback, ratings, charts, summaries, trends, and character profiles displayed on the Platform are:\n\n• Generated from third-party service provider input and automated aggregation;\n• Provided for informational and reflective purposes only;\n• Not diagnostic, predictive, evaluative, or professional assessments.\n\nClassZ does not provide medical, psychological, psychiatric, developmental, or educational advice and does not determine a child's abilities, personality, behaviour, or future outcomes."
+            },
+            "section6": {
+                "title": "6. Special Educational Needs (SEN) Data",
+                "content": "SEN-related data is:\n\n• Provided voluntarily by parents;\n• Used solely to assist centres and coaches where possible;\n• Not verified, certified, or guaranteed by ClassZ.\n\n\"SEN-friendly\" tags are self-declared by centres and do not constitute endorsement or assurance of suitability."
+            },
+            "section7": {
+                "title": "7. Photos and Media Content",
+                "content": "Photos or media uploaded by centres or coaches in relation to classes:\n\n• may include individual photos of a child or group/class photos taken during class activities;\n• may incidentally display multiple students attending the same class;\n• are associated only with classes in which the child is enrolled.\n\nBy enrolling a child in a class and using the Platform, parents or legal guardians acknowledge and consent to:\n\n• the capture and upload of class-related photos or media by centres or coaches; and\n• the display of such photos or media within the Platform, including where a child may appear in group or class photos visible to other parents of enrolled students.\n\nClassZ does not use such photos or media for marketing, advertising, or promotional purposes unless separate consent is obtained.\n\nPhotos and media are visible only to authorised users (such as parents or guardians of enrolled students) and are used solely for class-related documentation and feedback.\n\nParents may request the removal of specific photos or media by contacting customer support. Requests will be reviewed and handled in accordance with applicable laws and operational requirements."
+            },
+            "section8": {
+                "title": "8. Payment Processing",
+                "content": "Photos or media uploaded by centres or coaches in relation to classes:\n\n• may include individual photos of a child or group/class photos taken during class activities;\n• may incidentally display multiple students attending the same class;\n• are associated only with classes in which the child is enrolled.\n\nBy enrolling a child in a class and using the Platform, parents or legal guardians acknowledge and consent to:\n\n• the capture and upload of class-related photos or media by centres or coaches; and the display of such photos or media within the Platform, including where a child may appear in group or class photos visible to other parents of enrolled students.\n\nAll payments are processed through third-party payment service providers, such as Stripe.\n\nClassZ does not store full credit card numbers or sensitive payment credentials. Payment providers process personal data in accordance with their own privacy policies and applicable laws."
+            },
+            "section9": {
+                "title": "9. Data Sharing and Disclosure",
+                "content": "We may share personal data only as necessary with:\n\n• Centres and coaches for enrolment, attendance, and class delivery;\n• Payment processors for transaction processing;\n• Technology service providers supporting platform operations;\n• Law enforcement or regulatory authorities where required by law.\n\nWe do not sell personal data."
+            },
+            "section10": {
+                "title": "10. Data Retention",
+                "content": "We retain personal data only for as long as necessary to:\n\n• Fulfil the purposes stated in this Privacy Policy;\n• Comply with legal, regulatory, accounting, or reporting obligations;\n• Resolve disputes or enforce agreements.\n\nChild data and account data may be deleted or anonymised upon account closure, subject to legal retention requirements."
+            },
+            "section11": {
+                "title": "11. Data Security",
+                "content": "We implement reasonable technical and organisational measures to protect personal data against unauthorised access, loss, misuse, or alteration.\n\nHowever, no system is completely secure, and users acknowledge that data transmission over the internet carries inherent risks."
+            },
+            "section12": {
+                "title": "12. User Rights",
+                "content": "Subject to the PDPO, users may:\n\n• Request access to their personal data;\n• Request correction of inaccurate data;\n• Request deletion or restriction of data, where applicable.\n\nRequests should be submitted through the Platform or customer support and may require identity verification."
+            },
+            "section13": {
+                "title": "13. Children's Privacy",
+                "content": "ClassZ relies on parents or legal guardians to provide consent for the collection and use of child data.\n\nParents are responsible for ensuring the accuracy and appropriateness of information submitted on behalf of their children."
+            },
+            "section14": {
+                "title": "14. Changes to This Privacy Policy",
+                "content": "We may update this Privacy Policy from time to time.\n\nThe version in effect at the time of data collection will apply unless otherwise required by law. Continued use of the Platform constitutes acceptance of the updated policy."
+            },
+            "section15": {
+                "title": "15. Contact Us",
+                "content": "If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact ClassZ through the Platform's support channels."
+            }
+        }
+    },
+    "termsPage": {
+        "hero": {
+            "title": "Terms and Conditions",
+            "lastUpdated": "Last updated on 24/12/2025"
+        },
+        "sections": {
+            "section1": {
+                "title": "1. Introduction",
+                "content": "Welcome to ClassZ (the \"Platform\"). These Terms and Conditions (\"Terms\") govern your access to and use of the ClassZ platform, including our website, mobile application, subscription services, credits system (\"Zing\"), booking features, feedback tools, and related services.\n\nBy creating an account, accessing, or using the Platform, you agree to be bound by these Terms. If you do not agree, you must not use the Platform."
+            },
+            "section2": {
+                "title": "2. Platform Role and Scope",
+                "content": "ClassZ is a technology platform that facilitates class discovery, enrolment, payment processing, scheduling, and the organization and display of class-related information and feedback provided by third-party service providers.\n\nUnless expressly stated otherwise, ClassZ:\n\n• Is not a school, education centre, or training provider;\n• Does not provide educational, instructional, developmental, psychological, medical, or professional services;\n• Does not employ, supervise, or control centres, coaches, or other service providers.\n\nFrom time to time, ClassZ may offer its own programs or services. Where ClassZ acts as a service provider, such services will be clearly identified and may be subject to separate or additional terms."
+            },
+            "section3": {
+                "title": "3. Account Types",
+                "subsection1": {
+                    "title": "3.1 Parent Accounts",
+                    "content": "Parent accounts are intended for parents or legal guardians enrolling children into classes.\n\nBy creating a parent account, you represent and warrant that:\n\n• You are at least 18 years old;\n• You are the parent or legal guardian of each child for whom you create a profile;\n• You have full authority to provide personal data relating to your child."
+                },
+                "subsection2": {
+                    "title": "3.2 Child Profiles",
+                    "content": "Parents may create multiple child profiles under one parent account. Each child may have only one profile.\n\nChild profiles are used solely for:\n\n• Class enrolment;\n• Schedule management;\n• Display of class-related feedback.\n\nClassZ does not create, verify, or assess child profiles and relies on information provided by parents and centres."
+                },
+                "subsection3": {
+                    "title": "3.3 Centre Owner Accounts",
+                    "content": "Centre owners are service providers who list and operate classes on the Platform.\n\nCentre owners may create and manage multiple centres and are responsible for submitting accurate, complete, and lawful information about their centres."
+                },
+                "subsection4": {
+                    "title": "3.4 Coach Accounts",
+                    "content": "Coach accounts are sub-accounts associated with a centre and are dependent on centre approval.\n\nCoaches are not employees or agents of ClassZ. Centre owners are solely responsible for the acts, omissions, qualifications, and conduct of their coaches."
+                }
+            },
+            "section4": {
+                "title": "4. Vendor Responsibilities and Conduct",
+                "subsection1": {
+                    "title": "4.1 Centre and Coach Responsibility",
+                    "content": "Each centre owner is solely responsible for:\n\n• The accuracy of listings and schedules;\n• The delivery and quality of classes;\n• The conduct, qualifications, and compliance of all coaches, managers, and personnel;\n• Compliance with all applicable laws, safeguarding obligations, and professional standards.\n\nNo coach, manager, or centre personnel shall be deemed an employee, agent, or representative of ClassZ."
+                },
+                "subsection2": {
+                    "title": "4.2 Vetting and Review",
+                    "content": "Any review, verification, or vetting conducted by ClassZ is performed solely for platform access purposes and does not constitute certification, endorsement, or assurance of quality, safety, or suitability."
+                }
+            },
+            "section5": {
+                "title": "5. Listings, Schedules, and Minimum Student Numbers",
+                "subsection1": {
+                    "title": "5.1 Listings and Price Lock",
+                    "content": "Once a class or program has at least one confirmed enrolment, the listing details, schedule, and price are locked and may not be changed.\n\nIf no enrolment has been made, centres may cancel or re-list programs freely."
+                },
+                "subsection2": {
+                    "title": "5.2 Minimum Student Requirement",
+                    "content": "• Some classes may require a minimum number of students to proceed, as specified by the relevant centre.\n• The minimum student requirement is assessed twenty-four (24) hours before the first scheduled session.\n• If the minimum number of students is not met, the centre may cancel the program up to the 24-hour cutoff.\n• If the centre does not cancel the program by the 24-hour cutoff:\n  → The program will automatically proceed as scheduled;\n  → The program is deemed confirmed;\n  → The centre may not cancel the program or any affected sessions on the basis of minimum student numbers once the program has started.\n• If a program is cancelled due to minimum student numbers within the permitted timeframe:\n  → Parents will receive refunds in accordance with the Refund Policy."
+                },
+                "subsection3": {
+                    "title": "5.3 Schedule Rearrangements",
+                    "content": "Only schedule rearrangements submitted through and recorded on the Platform are recognised.\n\nCentres may not unilaterally change class schedules.\n\nSchedule changes require prior approval by ClassZ and are granted only in limited circumstances, such as emergencies or safety concerns.\n\nIf an approved rearrangement occurs and a parent cannot attend the new schedule:\n• the affected session will be fully refunded;\n• the centre will not receive payment for that session.\n\nIf a class is not delivered as scheduled without approval, the incident is treated as centre responsibility and may result in refunds, penalties, suspension, or termination."
+                }
+            },
+            "section6": {
+                "title": "6. Pricing, Fees, and Payments",
+                "subsection1": {
+                    "title": "6.1 Pricing Structure",
+                    "content": "Centres set a base price for their programs. ClassZ applies a platform markup and displays the final price payable by parents before checkout.\n\nA fixed platform fee may apply per transaction and is waived for eligible subscribers."
+                },
+                "subsection2": {
+                    "title": "6.2 Zing Credits and Subscriptions",
+                    "content": "Zing credits:\n• Are platform-specific;\n• Have no cash value;\n• Are non-transferable;\n• May be used for multiple children under the same parent account;\n• Do not expire except upon account closure.\n\nSubscription plans are billed via a connected credit card through third-party payment processors.\n\nUnused credits are forfeited upon account closure."
+                },
+                "subsection3": {
+                    "title": "6.3 Payments and Refund Method",
+                    "content": "All payments are processed via third-party payment processors.\n\nRefunds are issued in the form of Zing credits or vouchers only and are not redeemable for cash or credit card refunds.\n\nPlatform fees are non-refundable."
+                }
+            },
+            "section7": {
+                "title": "7. Attendance and Feedback",
+                "subsection1": {
+                    "title": "7.1 Attendance Verification",
+                    "content": "Performance feedback is contingent upon recorded attendance through the Platform's attendance verification mechanism.\n\nIf attendance is not verified, no feedback will be generated."
+                },
+                "subsection2": {
+                    "title": "7.2 Nature of Feedback and Insights",
+                    "content": "Feedback, ratings, charts, summaries, trends, and character profiles are generated from third-party service provider input and automated aggregation.\n\nThese features are provided for informational and reflective purposes only.\n\nClassZ does not assess, diagnose, evaluate, predict, or determine a child's abilities, development, personality, behaviour, or future outcomes.\n\nThe methodologies and categorizations used are not based on standardized or evidence-based assessment frameworks."
+                },
+                "subsection3": {
+                    "title": "7.3 No Professional Advice",
+                    "content": "Nothing on the Platform constitutes educational, psychological, psychiatric, medical, developmental, or professional advice.\n\nParents remain solely responsible for interpreting and using any information displayed."
+                },
+                "subsection4": {
+                    "title": "7.4 Delayed or Missing Feedback",
+                    "content": "Feedback is provided solely by centres and coaches.\n\nFailure to provide feedback within a stated timeframe does not invalidate the class or entitle parents to a full refund.\n\nClassZ may, at its discretion, offer a partial coupon or voucher as a goodwill measure. Any such compensation is non-cash, non-transferable, and determined on a case-by-case basis."
+                }
+            },
+            "section8": {
+                "title": "8. Special Educational Needs (SEN)",
+                "content": "Any SEN-related information is provided voluntarily by parents to assist service providers where possible.\n\nSEN indicators and \"SEN-friendly\" tags are self-declared by centres and do not constitute certification, endorsement, or a guarantee of suitability or accommodation."
+            },
+            "section9": {
+                "title": "9. Refunds and Protected Booking",
+                "content": "Refunds, cancellations, and compensation are governed by the Refund Policy, which forms part of these Terms.\n\nAny \"Protected Booking\" benefits are subject to eligibility criteria, verification, and time limits and do not constitute an unconditional guarantee.\n\nIn the event of any inconsistency between these Terms and the Refund Policy, the Refund Policy shall prevail."
+            },
+            "section10": {
+                "title": "10. Intellectual Property",
+                "content": "All Platform content, software, designs, and trademarks belong to ClassZ or its licensors.\n\nUsers grant ClassZ a non-exclusive license to use content they submit solely for Platform operation."
+            },
+            "section11": {
+                "title": "11. Limitation of Liability",
+                "content": "To the maximum extent permitted by law, ClassZ shall not be liable for any indirect, incidental, consequential, or special damages arising from the use of the Platform.\n\nClassZ is not liable for the acts or omissions of centres, coaches, or other third parties."
+            },
+            "section12": {
+                "title": "12. Indemnity",
+                "content": "Centre owners agree to indemnify and hold harmless ClassZ from any claims arising from the conduct of their centres, coaches, or personnel."
+            },
+            "section13": {
+                "title": "13. Suspension and Termination",
+                "content": "ClassZ reserves the right to suspend or terminate accounts or listings for violations of these Terms, safeguarding concerns, or legal risk."
+            },
+            "section14": {
+                "title": "14. Governing Law and Jurisdiction",
+                "content": "These Terms are governed by the laws of Hong Kong.\n\nAny dispute shall be subject to the exclusive jurisdiction of the courts of Hong Kong."
+            }
+        }
+    },
+    "refundPage": {
+        "hero": {
+            "title": "Refund Policy",
+            "lastUpdated": "Last updated on 24/12/2025"
+        },
+        "intro": {
+            "content": "This Refund Policy explains how refunds, credits, and vouchers work on the ClassZ platform. It applies to all parents and guardians using ClassZ to book classes and programs. This policy should be read together with the Terms & Conditions."
+        },
+        "sections": {
+            "section1": {
+                "title": "1. Key Principles",
+                "content": "ClassZ is a platform that facilitates bookings between parents and service providers (centres and coaches).\n\nRefund eligibility depends on timing, attendance, and the reason for the request.\n\nAll refunds are issued in Zing credits or vouchers only. We do not provide cash or credit-card refunds.\n\nPlatform fees are non-refundable."
+            },
+            "section2": {
+                "title": "2. Refund Methods",
+                "subsection1": {
+                    "title": "2.1 Zing Credits",
+                    "content": "Zing credits are platform credits with no cash value.\n\nCredits are non-transferable and may be used for multiple children under the same parent account.\n\nCredits do not expire except upon account closure."
+                },
+                "subsection2": {
+                    "title": "2.2 Vouchers",
+                    "content": "Vouchers may be issued for specific purposes (e.g. handling fees or goodwill compensation).\n\nVouchers are non-cash, non-transferable, and subject to stated terms and conditions."
+                }
+            },
+            "section3": {
+                "title": "3. Class Cancellations by Centres",
+                "content": "If a centre cancels a class or session:\n\n• Parents will receive a full refund for the affected session in accordance with the original payment method:\n  Zing credits for credit-based bookings; or\n  Zing credits plus any applicable voucher for card-based bookings.\n• The centre will not receive payment for the cancelled session."
+            },
+            "section4": {
+                "title": "4. Minimum Student Requirement Not Met",
+                "content": "Some classes require a minimum number of students to proceed.\n\nThe minimum student requirement is assessed twenty-four (24) hours before the first scheduled session.\n\nIf the minimum number of students is not met, the centre may cancel the program up to the 24-hour cutoff.\n\nIf the centre does not cancel the program by the 24-hour cutoff:\n• The program will automatically proceed as scheduled;\n• The program is deemed confirmed;\n• The centre may not cancel the program or any affected sessions on the basis of minimum student numbers once the program has started.\n\nIf a program is cancelled due to minimum student numbers within the permitted timeframe:\n• Parents will receive a full refund for all affected sessions."
+            },
+            "section5": {
+                "title": "5. Bad Weather Arrangements",
+                "content": "ClassZ follows official weather warnings issued by the Hong Kong Observatory or relevant authorities.",
+                "subsection1": {
+                    "title": "5.1 Cancelled Classes",
+                    "content": "• If a class is cancelled due to bad weather, parents are entitled to a full refund for the affected session.\n• Credits are non-transferable and may be used for multiple children under the same parent account.\n• Credits do not expire except upon account closure."
+                },
+                "subsection2": {
+                    "title": "5.2 Rescheduled Classes",
+                    "content": "If a class is rescheduled due to approved bad-weather arrangements:\nParents who cannot attend the new session time may request a refund for that session."
+                },
+                "subsection3": {
+                    "title": "5.3 Request Window",
+                    "content": "Refund requests related to bad weather must be submitted:\nAny time before the class starts; and\nUp to 48 hours after the rescheduled session ends.\n\nRequests submitted after this period are not eligible for refund."
+                }
+            },
+            "section6": {
+                "title": "6. Rearranged Classes (Non-Weather)",
+                "subsection1": {
+                    "title": "6.1 Rearrangements Recorded on the Platform",
+                    "content": "Only schedule changes submitted through and approved by the Platform are treated as official rearrangements.\n\nIf a class is rearranged with prior approval by ClassZ for reasons such as safety or emergencies:\n• Parents who cannot attend the new session time may request a full refund for that session."
+                },
+                "subsection2": {
+                    "title": "6.2 Classes Not Provided as Scheduled",
+                    "content": "If a class session is not delivered as scheduled and no approved rearrangement is recorded on the Platform:\n• The session is treated as a centre-side issue;\n• Parents are eligible for a full refund for that session, subject to verification."
+                },
+                "subsection3": {
+                    "title": "6.3 Attendance Where No Rearrangement Is Recorded",
+                    "content": "If no approved rearrangement is recorded on the Platform and a class proceeds as scheduled:\n• Standard attendance and no-show rules apply;\n• A parent's failure to attend is treated as a normal absence and is not refundable, unless otherwise stated in this policy."
+                }
+            },
+            "section7": {
+                "title": "7. Parent-Initiated Refund Requests",
+                "subsection1": {
+                    "title": "7.1 Absence Without Valid Reason",
+                    "content": "For the purposes of this Refund Policy, a 'valid reason' is limited to circumstances expressly recognised by ClassZ under this policy, such as centre-initiated cancellation, approved rearrangement recorded on the Platform, minimum student requirement not met, or official bad-weather arrangements.\n\nPersonal circumstances of the child or parent, including illness, sick leave, scheduling conflicts, late arrival, or personal emergencies, are not considered valid reasons unless otherwise required by applicable law.\n\nNo refund, replacement session, or feedback will be provided where a child is absent under such circumstances."
+                },
+                "subsection2": {
+                    "title": "7.2 Missed Sessions",
+                    "content": "Missed sessions due to personal scheduling issues, late arrival, or failure to attend are not refundable unless expressly stated in this policy."
+                }
+            },
+            "section8": {
+                "title": "8. Performance Feedback Delays",
+                "content": "Performance feedback is provided by centres and coaches and is not guaranteed within a specific timeframe.\n\n• Failure to provide feedback within ten (10) days does not entitle parents to a full or partial refund of the class.\n• At its discretion, ClassZ may offer a partial coupon or voucher as a goodwill measure.\n• Any such compensation:\n  Is non-cash and non-transferable;\n  Has no fixed value;\n  Is determined on a case-by-case basis;\n  Does not constitute an admission of fault or create a precedent."
+            },
+            "section9": {
+                "title": "9. Protected Booking",
+                "content": "ClassZ may offer \"Protected Booking\" benefits in specific scenarios, including:\n\n• Centre cancellation;\n• Material difference between the service provided and its description;\n• Verified fraud or misconduct;\n• Approved class rearrangements that parents cannot attend.\n\nProtected Booking benefits:\n\n• Are subject to verification and time limits;\n• Do not apply to absences without valid reason;\n• Do not constitute an unconditional guarantee."
+            },
+            "section10": {
+                "title": "10. Request Process",
+                "content": "To request a refund:\n\n• Parents must create a support ticket through the Platform;\n• Requests must be submitted within the applicable timeframe stated in this policy;\n• Requests submitted outside the stated timeframe are deemed waived.\n\nClassZ reserves the right to request additional information to verify eligibility."
+            },
+            "section11": {
+                "title": "11. Policy Updates",
+                "content": "ClassZ may update this Refund Policy from time to time. The version in effect at the time of booking will apply unless otherwise required by law."
+            }
+        }
     }
 }
