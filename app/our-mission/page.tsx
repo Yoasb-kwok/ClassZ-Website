@@ -50,27 +50,31 @@ export default function OurMissionPage() {
       <section className="bg-white py-10 md:py-14">
         <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10">
           <div className="relative w-full overflow-hidden">
-            <div className="logo-marquee flex items-center gap-6 md:gap-10 lg:gap-12 pr-6">
-              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
-              <img src="/logo1.png" alt="Funded by Cyberport" className="h-14 md:h-16 lg:h-20 w-auto" />
+            <div className="flex items-center">
+              {/* Fixed left section: Funded by, Cyberport logo, Trusted by */}
+              <div className="flex items-center gap-6 md:gap-10 lg:gap-12 flex-shrink-0 z-10 bg-white pr-6 md:pr-10 lg:pr-12">
+                <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
+                <img src="/logo1.png" alt="Funded by Cyberport" className="h-14 md:h-16 lg:h-20 w-auto" />
+                <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
+              </div>
+              
+              {/* Moving center logos section - takes remaining space */}
+              <div className="flex-1 overflow-hidden">
+                <div className="logo-marquee flex items-center gap-6 md:gap-10 lg:gap-12">
+                  <img src="/logo2.png" alt="Trusted partner 1" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo3.png" alt="Trusted partner 2" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo4.png" alt="Trusted partner 3" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo5.png" alt="Trusted partner 4" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo6.png" alt="Trusted partner 5" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
 
-              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
-              <img src="/logo2.png" alt="Trusted partner 1" className="h-12 md:h-14 lg:h-16 w-auto" />
-              <img src="/logo3.png" alt="Trusted partner 2" className="h-12 md:h-14 lg:h-16 w-auto" />
-              <img src="/logo4.png" alt="Trusted partner 3" className="h-12 md:h-14 lg:h-16 w-auto" />
-              <img src="/logo5.png" alt="Trusted partner 4" className="h-12 md:h-14 lg:h-16 w-auto" />
-              <img src="/logo6.png" alt="Trusted partner 5" className="h-12 md:h-14 lg:h-16 w-auto" />
-
-              {/* duplicate sequence for seamless marquee */}
-              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap" aria-hidden="true">{t("mission.marquee.fundedBy")}</span>
-              <img src="/logo1.png" alt="Funded by Cyberport duplicate" className="h-14 md:h-16 lg:h-20 w-auto" aria-hidden="true" />
-
-              <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap" aria-hidden="true">{t("mission.marquee.trustedBy")}</span>
-              <img src="/logo2.png" alt="Trusted partner 1 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
-              <img src="/logo3.png" alt="Trusted partner 2 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
-              <img src="/logo4.png" alt="Trusted partner 3 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
-              <img src="/logo5.png" alt="Trusted partner 4 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
-              <img src="/logo6.png" alt="Trusted partner 5 duplicate" className="h-12 md:h-14 lg:h-16 w-auto" aria-hidden="true" />
+                  {/* duplicate sequence for seamless marquee */}
+                  <img src="/logo2.png" alt="Trusted partner 1 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo3.png" alt="Trusted partner 2 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo4.png" alt="Trusted partner 3 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo5.png" alt="Trusted partner 4 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo6.png" alt="Trusted partner 5 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
