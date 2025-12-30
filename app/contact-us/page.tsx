@@ -13,18 +13,19 @@ export default function ContactUsPage() {
     <main className="min-h-screen bg-white font-sans text-slate-900 selection:bg-teal-100">
       <Navbar />
       {/* Hero */}
-      <section className="relative w-full overflow-hidden border-b border-[#E9E9E9] min-h-[280px] md:min-h-0">
-        <div className="relative w-full h-[280px] md:h-auto" style={{ paddingBottom: '0' }}>
-          <div className="absolute inset-0 md:relative md:pb-[33.33%]">
-            <div
-              className="absolute inset-0 md:absolute bg-cover"
-              style={{ backgroundImage: "url('/headerContactUs.png')" }}
-            />
-          </div>
-        </div>
-        <div className="absolute inset-0 bg-black/30 md:bg-black/25 pointer-events-none h-[280px] md:h-full" />
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none h-[280px] md:h-full">
-          <div className="max-w-[1280px] w-full mx-auto px-4 sm:px-6 md:px-10 text-center pointer-events-auto">
+      <section className="relative w-full h-[600px] md:h-[720px] overflow-hidden bg-black">
+        {/* Background Image - full width, accepts slight vertical crop */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/headerContactUs.png')" }}
+        />
+
+        {/* Dark Overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-black/55 md:bg-black/45" />
+
+        {/* Content overlay */}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
             <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-semibold drop-shadow-lg">{t("contactPage.hero.title")}</h1>
           </div>
         </div>

@@ -18,7 +18,7 @@ export function Navbar() {
     `${isActive(path) ? "text-[#00C9B7]" : "text-slate-600"} hover:text-[#00C9B7] transition-colors`
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
+    <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">

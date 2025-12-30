@@ -62,20 +62,21 @@ export default function PartnershipPage() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative w-full overflow-hidden border-b border-[#E9E9E9]">
-        <div className="relative w-full h-[400px] sm:h-[450px] md:h-auto" style={{ paddingBottom: '0' }}>
-          <div className="absolute inset-0 md:relative md:pb-[33.33%]">
-            <div
-              className="absolute inset-0 md:absolute bg-cover"
-              style={{ backgroundImage: "url('/headerPartnership.png')" }}
-            />
-          </div>
-        </div>
-        <div className="absolute inset-0 bg-black/35 md:bg-black/30 pointer-events-none h-[400px] sm:h-[450px] md:h-full" />
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none h-[400px] sm:h-[450px] md:h-full">
-          <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center pointer-events-auto">
+      <section className="relative w-full h-[600px] md:h-[720px] overflow-hidden bg-black">
+        {/* Background Image - full width, accepts slight vertical crop */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/headerPartnership.png')" }}
+        />
+
+        {/* Dark Overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-black/55 md:bg-black/45" />
+
+        {/* Content overlay */}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
             <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 md:mb-3 drop-shadow-lg">{t("partnershipPage.hero.title")}</h1>
-            <p className="text-white/90 text-sm sm:text-base md:text-xl max-w-2xl mx-auto drop-shadow-md px-2">
+            <p className="text-white/90 text-sm sm:text-base md:text-xl max-w-2xl mx-auto drop-shadow-md">
               {t("partnershipPage.hero.subtitle")}
             </p>
           </div>
