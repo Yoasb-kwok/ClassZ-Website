@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, Heart } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
 const tabs = [
@@ -24,7 +24,7 @@ export default function PartnershipPage() {
     text: t(`partnershipPage.overview.card${idx + 1}.text`),
   }))
 
-  const obligationImages = ["/kid-music.jpg", "/kid-science.jpg", "/kid-dancing.jpg"]
+  const obligationImages = ["/co1.png", "/co2.png", "/co3.png"]
   const obligationItems = obligationImages.map((image, idx) => ({
     image,
     badge: t(`partnershipPage.obligation.item${idx + 1}.badge`),
@@ -75,7 +75,7 @@ export default function PartnershipPage() {
         {/* Content overlay */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 md:mb-3 drop-shadow-lg">{t("partnershipPage.hero.title")}</h1>
+            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-bold mb-2 md:mb-3 drop-shadow-lg">{t("partnershipPage.hero.title")}</h1>
             <p className="text-white/90 text-sm sm:text-base md:text-xl max-w-2xl mx-auto drop-shadow-md">
               {t("partnershipPage.hero.subtitle")}
             </p>
@@ -130,12 +130,12 @@ function CentreOverview({ t, cards }: { t: (k: string) => string; cards: { title
       <section className="relative h-[240px] w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/kid-coding.jpg')" }}
+          style={{ backgroundImage: "url('/sectionCe.png')" }}
         />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 text-center">
-            <h3 className="text-white text-3xl md:text-4xl font-semibold drop-shadow-lg">{t("partnershipPage.overview.title")}</h3>
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative z-10 h-full flex items-center">
+          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
+            <h3 className="text-white text-3xl md:text-4xl font-bold drop-shadow-lg">{t("partnershipPage.overview.title")}</h3>
           </div>
         </div>
       </section>
@@ -205,12 +205,12 @@ function CentreObligation({
       <section className="relative h-[240px] w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/kid-music.jpg')" }}
+          style={{ backgroundImage: "url('/sectionCo.png')" }}
         />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 text-center">
-            <h3 className="text-white text-3xl md:text-4xl font-semibold drop-shadow-lg">{t("partnershipPage.obligation.title")}</h3>
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative z-10 h-full flex items-center">
+          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
+            <h3 className="text-white text-3xl md:text-4xl font-bold drop-shadow-lg">{t("partnershipPage.obligation.title")}</h3>
           </div>
         </div>
       </section>
@@ -286,6 +286,56 @@ function CentreObligation({
   )
 }
 
+function PartnershipPriorities({
+  t,
+  priorities,
+}: {
+  t: (k: string) => string
+  priorities: { title: string; text: string }[]
+}) {
+  return (
+    <section className="py-16 md:py-20 bg-white">
+      <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-10 space-y-10">
+        {/* Header Area */}
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0ABAB5] text-white text-sm font-medium">
+              <Heart className="w-4 h-4" />
+              Our Focus
+            </button>
+          </div>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#111929]">
+            Partnership Priorities
+          </h2>
+          <p className="text-base md:text-lg text-[#485A69] max-w-3xl mx-auto">
+            ClassZ is dedicated to building a trusted community of quality programs for toddlers and children.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {priorities.map((p, idx) => {
+            const icons = ["/prioty.png", "/listing.png", "/quality.png"]
+            return (
+              <div key={p.title} className="rounded-2xl bg-white border border-[#E9E9E9] shadow-lg p-6 space-y-4">
+                <img
+                  src={icons[idx]}
+                  alt={p.title}
+                  className="w-16 h-16 object-contain"
+                />
+                <div className="space-y-2">
+                  <h4 className="text-lg font-bold text-[#111929]">{p.title}</h4>
+                  <p className="text-sm text-[#485A69] leading-relaxed">{p.text}</p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function HowToJoin({
   t,
   priorities,
@@ -303,108 +353,159 @@ function HowToJoin({
       <section className="relative h-[240px] w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/kid-reading.jpg')" }}
+          style={{ backgroundImage: "url('/sectionHTJU.png')" }}
         />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10 text-center">
-            <h3 className="text-white text-3xl md:text-4xl font-semibold drop-shadow-lg">{t("partnershipPage.join.title")}</h3>
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="relative z-10 h-full flex items-center">
+          <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
+            <div className="text-left space-y-2">
+              <h3 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-lg">
+                ClassZ Centre Onboarding Guide
+              </h3>
+              <p className="text-white text-lg md:text-xl drop-shadow-md">
+                (Centre Listing Process)
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="max-w-[1080px] mx-auto px-6 md:px-10 space-y-6">
-          <h3 className="text-2xl md:text-[26px] font-semibold text-[#111929]">{t("partnershipPage.join.subTitle")}</h3>
-          <p className="text-sm md:text-base text-[#485A69] leading-relaxed">{t("partnershipPage.join.subDesc")}</p>
+      <PartnershipPriorities t={t} priorities={priorities} />
 
-          <div className="grid md:grid-cols-3 gap-4">
-            {priorities.map((p) => (
-              <div key={p.title} className="rounded-2xl border border-[#E9E9E9] bg-white shadow-sm p-5 space-y-2">
-                <h4 className="text-base font-semibold text-[#111929]">{p.title}</h4>
-                <p className="text-sm text-[#485A69] leading-relaxed">{p.text}</p>
+      <section className="py-12 bg-white">
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 md:px-10 space-y-8">
+          <div className="space-y-3">
+            <p className="text-base md:text-lg text-[#485A69]">{t("partnershipPage.join.subDesc")}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-16 bg-white">
+        <div className="max-w-[1180px] mx-auto px-4 md:px-6 py-12 md:py-16">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left side - Content */}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h4 className="text-2xl md:text-3xl font-bold text-[#111929]">{t("partnershipPage.join.option1.title")}</h4>
+                <p className="text-base md:text-lg text-[#485A69]">{t("partnershipPage.join.option1.desc")}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="pb-16">
-        <div className="max-w-[1180px] mx-auto px-4 md:px-6 space-y-10">
-          <div className="rounded-2xl border border-[#E9E9E9] bg-white shadow-[0_18px_48px_rgba(0,0,0,0.05)] p-6 md:p-8 grid lg:grid-cols-[1.1fr,1fr] gap-8">
-            <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-[#111929]">{t("partnershipPage.join.option1.title")}</h4>
-              <p className="text-sm text-[#485A69]">{t("partnershipPage.join.option1.desc")}</p>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-[#485A69] leading-relaxed">
-                {option1Steps.map((step) => (
-                  <li key={step}>{step}</li>
+              <ol className="space-y-4 text-base md:text-lg text-[#485A69] leading-relaxed">
+                {option1Steps.map((step, idx) => (
+                  <li key={step} className="flex items-start gap-4">
+                    <span className="text-2xl font-bold text-[#111929] flex-shrink-0">{String(idx + 1).padStart(2, '0')}</span>
+                    <span className="pt-1 text-[#485A69]">{step}</span>
+                  </li>
                 ))}
               </ol>
+              <p className="text-sm text-[#485A69] pt-2">
+                {t("partnershipPage.join.option2.note")}
+              </p>
             </div>
-            <div className="rounded-xl overflow-hidden border border-[#E9E9E9] bg-[#F9FBFD] p-4">
-              <img src="/app-interface-class-details.jpg" alt="App onboarding" className="w-full h-full object-cover" />
+            {/* Right side - Image */}
+            <div className="flex justify-center lg:justify-end">
+              <img src="/option1.png" alt="App onboarding" className="w-full max-w-md lg:max-w-lg object-contain" />
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="rounded-2xl border border-[#E9E9E9] bg-white shadow-[0_18px_48px_rgba(0,0,0,0.05)] p-6 md:p-8 space-y-6">
-              <h4 className="text-lg font-semibold text-[#111929]">{t("partnershipPage.join.option2.title")}</h4>
+      <section className="pb-16 bg-white">
+        <div className="max-w-[1180px] mx-auto px-4 md:px-6 py-12 md:py-16">
+          <div className="rounded-2xl border border-[#E9E9E9] bg-white shadow-lg p-6 md:p-8 space-y-6">
+            <div className="space-y-2">
+              <h4 className="text-2xl md:text-3xl font-bold text-[#111929]">{t("partnershipPage.join.option2.title")}</h4>
               <p className="text-sm text-[#485A69]">{t("partnershipPage.join.option2.desc")}</p>
-            <div className="grid md:grid-cols-2 gap-4">
-              {option2Fields.map((f) => (
-                <input
-                  key={f}
-                  type="text"
-                  placeholder={f}
-                  className="h-11 px-4 rounded-lg border border-[#EFF1F3] bg-[#F9FBFD] text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5]"
-                />
-              ))}
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder={t("partnershipPage.join.option2.linkPlaceholder")}
-                className="h-11 px-4 rounded-lg border border-[#EFF1F3] bg-[#F9FBFD] text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5]"
-              />
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.statusLabel")}</label>
-                <div className="flex items-center gap-3 text-sm text-[#485A69]">
+
+            {/* Single column layout - ordered as requested */}
+            <div className="space-y-4">
+              {/* 1. Full name (Centre owner) */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f1")}</label>
+                <input
+                  type="text"
+                  placeholder={t("partnershipPage.join.option2.f1")}
+                  className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                />
+              </div>
+              {/* 2. Full name of the centre */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f2")}</label>
+                <input
+                  type="text"
+                  placeholder={t("partnershipPage.join.option2.f2")}
+                  className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                />
+              </div>
+              {/* 3. Email */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f3")}</label>
+                <input
+                  type="email"
+                  placeholder={t("partnershipPage.join.option2.f3")}
+                  className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                />
+              </div>
+              {/* 4. Contact phone number */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f4")}</label>
+                <input
+                  type="text"
+                  placeholder={t("partnershipPage.join.option2.f4")}
+                  className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                />
+              </div>
+              {/* 5. Centre status */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.statusLabel")}</label>
+                <div className="grid grid-cols-2 gap-3 text-sm text-[#485A69]">
                   <label className="flex items-center gap-2">
-                    <input type="radio" name="status" className="text-[#0ABAB5] focus:ring-[#0ABAB5]" /> {t("partnershipPage.join.option2.status1")}
+                    <input type="checkbox" name="status" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t("partnershipPage.join.option2.status1")}
                   </label>
                   <label className="flex items-center gap-2">
-                    <input type="radio" name="status" className="text-[#0ABAB5] focus:ring-[#0ABAB5]" /> {t("partnershipPage.join.option2.status2")}
+                    <input type="checkbox" name="status" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t("partnershipPage.join.option2.status2")}
                   </label>
                 </div>
               </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
+              {/* 6. Webpage link */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.linkPlaceholder")}</label>
+                <input
+                  type="text"
+                  placeholder={t("partnershipPage.join.option2.linkPlaceholder")}
+                  className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                />
+              </div>
+              {/* 7. Interest in ClassZ */}
               <div className="space-y-3">
-                <p className="text-sm font-semibold text-[#111929]">{t("partnershipPage.join.option2.interestTitle")}</p>
-                <div className="grid grid-cols-1 gap-2 text-sm text-[#485A69]">
+                <label className="block text-sm font-semibold text-[#111929]">{t("partnershipPage.join.option2.interestTitle")}</label>
+                <div className="grid grid-cols-2 gap-3 text-sm text-[#485A69]">
                   {["i1", "i2", "i3", "i4", "i5", "i6", "i7"].map((key) => (
                     <label key={key} className="flex items-center gap-2">
-                      <input type="checkbox" className="text-[#0ABAB5] focus:ring-[#0ABAB5]" /> {t(`partnershipPage.join.option2.interest.${key}`)}
+                      <input type="checkbox" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t(`partnershipPage.join.option2.interest.${key}`)}
                     </label>
                   ))}
                 </div>
               </div>
+              {/* 8. How did you hear about us */}
               <div className="space-y-3">
-                <p className="text-sm font-semibold text-[#111929]">{t("partnershipPage.join.option2.hearTitle")}</p>
-                <div className="grid grid-cols-1 gap-2 text-sm text-[#485A69]">
+                <label className="block text-sm font-semibold text-[#111929]">{t("partnershipPage.join.option2.hearTitle")}</label>
+                <div className="grid grid-cols-2 gap-3 text-sm text-[#485A69]">
                   {["h1", "h2", "h3", "h4", "h5", "h6", "h7"].map((key) => (
                     <label key={key} className="flex items-center gap-2">
-                      <input type="checkbox" className="text-[#0ABAB5] focus:ring-[#0ABAB5]" /> {t(`partnershipPage.join.option2.hear.${key}`)}
+                      <input type="checkbox" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t(`partnershipPage.join.option2.hear.${key}`)}
                     </label>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex justify-center pt-2">
+
+            <div className="flex justify-center pt-4">
               <button className="min-w-[160px] h-11 rounded-full bg-[#0ABAB5] text-white text-sm font-medium hover:bg-[#00b3a3] transition-colors">
                 {t("partnershipPage.join.option2.submit")}
               </button>
             </div>
-            <p className="text-xs text-[#485A69] text-center">
+            <p className="text-xs text-[#485A69] text-center pt-2">
               {t("partnershipPage.join.option2.note")}
             </p>
           </div>

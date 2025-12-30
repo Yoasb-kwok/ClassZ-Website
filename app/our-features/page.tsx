@@ -26,7 +26,7 @@ export default function OurFeaturesPage() {
         {/* Content overlay */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-medium drop-shadow-lg">
+            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-lg">
               {t("featuresPage.hero.title1")}
               <br />
               {t("featuresPage.hero.title2")}

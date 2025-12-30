@@ -27,7 +27,7 @@ export default function OurMissionPage() {
         {/* Content overlay */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4 md:mb-6 drop-shadow-lg">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 md:mb-6 drop-shadow-lg">
               {t("mission.hero.title1")}
               <br />
               {t("mission.hero.title2")}
@@ -151,7 +151,7 @@ export default function OurMissionPage() {
             <span className="inline-block bg-[#0ABAB5] text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm">
               {t("mission.discovery.badge")}
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#111929] leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">
               {t("mission.discovery.title")}
             </h2>
             <p className="text-base md:text-lg text-[#485A69] leading-relaxed">
@@ -182,7 +182,7 @@ export default function OurMissionPage() {
             <span className="inline-block bg-[#0ABAB5] text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm">
               {t("mission.booking.badge")}
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#111929] leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">
               {t("mission.booking.title")}
             </h2>
             <p className="text-base md:text-lg text-[#485A69] leading-relaxed">
@@ -227,7 +227,7 @@ export default function OurMissionPage() {
             <span className="inline-block bg-[#0ABAB5] text-white text-sm font-semibold px-4 py-2 rounded-full shadow-sm">
               {t("mission.progress.badge")}
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-[#111929] leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">
               {t("mission.progress.title")}
             </h2>
             <p className="text-base md:text-lg text-[#485A69] leading-relaxed">

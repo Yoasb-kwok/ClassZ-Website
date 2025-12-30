@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react"
 
 export function Hero() {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <section className="relative flex items-center justify-center overflow-hidden" style={{ minHeight: 'calc(var(--vh, 1vh) * 85)' }}>
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img src="/family-snow-winter-happy.jpg" alt="Family in snow" className="w-full h-full object-cover" />
@@ -12,7 +12,7 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center text-white max-w-4xl">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-lg">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 drop-shadow-lg">
           Unlock Your Child's
           <br />
           Full Potential.

@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { LanguageProvider } from '@/components/language-provider'
+import { ViewportHeightFix } from '@/components/viewport-height-fix'
 
 const poppins = Poppins({ 
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} font-sans antialiased`}>
+        <ViewportHeightFix />
         <LanguageProvider>{children}</LanguageProvider>
         <Analytics />
       </body>

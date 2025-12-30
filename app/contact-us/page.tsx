@@ -26,7 +26,7 @@ export default function ContactUsPage() {
         {/* Content overlay */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-semibold drop-shadow-lg">{t("contactPage.hero.title")}</h1>
+            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-lg">{t("contactPage.hero.title")}</h1>
           </div>
         </div>
       </section>
