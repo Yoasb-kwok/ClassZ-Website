@@ -396,7 +396,7 @@ export default function FAQsPage() {
         {/* Content overlay */}
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-semibold mb-2 drop-shadow-lg">{t("faqsPage.hero.title")}</h1>
+            <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">{t("faqsPage.hero.title")}</h1>
             <p className="text-white/90 text-sm sm:text-base md:text-xl drop-shadow-md">{t("faqsPage.hero.subtitle")}</p>
           </div>
         </div>
