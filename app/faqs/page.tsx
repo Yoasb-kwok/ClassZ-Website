@@ -877,7 +877,7 @@ export default function FAQsPage() {
                                   return (
                                     <>
                                       {parts[0]}
-                                      <Link href="/partnership" className="text-[#00A3A0]">
+                                      <Link href="/partnership#join" className="text-[#00A3A0]">
                                         How to Join Us
                                       </Link>
                                       {parts[1]}
@@ -975,7 +975,7 @@ export default function FAQsPage() {
                                 return (
                                   <>
                                     {parts[0]}
-                                    <Link href="/partnership" className="text-[#00A3A0] underline">
+                                    <Link href="/partnership#join" className="text-[#00A3A0] underline">
                                       How to Join Us
                                     </Link>
                                     {parts[1]}
@@ -1249,7 +1249,7 @@ export default function FAQsPage() {
                                 return (
                                   <>
                                     {parts[0]}
-                                    <Link href="/partnership" className="text-[#00A3A0]">
+                                    <Link href="/partnership#join" className="text-[#00A3A0]">
                                       How to Join Us
                                     </Link>
                                     {parts[1]}
@@ -1461,7 +1461,7 @@ export default function FAQsPage() {
                                     const idx = remaining.indexOf("[How to Join Us]")
                                     if (idx > 0) result.push(remaining.substring(0, idx))
                                     result.push(
-                                      <Link key="join" href="/partnership" className="text-[#00A3A0]">
+                                      <Link key="join" href="/partnership#join" className="text-[#00A3A0]">
                                         How to Join Us
                                       </Link>
                                     )

@@ -175,6 +175,28 @@
             "card6": {
                 "title": "Gain Exposure",
                 "text": "Reach families via ClassZ community and boost visibility."
+            },
+            "rolesTable": {
+                "heading": "Account Roles & Structure",
+                "title": "Owners can assign coaches with different access levels – from teaching-only to full administrative control.",
+                "role": "Role",
+                "description": "Description",
+                "accessLevel": "Access Level",
+                "owner": {
+                    "role": "Owner",
+                    "description": "Creates the centre profile, manages one or multiple branches",
+                    "accessLevel": "Full Access"
+                },
+                "manager": {
+                    "role": "Manager",
+                    "description": "Registered as Coach then promoted by Owner",
+                    "accessLevel": "Admin Access"
+                },
+                "coach": {
+                    "role": "Coach",
+                    "description": "Handles lessons and submits student feedback",
+                    "accessLevel": "Class-level Access"
+                }
             }
         },
         "obligation": {
@@ -207,6 +229,9 @@
             }
         },
         "priorities": {
+            "ourFocus": "Our Focus",
+            "title": "Partnership Priorities",
+            "description": "ClassZ is dedicated to building a trusted community of quality programs for toddlers and children.",
             "p1": {
                 "title": "Priority Consideration",
                 "text": "Priority onboarding for children-oriented programs under 14."
@@ -224,6 +249,8 @@
             "title": "How to Join Us",
             "subTitle": "ClassZ Centre Onboarding Guide",
             "subDesc": "Choose one of the following to start onboarding:",
+            "heroTitle": "ClassZ Centre Onboarding Guide",
+            "heroSubtitle": "(Centre Listing Process)",
             "option1": {
                 "title": "Option 1",
                 "desc": "Create a centre via ClassZ App",
@@ -270,7 +297,7 @@
         "cta": {
             "title": "Ready to Join ClassZ?",
             "desc": "Discover how your centre can get listed, reach more families, and start managing classes with ease.",
-            "linkOverview": "Centre Overview",
+            "linkOverview": "Centre Obligation",
             "linkJoin": "How To Join Us"
         }
     },
@@ -302,7 +329,10 @@
             },
             "priority": {
                 "label": "Priority",
-                "placeholder": "Select a priority"
+                "placeholder": "Select a priority",
+                "optionLow": "Low",
+                "optionMedium": "Medium",
+                "optionHigh": "High"
             },
             "description": {
                 "label": "Description",

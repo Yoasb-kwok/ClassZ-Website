@@ -129,6 +129,28 @@ function FormSelect({
   placeholder: string
 }) {
   const { t } = useLanguage()
+  
+  // Determine which options to show based on the field id
+  const getOptions = () => {
+    if (id === "category") {
+      return [
+        t("contactPage.form.category.optionGeneral"),
+        t("contactPage.form.category.optionPartnership"),
+        t("contactPage.form.category.optionSupport"),
+        t("contactPage.form.category.optionFeedback"),
+      ]
+    } else if (id === "priority") {
+      return [
+        t("contactPage.form.priority.optionLow"),
+        t("contactPage.form.priority.optionMedium"),
+        t("contactPage.form.priority.optionHigh"),
+      ]
+    }
+    return []
+  }
+
+  const options = getOptions()
+
   return (
     <div className="space-y-2">
       <label htmlFor={id} className="block text-sm font-medium text-[#111929]">
@@ -144,10 +166,11 @@ function FormSelect({
           <option value="" disabled>
             {placeholder}
           </option>
-          <option>{t("contactPage.form.category.optionGeneral")}</option>
-          <option>{t("contactPage.form.category.optionPartnership")}</option>
-          <option>{t("contactPage.form.category.optionSupport")}</option>
-          <option>{t("contactPage.form.category.optionFeedback")}</option>
+          {options.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
         </select>
         <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#B0B7C3]">▾</span>
       </div>
