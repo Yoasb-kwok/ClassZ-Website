@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
@@ -16,6 +16,21 @@ const tabs = [
 export default function PartnershipPage() {
   const { t } = useLanguage()
   const [active, setActive] = useState<string>("overview")
+
+  // Handle hash navigation
+  useEffect(() => {
+    const hash = window.location.hash.slice(1) // Remove the #
+    if (hash && tabs.some(tab => tab.id === hash)) {
+      setActive(hash)
+      // Scroll to tabs section
+      setTimeout(() => {
+        const tabsSection = document.querySelector('[data-tabs-section]')
+        if (tabsSection) {
+          tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    }
+  }, [])
 
   const overviewImages = ["/card1.png", "/card2.png", "/card3.png", "/card4.png", "/card5.png", "/card6.png"]
   const overviewCards = overviewImages.map((image, idx) => ({
@@ -84,7 +99,7 @@ export default function PartnershipPage() {
       </section>
 
       {/* Intro & Tabs */}
-      <section className="py-12 border-b border-[#E9E9E9]">
+      <section className="py-12 border-b border-[#E9E9E9]" data-tabs-section>
         <div className="max-w-[1080px] mx-auto px-6 md:px-10 space-y-6">
           <div>
             <h2 className="text-2xl md:text-[26px] font-semibold text-[#111929]">{t("partnershipPage.intro.title")}</h2>
@@ -118,6 +133,7 @@ export default function PartnershipPage() {
         />
       )}
 
+      <ReadyCTA t={t} setActive={setActive} />
       <Footer />
     </main>
   )
@@ -162,7 +178,71 @@ function CentreOverview({ t, cards }: { t: (k: string) => string; cards: { title
         </div>
       </section>
 
-      <ReadyCTA t={t} />
+      {/* Roles Table Section */}
+      <section className="pb-16">
+        <div className="max-w-[1080px] mx-auto px-6 md:px-10">
+          <div className="mb-6 space-y-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#111929]">
+              {t("partnershipPage.overview.rolesTable.heading")}
+            </h2>
+            <p className="text-base md:text-lg text-[#111929]">
+              {t("partnershipPage.overview.rolesTable.title")}
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse bg-white border border-[#E9E9E9] rounded-lg">
+              <thead>
+                <tr className="border-b border-[#E9E9E9]">
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm text-[#111929] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.role")}
+                  </th>
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm text-[#111929] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.description")}
+                  </th>
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm text-[#111929]">
+                    {t("partnershipPage.overview.rolesTable.accessLevel")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-[#E9E9E9]">
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#111929] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.owner.role")}
+                  </td>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#485A69] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.owner.description")}
+                  </td>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#485A69]">
+                    {t("partnershipPage.overview.rolesTable.owner.accessLevel")}
+                  </td>
+                </tr>
+                <tr className="border-b border-[#E9E9E9]">
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#111929] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.manager.role")}
+                  </td>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#485A69] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.manager.description")}
+                  </td>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#485A69]">
+                    {t("partnershipPage.overview.rolesTable.manager.accessLevel")}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#111929] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.coach.role")}
+                  </td>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#485A69] border-r border-[#E9E9E9]">
+                    {t("partnershipPage.overview.rolesTable.coach.description")}
+                  </td>
+                  <td className="px-4 md:px-6 py-3 md:py-4 text-sm text-[#485A69]">
+                    {t("partnershipPage.overview.rolesTable.coach.accessLevel")}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </>
   )
 }
@@ -280,8 +360,6 @@ function CentreObligation({
 
         </div>
       </section>
-
-      <ReadyCTA t={t} />
     </>
   )
 }
@@ -301,14 +379,14 @@ function PartnershipPriorities({
           <div className="flex justify-center">
             <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0ABAB5] text-white text-sm font-medium">
               <Heart className="w-4 h-4" />
-              Our Focus
+              {t("partnershipPage.priorities.ourFocus")}
             </button>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#111929]">
-            Partnership Priorities
+            {t("partnershipPage.priorities.title")}
           </h2>
           <p className="text-base md:text-lg text-[#485A69] max-w-3xl mx-auto">
-            ClassZ is dedicated to building a trusted community of quality programs for toddlers and children.
+            {t("partnershipPage.priorities.description")}
           </p>
         </div>
 
@@ -360,10 +438,10 @@ function HowToJoin({
           <div className="max-w-[1280px] mx-auto w-full px-6 md:px-10">
             <div className="text-left space-y-2">
               <h3 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-lg">
-                ClassZ Centre Onboarding Guide
+                {t("partnershipPage.join.heroTitle")}
               </h3>
               <p className="text-white text-lg md:text-xl drop-shadow-md">
-                (Centre Listing Process)
+                {t("partnershipPage.join.heroSubtitle")}
               </p>
             </div>
           </div>
@@ -511,13 +589,22 @@ function HowToJoin({
           </div>
         </div>
       </section>
-
-      <ReadyCTA t={t} />
     </>
   )
 }
 
-function ReadyCTA({ t }: { t: (k: string) => string }) {
+function ReadyCTA({ t, setActive }: { t: (k: string) => string; setActive: (tab: string) => void }) {
+  const handleTabClick = (tabId: string) => {
+    setActive(tabId)
+    // Scroll to tabs section
+    setTimeout(() => {
+      const tabsSection = document.querySelector('[data-tabs-section]')
+      if (tabsSection) {
+        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
+
   return (
     <section className="py-14 bg-gradient-to-b from-white via-[#F4FBFA] to-[#E7F9F8]">
       <div className="max-w-[1080px] mx-auto px-6 md:px-10 text-center space-y-4">
@@ -526,18 +613,18 @@ function ReadyCTA({ t }: { t: (k: string) => string }) {
           {t("partnershipPage.cta.desc")}
         </p>
         <div className="flex flex-wrap justify-center gap-3 pt-2">
-          <Link
-            href="#"
+          <button
+            onClick={() => handleTabClick("obligation")}
             className="px-5 py-2 rounded-full border border-[#0ABAB5] text-[#00A3A0] hover:bg-[#0ABAB5] hover:text-white transition-colors"
           >
             {t("partnershipPage.cta.linkOverview")}
-          </Link>
-          <Link
-            href="#"
+          </button>
+          <button
+            onClick={() => handleTabClick("join")}
             className="px-5 py-2 rounded-full bg-[#0ABAB5] text-white hover:bg-[#00b3a3] transition-colors"
           >
             {t("partnershipPage.cta.linkJoin")}
-          </Link>
+          </button>
         </div>
       </div>
     </section>

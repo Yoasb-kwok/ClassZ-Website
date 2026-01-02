@@ -36,7 +36,7 @@ export default function OurFeaturesPage() {
       </section>
       <OurMission hideHeader={true} />
       <HowItWorks />
-      <JoinUsCta />
+      <JoinUsCta secondaryLink="/our-mission" primaryLink="https://apps.apple.com/app/classz" />
       <Footer />
     </main>
   )

@@ -175,6 +175,28 @@
             "card6": {
                 "title": "提升曝光",
                 "text": "透過 ClassZ 社群觸及家庭並提升能見度。"
+            },
+            "rolesTable": {
+                "heading": "帳戶角色與結構",
+                "title": "Owner 可以指派教練不同的存取權限等級 – 從僅教學到完整管理控制。",
+                "role": "角色",
+                "description": "描述",
+                "accessLevel": "存取權限",
+                "owner": {
+                    "role": "Owner",
+                    "description": "建立中心檔案，管理一個或多個分店",
+                    "accessLevel": "完整存取"
+                },
+                "manager": {
+                    "role": "Manager",
+                    "description": "註冊為 Coach 後由 Owner 晉升",
+                    "accessLevel": "管理存取"
+                },
+                "coach": {
+                    "role": "Coach",
+                    "description": "處理課程並提交學生回饋",
+                    "accessLevel": "課程層級存取"
+                }
             }
         },
         "obligation": {
@@ -207,6 +229,9 @@
             }
         },
         "priorities": {
+            "ourFocus": "我們的焦點",
+            "title": "合作優先事項",
+            "description": "ClassZ 致力於為幼兒和兒童建立一個值得信賴的優質課程社群。",
             "p1": {
                 "title": "優先考量",
                 "text": "14 歲以下兒童課程享有優先入駐。"
@@ -224,6 +249,8 @@
             "title": "如何加入",
             "subTitle": "ClassZ 中心入駐指南",
             "subDesc": "選擇一種方式開始入駐。",
+            "heroTitle": "ClassZ 中心入駐指南",
+            "heroSubtitle": "（中心上架流程）",
             "option1": {
                 "title": "方式一",
                 "desc": "透過 ClassZ App 建立中心",
@@ -270,7 +297,7 @@
         "cta": {
             "title": "準備好加入 ClassZ 了嗎？",
             "desc": "了解你的中心如何上架、觸及更多家庭，並輕鬆管理課程。",
-            "linkOverview": "中心概覽",
+            "linkOverview": "中心責任",
             "linkJoin": "如何加入"
         }
     },
@@ -302,7 +329,10 @@
             },
             "priority": {
                 "label": "優先級",
-                "placeholder": "選擇優先級"
+                "placeholder": "選擇優先級",
+                "optionLow": "低",
+                "optionMedium": "中",
+                "optionHigh": "高"
             },
             "description": {
                 "label": "描述",

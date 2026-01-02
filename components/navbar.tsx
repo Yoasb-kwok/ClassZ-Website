@@ -21,8 +21,8 @@ export function Navbar() {
     <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logoWeb.png" alt="ClassZ" className="h-10 w-auto md:h-12" />
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+          <img src="/logoWeb.png" alt="ClassZ" className="h-12 w-auto min-h-[40px] object-contain" />
         </Link>
 
         {/* Desktop Links */}

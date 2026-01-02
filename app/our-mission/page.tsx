@@ -47,32 +47,32 @@ export default function OurMissionPage() {
       </section>
 
       {/* Logo Cloud Section */}
-      <section className="bg-white py-10 md:py-14">
+      <section className="bg-white py-10 md:py-14 overflow-x-hidden">
         <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10">
           <div className="relative w-full overflow-hidden">
-            <div className="flex items-center">
+            <div className="flex items-center min-w-0">
               {/* Fixed left section: Funded by, Cyberport logo, Trusted by */}
-              <div className="flex items-center gap-6 md:gap-10 lg:gap-12 flex-shrink-0 z-10 bg-white pr-6 md:pr-10 lg:pr-12">
-                <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
-                <img src="/logo1.png" alt="Funded by Cyberport" className="h-14 md:h-16 lg:h-20 w-auto" />
-                <span className="text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
+              <div className="flex items-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 flex-shrink-0 z-10 bg-white pr-3 sm:pr-6 md:pr-10 lg:pr-12">
+                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
+                <img src="/logo1.png" alt="Funded by Cyberport" className="h-10 sm:h-14 md:h-16 lg:h-20 w-auto flex-shrink-0" />
+                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
               </div>
               
               {/* Moving center logos section - takes remaining space */}
-              <div className="flex-1 overflow-hidden">
-                <div className="logo-marquee flex items-center gap-6 md:gap-10 lg:gap-12">
-                  <img src="/logo2.png" alt="Trusted partner 1" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo3.png" alt="Trusted partner 2" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo4.png" alt="Trusted partner 3" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo5.png" alt="Trusted partner 4" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo6.png" alt="Trusted partner 5" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+              <div className="flex-1 overflow-hidden min-w-0">
+                <div className="logo-marquee flex items-center gap-4 sm:gap-6 md:gap-10 lg:gap-12">
+                  <img src="/logo2.png" alt="Trusted partner 1" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo3.png" alt="Trusted partner 2" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo4.png" alt="Trusted partner 3" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo5.png" alt="Trusted partner 4" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img src="/logo6.png" alt="Trusted partner 5" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
 
                   {/* duplicate sequence for seamless marquee */}
-                  <img src="/logo2.png" alt="Trusted partner 1 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo3.png" alt="Trusted partner 2 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo4.png" alt="Trusted partner 3 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo5.png" alt="Trusted partner 4 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo6.png" alt="Trusted partner 5 duplicate" className="h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo2.png" alt="Trusted partner 1 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo3.png" alt="Trusted partner 2 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo4.png" alt="Trusted partner 3 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo5.png" alt="Trusted partner 4 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img src="/logo6.png" alt="Trusted partner 5 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
                 </div>
               </div>
             </div>
@@ -355,19 +355,21 @@ export default function OurMissionPage() {
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="#"
+              href="https://apps.apple.com/app/classz"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-[#0ABAB5] text-white text-base md:text-lg font-semibold shadow-[0_10px_28px_rgba(0,186,181,0.3)] hover:bg-[#00b3a3] transition"
             >
               {t("mission.cta.primary")}
               <ArrowRight className="w-5 h-5" />
             </a>
-            <a
-              href="#"
+            <Link
+              href="/our-features"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-[#3F4A53] text-base md:text-lg font-semibold hover:bg-white/60 transition"
             >
               {t("mission.cta.secondary")}
               <ArrowRight className="w-5 h-5" />
-            </a>
+            </Link>
           </div>
           <div className="pt-4 text-sm text-[#3F4A53] flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
             <span className="inline-flex items-center gap-2">

@@ -10,7 +10,7 @@ export function Footer() {
         {/* Mobile Layout */}
         <div className="flex flex-col md:hidden">
           {/* Navigation Sections - 2 Columns */}
-          <div className="grid grid-cols-2 gap-6 pb-8">
+          <div className="grid grid-cols-2 gap-6 gap-y-8 pb-8">
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-[#111929]">{t("footer.company")}</h4>
               <div className="space-y-2 text-sm text-[#111929]">
@@ -84,7 +84,7 @@ export function Footer() {
         {/* Desktop Layout */}
         <div className="hidden md:flex flex-col">
           {/* Main Footer Content */}
-          <div className="flex flex-row items-center justify-between gap-8 md:gap-12 pb-6">
+          <div className="flex flex-row items-start justify-between gap-6 lg:gap-8 xl:gap-12 pb-6">
             {/* Logo Section */}
             <div className="flex-shrink-0">
               <Link href="/" className="inline-block">
@@ -93,8 +93,8 @@ export function Footer() {
             </div>
 
             {/* Navigation Columns */}
-            <div className="flex flex-wrap gap-8 md:gap-12 flex-1 justify-end">
-              <div className="space-y-3">
+            <div className="flex flex-wrap gap-6 md:gap-8 lg:gap-10 xl:gap-12 flex-1 justify-end">
+              <div className="space-y-3 min-w-[120px]">
                 <h4 className="text-sm font-semibold text-[#111929]">{t("footer.company")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="/our-features" className="block hover:opacity-70 transition-opacity">
@@ -105,7 +105,7 @@ export function Footer() {
                   </Link>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 min-w-[120px]">
                 <h4 className="text-sm font-semibold text-[#111929]">{t("footer.resources")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="/partnership" className="block hover:opacity-70 transition-opacity">
@@ -116,7 +116,7 @@ export function Footer() {
                   </Link>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 min-w-[120px]">
                 <h4 className="text-sm font-semibold text-[#111929]">{t("footer.legal")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="/privacy" className="block hover:opacity-70 transition-opacity">
@@ -130,7 +130,7 @@ export function Footer() {
                   </Link>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3 min-w-[120px]">
                 <h4 className="text-sm font-semibold text-[#111929]">{t("footer.follow")}</h4>
                 <div className="space-y-2 text-sm text-[#111929]">
                   <Link href="#" className="flex items-center gap-2 hover:opacity-70 transition-opacity">

@@ -1,8 +1,14 @@
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, CheckCircle2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
-export function JoinUsCta() {
+interface JoinUsCtaProps {
+  secondaryLink?: string
+  primaryLink?: string
+}
+
+export function JoinUsCta({ secondaryLink, primaryLink }: JoinUsCtaProps) {
   const { t } = useLanguage()
   return (
     <section className="relative bg-gradient-to-br from-white via-[#F9FAFB] to-[#E0F7F6] overflow-hidden">
@@ -30,14 +36,32 @@ export function JoinUsCta() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-              <Button className="bg-[#0ABAB5] hover:bg-[#00b3a3] text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
-                {t("joinUsCta.primary")}
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-              <Button variant="outline" className="border-[#4A5565] text-[#4A5565] hover:bg-slate-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
-                {t("joinUsCta.secondary")}
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+              {primaryLink ? (
+                <Link href={primaryLink}>
+                  <Button className="bg-[#0ABAB5] hover:bg-[#00b3a3] text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
+                    {t("joinUsCta.primary")}
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button className="bg-[#0ABAB5] hover:bg-[#00b3a3] text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
+                  {t("joinUsCta.primary")}
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              )}
+              {secondaryLink ? (
+                <Link href={secondaryLink}>
+                  <Button variant="outline" className="border-[#4A5565] text-[#4A5565] hover:bg-slate-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
+                    {t("joinUsCta.secondary")}
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button variant="outline" className="border-[#4A5565] text-[#4A5565] hover:bg-slate-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
+                  {t("joinUsCta.secondary")}
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              )}
             </div>
 
             {/* Stats Row */}
