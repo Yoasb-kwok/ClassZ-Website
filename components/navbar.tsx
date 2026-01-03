@@ -18,11 +18,11 @@ export function Navbar() {
     `${isActive(path) ? "text-[#00C9B7]" : "text-slate-600"} hover:text-[#00C9B7] transition-colors`
 
   return (
-    <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+    <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 overflow-visible">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between relative overflow-visible">
         {/* Logo - Always on the left */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <img src="/logoWeb.png" alt="ClassZ" className="h-10 sm:h-12 w-auto object-contain" />
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0 z-10 max-w-[40%] md:max-w-none">
+          <img src="/logoWeb.png" alt="ClassZ" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
         </Link>
 
         {/* Desktop Links - Hidden on mobile */}
@@ -42,18 +42,24 @@ export function Navbar() {
           <Link href="/faqs" className={linkClasses("/faqs")}>
             {t("faqs")}
           </Link>
-          <div className="relative">
+          <div className="relative z-50">
             <button
               className="flex items-center gap-1 hover:text-[#00C9B7] transition-colors"
               onClick={() => setLangOpen((v) => !v)}
+              onBlur={(e) => {
+                // Close dropdown when clicking outside
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setTimeout(() => setLangOpen(false), 200)
+                }
+              }}
             >
               {locale === "en" ? t("english") : t("chinese")}
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className={`w-4 h-4 transition-transform ${langOpen ? "rotate-180" : ""}`} />
             </button>
             {langOpen && (
-              <div className="absolute right-0 mt-2 w-32 rounded-md border border-slate-200 bg-white shadow-md">
+              <div className="absolute right-0 mt-2 w-32 rounded-md border border-slate-200 bg-white shadow-lg z-[60] min-w-[120px]">
                 <button
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50"
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
                   onClick={() => {
                     setLocale("en")
                     setLangOpen(false)
@@ -62,7 +68,7 @@ export function Navbar() {
                   {t("english")}
                 </button>
                 <button
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50"
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
                   onClick={() => {
                     setLocale("zh-TW")
                     setLangOpen(false)
@@ -85,19 +91,67 @@ export function Navbar() {
           </Button>
         </div>
 
-        {/* Mobile Menu Button - Only visible on mobile, always on the right */}
-        <button
-          className="md:hidden p-2 text-slate-600 flex-shrink-0"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile: Language Dropdown + Menu Button - Always visible */}
+        <div className="md:hidden flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-50 relative">
+          {/* Language Dropdown - Always visible on mobile */}
+          <div className="relative z-50">
+            <button
+              className="flex items-center gap-1 px-2 py-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-[#00C9B7] transition-colors rounded-md hover:bg-slate-50 whitespace-nowrap"
+              onClick={(e) => {
+                e.stopPropagation()
+                setLangOpen((v) => !v)
+              }}
+              onBlur={(e) => {
+                // Close dropdown when clicking outside
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setTimeout(() => setLangOpen(false), 200)
+                }
+              }}
+            >
+              <span className="text-xs sm:text-sm">{locale === "en" ? t("english") : t("chinese")}</span>
+              <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${langOpen ? "rotate-180" : ""}`} />
+            </button>
+            {langOpen && (
+              <div className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md border border-slate-200 bg-white shadow-xl z-[100] min-w-[100px]">
+                <button
+                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
+                  onClick={() => {
+                    setLocale("en")
+                    setLangOpen(false)
+                  }}
+                >
+                  {t("english")}
+                </button>
+                <button
+                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
+                  onClick={() => {
+                    setLocale("zh-TW")
+                    setLangOpen(false)
+                  }}
+                >
+                  {t("chinese")}
+                </button>
+              </div>
+            )}
+          </div>
+          
+          {/* Mobile Menu Button */}
+          <button
+            className="p-2 text-slate-600 flex-shrink-0 relative z-10"
+            onClick={() => {
+              setOpen((v) => !v)
+              setLangOpen(false) // Close language dropdown when opening menu
+            }}
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden bg-white/95 backdrop-blur border-t border-slate-100 shadow-sm">
+        <div className="md:hidden bg-white/95 backdrop-blur border-t border-slate-100 shadow-sm relative z-40">
           <div className="px-4 py-4 space-y-3 text-sm font-medium text-slate-700">
             <NavLinkMobile href="/our-mission" active={isActive("/our-mission")} onClick={() => setOpen(false)}>
               {t("ourMission")}
@@ -114,28 +168,9 @@ export function Navbar() {
             <NavLinkMobile href="/faqs" active={isActive("/faqs")} onClick={() => setOpen(false)}>
               {t("faqs")}
             </NavLinkMobile>
-            <div className="pt-2 flex gap-2">
-              <button
-                className={`flex-1 px-3 py-2 rounded-md border ${locale === "en" ? "border-[#00C9B7] text-[#00C9B7]" : "border-slate-200 text-slate-700"}`}
-                onClick={() => {
-                  setLocale("en")
-                  setOpen(false)
-                }}
-              >
-                {t("english")}
-              </button>
-              <button
-                className={`flex-1 px-3 py-2 rounded-md border ${locale === "zh-TW" ? "border-[#00C9B7] text-[#00C9B7]" : "border-slate-200 text-slate-700"}`}
-                onClick={() => {
-                  setLocale("zh-TW")
-                  setOpen(false)
-                }}
-              >
-                {t("chinese")}
-              </button>
-            </div>
+            
             <div className="pt-2 flex flex-col gap-2">
-              <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7]" onClick={() => setOpen(false)}>
+              <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7] transition-colors" onClick={() => setOpen(false)}>
                 {t("login")}
               </Link>
               <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full w-full" onClick={() => setOpen(false)}>
