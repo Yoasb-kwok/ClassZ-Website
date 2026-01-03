@@ -7,6 +7,37 @@ import { Footer } from "@/components/footer"
 import { CheckCircle2, Heart } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
+// API Base URL - Update this to match your backend URL
+// Priority: 1. NEXT_PUBLIC_API_BASE_URL env variable, 2. Auto-detect, 3. Fallback
+const getApiBaseUrl = () => {
+  // Use environment variable if set (highest priority)
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL
+  }
+  
+  if (typeof window === 'undefined') {
+    return 'http://localhost:3000'
+  }
+  
+  // For localhost, use local backend
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000'
+  }
+  
+  // For production/Vercel, check if we're on the same domain as backend
+  // If backend is deployed separately, you MUST set NEXT_PUBLIC_API_BASE_URL
+  const hostname = window.location.hostname
+  
+  // Try to detect backend URL from current domain
+  // If frontend is on vercel.app, backend might be on a different domain
+  // For now, return empty string to use relative path (requires backend proxy)
+  // IMPORTANT: Set NEXT_PUBLIC_API_BASE_URL environment variable in production!
+  console.warn('NEXT_PUBLIC_API_BASE_URL not set. Using relative path. This may cause 404 errors if backend is not proxied.')
+  return ''
+}
+
+const API_BASE_URL = getApiBaseUrl()
+
 const tabs = [
   { id: "overview", labelKey: "partnershipPage.tabs.overview" },
   { id: "obligation", labelKey: "partnershipPage.tabs.obligation" },
@@ -425,6 +456,183 @@ function HowToJoin({
   option1Steps: string[]
   option2Fields: string[]
 }) {
+  // Form state for Option 2
+  const [formData, setFormData] = useState({
+    ownerName: "",
+    centreName: "",
+    email: "",
+    phone: "",
+    webpageLink: "",
+    status: [] as string[],
+    interests: [] as string[],
+    hearAboutUs: [] as string[]
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error' | null, message: string }>({ type: null, message: "" })
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleCheckboxChange = (field: 'status' | 'interests' | 'hearAboutUs', value: string, checked: boolean) => {
+    setFormData(prev => {
+      const currentArray = prev[field] as string[]
+      if (checked) {
+        return { ...prev, [field]: [...currentArray, value] }
+      } else {
+        return { ...prev, [field]: currentArray.filter(item => item !== value) }
+      }
+    })
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    // Validate required fields
+    if (!formData.ownerName || !formData.centreName || !formData.email || !formData.phone) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Please fill in all required fields (Owner Name, Centre Name, Email, and Phone Number).'
+      })
+      return
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Please enter a valid email address.'
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitStatus({ type: null, message: "" })
+
+    try {
+      // Format message with all form data
+      const statusTexts = formData.status.map(s => 
+        s === 'registered' ? t("partnershipPage.join.option2.status1") : t("partnershipPage.join.option2.status2")
+      )
+      
+      const interestTexts = formData.interests.map(key => 
+        t(`partnershipPage.join.option2.interest.${key}`)
+      )
+      
+      const hearTexts = formData.hearAboutUs.map(key => 
+        t(`partnershipPage.join.option2.hear.${key}`)
+      )
+
+      const messageParts = [
+        `Centre Owner Name: ${formData.ownerName}`,
+        `Centre Name: ${formData.centreName}`,
+        `Email: ${formData.email}`,
+        `Phone: ${formData.phone}`,
+        formData.webpageLink ? `Webpage Link: ${formData.webpageLink}` : '',
+        statusTexts.length > 0 ? `Centre Status: ${statusTexts.join(', ')}` : '',
+        interestTexts.length > 0 ? `Interests: ${interestTexts.join(', ')}` : '',
+        hearTexts.length > 0 ? `How did you hear about us: ${hearTexts.join(', ')}` : ''
+      ].filter(Boolean)
+
+      const message = messageParts.join('\n')
+
+      const requestBody = {
+        email: formData.email,
+        name: formData.ownerName,
+        message: message,
+        subject: `Centre Request - ${formData.centreName}`,
+        category: "partnership"
+      }
+
+      // Construct API URL - use Next.js API route if API_BASE_URL is empty
+      const apiUrl = API_BASE_URL 
+        ? `${API_BASE_URL}/api/parent/contact-form`
+        : '/api/parent/contact-form' // Next.js API route will proxy to backend
+      
+      console.log('API_BASE_URL:', API_BASE_URL)
+      console.log('Submitting partnership form to:', apiUrl)
+      console.log('Request body:', requestBody)
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+        mode: 'cors', // Enable CORS
+      })
+
+      console.log('Response status:', response.status)
+      console.log('Response URL:', response.url)
+
+      // Handle 404 specifically
+      if (response.status === 404) {
+        const errorText = await response.text().catch(() => 'Unknown error')
+        console.error('404 Error - Endpoint not found:', errorText)
+        setSubmitStatus({
+          type: 'error',
+          message: `API endpoint not found (404). Please check if the backend is running and the endpoint is correct. URL: ${apiUrl}`
+        })
+        return
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('Non-JSON response:', text)
+        setSubmitStatus({
+          type: 'error',
+          message: `Server error (${response.status}). Please check if the backend is running. Response: ${text.substring(0, 100)}`
+        })
+        return
+      }
+
+      const data = await response.json()
+      console.log('Response data:', data)
+
+      if (response.ok && data.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: data.message || 'Your centre request has been received. We will review and contact you within 3-5 business days.'
+        })
+        // Reset form
+        setFormData({
+          ownerName: "",
+          centreName: "",
+          email: "",
+          phone: "",
+          webpageLink: "",
+          status: [],
+          interests: [],
+          hearAboutUs: []
+        })
+      } else {
+        setSubmitStatus({
+          type: 'error',
+          message: data.message || `Failed to submit your request. (Status: ${response.status})`
+        })
+      }
+    } catch (error: any) {
+      console.error('Error submitting form:', error)
+      console.error('API_BASE_URL:', API_BASE_URL)
+      let errorMessage = 'An error occurred while submitting your request. Please try again later.'
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = `Cannot connect to server. Please check if the backend is running at ${API_BASE_URL}. If you're using a different backend URL, please set NEXT_PUBLIC_API_BASE_URL environment variable.`
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`
+      }
+      
+      setSubmitStatus({
+        type: 'error',
+        message: errorMessage
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
   return (
     <>
       {/* How to Join Hero */}
@@ -489,11 +697,22 @@ function HowToJoin({
 
       <section className="pb-16 bg-white">
         <div className="max-w-[1180px] mx-auto px-4 md:px-6 py-12 md:py-16">
-          <div className="rounded-2xl border border-[#E9E9E9] bg-white shadow-lg p-6 md:p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-[#E9E9E9] bg-white shadow-lg p-6 md:p-8 space-y-6">
             <div className="space-y-2">
               <h4 className="text-2xl md:text-3xl font-bold text-[#111929]">{t("partnershipPage.join.option2.title")}</h4>
               <p className="text-sm text-[#485A69]">{t("partnershipPage.join.option2.desc")}</p>
             </div>
+
+            {/* Status Messages */}
+            {submitStatus.type && (
+              <div className={`p-4 rounded-lg ${
+                submitStatus.type === 'success' 
+                  ? 'bg-green-50 text-green-800 border border-green-200' 
+                  : 'bg-red-50 text-red-800 border border-red-200'
+              }`}>
+                {submitStatus.message}
+              </div>
+            )}
 
             {/* Single column layout - ordered as requested */}
             <div className="space-y-4">
@@ -502,8 +721,11 @@ function HowToJoin({
                 <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f1")}</label>
                 <input
                   type="text"
+                  value={formData.ownerName}
+                  onChange={(e) => handleInputChange('ownerName', e.target.value)}
                   placeholder={t("partnershipPage.join.option2.f1")}
                   className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                  required
                 />
               </div>
               {/* 2. Full name of the centre */}
@@ -511,8 +733,11 @@ function HowToJoin({
                 <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f2")}</label>
                 <input
                   type="text"
+                  value={formData.centreName}
+                  onChange={(e) => handleInputChange('centreName', e.target.value)}
                   placeholder={t("partnershipPage.join.option2.f2")}
                   className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                  required
                 />
               </div>
               {/* 3. Email */}
@@ -520,8 +745,11 @@ function HowToJoin({
                 <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f3")}</label>
                 <input
                   type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder={t("partnershipPage.join.option2.f3")}
                   className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                  required
                 />
               </div>
               {/* 4. Contact phone number */}
@@ -529,19 +757,34 @@ function HowToJoin({
                 <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.f4")}</label>
                 <input
                   type="text"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
                   placeholder={t("partnershipPage.join.option2.f4")}
                   className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
+                  required
                 />
               </div>
               {/* 5. Centre status */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.statusLabel")}</label>
-                <div className="grid grid-cols-2 gap-3 text-sm text-[#485A69]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[#485A69]">
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" name="status" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t("partnershipPage.join.option2.status1")}
+                    <input 
+                      type="checkbox" 
+                      checked={formData.status.includes('registered')}
+                      onChange={(e) => handleCheckboxChange('status', 'registered', e.target.checked)}
+                      className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300 flex-shrink-0" 
+                    /> 
+                    <span className="break-words">{t("partnershipPage.join.option2.status1")}</span>
                   </label>
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" name="status" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t("partnershipPage.join.option2.status2")}
+                    <input 
+                      type="checkbox" 
+                      checked={formData.status.includes('individual')}
+                      onChange={(e) => handleCheckboxChange('status', 'individual', e.target.checked)}
+                      className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300 flex-shrink-0" 
+                    /> 
+                    <span className="break-words">{t("partnershipPage.join.option2.status2")}</span>
                   </label>
                 </div>
               </div>
@@ -550,6 +793,8 @@ function HowToJoin({
                 <label className="block text-sm font-medium text-[#111929]">{t("partnershipPage.join.option2.linkPlaceholder")}</label>
                 <input
                   type="text"
+                  value={formData.webpageLink}
+                  onChange={(e) => handleInputChange('webpageLink', e.target.value)}
                   placeholder={t("partnershipPage.join.option2.linkPlaceholder")}
                   className="w-full h-11 px-4 rounded-lg border border-[#EFF1F3] bg-white text-sm text-[#292929] placeholder:text-[#B0B7C3] focus:outline-none focus:ring-2 focus:ring-[#0ABAB5] focus:border-transparent"
                 />
@@ -557,10 +802,16 @@ function HowToJoin({
               {/* 7. Interest in ClassZ */}
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-[#111929]">{t("partnershipPage.join.option2.interestTitle")}</label>
-                <div className="grid grid-cols-2 gap-3 text-sm text-[#485A69]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[#485A69]">
                   {["i1", "i2", "i3", "i4", "i5", "i6", "i7"].map((key) => (
-                    <label key={key} className="flex items-center gap-2">
-                      <input type="checkbox" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t(`partnershipPage.join.option2.interest.${key}`)}
+                    <label key={key} className="flex items-start gap-2">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.interests.includes(key)}
+                        onChange={(e) => handleCheckboxChange('interests', key, e.target.checked)}
+                        className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300 mt-0.5 flex-shrink-0" 
+                      /> 
+                      <span className="break-words">{t(`partnershipPage.join.option2.interest.${key}`)}</span>
                     </label>
                   ))}
                 </div>
@@ -568,10 +819,16 @@ function HowToJoin({
               {/* 8. How did you hear about us */}
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-[#111929]">{t("partnershipPage.join.option2.hearTitle")}</label>
-                <div className="grid grid-cols-2 gap-3 text-sm text-[#485A69]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[#485A69]">
                   {["h1", "h2", "h3", "h4", "h5", "h6", "h7"].map((key) => (
-                    <label key={key} className="flex items-center gap-2">
-                      <input type="checkbox" className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300" /> {t(`partnershipPage.join.option2.hear.${key}`)}
+                    <label key={key} className="flex items-start gap-2">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.hearAboutUs.includes(key)}
+                        onChange={(e) => handleCheckboxChange('hearAboutUs', key, e.target.checked)}
+                        className="w-4 h-4 text-[#0ABAB5] focus:ring-[#0ABAB5] rounded border-gray-300 mt-0.5 flex-shrink-0" 
+                      /> 
+                      <span className="break-words">{t(`partnershipPage.join.option2.hear.${key}`)}</span>
                     </label>
                   ))}
                 </div>
@@ -579,14 +836,18 @@ function HowToJoin({
             </div>
 
             <div className="flex justify-center pt-4">
-              <button className="min-w-[160px] h-11 rounded-full bg-[#0ABAB5] text-white text-sm font-medium hover:bg-[#00b3a3] transition-colors">
-                {t("partnershipPage.join.option2.submit")}
+              <button 
+                type="submit"
+                disabled={isSubmitting}
+                className="min-w-[160px] h-11 rounded-full bg-[#0ABAB5] text-white text-sm font-medium hover:bg-[#00b3a3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Submitting...' : t("partnershipPage.join.option2.submit")}
               </button>
             </div>
             <p className="text-xs text-[#485A69] text-center pt-2">
               {t("partnershipPage.join.option2.note")}
             </p>
-          </div>
+          </form>
         </div>
       </section>
     </>

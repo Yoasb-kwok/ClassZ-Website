@@ -9,9 +9,35 @@ import { Mail, Phone, MapPin } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
 // API Base URL - Update this to match your backend URL
-// For development: http://localhost:3000
-// For production: https://dev.classz.co
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://dev.classz.co')
+// Priority: 1. NEXT_PUBLIC_API_BASE_URL env variable, 2. Auto-detect, 3. Fallback
+const getApiBaseUrl = () => {
+  // Use environment variable if set (highest priority)
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL
+  }
+  
+  if (typeof window === 'undefined') {
+    return 'http://localhost:3000'
+  }
+  
+  // For localhost, use local backend
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000'
+  }
+  
+  // For production/Vercel, check if we're on the same domain as backend
+  // If backend is deployed separately, you MUST set NEXT_PUBLIC_API_BASE_URL
+  const hostname = window.location.hostname
+  
+  // Try to detect backend URL from current domain
+  // If frontend is on vercel.app, backend might be on a different domain
+  // For now, return empty string to use relative path (requires backend proxy)
+  // IMPORTANT: Set NEXT_PUBLIC_API_BASE_URL environment variable in production!
+  console.warn('NEXT_PUBLIC_API_BASE_URL not set. Using relative path. This may cause 404 errors if backend is not proxied.')
+  return ''
+}
+
+const API_BASE_URL = getApiBaseUrl()
 
 export default function ContactUsPage() {
   const { t } = useLanguage()
@@ -70,19 +96,37 @@ export default function ContactUsPage() {
         category: mapCategoryToBackend(formData.category)
       }
 
-      console.log('Submitting to:', `${API_BASE_URL}/api/parent/contact-form`)
+      // Construct API URL - use Next.js API route if API_BASE_URL is empty
+      const apiUrl = API_BASE_URL 
+        ? `${API_BASE_URL}/api/parent/contact-form`
+        : '/api/parent/contact-form' // Next.js API route will proxy to backend
+      
+      console.log('API_BASE_URL:', API_BASE_URL)
+      console.log('Submitting to:', apiUrl)
       console.log('Request body:', requestBody)
 
-      const response = await fetch(`${API_BASE_URL}/api/parent/contact-form`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
+        mode: 'cors', // Enable CORS
       })
 
       console.log('Response status:', response.status)
-      console.log('Response headers:', response.headers)
+      console.log('Response URL:', response.url)
+
+      // Handle 404 specifically
+      if (response.status === 404) {
+        const errorText = await response.text().catch(() => 'Unknown error')
+        console.error('404 Error - Endpoint not found:', errorText)
+        setSubmitStatus({
+          type: 'error',
+          message: `API endpoint not found (404). Please check if the backend is running and the endpoint is correct. URL: ${apiUrl}`
+        })
+        return
+      }
 
       // Check if response is JSON
       const contentType = response.headers.get('content-type')
@@ -91,7 +135,7 @@ export default function ContactUsPage() {
         console.error('Non-JSON response:', text)
         setSubmitStatus({
           type: 'error',
-          message: `Server error (${response.status}). Please check if the backend is running.`
+          message: `Server error (${response.status}). Please check if the backend is running. Response: ${text.substring(0, 100)}`
         })
         return
       }
@@ -120,10 +164,11 @@ export default function ContactUsPage() {
       }
     } catch (error: any) {
       console.error('Error submitting form:', error)
+      console.error('API_BASE_URL:', API_BASE_URL)
       let errorMessage = 'An error occurred while submitting your message. Please try again later.'
       
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        errorMessage = `Cannot connect to server. Please check if the backend is running at ${API_BASE_URL}`
+        errorMessage = `Cannot connect to server. Please check if the backend is running at ${API_BASE_URL}. If you're using a different backend URL, please set NEXT_PUBLIC_API_BASE_URL environment variable.`
       } else if (error.message) {
         errorMessage = `Error: ${error.message}`
       }

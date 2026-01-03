@@ -23,31 +23,31 @@ export function HowItWorks() {
           </div>
 
           {/* Image Grid */}
-          <div className="flex flex-col md:flex-row gap-[50px] w-full px-0 md:px-[156px]">
+          <div className="flex flex-col md:flex-row gap-5 md:gap-[50px] w-full px-4 md:px-0 md:px-[156px]">
             {/* Left Column - Two Images */}
             <div className="flex flex-col gap-[10px] flex-1">
-              <div className="h-[300px] rounded-[30px] overflow-hidden">
+              <div className="h-[250px] sm:h-[300px] rounded-[20px] md:rounded-[30px] overflow-hidden">
                 <img
-                  src="/family-snow-winter-happy.jpg"
-                  alt="Family moments"
+                  src="/pexels-anastasia-shuraeva-4079277.jpg"
+                  alt="Mother and child moment"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="h-[300px] rounded-[30px] overflow-hidden">
+              <div className="h-[250px] sm:h-[300px] rounded-[20px] md:rounded-[30px] overflow-hidden">
                 <img
-                  src="/mother-hugging-child-happy.jpg"
-                  alt="Family moments"
+                  src="/pexels-tatianasyrikova-3933227.jpg"
+                  alt="Father and child painting together"
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
 
-            {/* Right Column - One Large Image */}
-            <div className="flex flex-col justify-center gap-[50px] flex-1">
-              <div className="rounded-[30px] overflow-hidden min-h-[300px]">
+            {/* Right Column - One Large Image (centered vertically) */}
+            <div className="flex flex-col justify-center items-center flex-1">
+              <div className="rounded-[20px] md:rounded-[30px] overflow-hidden h-[250px] sm:h-[300px] md:h-[610px] w-full">
                 <img
-                  src="/father-playing-with-child.jpg"
-                  alt="Family moments"
+                  src="/pexels-emma-bauso-1183828-2833394.jpg"
+                  alt="Family playing at beach"
                   className="w-full h-full object-cover"
                 />
               </div>

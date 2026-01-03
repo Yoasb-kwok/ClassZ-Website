@@ -20,13 +20,13 @@ export function Navbar() {
   return (
     <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        {/* Logo */}
+        {/* Logo - Always on the left */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <img src="/logoWeb.png" alt="ClassZ" className="h-12 w-auto min-h-[40px] object-contain" />
+          <img src="/logoWeb.png" alt="ClassZ" className="h-10 sm:h-12 w-auto object-contain" />
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        {/* Desktop Links - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 flex-1 justify-center">
           <Link href="/our-mission" className={linkClasses("/our-mission")}>
             {t("ourMission")}
           </Link>
@@ -75,19 +75,19 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7]">
+        {/* Desktop Actions - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+          <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7] whitespace-nowrap">
             {t("login")}
           </Link>
-          <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full px-6">
+          <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full px-6 whitespace-nowrap">
             {t("getStarted")}
           </Button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Button - Only visible on mobile, always on the right */}
         <button
-          className="md:hidden p-2 text-slate-600"
+          className="md:hidden p-2 text-slate-600 flex-shrink-0"
           onClick={() => setOpen((v) => !v)}
           aria-label="Toggle menu"
         >
