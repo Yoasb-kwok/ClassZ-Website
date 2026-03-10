@@ -1014,6 +1014,31 @@
             "title": "Need Help?",
             "content": "If you have any questions or need assistance with deleting your account, please contact our support team at"
         },
-        "relatedPolicies": "These might help you"
+        "relatedPolicies": "These might help you",
+        "interactive": {
+            "deleteButton": "Delete Your Account",
+            "loginTitle": "Verify Your Account",
+            "loginDesc": "Please log in to confirm your identity before deleting your account.",
+            "emailLabel": "Email",
+            "passwordLabel": "Password",
+            "roleLabel": "Account Role",
+            "roleOwner": "Owner",
+            "roleCoach": "Coach",
+            "roleParent": "Parent",
+            "loginButton": "Log In",
+            "loginSubmitting": "Logging in...",
+            "userInfoTitle": "Account Details",
+            "confirmDeleteButton": "Delete My Account",
+            "cancelButton": "Cancel",
+            "modalTitle": "Are you absolutely sure?",
+            "modalDesc": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+            "modalConfirmButton": "Yes, permanently delete my account",
+            "deleting": "Deleting account...",
+            "successTitle": "Account Deleted",
+            "successDesc": "Your account and all associated data have been permanently removed.",
+            "backHomeButton": "Return to Home",
+            "loginFailed": "Login failed. Please check your credentials.",
+            "deleteFailed": "Failed to delete account. Please try again."
+        }
     }
 }

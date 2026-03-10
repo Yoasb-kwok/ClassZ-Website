@@ -1014,6 +1014,31 @@
             "title": "需要協助？",
             "content": "如果你有任何疑問或需要刪除帳戶的協助，請透過以下電子郵件聯絡我們的支援團隊："
         },
-        "relatedPolicies": "以下內容可能對你有幫助"
+        "relatedPolicies": "以下內容可能對你有幫助",
+        "interactive": {
+            "deleteButton": "刪除你的帳戶",
+            "loginTitle": "驗證你的帳戶",
+            "loginDesc": "在刪除帳戶之前，請先登入以確認你的身份。",
+            "emailLabel": "電子郵件",
+            "passwordLabel": "密碼",
+            "roleLabel": "帳戶角色",
+            "roleOwner": "所有者 (Owner)",
+            "roleCoach": "教練 (Coach)",
+            "roleParent": "家長 (Parent)",
+            "loginButton": "登入",
+            "loginSubmitting": "登入中...",
+            "userInfoTitle": "帳戶資料",
+            "confirmDeleteButton": "刪除我的帳戶",
+            "cancelButton": "取消",
+            "modalTitle": "確定要刪除嗎？",
+            "modalDesc": "此操作無法撤銷。這將永久刪除你的帳戶並從我們的伺服器中移除你的所有資料。",
+            "modalConfirmButton": "是的，永久刪除我的帳戶",
+            "deleting": "刪除中...",
+            "successTitle": "帳戶已刪除",
+            "successDesc": "你的帳戶及所有相關資料已被永久移除。",
+            "backHomeButton": "返回首頁",
+            "loginFailed": "登入失敗，請檢查你的憑證。",
+            "deleteFailed": "無法刪除帳戶，請重試。"
+        }
     }
 }
