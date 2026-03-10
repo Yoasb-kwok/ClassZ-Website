@@ -683,6 +683,7 @@
         "privacy": "Privacy Policy",
         "terms": "Terms of Service",
         "refund": "Refund Policy",
+        "deleteAccount": "Delete Account",
         "follow": "Follow",
         "copyright": "© 2025 ClassZ Limited. All rights reserved."
     },
@@ -992,5 +993,27 @@
                 "content": "ClassZ may update this Refund Policy from time to time. The version in effect at the time of booking will apply unless otherwise required by law."
             }
         }
+    },
+    "deleteAccountPage": {
+        "hero": {
+            "title": "Delete Your ClassZ Account"
+        },
+        "intro": "If you wish to delete your ClassZ account, you can do so directly through the ClassZ mobile app. Please follow the steps below.",
+        "steps": {
+            "title": "How to Delete Your Account",
+            "step1": "Open the ClassZ app.",
+            "step2": "Go to Settings.",
+            "step3": "Tap \"Delete Account\".",
+            "step4": "Confirm the deletion."
+        },
+        "important": {
+            "title": "Important Information",
+            "content": "Once your account is deleted, all associated data will be permanently removed. This includes your subscription information, purchase history, Zing credit balance, class enrolment records, child profiles, performance feedback, and any other stored user data. This action cannot be undone."
+        },
+        "support": {
+            "title": "Need Help?",
+            "content": "If you have any questions or need assistance with deleting your account, please contact our support team at"
+        },
+        "relatedPolicies": "These might help you"
     }
 }

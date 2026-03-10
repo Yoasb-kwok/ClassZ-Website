@@ -45,6 +45,9 @@ export function Footer() {
                 <Link href="/refund" className="block hover:opacity-70 transition-opacity">
                   {t("footer.refund")}
                 </Link>
+                <Link href="/delete-account" className="block hover:opacity-70 transition-opacity">
+                  {t("footer.deleteAccount")}
+                </Link>
               </div>
             </div>
             <div className="space-y-3">
@@ -127,6 +130,9 @@ export function Footer() {
                   </Link>
                   <Link href="/refund" className="block hover:opacity-70 transition-opacity">
                     {t("footer.refund")}
+                  </Link>
+                  <Link href="/delete-account" className="block hover:opacity-70 transition-opacity">
+                    {t("footer.deleteAccount")}
                   </Link>
                 </div>
               </div>

@@ -683,6 +683,7 @@
         "privacy": "隱私政策",
         "terms": "服務條款",
         "refund": "退款政策",
+        "deleteAccount": "刪除帳戶",
         "follow": "追蹤我們",
         "copyright": "© 2025 ClassZ Limited. 版權所有。"
     },
@@ -992,5 +993,27 @@
                 "content": "ClassZ 可能會不時更新本退款政策。除非法律另有要求，否則在預訂時生效的版本將適用。"
             }
         }
+    },
+    "deleteAccountPage": {
+        "hero": {
+            "title": "刪除你的 ClassZ 帳戶"
+        },
+        "intro": "如果你希望刪除 ClassZ 帳戶，可以透過 ClassZ 行動應用程式直接操作。請按照以下步驟進行。",
+        "steps": {
+            "title": "如何刪除帳戶",
+            "step1": "開啟 ClassZ 應用程式。",
+            "step2": "前往「設定」。",
+            "step3": "點擊「刪除帳戶」。",
+            "step4": "確認刪除操作。"
+        },
+        "important": {
+            "title": "重要資訊",
+            "content": "帳戶刪除後，所有相關資料將被永久移除。這包括你的訂閱資訊、購買記錄、Zing 點數餘額、課程報名記錄、兒童檔案、表現回饋及任何其他已儲存的用戶資料。此操作無法撤銷。"
+        },
+        "support": {
+            "title": "需要協助？",
+            "content": "如果你有任何疑問或需要刪除帳戶的協助，請透過以下電子郵件聯絡我們的支援團隊："
+        },
+        "relatedPolicies": "以下內容可能對你有幫助"
     }
 }

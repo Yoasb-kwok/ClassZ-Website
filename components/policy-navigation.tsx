@@ -18,17 +18,18 @@ export function PolicyNavigation({ align = "left", title, titleSize = "base" }: 
     { path: "/terms", label: t("footer.terms") },
     { path: "/privacy", label: t("footer.privacy") },
     { path: "/refund", label: t("footer.refund") },
+    { path: "/delete-account", label: t("footer.deleteAccount") },
   ]
 
   const alignmentClass = align === "center" ? "items-center" : "items-start"
   const justifyClass = align === "center" ? "justify-center" : "justify-start"
-  
-  const titleClass = titleSize === "xl" 
+
+  const titleClass = titleSize === "xl"
     ? "text-[#1F2937] text-xl md:text-2xl mb-6"
     : titleSize === "lg"
-    ? "text-[#1F2937] text-lg md:text-xl mb-6"
-    : "text-[#1F2937] text-base mb-6"
-  
+      ? "text-[#1F2937] text-lg md:text-xl mb-6"
+      : "text-[#1F2937] text-base mb-6"
+
   const displayTitle = title || t("policyNavigation.title")
 
   return (
