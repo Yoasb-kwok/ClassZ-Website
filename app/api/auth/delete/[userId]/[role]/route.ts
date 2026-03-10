@@ -4,9 +4,7 @@ function getBackendUrl() {
     if (process.env.NEXT_PUBLIC_API_BASE_URL) {
         return process.env.NEXT_PUBLIC_API_BASE_URL
     }
-    if (process.env.BACKEND_URL) {
-        return process.env.BACKEND_URL
-    }
+
     // return 'http://localhost:3001'
     return 'https://api.classz.co'
 }
