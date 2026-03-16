@@ -53,8 +53,8 @@ export default function OurMissionPage() {
             <div className="flex items-center min-w-0">
               {/* Fixed left section: Funded by, Cyberport logo, Trusted by */}
               <div className="flex items-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 flex-shrink-0 z-10 bg-white pr-3 sm:pr-6 md:pr-10 lg:pr-12">
-                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
-                <img src="/Cyberport_Logo_Master-01-2.png" alt="Funded by Cyberport" className="h-10 sm:h-14 md:h-16 lg:h-20 w-auto flex-shrink-0" />
+                {/* <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
+                <img src="/Cyberport_Logo_Master-01-2.png" alt="Funded by Cyberport" className="h-10 sm:h-14 md:h-16 lg:h-20 w-auto flex-shrink-0" /> */}
                 <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
               </div>
               
