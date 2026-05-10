@@ -15,7 +15,7 @@ export function Navbar() {
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
 
   const linkClasses = (path: string) =>
-    `${isActive(path) ? "text-[#00C9B7]" : "text-slate-600"} hover:text-[#00C9B7] transition-colors`
+    `${isActive(path) ? "text-classz-400" : "text-slate-600"} hover:text-classz-400 transition-colors`
 
   return (
     <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 overflow-visible">
@@ -44,7 +44,7 @@ export function Navbar() {
           </Link>
           <div className="relative z-50">
             <button
-              className="flex items-center gap-1 hover:text-[#00C9B7] transition-colors"
+              className="flex items-center gap-1 hover:text-classz-400 transition-colors"
               onClick={() => setLangOpen((v) => !v)}
               onBlur={(e) => {
                 // Close dropdown when clicking outside
@@ -83,10 +83,10 @@ export function Navbar() {
 
         {/* Desktop Actions - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-4 flex-shrink-0">
-          <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7] whitespace-nowrap">
+          <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-classz-400 whitespace-nowrap">
             {t("login")}
           </Link>
-          <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full px-6 whitespace-nowrap">
+          <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full px-6 whitespace-nowrap">
             {t("getStarted")}
           </Button>
         </div>
@@ -96,7 +96,7 @@ export function Navbar() {
           {/* Language Dropdown - Always visible on mobile */}
           <div className="relative z-50">
             <button
-              className="flex items-center gap-1 px-2 py-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-[#00C9B7] transition-colors rounded-md hover:bg-slate-50 whitespace-nowrap"
+              className="flex items-center gap-1 px-2 py-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-classz-400 transition-colors rounded-md hover:bg-slate-50 whitespace-nowrap"
               onClick={(e) => {
                 e.stopPropagation()
                 setLangOpen((v) => !v)
@@ -170,10 +170,10 @@ export function Navbar() {
             </NavLinkMobile>
             
             <div className="pt-2 flex flex-col gap-2">
-              <Link href="#" className="text-sm font-medium text-slate-900 hover:text-[#00C9B7] transition-colors" onClick={() => setOpen(false)}>
+              <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-classz-400 transition-colors" onClick={() => setOpen(false)}>
                 {t("login")}
               </Link>
-              <Button className="bg-[#00C9B7] hover:bg-[#00b3a3] text-white rounded-full w-full" onClick={() => setOpen(false)}>
+              <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full w-full" onClick={() => setOpen(false)}>
                 {t("getStarted")}
               </Button>
             </div>
@@ -199,7 +199,7 @@ function NavLinkMobile({
     <Link
       href={href}
       onClick={onClick}
-      className={`block ${active ? "text-[#00C9B7]" : "text-slate-700"} hover:text-[#00C9B7] transition-colors`}
+      className={`block ${active ? "text-classz-400" : "text-slate-700"} hover:text-classz-400 transition-colors`}
     >
       {children}
     </Link>

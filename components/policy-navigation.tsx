@@ -33,7 +33,7 @@ export function PolicyNavigation({ align = "left", title, titleSize = "base" }: 
   const displayTitle = title || t("policyNavigation.title")
 
   return (
-    <section className="py-12 bg-gradient-to-b from-white to-[#F0FAF8]">
+    <section className="py-12 bg-gradient-to-b from-white to-classz-50">
       <div className="max-w-[1180px] mx-auto px-6 md:px-10">
         <div className={`flex flex-col ${alignmentClass}`}>
           <p className={titleClass}>
@@ -47,8 +47,8 @@ export function PolicyNavigation({ align = "left", title, titleSize = "base" }: 
                   key={policy.path}
                   href={policy.path}
                   className={`px-5 py-2.5 rounded-full text-sm md:text-base font-medium transition-colors ${isActive
-                    ? "bg-[#0ABAB5] text-white"
-                    : "bg-white text-[#0ABAB5] border border-[#0ABAB5] hover:bg-[#F0FAF8]"
+                    ? "bg-classz-400 text-white"
+                    : "bg-white text-classz-400 border border-classz-400 hover:bg-classz-50"
                     }`}
                 >
                   {policy.label}
