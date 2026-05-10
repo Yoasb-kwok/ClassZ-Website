@@ -1,0 +1,308 @@
+"use client"
+
+import { useMemo, useState } from "react"
+import { Download, Edit, Plus, Search, Send, Trash2, Users } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
+import { appendAudit, newId, type AdminUser } from "@/lib/classz-admin-store"
+import { useAdminStore } from "@/components/admin/use-admin-store"
+import {
+  AdminCard,
+  AdminDangerButton,
+  AdminGhostButton,
+  AdminInput,
+  AdminLabel,
+  AdminModal,
+  AdminPageFrame,
+  AdminPageHeader,
+  AdminPrimaryButton,
+  AdminTable,
+  AdminTableShell,
+  AdminToolbar,
+} from "@/components/classz-admin-ui"
+export function UsersManager() {
+  const { t, locale } = useLanguage()
+  const zh = locale === "zh-TW"
+  const { store, patch, ready } = useAdminStore()
+  const [search, setSearch] = useState("")
+  const [modal, setModal] = useState<"create" | "edit" | null>(null)
+  const [editing, setEditing] = useState<AdminUser | null>(null)
+  const [form, setForm] = useState({
+    account_number: "",
+    full_name: "",
+    username: "",
+    email: "",
+    mobile: "",
+    remaining_tokens: "0",
+    token_expiry: "",
+  })
+  const [bulkMsg, setBulkMsg] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  const filtered = useMemo(() => {
+    if (!store) return []
+    const q = search.trim().toLowerCase()
+    if (!q) return store.users
+    return store.users.filter(
+      (u) =>
+        u.full_name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.username.toLowerCase().includes(q) ||
+        u.account_number.toLowerCase().includes(q) ||
+        u.mobile.includes(q)
+    )
+  }, [store, search])
+
+  function openCreate() {
+    setEditing(null)
+    setForm({
+      account_number: "",
+      full_name: "",
+      username: "",
+      email: "",
+      mobile: "",
+      remaining_tokens: "0",
+      token_expiry: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+    })
+    setModal("create")
+  }
+
+  function openEdit(u: AdminUser) {
+    setEditing(u)
+    setForm({
+      account_number: u.account_number,
+      full_name: u.full_name,
+      username: u.username,
+      email: u.email,
+      mobile: u.mobile,
+      remaining_tokens: String(u.remaining_tokens),
+      token_expiry: u.token_expiry.slice(0, 10),
+    })
+    setModal("edit")
+  }
+
+  function saveUser() {
+    if (!store) return
+    const tokens = Math.max(0, parseInt(form.remaining_tokens, 10) || 0)
+    if (modal === "create") {
+      const u: AdminUser = {
+        id: newId(),
+        account_number: form.account_number.trim() || `CZ-${String(store.users.length + 1).padStart(5, "0")}`,
+        full_name: form.full_name.trim(),
+        username: form.username.trim(),
+        email: form.email.trim(),
+        mobile: form.mobile.trim(),
+        role: "student",
+        remaining_tokens: tokens,
+        token_expiry: form.token_expiry,
+        created_at: new Date().toISOString(),
+      }
+      patch((s) =>
+        appendAudit(
+          { ...s, users: [...s.users, u] },
+          { action: "create_user", target_type: "user", target_id: u.id, details: u.full_name }
+        )
+      )
+    } else if (modal === "edit" && editing) {
+      patch((s) =>
+        appendAudit(
+          {
+            ...s,
+            users: s.users.map((x) =>
+              x.id === editing.id
+                ? {
+                    ...x,
+                    account_number: form.account_number.trim(),
+                    full_name: form.full_name.trim(),
+                    username: form.username.trim(),
+                    email: form.email.trim(),
+                    mobile: form.mobile.trim(),
+                    remaining_tokens: tokens,
+                    token_expiry: form.token_expiry,
+                  }
+                : x
+            ),
+          },
+          { action: "update_user", target_type: "user", target_id: editing.id, details: form.full_name.trim() }
+        )
+      )
+    }
+    setModal(null)
+  }
+
+  function removeUser(id: string) {
+    if (!confirm(zh ? "確定刪除此用戶？" : "Delete this user?")) return
+    patch((s) =>
+      appendAudit(
+        { ...s, users: s.users.filter((u) => u.id !== id) },
+        { action: "delete_user", target_type: "user", target_id: id, details: id }
+      )
+    )
+  }
+
+  function exportCsv() {
+    if (!store) return
+    const headers = ["account", "name", "username", "email", "mobile", "tokens", "expiry", "created"]
+    const rows = filtered.map((u) =>
+      [u.account_number, u.full_name, u.username, u.email, u.mobile, u.remaining_tokens, u.token_expiry, u.created_at].join(",")
+    )
+    const csv = [headers.join(","), ...rows].join("\n")
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" })
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.download = `classz-users-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
+
+  function bulkReminder() {
+    if (selected.size === 0) return
+    setBulkMsg(zh ? `已發送提醒（示範）至 ${selected.size} 位` : `Reminder sent (demo) to ${selected.size}`)
+    setTimeout(() => setBulkMsg(null), 3500)
+  }
+
+  if (!ready || !store) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-10 w-10 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <AdminPageFrame>
+      <AdminPageHeader title={zh ? "用戶管理" : "User management"} Icon={Users} />
+      {bulkMsg ? (
+        <div className="rounded-lg border border-classz-200 bg-classz-50 px-4 py-2 text-base text-classz-700">{bulkMsg}</div>
+      ) : null}
+
+      <AdminCard>
+        <AdminToolbar>
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400 pointer-events-none" />
+            <AdminInput className="pl-9" placeholder={zh ? "搜尋…" : "Search…"} value={search} onChange={(e) => setSearch(e.target.value)} />
+          </div>
+          <AdminGhostButton type="button" onClick={exportCsv}>
+            <Download className="h-4 w-4" />
+            {zh ? "匯出 CSV" : "Export CSV"}
+          </AdminGhostButton>
+          {selected.size > 0 ? (
+            <AdminPrimaryButton type="button" onClick={bulkReminder}>
+              <Send className="h-4 w-4" />
+              {zh ? `發送提醒 (${selected.size})` : `Send reminder (${selected.size})`}
+            </AdminPrimaryButton>
+          ) : null}
+          <AdminPrimaryButton type="button" className="ml-auto" onClick={openCreate}>
+            <Plus className="h-4 w-4" />
+            {zh ? "新增用戶" : "Add user"}
+          </AdminPrimaryButton>
+        </AdminToolbar>
+
+        <AdminTableShell>
+          <AdminTable>
+            <thead className="bg-classz-100">
+              <tr>
+                <th className="px-2 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    className="rounded border-classz-300"
+                    checked={filtered.length > 0 && filtered.every((u) => selected.has(u.id))}
+                    onChange={() => {
+                      if (filtered.every((u) => selected.has(u.id))) {
+                        setSelected(new Set())
+                      } else {
+                        setSelected(new Set(filtered.map((u) => u.id)))
+                      }
+                    }}
+                  />
+                </th>
+                <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">{zh ? "帳號" : "Account"}</th>
+                <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">{zh ? "姓名" : "Name"}</th>
+                <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">Email</th>
+                <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">{zh ? "代幣" : "Tokens"}</th>
+                <th className="px-3 py-3 text-right text-base font-semibold text-classz-600 uppercase">{t("classzAdmin.actions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-classz-100">
+              {filtered.map((u) => (
+                <tr key={u.id} className="bg-white">
+                  <td className="px-2 py-2">
+                    <input
+                      type="checkbox"
+                      className="rounded border-classz-300"
+                      checked={selected.has(u.id)}
+                      onChange={() =>
+                        setSelected((prev) => {
+                          const n = new Set(prev)
+                          if (n.has(u.id)) n.delete(u.id)
+                          else n.add(u.id)
+                          return n
+                        })
+                      }
+                    />
+                  </td>
+                  <td className="px-3 py-2 text-classz-700 whitespace-nowrap">{u.account_number}</td>
+                  <td className="px-3 py-2 text-classz-700">{u.full_name}</td>
+                  <td className="px-3 py-2 text-classz-600 text-base">{u.email}</td>
+                  <td className="px-3 py-2 text-classz-700">{u.remaining_tokens}</td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    <button type="button" className="p-1.5 text-classz-500 hover:bg-classz-50 rounded" onClick={() => openEdit(u)} title="Edit">
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button type="button" className="p-1.5 text-red-600 hover:bg-red-50 rounded ml-1" onClick={() => removeUser(u.id)} title="Delete">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </AdminTable>
+        </AdminTableShell>
+      </AdminCard>
+
+      <AdminModal
+        open={modal !== null}
+        title={modal === "create" ? (zh ? "新增用戶" : "Add user") : zh ? "編輯用戶" : "Edit user"}
+        onClose={() => setModal(null)}
+        footer={
+          <>
+            <AdminGhostButton onClick={() => setModal(null)}>{zh ? "取消" : "Cancel"}</AdminGhostButton>
+            <AdminPrimaryButton onClick={saveUser}>{zh ? "儲存" : "Save"}</AdminPrimaryButton>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div>
+            <AdminLabel>{zh ? "帳戶編號" : "Account no."}</AdminLabel>
+            <AdminInput value={form.account_number} onChange={(e) => setForm((f) => ({ ...f, account_number: e.target.value }))} />
+          </div>
+          <div>
+            <AdminLabel>{zh ? "姓名" : "Full name"}</AdminLabel>
+            <AdminInput value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
+          </div>
+          <div>
+            <AdminLabel>Username</AdminLabel>
+            <AdminInput value={form.username} onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))} />
+          </div>
+          <div>
+            <AdminLabel>Email</AdminLabel>
+            <AdminInput value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+          </div>
+          <div>
+            <AdminLabel>{zh ? "電話" : "Mobile"}</AdminLabel>
+            <AdminInput value={form.mobile} onChange={(e) => setForm((f) => ({ ...f, mobile: e.target.value }))} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <AdminLabel>{zh ? "剩餘代幣" : "Tokens"}</AdminLabel>
+              <AdminInput value={form.remaining_tokens} onChange={(e) => setForm((f) => ({ ...f, remaining_tokens: e.target.value }))} />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "代幣到期" : "Token expiry"}</AdminLabel>
+              <AdminInput type="date" value={form.token_expiry} onChange={(e) => setForm((f) => ({ ...f, token_expiry: e.target.value }))} />
+            </div>
+          </div>
+        </div>
+      </AdminModal>
+    </AdminPageFrame>
+  )
+}

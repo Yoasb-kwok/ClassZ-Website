@@ -38,13 +38,13 @@ export function JoinUsCta({ secondaryLink, primaryLink }: JoinUsCtaProps) {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
               {primaryLink ? (
                 <Link href={primaryLink}>
-                  <Button className="bg-[#0ABAB5] hover:bg-[#00b3a3] text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
+                  <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
                     {t("joinUsCta.primary")}
                     <ArrowRight className="w-5 h-5" />
                   </Button>
                 </Link>
               ) : (
-                <Button className="bg-[#0ABAB5] hover:bg-[#00b3a3] text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
+                <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full px-10 h-14 shadow-lg flex items-center gap-3 min-w-[243.4px]">
                   {t("joinUsCta.primary")}
                   <ArrowRight className="w-5 h-5" />
                 </Button>

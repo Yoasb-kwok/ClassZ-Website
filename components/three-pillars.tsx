@@ -18,8 +18,8 @@ export function ThreePillars() {
                   <div className="w-8 h-8 rounded-full bg-slate-200" />
                   <div className="h-2 w-20 bg-slate-200 rounded" />
                 </div>
-                <div className="h-32 bg-[#00C9B7]/10 rounded-xl mb-4 flex items-center justify-center">
-                  <Search className="text-[#00C9B7] w-8 h-8" />
+                <div className="h-32 bg-classz-100 rounded-xl mb-4 flex items-center justify-center">
+                  <Search className="text-classz-400 w-8 h-8" />
                 </div>
                 <div className="space-y-2">
                   <div className="h-2 w-full bg-slate-100 rounded" />
@@ -44,7 +44,7 @@ export function ThreePillars() {
                     <div className="h-2 w-20 bg-slate-200 rounded" />
                     <div className="h-4 w-4 rounded-full border border-slate-300" />
                   </div>
-                  <div className="p-3 rounded-lg bg-[#00C9B7] text-white flex justify-between items-center">
+                  <div className="p-3 rounded-lg bg-classz-400 text-white flex justify-between items-center">
                     <div className="text-xs font-medium">Confirm Booking</div>
                     <Calendar className="w-4 h-4" />
                   </div>

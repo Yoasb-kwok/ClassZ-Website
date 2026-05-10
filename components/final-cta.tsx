@@ -39,7 +39,7 @@ export function FinalCta() {
               </div>
             </div>
             {/* Decorative Elements */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#00C9B7]/20 rounded-full blur-3xl -z-0" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-classz-200/60 rounded-full blur-3xl -z-0" />
           </div>
         </div>
       </div>

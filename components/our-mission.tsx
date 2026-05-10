@@ -120,8 +120,8 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
           <div className="flex flex-col items-center gap-5 py-[120px] px-10 w-full max-w-[1280px] mx-auto h-[316px]">
             {/* Badge */}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-[rgba(10,186,181,0.2)] bg-white">
-              <Heart className="w-[18px] h-[18px] text-[#0ABAB5]" />
-              <span className="text-sm font-normal text-[#0ABAB5] leading-[1.43] tracking-[0.014em] uppercase">
+              <Heart className="w-[18px] h-[18px] text-classz-400" />
+              <span className="text-sm font-normal text-classz-400 leading-[1.43] tracking-[0.014em] uppercase">
                 {t("ourMissionComp.commit.badge")}
               </span>
             </div>
@@ -139,7 +139,7 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
             {/* Feature Card 1 - Track real growth */}
             <div className="bg-[rgba(255,255,255,0.8)] border border-[rgba(255,255,255,0.5)] rounded-3xl p-[25px] pb-[1px] shadow-[0_0_15px_rgba(0,0,0,0.06)]">
               <div className="flex flex-col gap-4 h-[198.38px]">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#0ABAB5] to-[#089994] flex items-center justify-center shadow-lg">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-classz-400 to-classz-500 flex items-center justify-center shadow-lg">
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-2xl font-medium text-[#101828] leading-[1.4] tracking-[0.003em]">
