@@ -672,6 +672,9 @@
         "point2": "每月新增更多中心",
         "point3": "深受家長信賴"
     },
+    "supportedBy": {
+        "label": "支持機構"
+    },
     "footer": {
         "company": "公司",
         "whatWeDo": "我們的服務",

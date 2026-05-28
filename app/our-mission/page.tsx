@@ -51,11 +51,16 @@ export default function OurMissionPage() {
         <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10">
           <div className="relative w-full overflow-hidden">
             <div className="flex items-center min-w-0">
-              {/* Fixed left section: Funded by, Cyberport logo, Trusted by */}
+              {/* Fixed left section: Supported by and Trusted by */}
               <div className="flex items-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 flex-shrink-0 z-10 bg-white pr-3 sm:pr-6 md:pr-10 lg:pr-12">
-                {/* <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
-                <img src="/Cyberport_Logo_Master-01-2.png" alt="Funded by Cyberport" className="h-10 sm:h-14 md:h-16 lg:h-20 w-auto flex-shrink-0" /> */}
-                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
+                <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
+                  <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">
+                    {t("supportedBy.label")}:
+                  </span>
+                  <img src="/HKSTP.png" alt="HKSTP" className="h-8 sm:h-10 md:h-12 w-auto flex-shrink-0" />
+                  <img src="/Polyu.png" alt="PolyU" className="h-8 sm:h-10 md:h-12 w-auto flex-shrink-0" />
+                </div>
+                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap ml-5 sm:ml-10 md:ml-14">{t("mission.marquee.trustedBy")}</span>
               </div>
               
               {/* Moving center logos section - takes remaining space */}

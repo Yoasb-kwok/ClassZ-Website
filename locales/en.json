@@ -672,6 +672,9 @@
         "point2": "More Centres Added Monthly",
         "point3": "Trusted by Parents"
     },
+    "supportedBy": {
+        "label": "Supported by"
+    },
     "footer": {
         "company": "Company",
         "whatWeDo": "What we do?",
