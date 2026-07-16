@@ -29,6 +29,8 @@ function forwardRequestHeaders(request: NextRequest): Headers {
   if (accept) out.set('accept', accept)
   const auth = request.headers.get('authorization')
   if (auth) out.set('authorization', auth)
+  const centerId = request.headers.get('x-center-id')
+  if (centerId) out.set('x-center-id', centerId)
   const authToken = request.headers.get('auth-token')
   if (authToken) out.set('auth-token', authToken)
   return out
@@ -61,8 +63,11 @@ async function proxy(
     headers: forwardRequestHeaders(request),
   }
 
-  if (hasBody && request.body) {
-    Object.assign(init, { body: request.body, duplex: 'half' })
+  if (hasBody) {
+    const bodyBuffer = await request.arrayBuffer()
+    if (bodyBuffer.byteLength > 0) {
+      init.body = bodyBuffer
+    }
   }
 
   let upstream: Response

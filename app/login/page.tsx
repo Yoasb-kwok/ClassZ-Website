@@ -10,7 +10,7 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 
 function LoginForm() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextPath = searchParams.get("next") || "/admin"
@@ -123,6 +123,9 @@ function LoginForm() {
               {t("classzLogin.forgotPassword")}
             </button>
             <p className="text-sm text-slate-500">{t("classzLogin.registerHint")}</p>
+            <Link href="/register-center" className="text-sm font-medium text-classz-500 hover:text-classz-600">
+              {locale === "zh-TW" ? "註冊中心帳戶" : "Register your centre"}
+            </Link>
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4 space-y-3">

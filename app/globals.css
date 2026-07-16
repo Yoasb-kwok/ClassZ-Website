@@ -47,6 +47,11 @@
   --classz-500: #089591;
   --classz-600: #06706d;
   --classz-700: #044a48;
+
+  /* Centre admin — dual tone from stylerecord */
+  --admin-bg: #ffffff;
+  --admin-surface: var(--classz-50);
+  --admin-ink: var(--classz-700);
 }
 
 .dark {
@@ -225,4 +230,29 @@ input[type="checkbox"]:checked::after {
   color: white;
   font-size: 0.75rem;
   font-weight: bold;
+}
+
+/* Centre / platform admin — dual tone: light #CEF1F0 + dark #044A48 */
+.classz-admin-theme {
+  color: var(--admin-ink);
+  background-color: var(--admin-bg);
+}
+
+/* Alerts / hints — always red in admin */
+.classz-admin-theme [role="alert"],
+.classz-admin-theme .admin-alert,
+.classz-admin-theme .text-amber-700,
+.classz-admin-theme .text-amber-800,
+.classz-admin-theme .text-amber-900 {
+  color: #dc2626 !important;
+}
+
+.classz-admin-theme .bg-amber-50,
+.classz-admin-theme .bg-amber-50\/30,
+.classz-admin-theme .admin-alert {
+  background-color: #fef2f2 !important;
+}
+
+.classz-admin-theme .border-amber-200 {
+  border-color: #fecaca !important;
 }

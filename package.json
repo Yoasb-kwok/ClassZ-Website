@@ -5,6 +5,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
+    "dev:api": "npm start --prefix ../classz-api",
     "lint": "eslint .",
     "start": "next start -p ${PORT:-3000}"
   },
