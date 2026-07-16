@@ -5,6 +5,9 @@ import { Edit, Plus, Power, PowerOff, Search, Tag, Trash2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { appendAudit, newId, type AdminCoupon } from "@/lib/classz-admin-store"
 import { useAdminStore } from "@/components/admin/use-admin-store"
+import { isDemoSession } from "@/components/admin/use-admin-api"
+import { apiDelete, apiPatch, apiPost } from "@/lib/classz-api-client"
+import { useCenterApiList } from "@/components/admin/use-center-api-list"
 import {
   AdminCard,
   AdminGhostButton,
@@ -23,7 +26,23 @@ import {
 export function CouponsManager() {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
-  const { store, patch, ready } = useAdminStore()
+  const demo = isDemoSession()
+  const { store, patch, ready: storeReady } = useAdminStore()
+  const mapCoupon = (c: Record<string, unknown>): AdminCoupon => ({
+    id: String(c.id),
+    code: String(c.code || ""),
+    discount_type: (c.discount_type as AdminCoupon["discount_type"]) || "percentage",
+    discount_value: Number(c.discount_value) || 0,
+    min_order_amount: Number(c.min_order_amount) || 0,
+    quantity: Number(c.quantity) || 0,
+    used_count: Number(c.used_count) || 0,
+    valid_from: String(c.valid_from || "").slice(0, 10),
+    valid_until: String(c.valid_until || "").slice(0, 10),
+    is_active: Boolean(c.is_active),
+  })
+  const { rows: apiRows, ready: apiReady, reload } = useCenterApiList("/coupons", mapCoupon)
+  const ready = demo ? storeReady : apiReady
+  const coupons = demo ? store?.coupons : apiRows
   const [search, setSearch] = useState("")
   const [modal, setModal] = useState<"create" | "edit" | null>(null)
   const [editing, setEditing] = useState<AdminCoupon | null>(null)
@@ -39,10 +58,10 @@ export function CouponsManager() {
   })
 
   const rows = useMemo(() => {
-    if (!store) return []
+    if (!coupons) return []
     const q = search.trim().toLowerCase()
-    return store.coupons.filter((c) => !q || c.code.toLowerCase().includes(q))
-  }, [store, search])
+    return coupons.filter((c) => !q || c.code.toLowerCase().includes(q))
+  }, [coupons, search])
 
   function openCreate() {
     const t = new Date()
@@ -76,7 +95,28 @@ export function CouponsManager() {
     setModal("edit")
   }
 
-  function save() {
+  async function save() {
+    const body = {
+      code: form.code.trim(),
+      discount_type: form.discount_type,
+      discount_value: parseFloat(form.discount_value) || 0,
+      min_order_amount: parseInt(form.min_order_amount, 10) || 0,
+      quantity: parseInt(form.quantity, 10) || 0,
+      valid_from: form.valid_from,
+      valid_until: form.valid_until,
+      is_active: form.is_active,
+    }
+    if (!demo) {
+      try {
+        if (modal === "create") await apiPost("/coupons", body)
+        else if (editing) await apiPatch(`/coupons/${editing.id}`, body)
+        await reload()
+        setModal(null)
+      } catch (e) {
+        alert(e instanceof Error ? e.message : "Save failed")
+      }
+      return
+    }
     if (!store) return
     const row: AdminCoupon = {
       id: editing?.id ?? newId(),
@@ -121,7 +161,7 @@ export function CouponsManager() {
     patch((s) => appendAudit({ ...s, coupons: s.coupons.filter((c) => c.id !== id) }, { action: "delete_coupon", target_type: "coupon", target_id: id, details: "" }))
   }
 
-  if (!ready || !store) {
+  if (!ready || (!demo && !coupons) || (demo && !store)) {
     return (
       <div className="flex justify-center py-20">
         <div className="h-10 w-10 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />

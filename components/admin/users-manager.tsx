@@ -1,10 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Download, Edit, Plus, Search, Send, Trash2, Users } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { appendAudit, newId, type AdminUser } from "@/lib/classz-admin-store"
 import { useAdminStore } from "@/components/admin/use-admin-store"
+import { isDemoSession } from "@/components/admin/use-admin-api"
+import { apiDelete, apiGet, apiPatch } from "@/lib/classz-api-client"
 import {
   AdminCard,
   AdminDangerButton,
@@ -22,7 +24,13 @@ import {
 export function UsersManager() {
   const { t, locale } = useLanguage()
   const zh = locale === "zh-TW"
-  const { store, patch, ready } = useAdminStore()
+  const demo = isDemoSession()
+  const { store, patch, ready: storeReady } = useAdminStore()
+  const [apiUsers, setApiUsers] = useState<AdminUser[]>([])
+  const [apiReady, setApiReady] = useState(!demo)
+  const [apiError, setApiError] = useState<string | null>(null)
+  const ready = demo ? storeReady : apiReady
+  const storeUsers = demo ? store?.users : apiUsers
   const [search, setSearch] = useState("")
   const [modal, setModal] = useState<"create" | "edit" | null>(null)
   const [editing, setEditing] = useState<AdminUser | null>(null)
@@ -38,11 +46,54 @@ export function UsersManager() {
   const [bulkMsg, setBulkMsg] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
+  const loadApiUsers = useCallback(async () => {
+    if (demo) return
+    setApiReady(false)
+    try {
+      const data = await apiGet<
+        Array<{
+          id: string
+          full_name?: string
+          email?: string
+          mobile?: string
+          username?: string
+          account_number?: string
+          student_id?: string
+          created_at?: string
+          user_tokens?: Array<{ remaining_tokens?: number; expiry_date?: string }>
+        }>
+      >("/users")
+      setApiUsers(
+        (data || []).map((u) => ({
+          id: String(u.id),
+          account_number: u.account_number || u.student_id || String(u.id),
+          full_name: u.full_name || "",
+          username: u.username || "",
+          email: u.email || "",
+          mobile: u.mobile || "",
+          role: "student" as const,
+          remaining_tokens: u.user_tokens?.[0]?.remaining_tokens ?? 0,
+          token_expiry: u.user_tokens?.[0]?.expiry_date || new Date().toISOString().slice(0, 10),
+          created_at: u.created_at || new Date().toISOString(),
+        }))
+      )
+      setApiError(null)
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : "Failed to load users")
+    } finally {
+      setApiReady(true)
+    }
+  }, [demo])
+
+  useEffect(() => {
+    loadApiUsers()
+  }, [loadApiUsers])
+
   const filtered = useMemo(() => {
-    if (!store) return []
+    if (!storeUsers) return []
     const q = search.trim().toLowerCase()
-    if (!q) return store.users
-    return store.users.filter(
+    if (!q) return storeUsers
+    return storeUsers.filter(
       (u) =>
         u.full_name.toLowerCase().includes(q) ||
         u.email.toLowerCase().includes(q) ||
@@ -50,7 +101,7 @@ export function UsersManager() {
         u.account_number.toLowerCase().includes(q) ||
         u.mobile.includes(q)
     )
-  }, [store, search])
+  }, [storeUsers, search])
 
   function openCreate() {
     setEditing(null)
@@ -80,67 +131,95 @@ export function UsersManager() {
     setModal("edit")
   }
 
-  function saveUser() {
-    if (!store) return
-    const tokens = Math.max(0, parseInt(form.remaining_tokens, 10) || 0)
-    if (modal === "create") {
-      const u: AdminUser = {
-        id: newId(),
-        account_number: form.account_number.trim() || `CZ-${String(store.users.length + 1).padStart(5, "0")}`,
-        full_name: form.full_name.trim(),
-        username: form.username.trim(),
-        email: form.email.trim(),
-        mobile: form.mobile.trim(),
-        role: "student",
-        remaining_tokens: tokens,
-        token_expiry: form.token_expiry,
-        created_at: new Date().toISOString(),
+  async function saveUser() {
+    if (demo) {
+      if (!store) return
+      const tokens = Math.max(0, parseInt(form.remaining_tokens, 10) || 0)
+      if (modal === "create") {
+        const u: AdminUser = {
+          id: newId(),
+          account_number: form.account_number.trim() || `CZ-${String(store.users.length + 1).padStart(5, "0")}`,
+          full_name: form.full_name.trim(),
+          username: form.username.trim(),
+          email: form.email.trim(),
+          mobile: form.mobile.trim(),
+          role: "student",
+          remaining_tokens: tokens,
+          token_expiry: form.token_expiry,
+          created_at: new Date().toISOString(),
+        }
+        patch((s) =>
+          appendAudit(
+            { ...s, users: [...s.users, u] },
+            { action: "create_user", target_type: "user", target_id: u.id, details: u.full_name }
+          )
+        )
+      } else if (modal === "edit" && editing) {
+        patch((s) =>
+          appendAudit(
+            {
+              ...s,
+              users: s.users.map((x) =>
+                x.id === editing.id
+                  ? {
+                      ...x,
+                      account_number: form.account_number.trim(),
+                      full_name: form.full_name.trim(),
+                      username: form.username.trim(),
+                      email: form.email.trim(),
+                      mobile: form.mobile.trim(),
+                      remaining_tokens: tokens,
+                      token_expiry: form.token_expiry,
+                    }
+                  : x
+              ),
+            },
+            { action: "update_user", target_type: "user", target_id: editing.id, details: form.full_name.trim() }
+          )
+        )
       }
-      patch((s) =>
-        appendAudit(
-          { ...s, users: [...s.users, u] },
-          { action: "create_user", target_type: "user", target_id: u.id, details: u.full_name }
-        )
-      )
-    } else if (modal === "edit" && editing) {
-      patch((s) =>
-        appendAudit(
-          {
-            ...s,
-            users: s.users.map((x) =>
-              x.id === editing.id
-                ? {
-                    ...x,
-                    account_number: form.account_number.trim(),
-                    full_name: form.full_name.trim(),
-                    username: form.username.trim(),
-                    email: form.email.trim(),
-                    mobile: form.mobile.trim(),
-                    remaining_tokens: tokens,
-                    token_expiry: form.token_expiry,
-                  }
-                : x
-            ),
-          },
-          { action: "update_user", target_type: "user", target_id: editing.id, details: form.full_name.trim() }
-        )
-      )
+      setModal(null)
+      return
     }
-    setModal(null)
+    if (modal === "edit" && editing) {
+      try {
+        await apiPatch(`/users/${editing.id}`, {
+          full_name: form.full_name.trim(),
+          mobile: form.mobile.trim(),
+          email: form.email.trim(),
+          username: form.username.trim(),
+        })
+        await loadApiUsers()
+        setModal(null)
+      } catch (e) {
+        alert(e instanceof Error ? e.message : "Save failed")
+      }
+    } else {
+      alert(zh ? "請使用學生註冊流程新增用戶" : "Use student registration to add users")
+    }
   }
 
-  function removeUser(id: string) {
+  async function removeUser(id: string) {
     if (!confirm(zh ? "確定刪除此用戶？" : "Delete this user?")) return
-    patch((s) =>
-      appendAudit(
-        { ...s, users: s.users.filter((u) => u.id !== id) },
-        { action: "delete_user", target_type: "user", target_id: id, details: id }
+    if (demo) {
+      patch((s) =>
+        appendAudit(
+          { ...s, users: s.users.filter((u) => u.id !== id) },
+          { action: "delete_user", target_type: "user", target_id: id, details: id }
+        )
       )
-    )
+      return
+    }
+    try {
+      await apiDelete(`/users/${id}`)
+      await loadApiUsers()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Delete failed")
+    }
   }
 
   function exportCsv() {
-    if (!store) return
+    if (!storeUsers) return
     const headers = ["account", "name", "username", "email", "mobile", "tokens", "expiry", "created"]
     const rows = filtered.map((u) =>
       [u.account_number, u.full_name, u.username, u.email, u.mobile, u.remaining_tokens, u.token_expiry, u.created_at].join(",")
@@ -160,7 +239,7 @@ export function UsersManager() {
     setTimeout(() => setBulkMsg(null), 3500)
   }
 
-  if (!ready || !store) {
+  if (!ready || !storeUsers) {
     return (
       <div className="flex justify-center py-20">
         <div className="h-10 w-10 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />
@@ -171,6 +250,7 @@ export function UsersManager() {
   return (
     <AdminPageFrame>
       <AdminPageHeader title={zh ? "用戶管理" : "User management"} Icon={Users} />
+      {apiError ? <div className="text-red-600 text-sm mb-2">{apiError}</div> : null}
       {bulkMsg ? (
         <div className="rounded-lg border border-classz-200 bg-classz-50 px-4 py-2 text-base text-classz-700">{bulkMsg}</div>
       ) : null}

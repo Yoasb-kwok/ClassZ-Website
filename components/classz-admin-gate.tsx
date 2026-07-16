@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { getClasszSession } from "@/lib/classz-auth"
+import { clearClasszSession, getClasszSession, isDemoTokenSession } from "@/lib/classz-auth"
 import { ClasszAdminShell } from "@/components/classz-admin-shell"
 import { adminSurface } from "@/components/classz-admin-ui"
 import { useLanguage } from "@/components/language-provider"
@@ -19,17 +19,28 @@ export function ClasszAdminGate({ children }: { children: React.ReactNode }) {
       router.replace(`/login?next=${encodeURIComponent(pathname || "/admin")}`)
       return
     }
+    const platformPaths = ["/admin/centers", "/admin/center-accounts", "/admin/center-crm", "/admin/course-approvals"]
+    const needsRealToken =
+      s.user.role === "platform_admin" &&
+      platformPaths.some((p) => pathname === p || pathname?.startsWith(`${p}/`))
+    if (needsRealToken && isDemoTokenSession()) {
+      clearClasszSession()
+      router.replace(`/login?next=${encodeURIComponent(pathname || "/admin")}`)
+      return
+    }
     setReady(true)
   }, [router, pathname])
 
   if (!ready) {
     return (
-      <div className={`min-h-screen flex flex-col items-center justify-center gap-3 font-sans antialiased ${adminSurface} text-classz-600`}>
+      <div
+        className={`classz-admin-theme min-h-screen flex flex-col items-center justify-center gap-3 font-sans antialiased ${adminSurface}`}
+      >
         <div
           className="h-10 w-10 rounded-full border-2 border-classz-400 border-t-transparent animate-spin"
           aria-hidden
         />
-        <p className="text-base">{t("classzAdmin.gateLoading")}</p>
+        <p className="text-base text-classz-600">{t("classzAdmin.gateLoading")}</p>
       </div>
     )
   }

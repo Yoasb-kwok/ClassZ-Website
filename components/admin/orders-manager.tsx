@@ -5,6 +5,8 @@ import { Download, Plus, Receipt, Search, Trash2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { appendAudit, newId, type AdminOrder } from "@/lib/classz-admin-store"
 import { useAdminStore } from "@/components/admin/use-admin-store"
+import { isDemoSession } from "@/components/admin/use-admin-api"
+import { useCenterApiList } from "@/components/admin/use-center-api-list"
 import {
   AdminCard,
   AdminGhostButton,
@@ -23,7 +25,22 @@ import {
 export function OrdersManager() {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
-  const { store, patch, ready } = useAdminStore()
+  const demo = isDemoSession()
+  const { store, patch, ready: storeReady } = useAdminStore()
+  const mapOrder = (r: Record<string, unknown>): AdminOrder => ({
+    id: String(r.id),
+    user_id: String(r.user_id || ""),
+    user_name: String(r.user_name || ""),
+    total: Number(r.total) || 0,
+    discount: Number(r.discount) || 0,
+    payment_status: (r.payment_status as AdminOrder["payment_status"]) || "pending",
+    payment_method: String(r.payment_method || ""),
+    package_name: String(r.package_name || ""),
+    created_at: String(r.created_at || new Date().toISOString()),
+  })
+  const { rows: apiRows, ready: apiReady } = useCenterApiList("/orders", mapOrder)
+  const ready = demo ? storeReady : apiReady
+  const orders = demo ? store?.orders : apiRows
   const [search, setSearch] = useState("")
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({
@@ -35,16 +52,16 @@ export function OrdersManager() {
   })
 
   const rows = useMemo(() => {
-    if (!store) return []
+    if (!orders) return []
     const q = search.trim().toLowerCase()
-    return store.orders.filter(
+    return orders.filter(
       (o) =>
         !q ||
         o.user_name.toLowerCase().includes(q) ||
         o.id.toLowerCase().includes(q) ||
         o.package_name.toLowerCase().includes(q)
     )
-  }, [store, search])
+  }, [orders, search])
 
   function addOrder() {
     if (!store) return

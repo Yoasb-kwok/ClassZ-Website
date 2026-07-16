@@ -5,6 +5,9 @@ import { Edit, GraduationCap, Plus, Search, Trash2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { appendAudit, newId, type AdminInstructor } from "@/lib/classz-admin-store"
 import { useAdminStore } from "@/components/admin/use-admin-store"
+import { isDemoSession } from "@/components/admin/use-admin-api"
+import { apiDelete, apiPatch, apiPost } from "@/lib/classz-api-client"
+import { useCenterApiList } from "@/components/admin/use-center-api-list"
 import {
   AdminCard,
   AdminInput,
@@ -22,17 +25,29 @@ import {
 export function InstructorsManager() {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
-  const { store, patch, ready } = useAdminStore()
+  const demo = isDemoSession()
+  const { store, patch, ready: storeReady } = useAdminStore()
+  const mapIns = (r: Record<string, unknown>): AdminInstructor => ({
+    id: String(r.id),
+    name: String(r.name || ""),
+    email: "",
+    phone: "",
+    bio: "",
+    created_at: String(r.created_at || new Date().toISOString()),
+  })
+  const { rows: apiRows, ready: apiReady, reload } = useCenterApiList("/instructors", mapIns)
+  const ready = demo ? storeReady : apiReady
+  const instructors = demo ? store?.instructors : apiRows
   const [search, setSearch] = useState("")
   const [modal, setModal] = useState<"create" | "edit" | null>(null)
   const [editing, setEditing] = useState<AdminInstructor | null>(null)
   const [form, setForm] = useState({ name: "", email: "", phone: "", bio: "" })
 
   const rows = useMemo(() => {
-    if (!store) return []
+    if (!instructors) return []
     const q = search.trim().toLowerCase()
-    return store.instructors.filter((i) => !q || i.name.toLowerCase().includes(q) || i.email.toLowerCase().includes(q))
-  }, [store, search])
+    return instructors.filter((i) => !q || i.name.toLowerCase().includes(q) || i.email.toLowerCase().includes(q))
+  }, [instructors, search])
 
   function openCreate() {
     setEditing(null)
@@ -46,7 +61,18 @@ export function InstructorsManager() {
     setModal("edit")
   }
 
-  function save() {
+  async function save() {
+    if (!demo) {
+      try {
+        if (modal === "create") await apiPost("/instructors", { name: form.name.trim(), profile_image_url: null })
+        else if (editing) await apiPatch(`/instructors/${editing.id}`, { name: form.name.trim() })
+        await reload()
+        setModal(null)
+      } catch (e) {
+        alert(e instanceof Error ? e.message : "Save failed")
+      }
+      return
+    }
     if (!store) return
     if (modal === "create") {
       const ins: AdminInstructor = {

@@ -2,11 +2,11 @@
 
 import type { LucideIcon } from "lucide-react"
 
-/** Admin app background — stylerecord light end (#CEF1F0). */
-export const adminSurface = "bg-classz-50"
+/** Admin canvas — light tone (#CEF1F0 / white) + dark tone (#044A48). */
+export const adminSurface = "bg-white text-classz-700"
 
 export function AdminPageFrame({ children }: { children: React.ReactNode }) {
-  return <div className="space-y-6 text-base">{children}</div>
+  return <div className="space-y-3 text-sm text-classz-700">{children}</div>
 }
 
 export function AdminPageHeader({
@@ -19,26 +19,32 @@ export function AdminPageHeader({
   Icon?: LucideIcon
 }) {
   return (
-    <div className="space-y-3">
-      <h1 className="text-3xl md:text-4xl font-bold text-classz-700 flex items-center gap-3">
-        {Icon ? <Icon className="h-8 w-8 md:h-9 md:w-9 shrink-0 text-classz-500" aria-hidden /> : null}
+    <div className="space-y-0.5">
+      <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-classz-700 flex items-center gap-2">
+        {Icon ? <Icon className="h-5 w-5 shrink-0 text-classz-500" aria-hidden /> : null}
         {title}
       </h1>
-      {description ? <p className="text-classz-600 text-base md:text-lg leading-relaxed max-w-3xl">{description}</p> : null}
+      {description ? (
+        <p className="text-classz-600/80 text-sm leading-snug max-w-2xl">{description}</p>
+      ) : null}
     </div>
   )
 }
 
 export function AdminCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-white rounded-lg shadow-md border border-classz-200 p-6 md:p-7 ${className}`.trim()}>{children}</div>
+    <div
+      className={`bg-white rounded-xl border border-classz-100/80 p-3.5 md:p-4 text-classz-700 shadow-[0_1px_2px_rgba(10,186,181,0.05)] ${className}`.trim()}
+    >
+      {children}
+    </div>
   )
 }
 
 export function AdminInput({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full px-3.5 py-2.5 border border-classz-200 rounded-md text-base text-classz-700 placeholder:text-classz-500/60 bg-white focus:outline-none focus:ring-2 focus:ring-classz-400 focus:border-classz-400 ${className}`.trim()}
+      className={`w-full px-3.5 py-2.5 border border-classz-100 rounded-lg text-base text-classz-700 placeholder:text-classz-600/40 bg-white focus:outline-none focus:ring-2 focus:ring-classz-200 focus:border-classz-300 ${className}`.trim()}
       {...props}
     />
   )
@@ -51,7 +57,7 @@ export function AdminSelect({
 }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`border border-classz-200 rounded-md px-3.5 py-2.5 text-base text-classz-700 bg-white focus:outline-none focus:ring-2 focus:ring-classz-400 min-h-[2.75rem] ${className}`.trim()}
+      className={`w-full max-w-full border border-classz-100 rounded-lg px-3.5 py-2.5 text-base text-classz-700 bg-white focus:outline-none focus:ring-2 focus:ring-classz-200 min-h-[2.75rem] ${className}`.trim()}
       {...props}
     >
       {children}
@@ -62,14 +68,14 @@ export function AdminSelect({
 export function AdminTextarea({ className = "", ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`w-full min-h-[200px] px-3.5 py-3 border border-classz-200 rounded-md text-base text-classz-700 font-sans leading-relaxed bg-white focus:outline-none focus:ring-2 focus:ring-classz-400 ${className}`.trim()}
+      className={`w-full min-h-[200px] px-3.5 py-3 border border-classz-100 rounded-lg text-base text-classz-700 font-sans leading-relaxed bg-white placeholder:text-classz-600/40 focus:outline-none focus:ring-2 focus:ring-classz-200 ${className}`.trim()}
       {...props}
     />
   )
 }
 
 export function AdminLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-base font-medium text-classz-700 mb-1.5">{children}</label>
+  return <label className="block text-sm font-medium text-classz-700 mb-1.5">{children}</label>
 }
 
 export function AdminToolbar({ children }: { children: React.ReactNode }) {
@@ -84,7 +90,7 @@ export function AdminGhostButton({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-5 py-2.5 border border-classz-300 rounded-md text-base font-medium text-classz-700 hover:bg-classz-100 ${className}`.trim()}
+      className={`inline-flex items-center gap-2 px-4 py-2.5 border border-classz-200 rounded-lg text-sm font-medium text-classz-700 hover:bg-classz-50 transition-colors ${className}`.trim()}
       {...props}
     >
       {children}
@@ -100,7 +106,7 @@ export function AdminPrimaryButton({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-base font-medium text-white bg-classz-400 hover:bg-classz-500 disabled:opacity-50 ${className}`.trim()}
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-classz-400 hover:bg-classz-300 disabled:opacity-50 transition-colors ${className}`.trim()}
       {...props}
     >
       {children}
@@ -116,7 +122,7 @@ export function AdminDangerButton({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 ${className}`.trim()}
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-classz-50 bg-classz-600 hover:bg-classz-700 border border-classz-700 disabled:opacity-50 transition-colors ${className}`.trim()}
       {...props}
     >
       {children}
@@ -135,7 +141,7 @@ export function AdminTable({
   children: React.ReactNode
   className?: string
 }) {
-  return <table className={`w-full border-collapse text-base ${className}`.trim()}>{children}</table>
+  return <table className={`w-full border-collapse text-sm text-classz-700 ${className}`.trim()}>{children}</table>
 }
 
 export function AdminModal({
@@ -154,28 +160,28 @@ export function AdminModal({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <button type="button" className="absolute inset-0 bg-classz-700/50" onClick={onClose} aria-label="Close" />
+      <button type="button" className="absolute inset-0 bg-classz-700/35" onClick={onClose} aria-label="Close" />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="admin-modal-title"
-        className="relative bg-white rounded-lg shadow-xl border border-classz-200 max-w-lg w-full max-h-[90vh] overflow-y-auto text-base"
+        className="relative bg-white rounded-xl shadow-xl border border-classz-100 max-w-lg w-full max-h-[90vh] overflow-y-auto text-base text-classz-700"
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-classz-200 bg-classz-50/50">
-          <h2 id="admin-modal-title" className="text-xl font-semibold text-classz-700">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-classz-100 bg-classz-50">
+          <h2 id="admin-modal-title" className="text-lg font-semibold text-classz-700">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md px-2 py-1 text-classz-600 hover:bg-classz-100 hover:text-classz-700 text-2xl leading-none"
+            className="rounded-lg px-2 py-1 text-classz-600 hover:bg-classz-100 hover:text-classz-700 text-2xl leading-none"
           >
             ×
           </button>
         </div>
         <div className="p-5 md:p-6">{children}</div>
         {footer ? (
-          <div className="px-5 py-4 border-t border-classz-100 bg-classz-50/30 flex flex-wrap justify-end gap-2 text-base">
+          <div className="px-5 py-4 border-t border-classz-100 bg-classz-50 flex flex-wrap justify-end gap-2 text-base">
             {footer}
           </div>
         ) : null}

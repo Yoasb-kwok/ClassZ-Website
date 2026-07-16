@@ -5,6 +5,9 @@ import { BookOpen, Edit, Plus, Search, Trash2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { appendAudit, newId, type AdminCourse } from "@/lib/classz-admin-store"
 import { useAdminStore } from "@/components/admin/use-admin-store"
+import { isDemoSession } from "@/components/admin/use-admin-api"
+import { apiPatch, apiPost } from "@/lib/classz-api-client"
+import { useCenterApiList } from "@/components/admin/use-center-api-list"
 import {
   AdminCard,
   AdminInput,
@@ -19,10 +22,26 @@ import {
   AdminToolbar,
 } from "@/components/classz-admin-ui"
 
-export function CoursesManager() {
+export function CoursesManager({ variant = "courses" }: { variant?: "courses" | "programs" }) {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
-  const { store, patch, ready } = useAdminStore()
+  const isPrograms = variant === "programs"
+  const demo = isDemoSession()
+  const { store, patch, ready: storeReady } = useAdminStore()
+  const mapCourse = (r: Record<string, unknown>): AdminCourse => ({
+    id: String(r.id),
+    name: String(r.name || ""),
+    instructor: String(r.instructor || ""),
+    start_time: String(r.created_at || new Date().toISOString()),
+    end_time: String(r.updated_at || new Date().toISOString()),
+    capacity: 10,
+    enrolled_count: 0,
+    status: String(r.publish_status || "draft") as AdminCourse["status"],
+    location: String(r.location || ""),
+  })
+  const { rows: apiRows, ready: apiReady, reload, error: apiError } = useCenterApiList("/courses", mapCourse)
+  const ready = demo ? storeReady : apiReady
+  const courses = demo ? store?.courses : apiRows
   const [search, setSearch] = useState("")
   const [modal, setModal] = useState<"create" | "edit" | null>(null)
   const [editing, setEditing] = useState<AdminCourse | null>(null)
@@ -35,13 +54,17 @@ export function CoursesManager() {
     enrolled_count: "0",
     status: "published" as AdminCourse["status"],
     location: "",
+    price: "",
+    age_min: "",
+    age_max: "",
+    default_instructor_id: "",
   })
 
   const rows = useMemo(() => {
-    if (!store) return []
+    if (!courses) return []
     const q = search.trim().toLowerCase()
-    return store.courses.filter((c) => !q || c.name.toLowerCase().includes(q) || c.instructor.toLowerCase().includes(q))
-  }, [store, search])
+    return courses.filter((c) => !q || c.name.toLowerCase().includes(q) || c.instructor.toLowerCase().includes(q))
+  }, [courses, search])
 
   function openCreate() {
     const now = new Date()
@@ -56,6 +79,10 @@ export function CoursesManager() {
       enrolled_count: "0",
       status: "published",
       location: zh ? "旺角" : "MK",
+      price: "",
+      age_min: "",
+      age_max: "",
+      default_instructor_id: "",
     })
     setModal("create")
   }
@@ -71,11 +98,44 @@ export function CoursesManager() {
       enrolled_count: String(c.enrolled_count),
       status: c.status,
       location: c.location,
+      price: String((c as { price?: number }).price ?? ""),
+      age_min: String((c as { age_min?: number }).age_min ?? ""),
+      age_max: String((c as { age_max?: number }).age_max ?? ""),
+      default_instructor_id: String((c as { default_instructor_id?: number }).default_instructor_id ?? ""),
     })
     setModal("edit")
   }
 
-  function save() {
+  async function save() {
+    if (!demo) {
+      try {
+        const body: Record<string, unknown> = {
+          name: form.name.trim(),
+          instructor: form.instructor.trim(),
+          location: form.location.trim(),
+        }
+        if (form.price !== "") body.price = Number(form.price)
+        if (form.age_min !== "") body.age_min = Number(form.age_min)
+        if (form.age_max !== "") body.age_max = Number(form.age_max)
+        if (form.default_instructor_id !== "") body.default_instructor_id = Number(form.default_instructor_id)
+        if (modal === "create") {
+          const created = await apiPost<{ id: number; publish_status?: string }>("/courses", body)
+          if (form.status === "published" && created?.id) {
+            await apiPost(`/courses/${created.id}/submit-for-approval`, {})
+          }
+        } else if (editing) {
+          await apiPatch(`/courses/${editing.id}`, { ...body, publish_status: form.status })
+          if (form.status === "published") {
+            await apiPost(`/courses/${editing.id}/submit-for-approval`, {})
+          }
+        }
+        await reload()
+        setModal(null)
+      } catch (e) {
+        alert(e instanceof Error ? e.message : "Save failed")
+      }
+      return
+    }
     if (!store) return
     const cap = Math.max(1, parseInt(form.capacity, 10) || 10)
     const enr = Math.max(0, parseInt(form.enrolled_count, 10) || 0)
@@ -125,7 +185,7 @@ export function CoursesManager() {
     patch((s) => appendAudit({ ...s, courses: s.courses.filter((c) => c.id !== id) }, { action: "delete_course", target_type: "course", target_id: id, details: "" }))
   }
 
-  if (!ready || !store) {
+  if (!ready || (demo && !store) || (!demo && !courses)) {
     return (
       <div className="flex justify-center py-20">
         <div className="h-10 w-10 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />
@@ -135,8 +195,14 @@ export function CoursesManager() {
 
   return (
     <AdminPageFrame>
-      <AdminPageHeader title={zh ? "課程管理" : "Course management"} Icon={BookOpen} />
+      <AdminPageHeader
+        title={isPrograms ? (zh ? "課程設定" : "Programs") : zh ? "課程管理" : "Course management"}
+        Icon={BookOpen}
+      />
       <AdminCard>
+        {apiError && !demo ? (
+          <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{apiError}</div>
+        ) : null}
         <AdminToolbar>
           <div className="relative flex-1 min-w-[200px] max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400 pointer-events-none" />
@@ -144,7 +210,7 @@ export function CoursesManager() {
           </div>
           <AdminPrimaryButton type="button" className="ml-auto" onClick={openCreate}>
             <Plus className="h-4 w-4" />
-            {zh ? "新增課程" : "Add course"}
+            {isPrograms ? (zh ? "新增課程" : "Add program") : zh ? "新增課程" : "Add course"}
           </AdminPrimaryButton>
         </AdminToolbar>
         <AdminTableShell>
@@ -232,6 +298,27 @@ export function CoursesManager() {
           <div>
             <AdminLabel>{zh ? "地點" : "Location"}</AdminLabel>
             <AdminInput value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <AdminLabel>{zh ? "價錢" : "Price"}</AdminLabel>
+                <AdminInput value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "年齡下限" : "Age min"}</AdminLabel>
+                <AdminInput value={form.age_min} onChange={(e) => setForm((f) => ({ ...f, age_min: e.target.value }))} />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "年齡上限" : "Age max"}</AdminLabel>
+                <AdminInput value={form.age_max} onChange={(e) => setForm((f) => ({ ...f, age_max: e.target.value }))} />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "預設導師 ID" : "Teacher ID"}</AdminLabel>
+                <AdminInput
+                  value={form.default_instructor_id}
+                  onChange={(e) => setForm((f) => ({ ...f, default_instructor_id: e.target.value }))}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </AdminModal>
