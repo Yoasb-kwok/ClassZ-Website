@@ -1,7 +1,7 @@
 import type { ClasszPortalRole } from "@/lib/classz-auth"
 import { getClasszSession } from "@/lib/classz-auth"
 import { getAdminNavGroups as allGroups, type AdminNavGroup } from "@/lib/classz-admin-nav"
-import { getCenterAdminNavGroups } from "@/lib/center-admin-nav"
+import { getCenterAdminNavGroups, getCoachNavGroups } from "@/lib/center-admin-nav"
 import { Building2, CheckCircle, LayoutDashboard, Users } from "lucide-react"
 
 const PLATFORM_ONLY: AdminNavGroup[] = [
@@ -21,12 +21,12 @@ export function getAdminNavGroupsForRole(role: ClasszPortalRole): AdminNavGroup[
   if (role === "center_admin") {
     return getCenterAdminNavGroups()
   }
+  if (role === "coach") {
+    return getCoachNavGroups()
+  }
   const base = allGroups()
   if (role === "platform_admin") {
     return [...PLATFORM_ONLY, ...base.filter((g) => g.titleEn === "Content")]
-  }
-  if (role === "coach") {
-    return base.filter((g) => g.titleEn === "Operations" || g.titleEn === "Overview & finance")
   }
   return base
 }

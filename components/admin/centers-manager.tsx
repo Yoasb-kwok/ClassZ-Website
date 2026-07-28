@@ -17,9 +17,11 @@ import {
   AdminPageHeader,
   AdminPrimaryButton,
   AdminSelect,
+  AdminStatusChip,
   AdminTable,
   AdminTableShell,
   AdminToolbar,
+  statusTone,
 } from "@/components/classz-admin-ui"
 
 const DISTRICTS = [
@@ -220,7 +222,7 @@ export function CentersManager() {
         </AdminPrimaryButton>
       </AdminToolbar>
 
-      {error ? <div className="text-red-600 text-sm mb-4">{error}</div> : null}
+      {error ? <div className="text-brand-coral text-sm mb-4">{error}</div> : null}
 
       <AdminCard>
         <AdminTableShell>
@@ -252,7 +254,7 @@ export function CentersManager() {
                     <td className="px-3 py-2 text-sm">{c.category}</td>
                     <td className="px-3 py-2 text-sm">{c.admin_email || c.admin_name || "—"}</td>
                     <td className="px-3 py-2">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-classz-50 border border-classz-200">{c.status}</span>
+                      <AdminStatusChip tone={statusTone(c.status)}>{c.status}</AdminStatusChip>
                     </td>
                     <td className="px-3 py-2 text-right space-x-1 whitespace-nowrap">
                       <Link href={centerCrmFlowPath(c.id, "programs")}>

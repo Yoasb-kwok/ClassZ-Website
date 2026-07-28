@@ -541,7 +541,7 @@ export function ActivityLearningRecordSection({
                 value={form.additional_comment}
                 onChange={(e) => setForm((f) => ({ ...f, additional_comment: e.target.value }))}
               />
-              <p className={`text-xs mt-1 ${wordCount > 100 ? "text-red-600" : "text-classz-500"}`}>
+              <p className={`text-xs mt-1 ${wordCount > 100 ? "text-brand-coral" : "text-classz-500"}`}>
                 No more than 100 words · {wordCount}/100
               </p>
             </div>
@@ -593,11 +593,11 @@ export function ActivityLearningRecordSection({
                     <p className="font-semibold text-classz-700">
                       {r.student_name || (zh ? "學員" : "Student")} · {r.class_name || `#${r.class_id}`}
                       {r.is_confirmed ? (
-                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700">
+                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-[color-mix(in_srgb,var(--brand-teal)_12%,white)] border border-[color-mix(in_srgb,var(--brand-teal)_35%,white)] text-brand-teal">
                           {zh ? "已確認" : "Confirmed"}
                         </span>
                       ) : (
-                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
+                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-[color-mix(in_srgb,var(--brand-orange)_12%,white)] border border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] text-brand-orange">
                           {zh ? "草稿" : "Draft"}
                         </span>
                       )}
@@ -618,7 +618,7 @@ export function ActivityLearningRecordSection({
                         <AdminGhostButton type="button" className="text-sm py-1.5 px-3" onClick={() => startEdit(r)}>
                           {zh ? "編輯" : "Edit"}
                         </AdminGhostButton>
-                        <AdminGhostButton type="button" className="text-sm py-1.5 px-3 text-red-600" onClick={() => remove(r.id, r.is_confirmed)}>
+                        <AdminGhostButton type="button" className="text-sm py-1.5 px-3 text-brand-coral" onClick={() => remove(r.id, r.is_confirmed)}>
                           {zh ? "刪除" : "Delete"}
                         </AdminGhostButton>
                       </>

@@ -28,11 +28,11 @@ export function PolicySection({
 
   return (
     <div className="space-y-4 pb-6 border-b border-[#E5E7EB] last:border-b-0">
-      <h2 className="text-2xl md:text-3xl font-semibold text-[#111929]">
+      <h2 className="text-2xl md:text-3xl font-semibold text-[#4C5B5C]">
         {title}
       </h2>
       {content && (
-        <div className="space-y-4 text-[#485A69] text-sm md:text-base leading-relaxed whitespace-pre-line">
+        <div className="space-y-4 text-[#4C5B5C] text-sm md:text-base leading-relaxed whitespace-pre-line">
           {process(content, sectionNum)}
         </div>
       )}
@@ -40,10 +40,10 @@ export function PolicySection({
         <div className="space-y-4 pl-4 md:pl-6">
           {subsections.map((subsection, idx) => (
             <div key={idx} className="space-y-3">
-              <h3 className="text-lg md:text-xl font-semibold text-[#111929]">
+              <h3 className="text-lg md:text-xl font-semibold text-[#4C5B5C]">
                 {subsection.title}
               </h3>
-              <div className="text-[#485A69] text-sm md:text-base leading-relaxed whitespace-pre-line">
+              <div className="text-[#4C5B5C] text-sm md:text-base leading-relaxed whitespace-pre-line">
                 {process(subsection.content, sectionNum)}
               </div>
             </div>

@@ -138,7 +138,7 @@ export function ScheduleClassEnrollments({
               <span className="text-classz-800 truncate">{e.profile_name || e.user_name}</span>
               <button
                 type="button"
-                className="shrink-0 p-1 text-red-600 hover:bg-red-50 rounded"
+                className="shrink-0 p-1 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded"
                 onClick={() => removeStudent(e.id)}
                 aria-label={zh ? "移除" : "Remove"}
               >

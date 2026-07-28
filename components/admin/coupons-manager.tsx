@@ -18,6 +18,7 @@ import {
   AdminPageHeader,
   AdminPrimaryButton,
   AdminSelect,
+  AdminStatusChip,
   AdminTable,
   AdminTableShell,
   AdminToolbar,
@@ -210,15 +211,17 @@ export function CouponsManager() {
                   </td>
                   <td className="px-3 py-2">
                     <AdminGhostButton type="button" className="py-2.5 px-3.5 text-base" onClick={() => toggle(c.id)}>
-                      {c.is_active ? <Power className="h-3.5 w-3.5 text-classz-500" /> : <PowerOff className="h-3.5 w-3.5 text-classz-400" />}
-                      {c.is_active ? (zh ? "啟用" : "On") : zh ? "停用" : "Off"}
+                      <AdminStatusChip tone={c.is_active ? "teal" : "coral"}>
+                        {c.is_active ? <Power className="h-3 w-3 mr-1" /> : <PowerOff className="h-3 w-3 mr-1" />}
+                        {c.is_active ? (zh ? "啟用" : "On") : zh ? "停用" : "Off"}
+                      </AdminStatusChip>
                     </AdminGhostButton>
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     <button type="button" className="p-1.5 text-classz-500 hover:bg-classz-50 rounded" onClick={() => openEdit(c)}>
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button type="button" className="p-1.5 text-red-600 hover:bg-red-50 rounded ml-1" onClick={() => remove(c.id)}>
+                    <button type="button" className="p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded ml-1" onClick={() => remove(c.id)}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>

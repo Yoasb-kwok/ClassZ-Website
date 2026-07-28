@@ -1,103 +1,118 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { BarChart3 } from "lucide-react"
+import Link from "next/link"
+import { BarChart3, DollarSign, Flame, Megaphone, Star, UsersRound } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
-import { isDemoSession } from "@/components/admin/use-admin-api"
-import { apiGet } from "@/lib/classz-api-client"
-import { AdminCard, AdminPageFrame, AdminPageHeader } from "@/components/classz-admin-ui"
+import { AdminPageFrame, AdminPageHeader, type BrandTone } from "@/components/classz-admin-ui"
 
-type ReportKey =
-  | "attendance"
-  | "revenue"
-  | "teacher"
-  | "retention"
-  | "popular"
-  | "conversion"
+const REPORTS: Array<{
+  href: string
+  icon: typeof Star
+  zh: string
+  en: string
+  descZh: string
+  descEn: string
+  tone: BrandTone
+}> = [
+  {
+    href: "/admin/reports/teacher-ratings",
+    icon: Star,
+    zh: "導師評價排行",
+    en: "Teacher ratings",
+    descZh: "綜合評分與名次",
+    descEn: "Composite scores and ranking",
+    tone: "orange",
+  },
+  {
+    href: "/admin/reports/revenue",
+    icon: DollarSign,
+    zh: "收入報表",
+    en: "Revenue",
+    descZh: "每日／每月已付收入",
+    descEn: "Daily / monthly paid revenue",
+    tone: "teal",
+  },
+  {
+    href: "/admin/reports/retention",
+    icon: UsersRound,
+    zh: "學員留存",
+    en: "Retention",
+    descZh: "續約率與流失名單",
+    descEn: "Renewal rate and churn list",
+    tone: "magenta",
+  },
+  {
+    href: "/admin/reports/popular-courses",
+    icon: Flame,
+    zh: "課程熱門度",
+    en: "Course popularity",
+    descZh: "報名與滿額率排行",
+    descEn: "Enrollment and fill-rate ranking",
+    tone: "coral",
+  },
+  {
+    href: "/admin/reports/ad-conversion",
+    icon: Megaphone,
+    zh: "廣告學生轉換率",
+    en: "Ad conversion",
+    descZh: "渠道名單 → 轉換漏斗",
+    descEn: "Channel lead → conversion funnel",
+    tone: "slate",
+  },
+]
 
-const ENDPOINTS: Record<ReportKey, string> = {
-  attendance: "/attendance-anomaly",
-  revenue: "/reports/revenue",
-  teacher: "/instructor-performance",
-  retention: "/renewal-churn",
-  popular: "/reports/popular-courses",
-  conversion: "/conversion-funnel",
+const TONE_ICON: Record<BrandTone, string> = {
+  teal: "bg-[color-mix(in_srgb,var(--brand-teal)_14%,white)] text-brand-teal",
+  slate: "bg-[color-mix(in_srgb,var(--brand-slate)_10%,white)] text-brand-slate",
+  magenta: "bg-[color-mix(in_srgb,var(--brand-magenta)_12%,white)] text-brand-magenta",
+  orange: "bg-[color-mix(in_srgb,var(--brand-orange)_14%,white)] text-brand-orange",
+  coral: "bg-[color-mix(in_srgb,var(--brand-coral)_12%,white)] text-brand-coral",
+}
+
+const TONE_BORDER: Record<BrandTone, string> = {
+  teal: "hover:border-brand-teal/40",
+  slate: "hover:border-brand-slate/35",
+  magenta: "hover:border-brand-magenta/40",
+  orange: "hover:border-brand-orange/40",
+  coral: "hover:border-brand-coral/40",
 }
 
 export function ReportsHub() {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
-  const demo = isDemoSession()
-  const [tab, setTab] = useState<ReportKey>("revenue")
-  const [data, setData] = useState<unknown>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  const load = useCallback(async () => {
-    if (demo) {
-      setData(null)
-      setError(zh ? "請用中心帳號登入" : "Sign in with centre account")
-      return
-    }
-    setLoading(true)
-    setError(null)
-    try {
-      const month = new Date().toISOString().slice(0, 7)
-      const path = ENDPOINTS[tab]
-      const qs = path.includes("?") ? "" : path.includes("reports/") ? "" : `?month=${month}`
-      const result = await apiGet(`${path}${qs}`)
-      setData(result)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Load failed")
-      setData(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [demo, tab, zh])
-
-  useEffect(() => {
-    load()
-  }, [load])
-
-  const tabs: Array<[ReportKey, string]> = [
-    ["attendance", zh ? "出席報表" : "Attendance"],
-    ["revenue", zh ? "收入報表" : "Revenue"],
-    ["teacher", zh ? "導師表現" : "Teacher performance"],
-    ["retention", zh ? "學員留存" : "Retention"],
-    ["popular", zh ? "熱門課程" : "Popular courses"],
-    ["conversion", zh ? "轉換率" : "Conversion"],
-  ]
 
   return (
     <AdminPageFrame>
-      <AdminPageHeader title={zh ? "報表" : "Reports"} Icon={BarChart3} />
+      <AdminPageHeader
+        title={zh ? "報表" : "Reports"}
+        description={zh ? "選擇報表類型查看洞察" : "Choose a report to explore insights"}
+        Icon={BarChart3}
+      />
 
-      <div className="flex flex-wrap gap-2">
-        {tabs.map(([k, label]) => (
-          <button
-            key={k}
-            type="button"
-            onClick={() => setTab(k)}
-            className={`px-4 py-2 rounded-md text-sm font-medium border ${
-              tab === k ? "bg-classz-100 border-classz-400" : "bg-white border-classz-200"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        {REPORTS.map((r) => {
+          const Icon = r.icon
+          return (
+            <Link
+              key={r.href}
+              href={r.href}
+              className={`group block rounded-xl border border-classz-100 bg-white p-4 shadow-[0_1px_2px_rgba(10,186,181,0.05)] hover:bg-classz-50/40 transition-colors ${TONE_BORDER[r.tone]}`}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={`inline-flex h-10 w-10 items-center justify-center rounded-lg ${TONE_ICON[r.tone]}`}
+                >
+                  <Icon className="h-5 w-5" aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="font-semibold text-brand-slate">{zh ? r.zh : r.en}</h2>
+                  <p className="text-sm text-brand-slate/65 mt-0.5">{zh ? r.descZh : r.descEn}</p>
+                </div>
+              </div>
+            </Link>
+          )
+        })}
       </div>
-
-      <AdminCard>
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-8 w-8 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />
-          </div>
-        ) : error ? (
-          <p className="text-sm text-red-600">{error}</p>
-        ) : (
-          <pre className="text-xs bg-classz-50 p-4 rounded-md overflow-auto max-h-[32rem]">{JSON.stringify(data, null, 2)}</pre>
-        )}
-      </AdminCard>
     </AdminPageFrame>
   )
 }

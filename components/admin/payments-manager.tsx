@@ -10,9 +10,11 @@ import {
   AdminPageFrame,
   AdminPageHeader,
   AdminSelect,
+  AdminStatusChip,
   AdminTable,
   AdminTableShell,
   AdminToolbar,
+  statusTone,
 } from "@/components/classz-admin-ui"
 
 type Order = {
@@ -77,7 +79,7 @@ export function PaymentsManager() {
       />
 
       {error ? (
-        <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div role="alert" className="text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2">
           {error}
         </div>
       ) : null}
@@ -118,7 +120,11 @@ export function PaymentsManager() {
                     <td className="px-3 py-2">{o.id}</td>
                     <td className="px-3 py-2 font-mono text-xs">{o.order_id || "—"}</td>
                     <td className="px-3 py-2">HK${Number(o.total || 0).toLocaleString()}</td>
-                    <td className="px-3 py-2">{o.payment_status || "—"}</td>
+                    <td className="px-3 py-2">
+                      <AdminStatusChip tone={statusTone(o.payment_status)}>
+                        {o.payment_status || "—"}
+                      </AdminStatusChip>
+                    </td>
                     <td className="px-3 py-2">{o.payment_method || "—"}</td>
                     <td className="px-3 py-2 text-sm text-classz-600">
                       {o.created_at ? new Date(o.created_at).toLocaleString(zh ? "zh-HK" : "en-HK") : "—"}

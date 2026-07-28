@@ -22,8 +22,8 @@
         "invalidCredentials": "Invalid email or password",
         "demoTitle": "Demo accounts (click to fill)",
         "demoPassword": "Password for both:",
+        "platformAccount": "Platform",
         "centerAccount": "Center",
-        "coachAccount": "Coach",
         "offlineHint": "Demo mode: works without API. Set NEXT_PUBLIC_CLASSZ_API_URL to use your classz-api."
     },
     "classzAdmin": {

@@ -13,8 +13,10 @@ import {
   AdminPageHeader,
   AdminPrimaryButton,
   AdminSelect,
+  AdminStatusChip,
   AdminTable,
   AdminTableShell,
+  statusTone,
 } from "@/components/classz-admin-ui"
 
 type EnrollReq = {
@@ -135,14 +137,16 @@ export function BookingsManager() {
                     <td className="px-3 py-2">{r.id}</td>
                     <td className="px-3 py-2">{r.student_name}</td>
                     <td className="px-3 py-2">{r.class_name}</td>
-                    <td className="px-3 py-2">{r.status}</td>
+                    <td className="px-3 py-2">
+                      <AdminStatusChip tone={statusTone(r.status)}>{r.status}</AdminStatusChip>
+                    </td>
                     <td className="px-3 py-2 text-right space-x-1">
                       {r.status === "pending" ? (
                         <>
                           <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => patchRequest(r.id, "fulfilled")}>
                             {zh ? "核准" : "Approve"}
                           </AdminGhostButton>
-                          <AdminGhostButton type="button" className="text-sm py-1 px-2 text-red-600" onClick={() => patchRequest(r.id, "rejected")}>
+                          <AdminGhostButton type="button" className="text-sm py-1 px-2 text-brand-coral" onClick={() => patchRequest(r.id, "rejected")}>
                             {zh ? "拒絕" : "Reject"}
                           </AdminGhostButton>
                         </>
@@ -186,7 +190,9 @@ export function BookingsManager() {
                 <span>
                   #{w.id} · {w.student_name || w.contact_email} · class {w.class_id}
                 </span>
-                <span className="text-classz-500">{w.status}</span>
+                <span className="text-classz-500">
+                  <AdminStatusChip tone={statusTone(w.status)}>{w.status}</AdminStatusChip>
+                </span>
               </li>
             ))}
             {!waitlist.length ? <li className="py-6 text-center text-classz-500">{zh ? "候補名單為空" : "Waitlist empty"}</li> : null}

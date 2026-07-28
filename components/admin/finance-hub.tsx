@@ -62,18 +62,26 @@ export function FinanceHub() {
       <div className="flex flex-wrap gap-2">
         {(
           [
-            ["payments", zh ? "付款" : "Payments"],
-            ["outstanding", zh ? "未付" : "Outstanding"],
-            ["coupons", zh ? "優惠券" : "Coupons"],
-            ["revenue", zh ? "收入報表" : "Revenue"],
+            ["payments", zh ? "付款" : "Payments", "teal"],
+            ["outstanding", zh ? "未付" : "Outstanding", "orange"],
+            ["coupons", zh ? "優惠券" : "Coupons", "magenta"],
+            ["revenue", zh ? "收入報表" : "Revenue", "slate"],
           ] as const
-        ).map(([k, label]) => (
+        ).map(([k, label, tone]) => (
           <button
             key={k}
             type="button"
             onClick={() => setTab(k)}
-            className={`px-4 py-2 rounded-md text-sm font-medium border ${
-              tab === k ? "bg-classz-100 border-classz-400" : "bg-white border-classz-200"
+            className={`px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
+              tab === k
+                ? tone === "teal"
+                  ? "bg-[color-mix(in_srgb,var(--brand-teal)_14%,white)] border-brand-teal text-brand-teal"
+                  : tone === "orange"
+                    ? "bg-[color-mix(in_srgb,var(--brand-orange)_14%,white)] border-brand-orange text-brand-orange"
+                    : tone === "magenta"
+                      ? "bg-[color-mix(in_srgb,var(--brand-magenta)_12%,white)] border-brand-magenta text-brand-magenta"
+                      : "bg-[color-mix(in_srgb,var(--brand-slate)_10%,white)] border-brand-slate text-brand-slate"
+                : "bg-white border-classz-200 text-brand-slate"
             }`}
           >
             {label}

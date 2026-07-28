@@ -154,7 +154,7 @@ export function InstructorsManager() {
                     <button type="button" className="p-1.5 text-classz-500 hover:bg-classz-50 rounded" onClick={() => openEdit(i)}>
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button type="button" className="p-1.5 text-red-600 hover:bg-red-50 rounded ml-1" onClick={() => remove(i.id)}>
+                    <button type="button" className="p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded ml-1" onClick={() => remove(i.id)}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>

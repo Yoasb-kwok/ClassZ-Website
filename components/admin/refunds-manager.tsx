@@ -80,7 +80,7 @@ export function RefundsManager() {
       />
 
       {error ? (
-        <div role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div role="alert" className="text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2">
           {error}
         </div>
       ) : null}
@@ -129,7 +129,7 @@ export function RefundsManager() {
                 {refunds.map((r) => (
                   <tr key={r.id}>
                     <td className="px-3 py-2">{r.id}</td>
-                    <td className="px-3 py-2">HK${Number(r.amount || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 font-medium text-brand-coral">HK${Number(r.amount || 0).toLocaleString()}</td>
                     <td className="px-3 py-2">{r.reason || "—"}</td>
                     <td className="px-3 py-2 text-sm text-classz-600">
                       {r.created_at ? new Date(r.created_at).toLocaleString(zh ? "zh-HK" : "en-HK") : "—"}

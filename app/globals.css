@@ -4,54 +4,78 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --background: #ffffff;
+  --foreground: #4c5b5c;
+  --card: #ffffff;
+  --card-foreground: #4c5b5c;
+  --popover: #ffffff;
+  --popover-foreground: #4c5b5c;
+  --primary: #0abab5;
+  --primary-foreground: #ffffff;
+  --secondary: #eef6f6;
+  --secondary-foreground: #4c5b5c;
+  --muted: #f3f6f6;
+  --muted-foreground: #6a7879;
+  --accent: #eef6f6;
+  --accent-foreground: #4c5b5c;
+  --destructive: #db5461;
+  --destructive-foreground: #ffffff;
+  --border: #d5e0e0;
+  --input: #d5e0e0;
+  --ring: #0abab5;
+  --chart-1: #0abab5;
+  --chart-2: #ff8400;
+  --chart-3: #bf07d0;
+  --chart-4: #db5461;
+  --chart-5: #4c5b5c;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #343f40;
+  --sidebar-foreground: #f5f8f8;
+  --sidebar-primary: #0abab5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #3d4a4b;
+  --sidebar-accent-foreground: #f5f8f8;
+  --sidebar-border: #445152;
+  --sidebar-ring: #0abab5;
 
-  /* ClassZ brand palette — source: stylerecord (light → dark) */
-  --classz-50: #cef1f0;
-  --classz-100: #9de3e1;
-  --classz-200: #6cd6d3;
+  /*
+   * ClassZ system palette — stylerecord 5 tones
+   * #0ABAB5 teal · #4C5B5C slate · #BF07D0 magenta · #FF8400 orange · #DB5461 coral
+   *
+   * classz-* keeps existing utility names:
+   *  50–300 surface tints of teal
+   *  400–500 primary teal + hover
+   *  600–700 slate ink
+   */
+  --brand-teal: #0abab5;
+  --brand-slate: #4c5b5c;
+  --brand-magenta: #bf07d0;
+  --brand-orange: #ff8400;
+  --brand-coral: #db5461;
+
+  --classz-50: #e7f8f7;
+  --classz-100: #c9efed;
+  --classz-200: #8fdfdb;
   --classz-300: #3bc8c4;
   --classz-400: #0abab5;
   --classz-500: #089591;
-  --classz-600: #06706d;
-  --classz-700: #044a48;
+  --classz-600: #5f6e6f;
+  --classz-700: #4c5b5c;
+  --classz-800: #3a4748;
+  --classz-900: #2a3536;
 
-  /* Centre admin — dual tone from stylerecord */
+  /* Aliases (CRM + charts) */
+  --crm-magenta: var(--brand-magenta);
+  --crm-slate: var(--brand-slate);
+  --crm-teal: var(--brand-teal);
+  --crm-coral: var(--brand-coral);
+  --crm-orange: var(--brand-orange);
+
   --admin-bg: #ffffff;
   --admin-surface: var(--classz-50);
-  --admin-ink: var(--classz-700);
+  --admin-ink: var(--brand-slate);
+  --admin-sidebar: #343f40;
+  --admin-canvas: #f5f8f8;
 }
 
 .dark {
@@ -136,6 +160,18 @@
   --color-classz-500: var(--classz-500);
   --color-classz-600: var(--classz-600);
   --color-classz-700: var(--classz-700);
+  --color-classz-800: var(--classz-800);
+  --color-classz-900: var(--classz-900);
+  --color-crm-magenta: var(--crm-magenta);
+  --color-crm-slate: var(--crm-slate);
+  --color-crm-teal: var(--crm-teal);
+  --color-crm-coral: var(--crm-coral);
+  --color-crm-orange: var(--crm-orange);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-slate: var(--brand-slate);
+  --color-brand-magenta: var(--brand-magenta);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-coral: var(--brand-coral);
 }
 
 @layer base {
@@ -232,27 +268,64 @@ input[type="checkbox"]:checked::after {
   font-weight: bold;
 }
 
-/* Centre / platform admin — dual tone: light #CEF1F0 + dark #044A48 */
+/* Centre / platform admin — slate ink + teal surfaces */
 .classz-admin-theme {
   color: var(--admin-ink);
   background-color: var(--admin-bg);
 }
 
-/* Alerts / hints — always red in admin */
+/* Status accents — map Tailwind defaults onto the 5-tone system */
+.crm-theme {
+  --crm-stage-new: var(--brand-magenta);
+  --crm-stage-contacted: var(--brand-orange);
+  --crm-stage-qualified: var(--brand-teal);
+  --crm-stage-trial: var(--brand-slate);
+  --crm-stage-won: var(--brand-teal);
+  --crm-stage-lost: var(--brand-coral);
+}
+
+/* Alerts / warnings → coral + orange; success → teal */
 .classz-admin-theme [role="alert"],
 .classz-admin-theme .admin-alert,
 .classz-admin-theme .text-amber-700,
 .classz-admin-theme .text-amber-800,
-.classz-admin-theme .text-amber-900 {
-  color: #dc2626 !important;
+.classz-admin-theme .text-amber-900,
+.classz-admin-theme .text-red-600,
+.classz-admin-theme .text-red-700 {
+  color: var(--brand-coral) !important;
+}
+
+.classz-admin-theme .text-amber-500,
+.classz-admin-theme .text-amber-600 {
+  color: var(--brand-orange) !important;
 }
 
 .classz-admin-theme .bg-amber-50,
 .classz-admin-theme .bg-amber-50\/30,
-.classz-admin-theme .admin-alert {
-  background-color: #fef2f2 !important;
+.classz-admin-theme .admin-alert,
+.classz-admin-theme .bg-red-50 {
+  background-color: color-mix(in srgb, var(--brand-coral) 10%, white) !important;
 }
 
-.classz-admin-theme .border-amber-200 {
-  border-color: #fecaca !important;
+.classz-admin-theme .border-amber-200,
+.classz-admin-theme .border-red-200 {
+  border-color: color-mix(in srgb, var(--brand-coral) 35%, white) !important;
+}
+
+.classz-admin-theme .text-emerald-600,
+.classz-admin-theme .text-emerald-700,
+.classz-admin-theme .text-emerald-500 {
+  color: var(--brand-teal) !important;
+}
+
+.classz-admin-theme .bg-emerald-50 {
+  background-color: color-mix(in srgb, var(--brand-teal) 12%, white) !important;
+}
+
+.classz-admin-theme .border-emerald-200 {
+  border-color: color-mix(in srgb, var(--brand-teal) 35%, white) !important;
+}
+
+.classz-admin-theme .bg-emerald-500 {
+  background-color: var(--brand-teal) !important;
 }

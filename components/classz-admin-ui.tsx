@@ -2,8 +2,8 @@
 
 import type { LucideIcon } from "lucide-react"
 
-/** Admin canvas — light tone (#CEF1F0 / white) + dark tone (#044A48). */
-export const adminSurface = "bg-white text-classz-700"
+/** Admin canvas — teal surfaces + slate ink (system 5-tone). */
+export const adminSurface = "bg-white text-brand-slate"
 
 export function AdminPageFrame({ children }: { children: React.ReactNode }) {
   return <div className="space-y-3 text-sm text-classz-700">{children}</div>
@@ -34,7 +34,7 @@ export function AdminPageHeader({
 export function AdminCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={`bg-white rounded-xl border border-classz-100/80 p-3.5 md:p-4 text-classz-700 shadow-[0_1px_2px_rgba(10,186,181,0.05)] ${className}`.trim()}
+      className={`bg-white rounded-xl border border-classz-100/80 p-3.5 md:p-4 text-brand-slate shadow-[0_1px_2px_rgba(10,186,181,0.06)] ${className}`.trim()}
     >
       {children}
     </div>
@@ -106,7 +106,7 @@ export function AdminPrimaryButton({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-classz-400 hover:bg-classz-300 disabled:opacity-50 transition-colors ${className}`.trim()}
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-brand-teal hover:brightness-110 disabled:opacity-50 transition-colors ${className}`.trim()}
       {...props}
     >
       {children}
@@ -122,12 +122,91 @@ export function AdminDangerButton({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-classz-50 bg-classz-600 hover:bg-classz-700 border border-classz-700 disabled:opacity-50 transition-colors ${className}`.trim()}
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-crm-coral hover:brightness-95 border border-crm-coral disabled:opacity-50 transition-colors ${className}`.trim()}
       {...props}
     >
       {children}
     </button>
   )
+}
+
+/** Semantic chip tones from the 5-color system */
+export type BrandTone = "teal" | "slate" | "magenta" | "orange" | "coral"
+
+const TONE_CHIP: Record<BrandTone, string> = {
+  teal: "bg-[color-mix(in_srgb,var(--brand-teal)_12%,white)] text-brand-teal border-[color-mix(in_srgb,var(--brand-teal)_35%,white)]",
+  slate: "bg-[color-mix(in_srgb,var(--brand-slate)_8%,white)] text-brand-slate border-[color-mix(in_srgb,var(--brand-slate)_22%,white)]",
+  magenta:
+    "bg-[color-mix(in_srgb,var(--brand-magenta)_10%,white)] text-brand-magenta border-[color-mix(in_srgb,var(--brand-magenta)_30%,white)]",
+  orange:
+    "bg-[color-mix(in_srgb,var(--brand-orange)_12%,white)] text-brand-orange border-[color-mix(in_srgb,var(--brand-orange)_35%,white)]",
+  coral:
+    "bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] text-brand-coral border-[color-mix(in_srgb,var(--brand-coral)_35%,white)]",
+}
+
+const TONE_BAR: Record<BrandTone, string> = {
+  teal: "bg-brand-teal",
+  slate: "bg-brand-slate",
+  magenta: "bg-brand-magenta",
+  orange: "bg-brand-orange",
+  coral: "bg-brand-coral",
+}
+
+const TONE_SOFT_BG: Record<BrandTone, string> = {
+  teal: "bg-[color-mix(in_srgb,var(--brand-teal)_8%,white)] border-[color-mix(in_srgb,var(--brand-teal)_28%,white)]",
+  slate: "bg-[color-mix(in_srgb,var(--brand-slate)_7%,white)] border-[color-mix(in_srgb,var(--brand-slate)_22%,white)]",
+  magenta: "bg-[color-mix(in_srgb,var(--brand-magenta)_8%,white)] border-[color-mix(in_srgb,var(--brand-magenta)_28%,white)]",
+  orange: "bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)] border-[color-mix(in_srgb,var(--brand-orange)_28%,white)]",
+  coral: "bg-[color-mix(in_srgb,var(--brand-coral)_8%,white)] border-[color-mix(in_srgb,var(--brand-coral)_28%,white)]",
+}
+
+export function AdminStatusChip({
+  tone = "slate",
+  children,
+  className = "",
+}: {
+  tone?: BrandTone
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${TONE_CHIP[tone]} ${className}`.trim()}
+    >
+      {children}
+    </span>
+  )
+}
+
+export function brandToneBar(tone: BrandTone) {
+  return TONE_BAR[tone]
+}
+
+export function brandTonePanel(tone: BrandTone) {
+  return TONE_SOFT_BG[tone]
+}
+
+/** Map common payment / request statuses onto the 5 tones */
+export function statusTone(status?: string | null): BrandTone {
+  const s = String(status || "").toLowerCase()
+  if (["paid", "active", "fulfilled", "approved", "done", "won", "confirmed", "completed"].includes(s)) return "teal"
+  if (["pending", "pending_approval", "todo", "new", "draft"].includes(s)) return "magenta"
+  if (["in_progress", "contacted", "beta_trial", "processing", "outstanding"].includes(s)) return "orange"
+  if (["trial", "waitlist", "medium", "qualified"].includes(s)) return "slate"
+  if (
+    ["rejected", "cancelled", "suspended", "lost", "refunded", "failed", "high", "overdue"].includes(s)
+  ) {
+    return "coral"
+  }
+  return "slate"
+}
+
+export function priorityTone(priority?: string | null): BrandTone {
+  const p = String(priority || "").toLowerCase()
+  if (p === "high") return "coral"
+  if (p === "medium") return "orange"
+  if (p === "low") return "teal"
+  return "slate"
 }
 
 export function AdminTableShell({ children }: { children: React.ReactNode }) {
@@ -150,14 +229,18 @@ export function AdminModal({
   onClose,
   children,
   footer,
+  size = "md",
 }: {
   open: boolean
   title: string
   onClose: () => void
   children: React.ReactNode
   footer?: React.ReactNode
+  /** md = default form; xl = wide calendar / rich content */
+  size?: "md" | "xl"
 }) {
   if (!open) return null
+  const widthClass = size === "xl" ? "max-w-5xl" : "max-w-lg"
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <button type="button" className="absolute inset-0 bg-classz-700/35" onClick={onClose} aria-label="Close" />
@@ -165,7 +248,7 @@ export function AdminModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="admin-modal-title"
-        className="relative bg-white rounded-xl shadow-xl border border-classz-100 max-w-lg w-full max-h-[90vh] overflow-y-auto text-base text-classz-700"
+        className={`relative bg-white rounded-xl shadow-xl border border-classz-100 ${widthClass} w-full max-h-[90vh] overflow-y-auto text-base text-classz-700`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-classz-100 bg-classz-50">
           <h2 id="admin-modal-title" className="text-lg font-semibold text-classz-700">

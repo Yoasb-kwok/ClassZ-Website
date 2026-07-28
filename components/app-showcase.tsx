@@ -35,19 +35,19 @@ export function AppShowcase() {
 
           {/* Center Content */}
           <div className="flex-1 text-center max-w-xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900">Discover Exceptional Classes.</h2>
-            <p className="text-lg text-slate-600 mb-10 leading-relaxed">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-brand-slate">Discover Exceptional Classes.</h2>
+            <p className="text-lg text-brand-slate/80 mb-10 leading-relaxed">
               Understand your child's progress with insights, and build a foundation for their future success.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="flex items-center gap-3 bg-black text-white px-6 py-3 rounded-xl hover:bg-slate-800 transition-colors w-full sm:w-auto justify-center">
+              <button className="flex items-center gap-3 bg-brand-slate text-white px-6 py-3 rounded-xl hover:bg-brand-slate transition-colors w-full sm:w-auto justify-center">
                 <Apple className="w-6 h-6" />
                 <div className="text-left">
                   <div className="text-[10px] uppercase font-medium">Download on the</div>
                   <div className="text-sm font-bold leading-none">App Store</div>
                 </div>
               </button>
-              <button className="flex items-center gap-3 bg-black text-white px-6 py-3 rounded-xl hover:bg-slate-800 transition-colors w-full sm:w-auto justify-center">
+              <button className="flex items-center gap-3 bg-brand-slate text-white px-6 py-3 rounded-xl hover:bg-brand-slate transition-colors w-full sm:w-auto justify-center">
                 <Play className="w-6 h-6 fill-current" />
                 <div className="text-left">
                   <div className="text-[10px] uppercase font-medium">Get it on</div>

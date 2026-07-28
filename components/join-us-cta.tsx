@@ -11,7 +11,7 @@ interface JoinUsCtaProps {
 export function JoinUsCta({ secondaryLink, primaryLink }: JoinUsCtaProps) {
   const { t } = useLanguage()
   return (
-    <section className="relative bg-gradient-to-br from-white via-[#F9FAFB] to-[#E0F7F6] overflow-hidden">
+    <section className="relative bg-gradient-to-br from-white via-[#F9FAFB] to-[#E7F8F7] overflow-hidden">
       {/* Background blur circles */}
       <div className="absolute w-96 h-96 bg-[rgba(10,186,181,0.08)] rounded-full blur-[128px] top-[384px] left-[705px] hidden xl:block" />
       <div className="absolute w-96 h-96 bg-[rgba(10,186,181,0.05)] rounded-full blur-[128px] top-0 right-[845px] hidden xl:block" />
@@ -22,14 +22,14 @@ export function JoinUsCta({ secondaryLink, primaryLink }: JoinUsCtaProps) {
           <div className="flex flex-col items-center gap-10 px-8 w-full max-w-[896px]">
             {/* Heading */}
             <div className="w-full max-w-[832px] flex items-center justify-center">
-              <h2 className="text-3xl md:text-4xl font-medium text-[#111929] leading-[1.3] tracking-[0.01em] text-center">
+              <h2 className="text-3xl md:text-4xl font-medium text-[#4C5B5C] leading-[1.3] tracking-[0.01em] text-center">
                 {t("joinUsCta.title")}
               </h2>
             </div>
 
             {/* Paragraph */}
             <div className="w-full max-w-[832px] opacity-90 flex items-center justify-center">
-              <p className="text-base font-medium text-[#485A69] leading-[1.6] tracking-[-0.02em] text-center">
+              <p className="text-base font-medium text-[#4C5B5C] leading-[1.6] tracking-[-0.02em] text-center">
                 {t("joinUsCta.subtitle")}
               </p>
             </div>
@@ -51,13 +51,13 @@ export function JoinUsCta({ secondaryLink, primaryLink }: JoinUsCtaProps) {
               )}
               {secondaryLink ? (
                 <Link href={secondaryLink}>
-                  <Button variant="outline" className="border-[#4A5565] text-[#4A5565] hover:bg-slate-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
+                  <Button variant="outline" className="border-[#4C5B5C] text-[#4C5B5C] hover:bg-classz-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
                     {t("joinUsCta.secondary")}
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               ) : (
-                <Button variant="outline" className="border-[#4A5565] text-[#4A5565] hover:bg-slate-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
+                <Button variant="outline" className="border-[#4C5B5C] text-[#4C5B5C] hover:bg-classz-50 rounded-full px-6 h-14 flex items-center gap-2 min-w-[154.06px]">
                   {t("joinUsCta.secondary")}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -68,20 +68,20 @@ export function JoinUsCta({ secondaryLink, primaryLink }: JoinUsCtaProps) {
             <div className="w-full border-t border-[rgba(229,231,235,0.6)] pt-[33px] min-h-[53px]">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 md:gap-16">
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#6A7282] flex-shrink-0" />
-                  <span className="text-sm font-normal text-[#6A7282] leading-[1.43] tracking-[-0.011em]">
+                  <CheckCircle2 className="w-4 h-4 text-[#5F6E6F] flex-shrink-0" />
+                  <span className="text-sm font-normal text-[#5F6E6F] leading-[1.43] tracking-[-0.011em]">
                     {t("joinUsCta.point1")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#6A7282] flex-shrink-0" />
-                  <span className="text-sm font-normal text-[#6A7282] leading-[1.43] tracking-[-0.011em]">
+                  <CheckCircle2 className="w-4 h-4 text-[#5F6E6F] flex-shrink-0" />
+                  <span className="text-sm font-normal text-[#5F6E6F] leading-[1.43] tracking-[-0.011em]">
                     {t("joinUsCta.point2")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#6A7282] flex-shrink-0" />
-                  <span className="text-sm font-normal text-[#6A7282] leading-[1.43] tracking-[-0.011em]">
+                  <CheckCircle2 className="w-4 h-4 text-[#5F6E6F] flex-shrink-0" />
+                  <span className="text-sm font-normal text-[#5F6E6F] leading-[1.43] tracking-[-0.011em]">
                     {t("joinUsCta.point3")}
                   </span>
                 </div>

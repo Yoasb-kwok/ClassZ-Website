@@ -9,6 +9,7 @@ import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { useCenterApiList } from "@/components/admin/use-center-api-list"
 import {
+  CALENDAR_COLOR_OPTIONS,
   ScheduleCalendar,
   getCalendarVisibleRange,
   parseSessionDate,
@@ -38,6 +39,7 @@ function mapClass(r: Record<string, unknown>): ClassRow {
     id: String(r.id),
     name: String(r.name || ""),
     class_code: String(r.class_code || r.program_code || ""),
+    calendar_color: r.calendar_color ? String(r.calendar_color) : null,
     instructor: String(r.instructor || ""),
     start_time: String(r.start_time || ""),
     end_time: String(r.end_time || ""),
@@ -111,7 +113,7 @@ function SessionListTable({
                 <button type="button" className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onEdit(c)}>
                   {zh ? "編輯" : "Edit"}
                 </button>
-                <button type="button" className="ml-2 text-sm text-red-600 hover:underline" onClick={() => onRemove(c.id)}>
+                <button type="button" className="ml-2 text-sm text-brand-coral hover:underline" onClick={() => onRemove(c.id)}>
                   {zh ? "刪除" : "Delete"}
                 </button>
               </td>
@@ -136,19 +138,19 @@ function HolidayListTable({ rows, zh }: { rows: ScheduleHoliday[]; zh: boolean }
     <div className="mt-4">
       <AdminTableShell>
       <AdminTable>
-        <thead className="bg-amber-50">
+        <thead className="bg-[color-mix(in_srgb,var(--brand-orange)_12%,white)]">
           <tr>
-            <th className="px-3 py-3 text-left text-base font-semibold text-amber-800 uppercase">{zh ? "日期" : "Date"}</th>
-            <th className="px-3 py-3 text-left text-base font-semibold text-amber-800 uppercase">{zh ? "公眾假期" : "Public holiday"}</th>
+            <th className="px-3 py-3 text-left text-base font-semibold text-brand-orange uppercase">{zh ? "日期" : "Date"}</th>
+            <th className="px-3 py-3 text-left text-base font-semibold text-brand-orange uppercase">{zh ? "公眾假期" : "Public holiday"}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-amber-100">
+        <tbody className="divide-y divide-[color-mix(in_srgb,var(--brand-orange)_20%,white)]">
           {rows.map((h) => (
             <tr key={h.id} className="bg-white">
               <td className="px-3 py-2 text-classz-600 text-sm">
                 {format(parseSessionDate(h.date), zh ? "yyyy年M月d日" : "MMM d, yyyy")}
               </td>
-              <td className="px-3 py-2 font-medium text-amber-900">{h.name}</td>
+              <td className="px-3 py-2 font-medium text-brand-orange">{h.name}</td>
             </tr>
           ))}
         </tbody>
@@ -174,6 +176,7 @@ export function ScheduleManager() {
   const [form, setForm] = useState({
     name: "",
     class_code: "",
+    calendar_color: CALENDAR_COLOR_OPTIONS[0],
     instructor: "",
     start_time: "",
     end_time: "",
@@ -241,6 +244,7 @@ export function ScheduleManager() {
     setForm({
       name: "",
       class_code: "",
+      calendar_color: CALENDAR_COLOR_OPTIONS[0],
       instructor: "",
       start_time: toDatetimeLocal(base),
       end_time: toDatetimeLocal(end),
@@ -256,6 +260,7 @@ export function ScheduleManager() {
     setForm({
       name: c.name,
       class_code: c.class_code,
+      calendar_color: c.calendar_color || CALENDAR_COLOR_OPTIONS[0],
       instructor: c.instructor,
       start_time: c.start_time.slice(0, 16).replace(" ", "T"),
       end_time: c.end_time.slice(0, 16).replace(" ", "T"),
@@ -279,6 +284,7 @@ export function ScheduleManager() {
         name: form.name.trim(),
         class_code: form.class_code.trim() || undefined,
         program_code: form.class_code.trim() || undefined,
+        calendar_color: form.calendar_color || undefined,
         instructor: form.instructor.trim(),
         start_time: form.start_time,
         end_time: form.end_time,
@@ -315,6 +321,7 @@ export function ScheduleManager() {
             id: newId,
             name: body.name || "",
             class_code: body.class_code || "",
+            calendar_color: typeof body.calendar_color === "string" ? body.calendar_color : null,
             instructor: body.instructor || "",
             start_time: form.start_time,
             end_time: form.end_time,
@@ -389,7 +396,7 @@ export function ScheduleManager() {
 
       <AdminToolbar>
         {listError && !demo ? (
-          <div className="w-full mb-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{listError}</div>
+          <div className="w-full mb-2 text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-md px-3 py-2">{listError}</div>
         ) : null}
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400 pointer-events-none" />
@@ -470,7 +477,7 @@ export function ScheduleManager() {
             />
             {periodHolidays.length > 0 && (
               <>
-                <h4 className="text-sm font-semibold text-amber-800 mt-6 mb-2">{zh ? "期內公眾假期" : "Public holidays in this period"}</h4>
+                <h4 className="text-sm font-semibold text-brand-orange mt-6 mb-2">{zh ? "期內公眾假期" : "Public holidays in this period"}</h4>
                 <HolidayListTable rows={periodHolidays} zh={zh} />
               </>
             )}
@@ -507,8 +514,54 @@ export function ScheduleManager() {
               <AdminInput value={form.class_code} onChange={(e) => setForm((f) => ({ ...f, class_code: e.target.value }))} />
             </div>
             <div>
+              <AdminLabel>{zh ? "日曆顏色" : "Calendar color"}</AdminLabel>
+              <div className="grid grid-cols-5 gap-2 rounded-lg border border-classz-100 bg-classz-50/40 p-2">
+                {CALENDAR_COLOR_OPTIONS.map((hex) => {
+                  const active = form.calendar_color === hex
+                  return (
+                    <button
+                      key={hex}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, calendar_color: hex }))}
+                      className={`group flex h-10 items-center justify-center rounded-lg border transition-all ${
+                        active ? "border-brand-slate bg-white shadow-sm scale-[1.03]" : "border-white/70 bg-white/80 hover:border-classz-200"
+                      }`}
+                      title={hex}
+                      aria-label={`${zh ? "選擇顏色" : "Choose color"} ${hex}`}
+                    >
+                      <span
+                        className={`h-5 w-5 rounded-full border border-black/5 ${active ? "ring-2 ring-brand-slate/20 ring-offset-2 ring-offset-white" : ""}`}
+                        style={{ backgroundColor: hex }}
+                        aria-hidden
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
               <AdminLabel>{zh ? "導師" : "Instructor"}</AdminLabel>
               <AdminInput value={form.instructor} onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value }))} />
+            </div>
+            <div className="flex items-end">
+              <div className="w-full rounded-lg border border-classz-100 bg-white px-3 py-2.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-slate/55 mb-1">
+                  {zh ? "預覽" : "Preview"}
+                </p>
+                <div
+                  className="rounded-md border px-2 py-1.5 text-sm font-medium"
+                  style={{
+                    borderColor: form.calendar_color,
+                    borderLeftWidth: 4,
+                    backgroundColor: `${form.calendar_color}18`,
+                    color: form.calendar_color,
+                  }}
+                >
+                  {form.class_code.trim() || form.name.trim() || (zh ? "課堂顏色" : "Session color")}
+                </div>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">

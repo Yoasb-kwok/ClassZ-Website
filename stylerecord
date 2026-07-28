@@ -1,9 +1,19 @@
-#CEF1F0
-#9DE3E1
-#6CD6D3
-#3BC8C4
-#0ABAB5
-#089591
-#06706D
-#044A48
-#044A48
+# ClassZ system palette (canonical)
+
+#0ABAB5  teal     — primary CTA, links, success, charts
+#4C5B5C  slate    — body text, chrome, sidebar base
+#BF07D0  magenta  — accent / new / highlight
+#FF8400  orange   — attention / warning / follow-up
+#DB5461  coral    — danger / lost / negative MoM
+
+# Derived surfaces (from teal + slate)
+#E7F8F7  classz-50
+#C9EFED  classz-100
+#8FDFDB  classz-200
+#3BC8C4  classz-300
+#0ABAB5  classz-400 (= teal)
+#089591  classz-500
+#5F6E6F  classz-600
+#4C5B5C  classz-700 (= slate)
+#343F40  admin sidebar
+#F5F8F8  admin canvas

@@ -2,12 +2,21 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { ClipboardList, FileText, Upload } from "lucide-react"
+import { format } from "date-fns"
+import { zhTW, enUS } from "date-fns/locale"
+import { CalendarDays, ClipboardList, FileText, Upload } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 import { useCenterApiList } from "@/components/admin/use-center-api-list"
+import {
+  ScheduleCalendar,
+  type ScheduleCalendarEvent,
+  type ScheduleCalendarView,
+  parseSessionDate,
+  eventTimeLabel,
+} from "@/components/admin/schedule-calendar"
 import {
   AdminGhostButton,
   AdminLabel,
@@ -15,13 +24,23 @@ import {
   AdminPageFrame,
   AdminPageHeader,
   AdminPrimaryButton,
-  AdminSelect,
   AdminTable,
   AdminTableShell,
   AdminToolbar,
 } from "@/components/classz-admin-ui"
 
-type ClassOption = { id: string; name: string; start_time: string }
+type ClassOption = {
+  id: string
+  name: string
+  class_code: string
+  calendar_color?: string | null
+  instructor: string
+  start_time: string
+  end_time: string
+  capacity: number
+  enrolled_count: number
+  location: string
+}
 
 type EnrollmentRow = {
   id: string
@@ -44,7 +63,29 @@ function mapClass(r: Record<string, unknown>): ClassOption {
   return {
     id: String(r.id),
     name: String(r.name || ""),
+    class_code: String(r.class_code || r.program_code || ""),
+    calendar_color: r.calendar_color ? String(r.calendar_color) : null,
+    instructor: String(r.instructor || ""),
     start_time: String(r.start_time || ""),
+    end_time: String(r.end_time || ""),
+    capacity: Number(r.capacity) || 0,
+    enrolled_count: Number(r.enrolled_count) || 0,
+    location: String(r.location || ""),
+  }
+}
+
+function toCalendarEvent(c: ClassOption): ScheduleCalendarEvent {
+  return {
+    id: c.id,
+    name: c.name,
+    class_code: c.class_code,
+    calendar_color: c.calendar_color || null,
+    instructor: c.instructor,
+    start_time: c.start_time,
+    end_time: c.end_time,
+    capacity: c.capacity,
+    enrolled_count: c.enrolled_count,
+    location: c.location,
   }
 }
 
@@ -63,6 +104,15 @@ function mapEnrollment(r: Record<string, unknown>): EnrollmentRow {
 
 function isLeaveStatus(s: string): s is "personal_leave" | "sick_leave" {
   return LEAVE_STATUSES.has(s as AttendanceStatus)
+}
+
+function formatClassLabel(c: ClassOption, zh: boolean): string {
+  const d = parseSessionDate(c.start_time)
+  if (Number.isNaN(d.getTime())) return c.name
+  const loc = zh ? zhTW : enUS
+  const datePart = format(d, zh ? "M月d日 (EEE)" : "MMM d (EEE)", { locale: loc })
+  const timePart = eventTimeLabel(c.start_time, c.end_time, zh)
+  return `${c.name} · ${datePart} ${timePart}`
 }
 
 async function uploadProofFile(file: File, demo: boolean): Promise<string> {
@@ -110,6 +160,11 @@ export function AttendanceManager() {
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [calendarView, setCalendarView] = useState<ScheduleCalendarView>("month")
+  const [calendarAnchor, setCalendarAnchor] = useState(() => new Date())
+  const [dayPick, setDayPick] = useState<Date | null>(null)
+
   const [leaveModal, setLeaveModal] = useState<{
     status: "personal_leave" | "sick_leave"
     ids: string[]
@@ -124,9 +179,28 @@ export function AttendanceManager() {
     if (initialClassId) setClassId(initialClassId)
   }, [initialClassId])
 
-  const classOptions = useMemo(() => {
-    return [...classes].sort((a, b) => a.start_time.localeCompare(b.start_time))
-  }, [classes])
+  const classById = useMemo(() => new Map(classes.map((c) => [c.id, c])), [classes])
+  const selectedClass = classId ? classById.get(classId) : undefined
+
+  const calendarEvents = useMemo(() => classes.map(toCalendarEvent), [classes])
+
+  const dayPickSessions = useMemo(() => {
+    if (!dayPick) return []
+    const key = format(dayPick, "yyyy-MM-dd")
+    return classes
+      .filter((c) => {
+        const d = parseSessionDate(c.start_time)
+        if (Number.isNaN(d.getTime())) return false
+        return format(d, "yyyy-MM-dd") === key
+      })
+      .sort((a, b) => a.start_time.localeCompare(b.start_time))
+  }, [classes, dayPick])
+
+  useEffect(() => {
+    if (!selectedClass?.start_time) return
+    const d = parseSessionDate(selectedClass.start_time)
+    if (!Number.isNaN(d.getTime())) setCalendarAnchor(d)
+  }, [selectedClass?.id, selectedClass?.start_time])
 
   const loadEnrollments = useCallback(async () => {
     if (!classId || demo) {
@@ -157,6 +231,17 @@ export function AttendanceManager() {
   const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id))
   const someSelected = selected.size > 0 && !allSelected
   const byId = useMemo(() => new Map(enrollments.map((e) => [e.id, e])), [enrollments])
+
+  function selectClass(id: string) {
+    setClassId(id)
+    setCalendarOpen(false)
+    setDayPick(null)
+  }
+
+  function openCalendar() {
+    setDayPick(null)
+    setCalendarOpen(true)
+  }
 
   function toggleOne(id: string) {
     setSelected((prev) => {
@@ -314,19 +399,49 @@ export function AttendanceManager() {
         description={zh ? "事假／病假須上載證明（PDF／DOC，少於 5MB）" : "Personal/sick leave requires proof (PDF/DOC, under 5MB)"}
       />
 
-      <div className="mb-4 max-w-md">
+      <div className="mb-4 max-w-xl space-y-2">
         <AdminLabel>{zh ? "選擇課堂" : "Select session"}</AdminLabel>
-        <AdminSelect value={classId} onChange={(e) => setClassId(e.target.value)}>
-          <option value="">{zh ? "請選擇…" : "Choose…"}</option>
-          {classOptions.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name} — {c.start_time.slice(0, 16).replace("T", " ")}
-            </option>
-          ))}
-        </AdminSelect>
+        <button
+          type="button"
+          onClick={openCalendar}
+          className="w-full flex items-center justify-between gap-3 rounded-lg border border-classz-200 bg-white px-3.5 py-2.5 text-left hover:border-classz-400 hover:bg-classz-50 transition-colors"
+        >
+          <span className="min-w-0">
+            {selectedClass ? (
+              <>
+                <span className="block font-medium text-classz-800 truncate">{selectedClass.name}</span>
+                <span className="block text-sm text-classz-500 truncate">
+                  {formatClassLabel(selectedClass, zh).replace(`${selectedClass.name} · `, "")}
+                  {selectedClass.instructor ? ` · ${selectedClass.instructor}` : ""}
+                </span>
+              </>
+            ) : (
+              <span className="text-classz-500">{zh ? "點擊開啟日曆選擇課堂…" : "Open calendar to pick a session…"}</span>
+            )}
+          </span>
+          <CalendarDays className="h-5 w-5 shrink-0 text-classz-500" aria-hidden />
+        </button>
+        {selectedClass ? (
+          <div className="flex flex-wrap gap-2">
+            <AdminGhostButton type="button" className="text-sm py-1.5" onClick={openCalendar}>
+              {zh ? "更換課堂" : "Change session"}
+            </AdminGhostButton>
+            <AdminGhostButton
+              type="button"
+              className="text-sm py-1.5"
+              onClick={() => {
+                setClassId("")
+                setEnrollments([])
+                setSelected(new Set())
+              }}
+            >
+              {zh ? "清除" : "Clear"}
+            </AdminGhostButton>
+          </div>
+        ) : null}
       </div>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-brand-coral mb-4">{error}</p>}
       {loading && (
         <div className="flex justify-center py-10">
           <div className="h-8 w-8 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />
@@ -392,7 +507,7 @@ export function AttendanceManager() {
               {enrollments.map((e) => {
                 const doc = e.leave_document_url || e.sick_leave_document_url
                 return (
-                  <tr key={e.id} className={selected.has(e.id) ? "bg-[#CEF1F0]/40" : "bg-white"}>
+                  <tr key={e.id} className={selected.has(e.id) ? "bg-classz-50/80" : "bg-white"}>
                     <td className="px-3 py-2">
                       <input
                         type="checkbox"
@@ -460,8 +575,96 @@ export function AttendanceManager() {
       )}
 
       {!classId && !loading && (
-        <p className="text-classz-600">{zh ? "請先選擇要點名的課堂" : "Pick a class session to take attendance"}</p>
+        <p className="text-classz-600">{zh ? "請先從日曆選擇要點名的課堂" : "Pick a class session from the calendar"}</p>
       )}
+
+      <AdminModal
+        open={calendarOpen}
+        size="xl"
+        title={zh ? "日曆選課堂" : "Pick a session"}
+        onClose={() => {
+          setCalendarOpen(false)
+          setDayPick(null)
+        }}
+      >
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ["month", zh ? "月" : "Month"],
+                ["week", zh ? "週" : "Week"],
+              ] as const
+            ).map(([v, label]) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => {
+                  setCalendarView(v)
+                  setDayPick(null)
+                }}
+                className={`px-3 py-1.5 rounded-md text-sm border ${
+                  calendarView === v ? "bg-classz-100 border-classz-400 text-classz-800" : "border-classz-200 text-classz-600"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-classz-500">
+            {zh ? "點課堂即可選擇；若該日有多堂，點日期可展開清單。" : "Click a session to select. Click a day to list all sessions that day."}
+          </p>
+          <ScheduleCalendar
+            events={calendarEvents}
+            zh={zh}
+            view={calendarView}
+            anchorDate={calendarAnchor}
+            onAnchorChange={(d) => {
+              setCalendarAnchor(d)
+              setDayPick(null)
+            }}
+            onEventClick={(ev) => selectClass(ev.id)}
+            onDayClick={(day) => {
+              setDayPick(day)
+              setCalendarView("week")
+              setCalendarAnchor(day)
+            }}
+          />
+          {dayPick ? (
+            <div className="rounded-lg border border-classz-200 bg-classz-50/80 p-3">
+              <p className="text-sm font-semibold text-classz-800 mb-2">
+                {format(dayPick, zh ? "M月d日 (EEE)" : "EEE, MMM d", { locale: zh ? zhTW : enUS })}
+                {zh ? " 的課堂" : " sessions"}
+              </p>
+              {dayPickSessions.length === 0 ? (
+                <p className="text-sm text-classz-500">{zh ? "這天沒有課堂" : "No sessions on this day"}</p>
+              ) : (
+                <ul className="space-y-2">
+                  {dayPickSessions.map((c) => (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => selectClass(c.id)}
+                        className={`w-full text-left rounded-lg border px-3 py-2 transition-colors ${
+                          c.id === classId
+                            ? "border-classz-400 bg-classz-100"
+                            : "border-classz-200 bg-white hover:border-classz-300 hover:bg-classz-50"
+                        }`}
+                      >
+                        <p className="font-medium text-classz-800">{c.name}</p>
+                        <p className="text-sm text-classz-500">
+                          {eventTimeLabel(c.start_time, c.end_time, zh)}
+                          {c.instructor ? ` · ${c.instructor}` : ""}
+                          {c.location ? ` · ${c.location}` : ""}
+                        </p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </AdminModal>
 
       <AdminModal
         open={leaveModal != null}
@@ -546,7 +749,7 @@ export function AttendanceManager() {
                   <span className="text-sm text-classz-400">{zh ? "尚未上傳" : "No file yet"}</span>
                 )}
               </div>
-              {uploadError ? <p className="text-xs text-red-600 mt-2">{uploadError}</p> : null}
+              {uploadError ? <p className="text-xs text-brand-coral mt-2">{uploadError}</p> : null}
               {!proofUrl && !uploadError ? (
                 <p className="text-xs text-classz-500 mt-2">
                   {zh ? "未上傳證明前無法確認事假／病假。" : "Cannot confirm leave without a proof document."}

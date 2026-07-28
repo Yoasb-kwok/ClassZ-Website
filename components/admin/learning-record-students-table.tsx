@@ -1,0 +1,653 @@
+"use client"
+
+import { Fragment, useCallback, useEffect, useState } from "react"
+import Link from "next/link"
+import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, UserPlus } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
+import { isDemoSession } from "@/components/admin/use-admin-api"
+import { apiGet, apiPost } from "@/lib/classz-api-client"
+import {
+  formatRecordSummary,
+  progressLevelLabel,
+  type ActivityLearningRecordRow,
+} from "@/lib/activity-learning-record"
+import type { LearningCompanionReport } from "@/lib/learning-companion-report"
+import { exportLearningCompanionPdf } from "@/lib/learning-companion-pdf"
+import { LearningCompanionReportView } from "@/components/admin/learning-companion-report-view"
+import {
+  AdminCard,
+  AdminGhostButton,
+  AdminInput,
+  AdminLabel,
+  AdminModal,
+  AdminPageFrame,
+  AdminPageHeader,
+  AdminPrimaryButton,
+  AdminSelect,
+  AdminStatusChip,
+  AdminTable,
+  AdminTableShell,
+} from "@/components/classz-admin-ui"
+
+export type LearningRecordStudent = {
+  profile_id: number
+  child_name: string
+  sex?: number | null
+  grade?: string | null
+  parent_name: string
+  contact_number: string
+  parent_email: string
+  record_count: number
+  enrollments: Array<{
+    enrollment_id: number
+    class_id: number
+    class_name: string
+    class_start_time?: string | null
+    program_code?: string | null
+  }>
+}
+
+type ClassOption = {
+  id: number
+  name: string
+  start_time?: string | null
+}
+
+type AddForm = {
+  parent_name: string
+  contact_number: string
+  child_name: string
+  grade: string
+  sex: string
+  age: string
+  class_id: string
+}
+
+const emptyAddForm = (): AddForm => ({
+  parent_name: "",
+  contact_number: "",
+  child_name: "",
+  grade: "",
+  sex: "",
+  age: "",
+  class_id: "",
+})
+
+function sexLabel(sex: number | null | undefined, zh: boolean) {
+  if (sex === 0) return zh ? "女" : "F"
+  if (sex === 1) return zh ? "男" : "M"
+  return "—"
+}
+
+export function LearningRecordStudentsTable({
+  mode,
+}: {
+  /** teacher = read + fill button; admin = expand history + add student */
+  mode: "teacher" | "admin"
+}) {
+  const { locale } = useLanguage()
+  const zh = locale === "zh-TW"
+  const demo = isDemoSession()
+  const [rows, setRows] = useState<LearningRecordStudent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const [history, setHistory] = useState<Record<number, ActivityLearningRecordRow[]>>({})
+  const [historyLoading, setHistoryLoading] = useState<number | null>(null)
+
+  const [addOpen, setAddOpen] = useState(false)
+  const [addForm, setAddForm] = useState<AddForm>(emptyAddForm)
+  const [classes, setClasses] = useState<ClassOption[]>([])
+  const [saving, setSaving] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
+
+  const [generatingId, setGeneratingId] = useState<number | null>(null)
+  const [reportOpen, setReportOpen] = useState(false)
+  const [activeReport, setActiveReport] = useState<LearningCompanionReport | null>(null)
+  const [reportError, setReportError] = useState<string | null>(null)
+  const [savedReports, setSavedReports] = useState<Record<number, LearningCompanionReport[]>>({})
+
+  const load = useCallback(async () => {
+    if (demo) {
+      setRows([])
+      setError(zh ? "請用 ClassZ Centre 帳號登入以載入真實資料" : "Sign in with a ClassZ Centre account for live data")
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await apiGet<LearningRecordStudent[]>("/learning-record-students")
+      setRows(Array.isArray(data) ? data : [])
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Load failed")
+      setRows([])
+    } finally {
+      setLoading(false)
+    }
+  }, [demo, zh])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  async function openAddModal() {
+    setAddError(null)
+    setAddForm(emptyAddForm())
+    setAddOpen(true)
+    try {
+      const data = await apiGet<Record<string, unknown>[]>("/classes")
+      const list = (Array.isArray(data) ? data : [])
+        .map((c) => ({
+          id: Number(c.id),
+          name: String(c.name || ""),
+          start_time: (c.start_time as string) || null,
+        }))
+        .filter((c) => Number.isFinite(c.id) && c.id > 0)
+        .sort((a, b) => String(b.start_time || "").localeCompare(String(a.start_time || "")))
+      setClasses(list)
+      if (list.length === 1) {
+        setAddForm((f) => ({ ...f, class_id: String(list[0].id) }))
+      }
+    } catch {
+      setClasses([])
+    }
+  }
+
+  async function submitAdd() {
+    if (demo) {
+      setAddError(zh ? "請用中心帳號登入" : "Sign in as centre admin")
+      return
+    }
+    if (!addForm.parent_name.trim() || !addForm.child_name.trim() || !addForm.contact_number.trim()) {
+      setAddError(zh ? "請填寫家長、學生姓名及電話" : "Parent, child name and phone are required")
+      return
+    }
+    if (!addForm.class_id) {
+      setAddError(zh ? "請選擇課堂／體驗日場次" : "Please select a class / open-day session")
+      return
+    }
+    setSaving(true)
+    setAddError(null)
+    try {
+      await apiPost("/learning-record-students", {
+        parent_name: addForm.parent_name.trim(),
+        contact_number: addForm.contact_number.trim(),
+        child_name: addForm.child_name.trim(),
+        grade: addForm.grade.trim() || null,
+        sex: addForm.sex === "" ? null : Number(addForm.sex),
+        age: addForm.age.trim() || null,
+        class_id: Number(addForm.class_id),
+      })
+      setAddOpen(false)
+      setAddForm(emptyAddForm())
+      await load()
+    } catch (e) {
+      setAddError(e instanceof Error ? e.message : "Save failed")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function generateReport(profileId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    setGeneratingId(profileId)
+    setReportError(null)
+    try {
+      const data = await apiPost<LearningCompanionReport>(
+        `/learning-record-students/${profileId}/generate-report`,
+        {},
+      )
+      setActiveReport(data)
+      setReportOpen(true)
+      setSavedReports((prev) => ({
+        ...prev,
+        [profileId]: [data, ...(prev[profileId] || [])],
+      }))
+      await load()
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Generate failed")
+      setReportOpen(true)
+      setActiveReport(null)
+    } finally {
+      setGeneratingId(null)
+    }
+  }
+
+  async function viewLatestReport(profileId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    setReportError(null)
+    try {
+      let list = savedReports[profileId]
+      if (!list) {
+        list = await apiGet<LearningCompanionReport[]>(
+          `/learning-record-students/${profileId}/reports`,
+        )
+        list = Array.isArray(list) ? list : []
+        setSavedReports((prev) => ({ ...prev, [profileId]: list! }))
+      }
+      if (!list.length) {
+        setReportError(zh ? "尚未產生報告，請先按「產生報告」" : "No report yet — generate one first")
+        setActiveReport(null)
+        setReportOpen(true)
+        return
+      }
+      setActiveReport(list[0])
+      setReportOpen(true)
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Load failed")
+      setActiveReport(null)
+      setReportOpen(true)
+    }
+  }
+
+  async function exportPdfForProfile(profileId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    setReportError(null)
+    try {
+      let report = activeReport?.profile_id === profileId ? activeReport : null
+      if (!report) {
+        let list = savedReports[profileId]
+        if (!list) {
+          list = await apiGet<LearningCompanionReport[]>(
+            `/learning-record-students/${profileId}/reports`,
+          )
+          list = Array.isArray(list) ? list : []
+          setSavedReports((prev) => ({ ...prev, [profileId]: list! }))
+        }
+        report = list[0] || null
+      }
+      if (!report) {
+        setReportError(zh ? "尚未產生報告，無法輸出 PDF" : "No report to export — generate one first")
+        setActiveReport(null)
+        setReportOpen(true)
+        return
+      }
+      exportLearningCompanionPdf(report)
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "PDF export failed")
+      setReportOpen(true)
+    }
+  }
+
+  function exportActivePdf() {
+    if (!activeReport) return
+    try {
+      exportLearningCompanionPdf(activeReport)
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "PDF export failed")
+    }
+  }
+
+  async function toggleExpand(profileId: number) {
+    if (expanded === profileId) {
+      setExpanded(null)
+      return
+    }
+    setExpanded(profileId)
+    if (history[profileId]) return
+    setHistoryLoading(profileId)
+    try {
+      const data = await apiGet<ActivityLearningRecordRow[]>(
+        `/activity-learning-records?profile_id=${encodeURIComponent(String(profileId))}`,
+      )
+      setHistory((h) => ({ ...h, [profileId]: Array.isArray(data) ? data : [] }))
+    } catch {
+      setHistory((h) => ({ ...h, [profileId]: [] }))
+    } finally {
+      setHistoryLoading(null)
+    }
+  }
+
+  return (
+    <AdminPageFrame>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <AdminPageHeader
+          title={zh ? "Learning Record" : "Learning Record"}
+          description={
+            mode === "teacher"
+              ? zh
+                ? "已登記學員（唯讀）— 點擊填寫該學生的 Academic Learning Record"
+                : "Enrolled students (read-only) — fill Academic Learning Record per student"
+              : zh
+                ? "已登記學生及家長資料；點擊列展開過往 Learning Record。正式上線後會同步就讀課程學員；目前可手動新增以支援資訊日／體驗日測試。"
+                : "Registered students & parents — expand a row for past records. Production will sync enrolled students; for now you can add manually for Open Day testing."
+          }
+          Icon={ClipboardList}
+        />
+        {mode === "admin" ? (
+          <AdminPrimaryButton type="button" className="shrink-0" onClick={openAddModal} disabled={demo}>
+            <UserPlus className="h-4 w-4" />
+            {zh ? "新增學生" : "Add student"}
+          </AdminPrimaryButton>
+        ) : null}
+      </div>
+
+      {error ? (
+        <div
+          role="alert"
+          className="text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2"
+        >
+          {error}
+        </div>
+      ) : null}
+
+      <AdminCard>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="h-8 w-8 rounded-full border-2 border-classz-100 border-t-classz-400 animate-spin" />
+          </div>
+        ) : (
+          <AdminTableShell>
+            <AdminTable>
+              <thead className="bg-classz-50 text-classz-600">
+                <tr>
+                  {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
+                  <th className="px-3 py-2 text-left">{zh ? "學生" : "Child"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "年級" : "Grade"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "家長" : "Parent"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
+                  {mode === "teacher" ? (
+                    <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
+                  ) : (
+                    <th className="px-3 py-2 text-right">{zh ? "報告" : "Report"}</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-classz-100">
+                {rows.map((r) => {
+                  const open = expanded === r.profile_id
+                  const primary = r.enrollments[0]
+                  return (
+                    <Fragment key={r.profile_id}>
+                      <tr
+                        className={mode === "admin" ? "cursor-pointer hover:bg-classz-50/80" : "bg-white"}
+                        onClick={mode === "admin" ? () => toggleExpand(r.profile_id) : undefined}
+                      >
+                        {mode === "admin" ? (
+                          <td className="px-2 py-2 text-brand-slate/50">
+                            {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          </td>
+                        ) : null}
+                        <td className="px-3 py-2 font-medium text-brand-slate">
+                          {r.child_name}
+                          <span className="ml-1 text-xs text-brand-slate/50">{sexLabel(r.sex, zh)}</span>
+                        </td>
+                        <td className="px-3 py-2 text-sm">{r.grade || "—"}</td>
+                        <td className="px-3 py-2 text-sm">
+                          <div>{r.parent_name || "—"}</div>
+                          {r.parent_email ? (
+                            <div className="text-[11px] text-brand-slate/50 truncate max-w-[12rem]">{r.parent_email}</div>
+                          ) : null}
+                        </td>
+                        <td className="px-3 py-2 text-sm font-mono">{r.contact_number || "—"}</td>
+                        <td className="px-3 py-2 text-sm max-w-[14rem] truncate" title={primary?.class_name}>
+                          {primary?.class_name || "—"}
+                        </td>
+                        <td className="px-3 py-2">
+                          <AdminStatusChip tone={r.record_count >= 4 ? "teal" : r.record_count > 0 ? "orange" : "magenta"}>
+                            {r.record_count}/4+
+                          </AdminStatusChip>
+                        </td>
+                        {mode === "teacher" ? (
+                          <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                            <Link href={`/admin/teacher-students/${r.profile_id}`}>
+                              <AdminPrimaryButton type="button" className="text-sm py-1.5 px-3 inline-flex">
+                                <Plus className="h-3.5 w-3.5" />
+                                {zh ? "填寫紀錄" : "Fill record"}
+                              </AdminPrimaryButton>
+                            </Link>
+                          </td>
+                        ) : (
+                          <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                            <div className="inline-flex flex-wrap justify-end gap-1.5">
+                              {r.record_count >= 4 ? (
+                                <AdminPrimaryButton
+                                  type="button"
+                                  className="text-sm py-1.5 px-3 inline-flex"
+                                  disabled={generatingId === r.profile_id || demo}
+                                  onClick={(e) => generateReport(r.profile_id, e)}
+                                >
+                                  <FileText className="h-3.5 w-3.5" />
+                                  {generatingId === r.profile_id
+                                    ? zh
+                                      ? "產生中…"
+                                      : "Generating…"
+                                    : zh
+                                      ? "產生報告"
+                                      : "Generate report"}
+                                </AdminPrimaryButton>
+                              ) : (
+                                <span className="text-[11px] text-brand-slate/45 self-center">
+                                  {zh ? `需 ${4 - r.record_count} 次紀錄` : `Need ${4 - r.record_count} more`}
+                                </span>
+                              )}
+                              <AdminGhostButton
+                                type="button"
+                                className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
+                                disabled={demo}
+                                onClick={(e) => viewLatestReport(r.profile_id, e)}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                                {zh ? "查看報告" : "Check report"}
+                              </AdminGhostButton>
+                              <AdminGhostButton
+                                type="button"
+                                className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
+                                disabled={demo}
+                                onClick={(e) => exportPdfForProfile(r.profile_id, e)}
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                                PDF
+                              </AdminGhostButton>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                      {mode === "admin" && open ? (
+                        <tr className="bg-[var(--admin-canvas)]">
+                          <td colSpan={8} className="px-4 py-3">
+                            {historyLoading === r.profile_id ? (
+                              <p className="text-sm text-brand-slate/60">{zh ? "載入中…" : "Loading…"}</p>
+                            ) : !(history[r.profile_id] || []).length ? (
+                              <p className="text-sm text-brand-slate/55">
+                                {zh ? "尚未有 Learning Record（目標至少 4 次）" : "No learning records yet (target ≥ 4)"}
+                              </p>
+                            ) : (
+                              <ul className="space-y-2">
+                                {(history[r.profile_id] || []).map((rec) => (
+                                  <li
+                                    key={rec.id}
+                                    className="rounded-lg border border-classz-100 bg-white px-3 py-2 text-sm"
+                                  >
+                                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                                      <span className="font-semibold text-brand-slate">
+                                        #{rec.id} · {rec.class_name || `class ${rec.class_id}`}
+                                      </span>
+                                      <AdminStatusChip tone={rec.is_confirmed ? "teal" : "orange"}>
+                                        {rec.is_confirmed ? (zh ? "已確認" : "Confirmed") : zh ? "草稿" : "Draft"}
+                                      </AdminStatusChip>
+                                      <span className="text-xs text-brand-slate/50">
+                                        {rec.created_at
+                                          ? new Date(rec.created_at).toLocaleString(zh ? "zh-HK" : "en-HK")
+                                          : ""}
+                                      </span>
+                                      {rec.progress_level ? (
+                                        <span className="text-xs text-brand-teal">
+                                          {progressLevelLabel(rec.progress_level)}
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                    <pre className="text-xs text-brand-slate/80 whitespace-pre-wrap font-sans">
+                                      {formatRecordSummary(rec)}
+                                    </pre>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  )
+                })}
+                {!rows.length ? (
+                  <tr>
+                    <td colSpan={8} className="px-3 py-10 text-center text-brand-slate/50">
+                      {zh ? "尚無已登記學員" : "No enrolled students"}
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </AdminTable>
+          </AdminTableShell>
+        )}
+      </AdminCard>
+
+      {mode === "admin" ? (
+        <AdminModal
+          open={addOpen}
+          title={zh ? "新增學生（資訊日／體驗日）" : "Add student (Open Day)"}
+          onClose={() => !saving && setAddOpen(false)}
+          footer={
+            <>
+              <AdminGhostButton type="button" disabled={saving} onClick={() => setAddOpen(false)}>
+                {zh ? "取消" : "Cancel"}
+              </AdminGhostButton>
+              <AdminPrimaryButton type="button" disabled={saving} onClick={submitAdd}>
+                {saving ? (zh ? "儲存中…" : "Saving…") : zh ? "新增並登記" : "Add & enrol"}
+              </AdminPrimaryButton>
+            </>
+          }
+        >
+          <p className="text-xs text-brand-slate/60 mb-3 leading-relaxed">
+            {zh
+              ? "會建立家長／學員資料並登記到所選課堂，之後導師即可填寫 Learning Record。正式營運時學員會由就讀課程自動同步。"
+              : "Creates parent/child records and enrols them into the selected session so teachers can fill Learning Records. In production, enrolled course students will sync automatically."}
+          </p>
+          {addError ? (
+            <p role="alert" className="text-sm text-brand-coral mb-3">
+              {addError}
+            </p>
+          ) : null}
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <AdminLabel>{zh ? "家長姓名" : "Parent name"} *</AdminLabel>
+                <AdminInput
+                  value={addForm.parent_name}
+                  onChange={(e) => setAddForm((f) => ({ ...f, parent_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "聯絡電話" : "Phone"} *</AdminLabel>
+                <AdminInput
+                  inputMode="tel"
+                  value={addForm.contact_number}
+                  onChange={(e) => setAddForm((f) => ({ ...f, contact_number: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <AdminLabel>{zh ? "學生姓名" : "Child name"} *</AdminLabel>
+                <AdminInput
+                  value={addForm.child_name}
+                  onChange={(e) => setAddForm((f) => ({ ...f, child_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "年級" : "Grade"}</AdminLabel>
+                <AdminInput
+                  placeholder="P1 / K3…"
+                  value={addForm.grade}
+                  onChange={(e) => setAddForm((f) => ({ ...f, grade: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <AdminLabel>{zh ? "性別" : "Sex"}</AdminLabel>
+                <AdminSelect
+                  value={addForm.sex}
+                  onChange={(e) => setAddForm((f) => ({ ...f, sex: e.target.value }))}
+                >
+                  <option value="">{zh ? "未指定" : "Unspecified"}</option>
+                  <option value="1">{zh ? "男" : "Male"}</option>
+                  <option value="0">{zh ? "女" : "Female"}</option>
+                </AdminSelect>
+              </div>
+              <div>
+                <AdminLabel>{zh ? "年齡" : "Age"}</AdminLabel>
+                <AdminInput
+                  inputMode="numeric"
+                  value={addForm.age}
+                  onChange={(e) => setAddForm((f) => ({ ...f, age: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div>
+              <AdminLabel>{zh ? "課堂／體驗日場次" : "Class / Open Day session"} *</AdminLabel>
+              <AdminSelect
+                value={addForm.class_id}
+                onChange={(e) => setAddForm((f) => ({ ...f, class_id: e.target.value }))}
+              >
+                <option value="">{zh ? "請選擇…" : "Select…"}</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.name}
+                    {c.start_time ? ` · ${new Date(c.start_time).toLocaleString(zh ? "zh-HK" : "en-HK")}` : ""}
+                  </option>
+                ))}
+              </AdminSelect>
+              {!classes.length ? (
+                <p className="text-xs text-brand-orange mt-1">
+                  {zh
+                    ? "此中心尚無課堂。請先到排程建立體驗日場次。"
+                    : "No classes yet. Create an Open Day session under Schedule first."}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </AdminModal>
+      ) : null}
+
+      {mode === "admin" ? (
+        <AdminModal
+          open={reportOpen}
+          title={zh ? "Learning Companion 報告" : "Learning Companion report"}
+          onClose={() => setReportOpen(false)}
+          size="xl"
+          footer={
+            <>
+              {activeReport ? (
+                <AdminPrimaryButton type="button" onClick={exportActivePdf} className="inline-flex items-center gap-1.5">
+                  <Download className="h-4 w-4" />
+                  {zh ? "輸出 PDF" : "Export PDF"}
+                </AdminPrimaryButton>
+              ) : null}
+              <AdminGhostButton type="button" onClick={() => setReportOpen(false)}>
+                {zh ? "關閉" : "Close"}
+              </AdminGhostButton>
+            </>
+          }
+        >
+          {reportError ? (
+            <p role="alert" className="text-sm text-brand-coral mb-3">
+              {reportError}
+            </p>
+          ) : null}
+          {activeReport ? <LearningCompanionReportView report={activeReport} zh={zh} /> : null}
+          {!activeReport && !reportError ? (
+            <p className="text-sm text-brand-slate/55">{zh ? "沒有報告內容" : "No report content"}</p>
+          ) : null}
+        </AdminModal>
+      ) : null}
+    </AdminPageFrame>
+  )
+}

@@ -50,25 +50,25 @@ function LoginForm() {
     <div className="min-h-[calc(100vh-12rem)] flex items-center justify-center py-12 px-4 sm:px-6">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-slate-900">{t("classzLogin.title")}</h1>
-          <p className="text-sm text-slate-600">{t("classzLogin.subtitle")}</p>
+          <h1 className="text-3xl font-bold text-brand-slate">{t("classzLogin.title")}</h1>
+          <p className="text-sm text-brand-slate/80">{t("classzLogin.subtitle")}</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+            <div className="bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] text-brand-coral px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
 
           <div className="rounded-md space-y-4">
             <div>
-              <label htmlFor="loginIdentifier" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="loginIdentifier" className="block text-sm font-medium text-brand-slate mb-1">
                 {t("classzLogin.emailOrUsername")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                  <Mail className="h-5 w-5 text-slate-400" />
+                  <Mail className="h-5 w-5 text-brand-slate/50" />
                 </div>
                 <input
                   id="loginIdentifier"
@@ -76,20 +76,20 @@ function LoginForm() {
                   type="text"
                   autoComplete="username"
                   required
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-classz-400 focus:border-classz-400 sm:text-sm"
-                  placeholder="center@classz.demo"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-classz-200 rounded-md text-brand-slate placeholder:text-brand-slate/50 focus:outline-none focus:ring-2 focus:ring-classz-400 focus:border-classz-400 sm:text-sm"
+                  placeholder="center@demo.com"
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                 />
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-brand-slate mb-1">
                 {t("classzLogin.password")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                  <Lock className="h-5 w-5 text-slate-400" />
+                  <Lock className="h-5 w-5 text-brand-slate/50" />
                 </div>
                 <input
                   id="password"
@@ -97,7 +97,7 @@ function LoginForm() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-classz-400 focus:border-classz-400 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-classz-200 rounded-md text-brand-slate placeholder:text-brand-slate/50 focus:outline-none focus:ring-2 focus:ring-classz-400 focus:border-classz-400 sm:text-sm"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -122,42 +122,71 @@ function LoginForm() {
             >
               {t("classzLogin.forgotPassword")}
             </button>
-            <p className="text-sm text-slate-500">{t("classzLogin.registerHint")}</p>
+            <p className="text-sm text-brand-slate/70">{t("classzLogin.registerHint")}</p>
             <Link href="/register-center" className="text-sm font-medium text-classz-500 hover:text-classz-600">
               {locale === "zh-TW" ? "註冊中心帳戶" : "Register your centre"}
             </Link>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4 space-y-3">
-            <p className="text-xs font-semibold text-slate-600">{t("classzLogin.demoTitle")}</p>
-            <p className="text-xs text-slate-500">
-              {t("classzLogin.demoPassword")} <code className="text-slate-800 bg-white px-1.5 py-0.5 rounded border">demo1234</code>
+          <div className="rounded-lg border border-classz-100 bg-classz-50/80 p-4 space-y-3">
+            <p className="text-xs font-semibold text-brand-slate/80">{t("classzLogin.demoTitle")}</p>
+            <p className="text-xs text-brand-slate/70">
+              {t("classzLogin.demoPassword")} <code className="text-brand-slate bg-white px-1.5 py-0.5 rounded border">111111</code>
             </p>
             <div className="grid grid-cols-1 gap-2">
               <button
                 type="button"
                 onClick={() => {
-                  setLoginIdentifier("center@classz.demo")
-                  setPassword("demo1234")
+                  setLoginIdentifier("admin@admin.com")
+                  setPassword("111111")
                 }}
-                className="flex items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
+                className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
               >
-                <span className="font-medium text-slate-800">{t("classzLogin.centerAccount")}</span>
-                <code className="text-xs text-slate-500">center@classz.demo</code>
+                <span className="font-medium text-brand-slate">{t("classzLogin.platformAccount")}</span>
+                <code className="text-xs text-brand-slate/70">admin@admin.com</code>
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  setLoginIdentifier("coach@classz.demo")
-                  setPassword("demo1234")
+                  setLoginIdentifier("center@demo.com")
+                  setPassword("111111")
                 }}
-                className="flex items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
+                className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
               >
-                <span className="font-medium text-slate-800">{t("classzLogin.coachAccount")}</span>
-                <code className="text-xs text-slate-500">coach@classz.demo</code>
+                <span className="font-medium text-brand-slate">{t("classzLogin.centerAccount")}</span>
+                <code className="text-xs text-brand-slate/70">center@demo.com</code>
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginIdentifier("centre@classzcentre.demo")
+                  setPassword("111111")
+                }}
+                className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
+              >
+                <span className="font-medium text-brand-slate">
+                  {locale === "zh-TW" ? "ClassZ Centre" : "ClassZ Centre"}
+                </span>
+                <code className="text-xs text-brand-slate/70">centre@classzcentre.demo</code>
+              </button>
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => {
+                    setLoginIdentifier(`teacher${n}@classzcentre.demo`)
+                    setPassword("111111")
+                  }}
+                  className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
+                >
+                  <span className="font-medium text-brand-slate">
+                    {locale === "zh-TW" ? `ClassZ Centre Teacher ${n}` : `ClassZ Centre Teacher ${n}`}
+                  </span>
+                  <code className="text-xs text-brand-slate/70">teacher{n}@classzcentre.demo</code>
+                </button>
+              ))}
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">{t("classzLogin.offlineHint")}</p>
+            <p className="text-[11px] text-brand-slate/50 leading-relaxed">{t("classzLogin.offlineHint")}</p>
           </div>
         </form>
 
@@ -173,12 +202,12 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white font-sans antialiased text-slate-900">
+    <div className="min-h-screen flex flex-col bg-white font-sans antialiased text-brand-slate">
       <Navbar />
       <main className="flex-1">
         <Suspense
           fallback={
-            <div className="min-h-[50vh] flex items-center justify-center text-slate-500 text-sm">
+            <div className="min-h-[50vh] flex items-center justify-center text-brand-slate/70 text-sm">
               …
             </div>
           }

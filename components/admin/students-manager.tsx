@@ -231,7 +231,7 @@ export function StudentsManager() {
     return (
       <span
         className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${
-          isMaster ? "bg-[#CEF1F0] text-[#044A48]" : "bg-classz-100 text-classz-700"
+          isMaster ? "bg-classz-50 text-brand-slate" : "bg-classz-100 text-classz-700"
         }`}
       >
         {isMaster ? (zh ? "主帳戶" : "Master") : zh ? "副帳戶" : "Sub"}
@@ -283,7 +283,7 @@ export function StudentsManager() {
 
     return (
       <Fragment key={key}>
-        <tr className={opts?.nested ? "bg-classz-50/70" : selected && String(selected.id) === key ? "bg-[#CEF1F0]/40" : "bg-white"}>
+        <tr className={opts?.nested ? "bg-classz-50/70" : selected && String(selected.id) === key ? "bg-classz-50/80" : "bg-white"}>
           <td className="px-2 py-2 w-10">
             {canExpand ? (
               <button
@@ -315,7 +315,7 @@ export function StudentsManager() {
           </td>
         </tr>
         {open ? (
-          <tr className="bg-[#F7FBFB]">
+          <tr className="bg-[var(--admin-canvas)]">
             <td colSpan={9} className="px-4 py-3">
               <div className="space-y-4">
                 <div>

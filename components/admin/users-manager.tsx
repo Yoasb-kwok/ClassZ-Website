@@ -250,7 +250,7 @@ export function UsersManager() {
   return (
     <AdminPageFrame>
       <AdminPageHeader title={zh ? "用戶管理" : "User management"} Icon={Users} />
-      {apiError ? <div className="text-red-600 text-sm mb-2">{apiError}</div> : null}
+      {apiError ? <div className="text-brand-coral text-sm mb-2">{apiError}</div> : null}
       {bulkMsg ? (
         <div className="rounded-lg border border-classz-200 bg-classz-50 px-4 py-2 text-base text-classz-700">{bulkMsg}</div>
       ) : null}
@@ -328,7 +328,7 @@ export function UsersManager() {
                     <button type="button" className="p-1.5 text-classz-500 hover:bg-classz-50 rounded" onClick={() => openEdit(u)} title="Edit">
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button type="button" className="p-1.5 text-red-600 hover:bg-red-50 rounded ml-1" onClick={() => removeUser(u.id)} title="Delete">
+                    <button type="button" className="p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded ml-1" onClick={() => removeUser(u.id)} title="Delete">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>

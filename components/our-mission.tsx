@@ -11,10 +11,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
   const { t } = useLanguage()
 
   return (
-    <section id="our-mission" className="relative bg-black">
+    <section id="our-mission" className="relative bg-brand-slate">
       {/* Hero Image Section */}
       {!hideHeader && (
-        <div className="relative h-[592px] flex items-center justify-center overflow-hidden bg-black">
+        <div className="relative h-[592px] flex items-center justify-center overflow-hidden bg-brand-slate">
           <div className="absolute inset-0 bg-[rgba(10,186,181,0.2)]" />
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -36,13 +36,13 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
       <div className="border-b border-[#E9E9E9] bg-white">
         <div className="container mx-auto px-4 md:px-8 lg:px-20 xl:px-[100px] py-[60px]">
           <div className="flex flex-col items-start gap-[50px]">
-            <h3 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em]">
+            <h3 className="text-3xl md:text-4xl font-medium text-[#4C5B5C] leading-[0.9] tracking-[-0.03em]">
               {t("ourMissionComp.text.title")}
             </h3>
-            <p className="text-base font-medium text-[#292929] leading-[1.4] tracking-[-0.005em]">
+            <p className="text-base font-medium text-[#4C5B5C] leading-[1.4] tracking-[-0.005em]">
               {t("ourMissionComp.text.p1")}
             </p>
-            <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
+            <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em]">
               {t("ourMissionComp.text.p2")}
             </p>
           </div>
@@ -60,7 +60,7 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                   <h3 className="text-3xl md:text-4xl font-medium text-black leading-[0.9] tracking-[-0.03em]">
                     {t("ourMissionComp.exist.title")}
                   </h3>
-                  <p className="text-base font-medium text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
+                  <p className="text-base font-medium text-[#5F6E6F] leading-[1.4] tracking-[-0.005em]">
                     {t("ourMissionComp.exist.subtitle")}
                   </p>
                 </div>
@@ -68,26 +68,26 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
                 {/* Numbered List */}
                 <div className="flex flex-col">
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
-                    <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">01</span>
-                    <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
+                    <span className="text-[22px] font-bold text-[#5F6E6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">01</span>
+                    <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em]">
                       {t("ourMissionComp.exist.b1")}
                     </p>
                   </div>
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
-                    <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">02</span>
-                    <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
+                    <span className="text-[22px] font-bold text-[#5F6E6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">02</span>
+                    <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em]">
                       {t("ourMissionComp.exist.b2")}
                     </p>
                   </div>
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
-                    <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">03</span>
-                    <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
+                    <span className="text-[22px] font-bold text-[#5F6E6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">03</span>
+                    <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em]">
                       {t("ourMissionComp.exist.b3")}
                     </p>
                   </div>
                   <div className="flex gap-[30px] py-5 pr-20 border-t border-[#E9E9E9]">
-                    <span className="text-[22px] font-bold text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">04</span>
-                    <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em]">
+                    <span className="text-[22px] font-bold text-[#5F6E6F] leading-[1.4] tracking-[-0.005em] flex-shrink-0">04</span>
+                    <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em]">
                       {t("ourMissionComp.exist.b4")}
                     </p>
                   </div>
@@ -110,7 +110,7 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
       </div>
 
       {/* Our Commitment Section */}
-      <div className="relative bg-gradient-to-br from-white via-[#F9FAFB] to-[#E0F7F6] overflow-hidden">
+      <div className="relative bg-gradient-to-br from-white via-[#F9FAFB] to-[#E7F8F7] overflow-hidden">
         {/* Background blur circles */}
         <div className="absolute w-96 h-96 bg-[rgba(10,186,181,0.08)] rounded-full blur-[128px] top-[384px] left-[705px] hidden xl:block" />
         <div className="absolute w-96 h-96 bg-[rgba(10,186,181,0.05)] rounded-full blur-[128px] top-0 right-[845px] hidden xl:block" />
@@ -126,10 +126,10 @@ export function OurMission({ hideHeader = false }: OurMissionProps) {
               </span>
             </div>
 
-            <h3 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em] text-center">
+            <h3 className="text-3xl md:text-4xl font-medium text-[#4C5B5C] leading-[0.9] tracking-[-0.03em] text-center">
               {t("ourMissionComp.commit.title")}
             </h3>
-            <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] text-center max-w-2xl">
+            <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em] text-center max-w-2xl">
               {t("ourMissionComp.commit.desc")}
             </p>
           </div>

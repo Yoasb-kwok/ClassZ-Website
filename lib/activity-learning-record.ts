@@ -1,5 +1,5 @@
 /**
- * Academic Learning Record — Figma structure & parent app spec.
+ * Academic Learning Record — STEM Experience Day wording (Train.ipynb).
  */
 
 export const PROGRESS_LEVELS = [
@@ -10,29 +10,29 @@ export const PROGRESS_LEVELS = [
 ] as const
 
 export const OBSERVED_OPTIONS = [
-  "Needed step-by-step guidance",
-  "Understood after explanation",
-  "Corrected after reminder",
-  "Solved familiar questions with support",
-  "Solved familiar questions independently",
-  "Applied method to mixed questions",
-  "Explained the method clearly",
-  "Made repeated accuracy mistakes",
-  "Struggled to identify question type",
-  "Completed task with good accuracy",
+  "Needed demonstration first",
+  "Completed with reminders",
+  "Corrected after feedback",
+  "Repeated more consistently",
+  "Tried independently",
+  "Completed with focus",
+  "Applied in a new situation",
+  "Worked well with others",
+  "Showed original ideas",
+  "Stayed engaged during challenge",
 ] as const
 
 export const LEARNING_AREA_OPTIONS = [
-  "Concept Understanding",
-  "Method / Process",
-  "Application",
-  "Accuracy",
-  "Question Interpretation",
-  "Explanation / Writing",
-  "Memory / Recall",
-  "Exam Technique",
-  "Independent Practice",
-  "Learning Consistency",
+  "Technique / Control",
+  "Consistency / Quality",
+  "Focus / Persistence",
+  "Confidence to Try",
+  "Communication / Expression",
+  "Teamwork / Collaboration",
+  "Creativity",
+  "Problem Solving",
+  "Physical Coordination",
+  "Independence",
 ] as const
 
 export const LEARNING_TRAIT_OPTIONS = [

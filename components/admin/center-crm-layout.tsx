@@ -34,7 +34,7 @@ export function CenterCrmLayout({ children }: { children: React.ReactNode }) {
   }, [centerId])
 
   if (!Number.isFinite(centerId) || centerId < 1) {
-    return <div className="text-red-600 text-sm">Invalid centre id</div>
+    return <div className="text-brand-coral text-sm">Invalid centre id</div>
   }
 
   const flows = CENTER_FLOW_NAV.map((item) => {

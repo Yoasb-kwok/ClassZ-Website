@@ -28,6 +28,18 @@ export function ClasszAdminGate({ children }: { children: React.ReactNode }) {
       router.replace(`/login?next=${encodeURIComponent(pathname || "/admin")}`)
       return
     }
+    if (s.user.role === "coach") {
+      const allowed =
+        pathname === "/admin" ||
+        pathname === "/admin/tasks" ||
+        Boolean(pathname?.startsWith("/admin/tasks/")) ||
+        pathname === "/admin/teacher-students" ||
+        Boolean(pathname?.startsWith("/admin/teacher-students/"))
+      if (!allowed) {
+        router.replace("/admin/teacher-students")
+        return
+      }
+    }
     setReady(true)
   }, [router, pathname])
 

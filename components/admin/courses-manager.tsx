@@ -201,7 +201,7 @@ export function CoursesManager({ variant = "courses" }: { variant?: "courses" | 
       />
       <AdminCard>
         {apiError && !demo ? (
-          <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">{apiError}</div>
+          <div className="mb-3 text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-md px-3 py-2">{apiError}</div>
         ) : null}
         <AdminToolbar>
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -235,7 +235,7 @@ export function CoursesManager({ variant = "courses" }: { variant?: "courses" | 
                     <button type="button" className="p-1.5 text-classz-500 hover:bg-classz-50 rounded" onClick={() => openEdit(c)}>
                       <Edit className="h-4 w-4" />
                     </button>
-                    <button type="button" className="p-1.5 text-red-600 hover:bg-red-50 rounded ml-1" onClick={() => remove(c.id)}>
+                    <button type="button" className="p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded ml-1" onClick={() => remove(c.id)}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>

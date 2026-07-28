@@ -1,10 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useId, useRef, useState } from "react"
-import { GraduationCap, Pencil, Plus, Trash2, Upload } from "lucide-react"
+import { GraduationCap, KeyRound, Pencil, Plus, Trash2, Upload } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
-import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/classz-api-client"
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/classz-api-client"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 import {
   AdminCard,
@@ -49,6 +49,15 @@ type Payroll = {
   classes_count: number
   amount: number
   status: string
+}
+
+type CoachAccount = {
+  id: number
+  email: string
+  full_name?: string | null
+  instructor_id?: number | null
+  is_active?: boolean
+  isActivated?: number
 }
 
 type FormState = {
@@ -218,7 +227,7 @@ function ImageUploadField({
             ) : null}
           </div>
           <p className="text-xs text-classz-500">{zh ? "支援 JPG / PNG / WEBP，少於 5MB" : "JPG / PNG / WEBP, under 5MB"}</p>
-          {error ? <p className="text-xs text-red-600">{error}</p> : null}
+          {error ? <p className="text-xs text-brand-coral">{error}</p> : null}
         </div>
       </div>
     </div>
@@ -289,8 +298,9 @@ export function TeachersManager() {
   const zh = locale === "zh-TW"
   const demo = isDemoSession()
   const [rows, setRows] = useState<Instructor[]>([])
+  const [coaches, setCoaches] = useState<CoachAccount[]>([])
   const [search, setSearch] = useState("")
-  const [modal, setModal] = useState<"create" | "edit" | "delete" | "manage" | null>(null)
+  const [modal, setModal] = useState<"create" | "edit" | "delete" | "manage" | "login" | null>(null)
   const [editing, setEditing] = useState<Instructor | null>(null)
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
@@ -300,23 +310,34 @@ export function TeachersManager() {
   const [perf, setPerf] = useState<unknown>(null)
   const [newSlot, setNewSlot] = useState<Slot>({ weekday: 1, start_time: "09:00", end_time: "12:00" })
   const [payForm, setPayForm] = useState({ period_start: "", period_end: "", classes_count: "0", amount: "0" })
+  const [loginForm, setLoginForm] = useState({ email: "", password: "111111" })
 
   const load = useCallback(async () => {
     if (demo) {
       setRows([])
+      setCoaches([])
       return
     }
     try {
-      const data = await apiGet<Instructor[]>("/instructors")
+      const [data, coachData] = await Promise.all([
+        apiGet<Instructor[]>("/instructors"),
+        apiGet<CoachAccount[]>("/coaches?include_inactive=1").catch(() => [] as CoachAccount[]),
+      ])
       setRows(Array.isArray(data) ? data : [])
+      setCoaches(Array.isArray(coachData) ? coachData : [])
     } catch {
       setRows([])
+      setCoaches([])
     }
   }, [demo])
 
   useEffect(() => {
     load()
   }, [load])
+
+  function coachForInstructor(instructorId: number) {
+    return coaches.find((c) => Number(c.instructor_id) === Number(instructorId)) || null
+  }
 
   const filtered = rows.filter((i) => {
     const q = search.trim().toLowerCase()
@@ -395,6 +416,60 @@ export function TeachersManager() {
     if (saving) return
     setModal(null)
     setEditing(null)
+  }
+
+  function openLogin(i: Instructor) {
+    const existing = coachForInstructor(i.id)
+    setEditing(i)
+    setLoginForm({
+      email: existing?.email || "",
+      password: "111111",
+    })
+    setModal("login")
+  }
+
+  async function saveLogin() {
+    if (demo || !editing) return
+    const email = loginForm.email.trim().toLowerCase()
+    if (!email || loginForm.password.length < 6) return
+    setSaving(true)
+    try {
+      const existing = coachForInstructor(editing.id)
+      if (existing) {
+        await apiPatch(`/coaches/${existing.id}`, {
+          email,
+          password: loginForm.password,
+          full_name: editing.name,
+          instructor_id: editing.id,
+          isActivated: 1,
+        })
+      } else {
+        await apiPost("/coaches", {
+          email,
+          password: loginForm.password,
+          full_name: editing.name,
+          instructor_id: editing.id,
+        })
+      }
+      setModal(null)
+      setEditing(null)
+      await load()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function deactivateLogin(coach: CoachAccount) {
+    if (demo) return
+    if (!confirm(zh ? "停用此登入帳號？" : "Deactivate this login?")) return
+    try {
+      await apiDelete(`/coaches/${coach.id}`)
+      await load()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed")
+    }
   }
 
   async function saveCreate() {
@@ -501,11 +576,15 @@ export function TeachersManager() {
                 <th className="px-3 py-2 text-left">{zh ? "資歷" : "Credentials"}</th>
                 <th className="px-3 py-2 text-left">{zh ? "畢業/就讀院校" : "School"}</th>
                 <th className="px-3 py-2 text-left">{zh ? "背景圖" : "Background"}</th>
+                <th className="px-3 py-2 text-left">{zh ? "登入帳號" : "Login"}</th>
                 <th className="px-3 py-2 text-right">{zh ? "操作" : "Actions"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-classz-100">
-              {filtered.map((i) => (
+              {filtered.map((i) => {
+                const coach = coachForInstructor(i.id)
+                const active = coach ? coach.is_active !== false && Number(coach.isActivated) !== 0 : false
+                return (
                 <tr key={i.id} className="bg-white">
                   <td className="px-3 py-2">
                     <Thumb src={i.profile_image_url || i.avatar_url} alt={i.name} className="h-12 w-12 rounded-full" />
@@ -517,7 +596,23 @@ export function TeachersManager() {
                   <td className="px-3 py-2">
                     <Thumb src={i.background_image} alt="" className="h-10 w-16 rounded-md" />
                   </td>
+                  <td className="px-3 py-2 text-sm">
+                    {coach ? (
+                      <div className="space-y-0.5">
+                        <div className="text-classz-800">{coach.email}</div>
+                        <div className={active ? "text-brand-teal" : "text-classz-400"}>
+                          {active ? (zh ? "啟用" : "Active") : zh ? "已停用" : "Inactive"}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-classz-400">{zh ? "尚未建立" : "None"}</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
+                    <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openLogin(i)} disabled={demo}>
+                      <KeyRound className="h-3.5 w-3.5" />
+                      {coach ? (zh ? "帳號" : "Login") : zh ? "建立登入" : "Create login"}
+                    </AdminGhostButton>
                     <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openEdit(i)}>
                       <Pencil className="h-3.5 w-3.5" />
                       {zh ? "編輯" : "Edit"}
@@ -527,7 +622,7 @@ export function TeachersManager() {
                     </AdminGhostButton>
                     <button
                       type="button"
-                      className="inline-flex items-center p-1.5 ml-1 text-red-600 hover:bg-red-50 rounded"
+                      className="inline-flex items-center p-1.5 ml-1 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded"
                       onClick={() => openDelete(i)}
                       aria-label={zh ? "刪除" : "Delete"}
                     >
@@ -535,10 +630,10 @@ export function TeachersManager() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )})}
               {!filtered.length ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-classz-500">
+                  <td colSpan={8} className="px-3 py-8 text-center text-classz-500">
                     {demo ? (zh ? "請用中心帳號登入" : "Sign in with centre account") : zh ? "暫無導師" : "No teachers"}
                   </td>
                 </tr>
@@ -609,6 +704,69 @@ export function TeachersManager() {
         </p>
       </AdminModal>
 
+      {/* Login account */}
+      <AdminModal
+        open={modal === "login"}
+        title={
+          editing
+            ? `${zh ? "登入帳號" : "Login"} · ${editing.name}`
+            : zh
+              ? "登入帳號"
+              : "Login"
+        }
+        onClose={closeModal}
+        footer={
+          <>
+            {editing && coachForInstructor(editing.id) ? (
+              <AdminDangerButton
+                type="button"
+                disabled={saving}
+                onClick={() => {
+                  const c = coachForInstructor(editing.id)
+                  if (c) void deactivateLogin(c)
+                }}
+              >
+                {zh ? "停用" : "Deactivate"}
+              </AdminDangerButton>
+            ) : null}
+            <AdminGhostButton type="button" onClick={closeModal} disabled={saving}>
+              {zh ? "取消" : "Cancel"}
+            </AdminGhostButton>
+            <AdminPrimaryButton
+              type="button"
+              disabled={saving || !loginForm.email.trim() || loginForm.password.length < 6}
+              onClick={saveLogin}
+            >
+              {saving ? (zh ? "儲存中…" : "Saving…") : zh ? "儲存" : "Save"}
+            </AdminPrimaryButton>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-classz-600">
+            {zh
+              ? "建立後導師可用此電郵登入，查看中心指派的任務。"
+              : "Teachers can sign in with this email to see assigned tasks."}
+          </p>
+          <div>
+            <AdminLabel>Email</AdminLabel>
+            <AdminInput
+              type="email"
+              value={loginForm.email}
+              onChange={(e) => setLoginForm((f) => ({ ...f, email: e.target.value }))}
+            />
+          </div>
+          <div>
+            <AdminLabel>{zh ? "密碼（至少 6 碼）" : "Password (min 6)"}</AdminLabel>
+            <AdminInput
+              type="text"
+              value={loginForm.password}
+              onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))}
+            />
+          </div>
+        </div>
+      </AdminModal>
+
       {/* Manage (availability / payroll / performance) */}
       <AdminModal
         open={modal === "manage"}
@@ -652,7 +810,7 @@ export function TeachersManager() {
                     </span>
                     <button
                       type="button"
-                      className="text-red-600 text-xs"
+                      className="text-brand-coral text-xs"
                       onClick={() => setSlots(slots.filter((_, j) => j !== idx))}
                     >
                       ×

@@ -15,7 +15,7 @@ export type ClasszSession = {
   }
 }
 
-const DEMO_PASSWORD = "demo1234"
+const DEMO_PASSWORD = "111111"
 const USE_DEMO = process.env.NEXT_PUBLIC_CLASSZ_USE_DEMO === "1"
 
 const DEMO_USERS: Record<
@@ -23,26 +23,20 @@ const DEMO_USERS: Record<
   { password: string; name: string; role: ClasszPortalRole; roleLabel: string }
 > = {
   "admin@admin.com": {
-    password: "111111",
+    password: DEMO_PASSWORD,
     name: "Platform Admin",
     role: "platform_admin",
     roleLabel: "平台",
   },
-  "center@classz.demo": {
-    password: DEMO_PASSWORD,
-    name: "ClassZ 中心示範",
-    role: "center_admin",
-    roleLabel: "中心",
-  },
   "center@demo.com": {
-    password: "111111",
+    password: DEMO_PASSWORD,
     name: "Demo Centre Admin",
     role: "center_admin",
     roleLabel: "中心",
   },
-  "coach@classz.demo": {
+  "coach1@demo.com": {
     password: DEMO_PASSWORD,
-    name: "ClassZ 導師示範",
+    name: "李老師",
     role: "coach",
     roleLabel: "導師",
   },

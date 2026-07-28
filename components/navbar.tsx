@@ -15,10 +15,10 @@ export function Navbar() {
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
 
   const linkClasses = (path: string) =>
-    `${isActive(path) ? "text-classz-400" : "text-slate-600"} hover:text-classz-400 transition-colors`
+    `${isActive(path) ? "text-classz-400" : "text-brand-slate/80"} hover:text-classz-400 transition-colors`
 
   return (
-    <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 overflow-visible">
+    <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-classz-50 overflow-visible">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between relative overflow-visible">
         {/* Logo - Always on the left */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0 z-10 max-w-[40%] md:max-w-none">
@@ -26,7 +26,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Links - Hidden on mobile */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 flex-1 justify-center">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-brand-slate/80 flex-1 justify-center">
           <Link href="/our-mission" className={linkClasses("/our-mission")}>
             {t("ourMission")}
           </Link>
@@ -57,9 +57,9 @@ export function Navbar() {
               <ChevronDown className={`w-4 h-4 transition-transform ${langOpen ? "rotate-180" : ""}`} />
             </button>
             {langOpen && (
-              <div className="absolute right-0 mt-2 w-32 rounded-md border border-slate-200 bg-white shadow-lg z-[60] min-w-[120px]">
+              <div className="absolute right-0 mt-2 w-32 rounded-md border border-classz-100 bg-white shadow-lg z-[60] min-w-[120px]">
                 <button
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
                   onClick={() => {
                     setLocale("en")
                     setLangOpen(false)
@@ -68,7 +68,7 @@ export function Navbar() {
                   {t("english")}
                 </button>
                 <button
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
                   onClick={() => {
                     setLocale("zh-TW")
                     setLangOpen(false)
@@ -83,7 +83,7 @@ export function Navbar() {
 
         {/* Desktop Actions - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-4 flex-shrink-0">
-          <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-classz-400 whitespace-nowrap">
+          <Link href="/login" className="text-sm font-medium text-brand-slate hover:text-classz-400 whitespace-nowrap">
             {t("login")}
           </Link>
           <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full px-6 whitespace-nowrap">
@@ -96,7 +96,7 @@ export function Navbar() {
           {/* Language Dropdown - Always visible on mobile */}
           <div className="relative z-50">
             <button
-              className="flex items-center gap-1 px-2 py-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-classz-400 transition-colors rounded-md hover:bg-slate-50 whitespace-nowrap"
+              className="flex items-center gap-1 px-2 py-1.5 text-xs sm:text-sm font-medium text-brand-slate/80 hover:text-classz-400 transition-colors rounded-md hover:bg-classz-50 whitespace-nowrap"
               onClick={(e) => {
                 e.stopPropagation()
                 setLangOpen((v) => !v)
@@ -112,9 +112,9 @@ export function Navbar() {
               <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${langOpen ? "rotate-180" : ""}`} />
             </button>
             {langOpen && (
-              <div className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md border border-slate-200 bg-white shadow-xl z-[100] min-w-[100px]">
+              <div className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md border border-classz-100 bg-white shadow-xl z-[100] min-w-[100px]">
                 <button
-                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
+                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
                   onClick={() => {
                     setLocale("en")
                     setLangOpen(false)
@@ -123,7 +123,7 @@ export function Navbar() {
                   {t("english")}
                 </button>
                 <button
-                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-slate-50 transition-colors first:rounded-t-md last:rounded-b-md"
+                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
                   onClick={() => {
                     setLocale("zh-TW")
                     setLangOpen(false)
@@ -137,7 +137,7 @@ export function Navbar() {
           
           {/* Mobile Menu Button */}
           <button
-            className="p-2 text-slate-600 flex-shrink-0 relative z-10"
+            className="p-2 text-brand-slate/80 flex-shrink-0 relative z-10"
             onClick={() => {
               setOpen((v) => !v)
               setLangOpen(false) // Close language dropdown when opening menu
@@ -151,8 +151,8 @@ export function Navbar() {
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden bg-white/95 backdrop-blur border-t border-slate-100 shadow-sm relative z-40">
-          <div className="px-4 py-4 space-y-3 text-sm font-medium text-slate-700">
+        <div className="md:hidden bg-white/95 backdrop-blur border-t border-classz-50 shadow-sm relative z-40">
+          <div className="px-4 py-4 space-y-3 text-sm font-medium text-brand-slate">
             <NavLinkMobile href="/our-mission" active={isActive("/our-mission")} onClick={() => setOpen(false)}>
               {t("ourMission")}
             </NavLinkMobile>
@@ -170,7 +170,7 @@ export function Navbar() {
             </NavLinkMobile>
             
             <div className="pt-2 flex flex-col gap-2">
-              <Link href="/login" className="text-sm font-medium text-slate-900 hover:text-classz-400 transition-colors" onClick={() => setOpen(false)}>
+              <Link href="/login" className="text-sm font-medium text-brand-slate hover:text-classz-400 transition-colors" onClick={() => setOpen(false)}>
                 {t("login")}
               </Link>
               <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full w-full" onClick={() => setOpen(false)}>
@@ -199,7 +199,7 @@ function NavLinkMobile({
     <Link
       href={href}
       onClick={onClick}
-      className={`block ${active ? "text-classz-400" : "text-slate-700"} hover:text-classz-400 transition-colors`}
+      className={`block ${active ? "text-classz-400" : "text-brand-slate"} hover:text-classz-400 transition-colors`}
     >
       {children}
     </Link>

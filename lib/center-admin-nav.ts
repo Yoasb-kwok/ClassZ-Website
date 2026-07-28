@@ -14,6 +14,12 @@ import {
   Contact,
   BarChart3,
   Megaphone,
+  Star,
+  DollarSign,
+  UsersRound,
+  Flame,
+  ListTodo,
+  NotebookPen,
 } from "lucide-react"
 
 export type CenterAdminNavItem = {
@@ -53,7 +59,14 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
         { path: "/admin/programs", labelZh: "課程", labelEn: "Courses", icon: BookOpen },
         { path: "/admin/bookings", labelZh: "預約", labelEn: "Bookings", icon: CalendarClock },
         { path: "/admin/attendance", labelZh: "點名", labelEn: "Attendance", icon: ClipboardList },
+        { path: "/admin/tasks", labelZh: "指派任務", labelEn: "Tasks", icon: ListTodo },
         { path: "/admin/feedback", labelZh: "課堂回饋", labelEn: "Feedback", icon: MessageSquareText },
+        {
+          path: "/admin/learning-records",
+          labelZh: "Learning Record",
+          labelEn: "Learning Record",
+          icon: NotebookPen,
+        },
       ],
     },
     {
@@ -76,7 +89,37 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
     {
       titleZh: "洞察",
       titleEn: "Insights",
-      items: [{ path: "/admin/reports", labelZh: "報表", labelEn: "Reports", icon: BarChart3 }],
+      items: [
+        { path: "/admin/reports", labelZh: "報表總覽", labelEn: "Reports hub", icon: BarChart3 },
+        { path: "/admin/reports/teacher-ratings", labelZh: "導師評價排行", labelEn: "Teacher ratings", icon: Star },
+        { path: "/admin/reports/revenue", labelZh: "收入報表", labelEn: "Revenue", icon: DollarSign },
+        { path: "/admin/reports/retention", labelZh: "學員留存", labelEn: "Retention", icon: UsersRound },
+        { path: "/admin/reports/popular-courses", labelZh: "課程熱門度", labelEn: "Course popularity", icon: Flame },
+        { path: "/admin/reports/ad-conversion", labelZh: "廣告學生轉換率", labelEn: "Ad conversion", icon: Megaphone },
+      ],
+    },
+  ]
+}
+
+/** Coach (teacher login) — students Learning Record + tasks. */
+export function getCoachNavGroups(): CenterAdminNavGroup[] {
+  return [
+    {
+      titleZh: "總覽",
+      titleEn: "Overview",
+      items: [
+        {
+          path: "/admin/teacher-students",
+          labelZh: "學員 Learning Record",
+          labelEn: "Student Learning Records",
+          icon: NotebookPen,
+        },
+      ],
+    },
+    {
+      titleZh: "營運",
+      titleEn: "Operations",
+      items: [{ path: "/admin/tasks", labelZh: "我的任務", labelEn: "My tasks", icon: ListTodo }],
     },
   ]
 }

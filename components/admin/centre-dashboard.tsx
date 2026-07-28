@@ -37,6 +37,10 @@ type Kpis = {
   newLeads: number
   outstandingPayments: number
   teacherUtilization: number
+  monthRevenueChangePct?: number
+  activeStudentsChangePct?: number
+  attendanceChangePct?: number
+  newLeadsChangePct?: number
   monthClasses: Array<{
     id: number
     name: string
@@ -49,8 +53,10 @@ type Kpis = {
 }
 
 const ACCENT = "#0ABAB5"
-const ACCENT_SOFT = "#3BC8C4"
-const MUTED = "#06706D"
+const ACCENT_MAGENTA = "#BF07D0"
+const ACCENT_ORANGE = "#FF8400"
+const ACCENT_CORAL = "#DB5461"
+const MUTED = "#4C5B5C"
 
 const MONTH_COUNT = 12
 const YEAR_LOOKBACK = 4
@@ -65,24 +71,26 @@ function periodLabel(year: number, month: number, zh: boolean): string {
   return new Date(year, month - 1, 1).toLocaleString("en", { month: "long", year: "numeric" })
 }
 
-function Sparkline({ points, color = ACCENT }: { points: number[]; color?: string }) {
-  const max = Math.max(...points, 1)
-  const min = Math.min(...points, 0)
-  const range = Math.max(max - min, 1)
-  const w = 72
-  const h = 28
-  const d = points
-    .map((v, i) => {
-      const x = (i / Math.max(points.length - 1, 1)) * w
-      const y = h - ((v - min) / range) * (h - 4) - 2
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join(" ")
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="overflow-visible" aria-hidden>
-      <path d={d} fill="none" stroke={color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+function formatMomChange(pct: number | undefined, zh: boolean): { text: string; up: boolean | null } {
+  if (pct == null || Number.isNaN(Number(pct))) {
+    return { text: zh ? "較上月 —" : "vs last month —", up: null }
+  }
+  const n = Math.round(Number(pct) * 10) / 10
+  if (n === 0) {
+    return { text: zh ? "較上月持平" : "vs last month flat", up: null }
+  }
+  const abs = Math.abs(n)
+  const display = Number.isInteger(abs) ? String(abs) : abs.toFixed(1)
+  if (n > 0) {
+    return {
+      text: zh ? `較上月上升 ${display}%` : `${display}% up vs last month`,
+      up: true,
+    }
+  }
+  return {
+    text: zh ? `較上月下降 ${display}%` : `${display}% down vs last month`,
+    up: false,
+  }
 }
 
 function MetricCard({
@@ -91,7 +99,8 @@ function MetricCard({
   hint,
   Icon,
   href,
-  spark,
+  changePct,
+  zh,
   accent = ACCENT,
 }: {
   label: string
@@ -99,9 +108,14 @@ function MetricCard({
   hint?: string
   Icon: React.ComponentType<{ className?: string }>
   href?: string
-  spark: number[]
+  changePct?: number
+  zh: boolean
   accent?: string
 }) {
+  const mom = formatMomChange(changePct, zh)
+  const momColor =
+    mom.up === true ? ACCENT : mom.up === false ? ACCENT_CORAL : MUTED
+
   const inner = (
     <AdminCard className="h-full min-h-[112px] hover:border-classz-200 transition-colors !p-4 flex flex-col justify-between">
       <div className="flex items-start justify-between gap-1.5">
@@ -115,7 +129,10 @@ function MetricCard({
         <p className="text-[11px] font-medium leading-tight" style={{ color: accent }}>
           {hint}
         </p>
-        <Sparkline points={spark} color={accent} />
+        <p className="text-[11px] font-semibold leading-tight text-right shrink-0" style={{ color: momColor }}>
+          {mom.up === true ? "↑ " : mom.up === false ? "↓ " : ""}
+          {mom.text}
+        </p>
       </div>
     </AdminCard>
   )
@@ -251,23 +268,18 @@ export function CentreDashboard() {
       ? Math.round((k.monthAttendancePresent / k.monthAttendanceScheduled) * 100)
       : 0
 
-  const sparkFrom = (n: number) => {
-    const base = Math.max(n, 1)
-    return [0.55, 0.62, 0.58, 0.7, 0.68, 0.82, 0.9, 1].map((r) => Math.round(base * r))
-  }
-
   const mixData = [
     { name: zh ? "活躍學員" : "Active", value: Number(k?.activeStudents) || 0, color: ACCENT },
-    { name: zh ? "新 Leads" : "Leads", value: Number(k?.newLeads) || 0, color: ACCENT_SOFT },
+    { name: zh ? "新 Leads" : "Leads", value: Number(k?.newLeads) || 0, color: ACCENT_MAGENTA },
     {
       name: zh ? "未付" : "Outstanding",
       value: Number(k?.outstandingPayments) || 0,
-      color: "#6CD6D3",
+      color: ACCENT_ORANGE,
     },
     {
       name: zh ? "出席" : "Present",
       value: Number(k?.monthAttendancePresent) || 0,
-      color: "#089591",
+      color: MUTED,
     },
   ]
   const mixTotal = mixData.reduce((s, d) => s + d.value, 0)
@@ -312,7 +324,7 @@ export function CentreDashboard() {
       </div>
 
       {error ? (
-        <div role="alert" className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div role="alert" className="text-xs text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2">
           {error}
         </div>
       ) : null}
@@ -330,7 +342,8 @@ export function CentreDashboard() {
               hint={period}
               Icon={DollarSign}
               href="/admin/payments"
-              spark={sparkFrom(Number(k?.monthRevenue) || 8)}
+              changePct={k?.monthRevenueChangePct}
+              zh={zh}
               accent={ACCENT}
             />
             <MetricCard
@@ -339,8 +352,9 @@ export function CentreDashboard() {
               hint={period}
               Icon={Users}
               href="/admin/students"
-              spark={sparkFrom(Number(k?.activeStudents) || 6)}
-              accent={ACCENT_SOFT}
+              changePct={k?.activeStudentsChangePct}
+              zh={zh}
+              accent={ACCENT_MAGENTA}
             />
             <MetricCard
               label={zh ? "本月出席" : "Attendance"}
@@ -352,8 +366,9 @@ export function CentreDashboard() {
               hint={zh ? `出席率 ${attRate}%` : `${attRate}% rate`}
               Icon={ClipboardCheck}
               href="/admin/attendance"
-              spark={sparkFrom(Number(k?.monthAttendancePresent) || 5)}
-              accent={ACCENT}
+              changePct={k?.attendanceChangePct}
+              zh={zh}
+              accent={ACCENT_ORANGE}
             />
             <MetricCard
               label={zh ? "新 Leads" : "New Leads"}
@@ -361,8 +376,9 @@ export function CentreDashboard() {
               hint={period}
               Icon={UserPlus}
               href="/admin/crm"
-              spark={sparkFrom(Number(k?.newLeads) || 4)}
-              accent={ACCENT_SOFT}
+              changePct={k?.newLeadsChangePct}
+              zh={zh}
+              accent={ACCENT_CORAL}
             />
           </div>
 
@@ -406,7 +422,7 @@ export function CentreDashboard() {
                         <stop offset="100%" stopColor={ACCENT} stopOpacity={0.02} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#CEF1F0" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E7F8F7" vertical={false} />
                     <XAxis dataKey="day" tick={{ fill: MUTED, fontSize: 10 }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fill: MUTED, fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
                     <Tooltip
@@ -488,7 +504,7 @@ export function CentreDashboard() {
                           className="h-full rounded-full transition-all"
                           style={{
                             width: `${Math.min(100, g.value)}%`,
-                            background: `linear-gradient(90deg, ${ACCENT_SOFT}, ${ACCENT})`,
+                            background: `linear-gradient(90deg, ${ACCENT_ORANGE}, ${ACCENT})`,
                           }}
                         />
                       </div>

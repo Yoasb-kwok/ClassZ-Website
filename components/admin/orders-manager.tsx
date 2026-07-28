@@ -17,9 +17,11 @@ import {
   AdminPageHeader,
   AdminPrimaryButton,
   AdminSelect,
+  AdminStatusChip,
   AdminTable,
   AdminTableShell,
   AdminToolbar,
+  statusTone,
 } from "@/components/classz-admin-ui"
 
 export function OrdersManager() {
@@ -142,10 +144,12 @@ export function OrdersManager() {
                   <td className="px-3 py-2 text-base text-classz-600 tabular-nums">{o.id.slice(0, 12)}…</td>
                   <td className="px-3 py-2 text-classz-700">{o.user_name}</td>
                   <td className="px-3 py-2 text-classz-700">HK${o.total}</td>
-                  <td className="px-3 py-2 text-classz-600">{o.payment_status}</td>
+                  <td className="px-3 py-2">
+                    <AdminStatusChip tone={statusTone(o.payment_status)}>{o.payment_status}</AdminStatusChip>
+                  </td>
                   <td className="px-3 py-2 text-base text-classz-600">{o.package_name}</td>
                   <td className="px-3 py-2 text-right">
-                    <button type="button" className="p-1.5 text-red-600 hover:bg-red-50 rounded" onClick={() => remove(o.id)}>
+                    <button type="button" className="p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded" onClick={() => remove(o.id)}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>

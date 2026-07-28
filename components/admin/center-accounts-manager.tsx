@@ -244,7 +244,7 @@ export function CenterAccountsManager() {
         <td className="px-3 py-2">
           <span
             className={`text-xs px-2 py-0.5 rounded-full border ${
-              account.is_active ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-700"
+              account.is_active ? "bg-[color-mix(in_srgb,var(--brand-teal)_12%,white)] border-[color-mix(in_srgb,var(--brand-teal)_35%,white)] text-brand-teal" : "bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] text-brand-coral"
             }`}
           >
             {account.is_active ? (zh ? "啟用" : "Active") : zh ? "停用" : "Inactive"}
@@ -326,7 +326,7 @@ export function CenterAccountsManager() {
         </AdminPrimaryButton>
       </AdminToolbar>
 
-      {error ? <div className="text-red-600 text-sm">{error}</div> : null}
+      {error ? <div className="text-brand-coral text-sm">{error}</div> : null}
 
       <AdminCard>
         <AdminTableShell>

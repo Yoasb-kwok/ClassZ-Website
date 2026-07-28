@@ -12,10 +12,10 @@ export function HowItWorks() {
           <div className="flex flex-col gap-[30px]">
             <div className="flex flex-col items-center gap-[50px] py-5">
               <div className="flex flex-col justify-center items-center gap-5 w-full">
-                <h2 className="text-3xl md:text-4xl font-medium text-[#292929] leading-[0.9] tracking-[-0.03em] text-center">
+                <h2 className="text-3xl md:text-4xl font-medium text-[#4C5B5C] leading-[0.9] tracking-[-0.03em] text-center">
                 {t("howItWorks.title")}
                 </h2>
-                <p className="text-base font-normal text-[#6F6F6F] leading-[1.4] tracking-[-0.005em] text-center">
+                <p className="text-base font-normal text-[#5F6E6F] leading-[1.4] tracking-[-0.005em] text-center">
                 {t("howItWorks.subtitle")}
                 </p>
               </div>

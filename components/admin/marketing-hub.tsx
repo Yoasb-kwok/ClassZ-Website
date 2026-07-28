@@ -220,7 +220,7 @@ export function MarketingHub() {
 
       {tab === "broadcast" ? (
         <AdminCard>
-          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 mb-4">
+          <p className="text-sm text-brand-orange bg-[color-mix(in_srgb,var(--brand-orange)_12%,white)] border border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] rounded-md px-3 py-2 mb-4">
             {zh
               ? "PDPO：發送前必須勾選同意（opt-in）。WhatsApp / Email 目前為排隊 stub，需配置 Twilio / SMTP。"
               : "PDPO: consent required. WhatsApp/Email are queued stubs until Twilio/SMTP is configured."}

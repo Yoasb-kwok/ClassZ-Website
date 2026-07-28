@@ -83,5 +83,9 @@ export function isAdminNavPathActive(pathname: string, itemPath: string): boolea
   if (itemPath === "/admin") {
     return pathname === "/admin" || pathname === "/admin/"
   }
+  // Reports hub index should not stay active on nested report pages
+  if (itemPath === "/admin/reports") {
+    return pathname === "/admin/reports" || pathname === "/admin/reports/"
+  }
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
 }
