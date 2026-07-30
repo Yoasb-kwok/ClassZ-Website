@@ -35,6 +35,8 @@ import {
   AdminTextarea,
 } from "@/components/classz-admin-ui"
 
+const MIN_RECORDS_FOR_REPORT = 3
+
 export function TeacherFillLearningRecord() {
   const params = useParams()
   const router = useRouter()
@@ -178,18 +180,16 @@ export function TeacherFillLearningRecord() {
       </div>
       <AdminPageHeader
         title={zh ? `填寫 Learning Record — ${student.child_name}` : `Fill Learning Record — ${student.child_name}`}
-        description={
-          zh
-            ? `家長：${student.parent_name} · ${student.contact_number} · 已有 ${student.record_count} 次紀錄（目標 ≥ 4）`
-            : `Parent: ${student.parent_name} · ${student.contact_number} · ${student.record_count} records so far (target ≥ 4)`
-        }
+        description={zh ? "填寫此學生的 STEM / Academic Learning Record。" : "Fill this student's STEM / Academic Learning Record."}
       />
 
       <AdminCard className="mb-3">
-        <div className="flex flex-wrap gap-2 text-sm text-brand-slate">
-          <AdminStatusChip tone={student.record_count >= 4 ? "teal" : "orange"}>
-            {student.record_count}/4+ {zh ? "紀錄" : "records"}
+        <div className="flex flex-wrap items-start gap-2 text-sm text-brand-slate">
+          <AdminStatusChip tone={student.record_count >= MIN_RECORDS_FOR_REPORT ? "teal" : "orange"}>
+            {student.record_count}/{MIN_RECORDS_FOR_REPORT}+ {zh ? "紀錄" : "records"}
           </AdminStatusChip>
+          <span className="text-sm">{zh ? `家長：${student.parent_name}` : `Parent: ${student.parent_name}`}</span>
+          <span className="text-sm">{student.contact_number}</span>
           {student.enrollments.map((e) => (
             <span key={e.enrollment_id} className="text-xs text-brand-slate/65">
               {e.class_name}
@@ -340,11 +340,11 @@ export function TeacherFillLearningRecord() {
           </h3>
           <ul className="space-y-1 text-sm text-brand-slate/80">
             {history.map((h) => (
-              <li key={h.id} className="flex justify-between border-b border-classz-50 py-1.5">
-                <span>
+              <li key={h.id} className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between border-b border-classz-50 py-1.5">
+                <span className="min-w-0">
                   #{h.id} · {h.class_focus || h.class_name || "—"} · {progressLevelLabel(h.progress_level || "")}
                 </span>
-                <span className="text-xs text-brand-slate/50">
+                <span className="text-xs text-brand-slate/50 shrink-0">
                   {h.created_at ? new Date(h.created_at).toLocaleDateString(zh ? "zh-HK" : "en-HK") : ""}
                 </span>
               </li>

@@ -224,16 +224,18 @@ export function ScheduleCalendar({
         </button>
       </div>
 
-      <div className="grid grid-cols-7 border-b border-classz-100 bg-classz-100/50">
-        {weekdayLabels.map((label) => (
-          <div key={label} className="py-2 text-center text-xs font-semibold uppercase text-classz-600">
-            {label}
+      <div className="overflow-x-auto overscroll-x-contain">
+        <div className="min-w-[52rem]">
+          <div className="grid grid-cols-7 border-b border-classz-100 bg-classz-100/50">
+            {weekdayLabels.map((label) => (
+              <div key={label} className="py-2 text-center text-xs font-semibold uppercase text-classz-600">
+                {label}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
       {view === "month" ? (
-        <div className="grid grid-cols-7 auto-rows-fr min-h-[32rem]">
+        <div className="grid grid-cols-7 auto-rows-fr min-h-[28rem] md:min-h-[32rem]">
           {days.map((day) => {
             const key = format(day, "yyyy-MM-dd")
             const dayEvents = eventsByDay.get(key) || []
@@ -306,7 +308,7 @@ export function ScheduleCalendar({
           })}
         </div>
       ) : (
-        <div className="grid grid-cols-7 min-h-[28rem] divide-x divide-classz-100">
+        <div className="grid grid-cols-7 min-h-[24rem] md:min-h-[28rem] divide-x divide-classz-100">
           {days.map((day) => {
             const key = format(day, "yyyy-MM-dd")
             const dayEvents = eventsByDay.get(key) || []
@@ -375,6 +377,8 @@ export function ScheduleCalendar({
           })}
         </div>
       )}
+        </div>
+      </div>
 
       {courseLegend.length > 1 ? (
         <div className="border-t border-classz-100 bg-white px-4 py-3">

@@ -379,7 +379,7 @@ export function StudentsManager() {
         }
       />
       <AdminToolbar>
-        <div className="relative flex-1 min-w-[12rem]">
+        <div className="relative w-full xl:flex-1 xl:min-w-[12rem]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400" />
           <AdminInput
             className="pl-9"
@@ -389,7 +389,7 @@ export function StudentsManager() {
             onKeyDown={(e) => e.key === "Enter" && load()}
           />
         </div>
-        <AdminGhostButton type="button" onClick={() => load()}>
+        <AdminGhostButton type="button" onClick={() => load()} className="w-full sm:w-auto justify-center">
           {zh ? "搜尋" : "Search"}
         </AdminGhostButton>
       </AdminToolbar>
@@ -401,7 +401,7 @@ export function StudentsManager() {
           </div>
         ) : (
           <AdminTableShell>
-            <AdminTable>
+            <AdminTable className="min-w-[70rem]">
               <thead className="bg-classz-100">
                 <tr>
                   <th className="px-2 py-2 w-10" />
@@ -444,7 +444,8 @@ export function StudentsManager() {
                 {zh ? "關閉" : "Close"}
               </AdminGhostButton>
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="-mx-1 overflow-x-auto pb-1">
+              <div className="flex min-w-max gap-1 px-1">
               {(
                 [
                   ["edit", zh ? "編輯" : "Edit"],
@@ -466,6 +467,7 @@ export function StudentsManager() {
                   {label}
                 </button>
               ))}
+              </div>
             </div>
 
             {tab === "edit" ? (
@@ -512,7 +514,7 @@ export function StudentsManager() {
             {tab === "invoices" ? (
               <ul className="space-y-2 text-sm">
                 {invoices.map((inv) => (
-                  <li key={inv.id} className="flex justify-between border-b border-classz-100 py-2">
+                  <li key={inv.id} className="flex flex-wrap justify-between gap-2 border-b border-classz-100 py-2">
                     <span>#{inv.id}</span>
                     <span>HK${Number(inv.total).toLocaleString()}</span>
                     <span className="text-classz-500">{inv.payment_status}</span>

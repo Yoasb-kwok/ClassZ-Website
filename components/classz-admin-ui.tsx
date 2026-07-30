@@ -79,7 +79,7 @@ export function AdminLabel({ children }: { children: React.ReactNode }) {
 }
 
 export function AdminToolbar({ children }: { children: React.ReactNode }) {
-  return <div className="mb-4 flex flex-wrap items-center gap-3">{children}</div>
+  return <div className="mb-4 flex flex-wrap items-start gap-3">{children}</div>
 }
 
 export function AdminGhostButton({
@@ -210,7 +210,7 @@ export function priorityTone(priority?: string | null): BrandTone {
 }
 
 export function AdminTableShell({ children }: { children: React.ReactNode }) {
-  return <div className="overflow-x-auto -mx-1">{children}</div>
+  return <div className="overflow-x-auto overscroll-x-contain -mx-1 pb-1">{children}</div>
 }
 
 export function AdminTable({
@@ -236,22 +236,27 @@ export function AdminModal({
   onClose: () => void
   children: React.ReactNode
   footer?: React.ReactNode
-  /** md = default form; xl = wide calendar / rich content */
-  size?: "md" | "xl"
+  /** md = default form; lg = tablet-friendly wide form; xl = rich content */
+  size?: "md" | "lg" | "xl"
 }) {
   if (!open) return null
-  const widthClass = size === "xl" ? "max-w-5xl" : "max-w-lg"
+  const widthClass =
+    size === "xl"
+      ? "max-w-6xl"
+      : size === "lg"
+        ? "max-w-3xl"
+        : "max-w-lg"
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center p-2 sm:items-center sm:p-4">
       <button type="button" className="absolute inset-0 bg-classz-700/35" onClick={onClose} aria-label="Close" />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="admin-modal-title"
-        className={`relative bg-white rounded-xl shadow-xl border border-classz-100 ${widthClass} w-full max-h-[90vh] overflow-y-auto text-base text-classz-700`}
+        className={`relative bg-white rounded-t-xl sm:rounded-xl shadow-xl border border-classz-100 ${widthClass} w-full max-h-[92vh] overflow-y-auto text-base text-classz-700`}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-classz-100 bg-classz-50">
-          <h2 id="admin-modal-title" className="text-lg font-semibold text-classz-700">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-classz-100 bg-classz-50">
+          <h2 id="admin-modal-title" className="min-w-0 text-base sm:text-lg font-semibold text-classz-700">
             {title}
           </h2>
           <button
@@ -262,9 +267,9 @@ export function AdminModal({
             ×
           </button>
         </div>
-        <div className="p-5 md:p-6">{children}</div>
+        <div className="p-4 sm:p-5 md:p-6">{children}</div>
         {footer ? (
-          <div className="px-5 py-4 border-t border-classz-100 bg-classz-50 flex flex-wrap justify-end gap-2 text-base">
+          <div className="sticky bottom-0 px-4 py-3 sm:px-5 sm:py-4 border-t border-classz-100 bg-classz-50 flex flex-wrap justify-end gap-2 text-base">
             {footer}
           </div>
         ) : null}

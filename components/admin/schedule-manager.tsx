@@ -398,7 +398,7 @@ export function ScheduleManager() {
         {listError && !demo ? (
           <div className="w-full mb-2 text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-md px-3 py-2">{listError}</div>
         ) : null}
-        <div className="relative flex-1 min-w-[200px] max-w-md">
+        <div className="relative w-full md:flex-1 md:min-w-[16rem] md:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400 pointer-events-none" />
           <AdminInput
             className="pl-9"
@@ -408,7 +408,7 @@ export function ScheduleManager() {
           />
         </div>
 
-        <div className="flex rounded-lg border border-classz-200 overflow-hidden bg-white">
+        <div className="flex w-full sm:w-auto rounded-lg border border-classz-200 overflow-hidden bg-white">
           {(
             [
               ["month", zh ? "月" : "Month"],
@@ -439,7 +439,7 @@ export function ScheduleManager() {
           {syncingHolidays ? (zh ? "同步中…" : "Syncing…") : zh ? "同步香港假期" : "Sync HK holidays"}
         </button>
 
-        <AdminPrimaryButton type="button" className="ml-auto shrink-0" onClick={() => openCreateAt()}>
+        <AdminPrimaryButton type="button" className="w-full sm:w-auto sm:ml-auto shrink-0 justify-center" onClick={() => openCreateAt()}>
           <Plus className="h-4 w-4" />
           {zh ? "新增課堂" : "Add session"}
         </AdminPrimaryButton>
@@ -492,6 +492,7 @@ export function ScheduleManager() {
           setModal(null)
           setEditing(null)
         }}
+        size="lg"
         footer={
           <>
             <button type="button" className="px-4 py-2.5 text-base rounded-md border border-classz-200 text-classz-700" onClick={() => setModal(null)}>
@@ -508,14 +509,14 @@ export function ScheduleManager() {
             <AdminLabel>{zh ? "名稱" : "Name"}</AdminLabel>
             <AdminInput value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <AdminLabel>{zh ? "班別代碼" : "Class code"}</AdminLabel>
               <AdminInput value={form.class_code} onChange={(e) => setForm((f) => ({ ...f, class_code: e.target.value }))} />
             </div>
             <div>
               <AdminLabel>{zh ? "日曆顏色" : "Calendar color"}</AdminLabel>
-              <div className="grid grid-cols-5 gap-2 rounded-lg border border-classz-100 bg-classz-50/40 p-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 rounded-lg border border-classz-100 bg-classz-50/40 p-2">
                 {CALENDAR_COLOR_OPTIONS.map((hex) => {
                   const active = form.calendar_color === hex
                   return (
@@ -540,7 +541,7 @@ export function ScheduleManager() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <AdminLabel>{zh ? "導師" : "Instructor"}</AdminLabel>
               <AdminInput value={form.instructor} onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value }))} />
@@ -564,7 +565,7 @@ export function ScheduleManager() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <AdminLabel>{zh ? "開始" : "Start"}</AdminLabel>
               <AdminInput type="datetime-local" value={form.start_time} onChange={(e) => setForm((f) => ({ ...f, start_time: e.target.value }))} />
@@ -574,7 +575,7 @@ export function ScheduleManager() {
               <AdminInput type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <AdminLabel>{zh ? "名額" : "Capacity"}</AdminLabel>
               <AdminInput type="number" min={1} value={form.capacity} onChange={(e) => setForm((f) => ({ ...f, capacity: e.target.value }))} />

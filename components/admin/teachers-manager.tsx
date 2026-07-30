@@ -555,19 +555,19 @@ export function TeachersManager() {
       <AdminCard>
         <AdminToolbar>
           <AdminInput
-            className="max-w-sm"
+            className="w-full lg:max-w-sm"
             placeholder={zh ? "搜尋姓名、簡介、資歷、院校…" : "Search name, bio, credentials, school…"}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <AdminPrimaryButton type="button" className="ml-auto" onClick={openCreate} disabled={demo}>
+          <AdminPrimaryButton type="button" className="w-full sm:w-auto justify-center lg:ml-auto" onClick={openCreate} disabled={demo}>
             <Plus className="h-4 w-4" />
             {zh ? "新增導師" : "Add teacher"}
           </AdminPrimaryButton>
         </AdminToolbar>
 
         <AdminTableShell>
-          <AdminTable>
+          <AdminTable className="min-w-[74rem]">
             <thead className="bg-classz-100">
               <tr>
                 <th className="px-3 py-2 text-left">{zh ? "頭像" : "Avatar"}</th>
@@ -590,13 +590,13 @@ export function TeachersManager() {
                     <Thumb src={i.profile_image_url || i.avatar_url} alt={i.name} className="h-12 w-12 rounded-full" />
                   </td>
                   <td className="px-3 py-2 font-medium text-classz-800 whitespace-nowrap">{i.name}</td>
-                  <td className="px-3 py-2 text-sm text-classz-600 max-w-[16rem]">{clip(introForLocale(i, zh))}</td>
-                  <td className="px-3 py-2 text-sm text-classz-600 max-w-[12rem]">{awardsPreview(i.awards, zh)}</td>
-                  <td className="px-3 py-2 text-sm">{i.dance_school || "—"}</td>
+                  <td className="px-3 py-2 text-sm text-classz-600 min-w-[14rem] max-w-[16rem]">{clip(introForLocale(i, zh))}</td>
+                  <td className="px-3 py-2 text-sm text-classz-600 min-w-[10rem] max-w-[12rem]">{awardsPreview(i.awards, zh)}</td>
+                  <td className="px-3 py-2 text-sm min-w-[10rem]">{i.dance_school || "—"}</td>
                   <td className="px-3 py-2">
                     <Thumb src={i.background_image} alt="" className="h-10 w-16 rounded-md" />
                   </td>
-                  <td className="px-3 py-2 text-sm">
+                  <td className="px-3 py-2 text-sm min-w-[12rem]">
                     {coach ? (
                       <div className="space-y-0.5">
                         <div className="text-classz-800">{coach.email}</div>
@@ -608,7 +608,8 @@ export function TeachersManager() {
                       <span className="text-classz-400">{zh ? "尚未建立" : "None"}</span>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                  <td className="px-3 py-2">
+                    <div className="flex flex-wrap justify-end gap-1.5 min-w-[15rem]">
                     <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openLogin(i)} disabled={demo}>
                       <KeyRound className="h-3.5 w-3.5" />
                       {coach ? (zh ? "帳號" : "Login") : zh ? "建立登入" : "Create login"}
@@ -617,17 +618,18 @@ export function TeachersManager() {
                       <Pencil className="h-3.5 w-3.5" />
                       {zh ? "編輯" : "Edit"}
                     </AdminGhostButton>
-                    <AdminGhostButton type="button" className="text-sm py-1 px-2 ml-1" onClick={() => openManage(i)}>
+                    <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openManage(i)}>
                       {zh ? "管理" : "Manage"}
                     </AdminGhostButton>
                     <button
                       type="button"
-                      className="inline-flex items-center p-1.5 ml-1 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded"
+                      className="inline-flex items-center p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded"
                       onClick={() => openDelete(i)}
                       aria-label={zh ? "刪除" : "Delete"}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    </div>
                   </td>
                 </tr>
               )})}

@@ -7,6 +7,12 @@ import { useLanguage } from "@/components/language-provider"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { centerCrmFlowPath } from "@/lib/center-crm-scope"
 import {
+  PLAN_OPTIONS,
+  defaultsForPlan,
+  normalizePlanId,
+  type PlanId,
+} from "@/lib/subscription-plans"
+import {
   AdminCard,
   AdminDangerButton,
   AdminGhostButton,
@@ -53,6 +59,9 @@ type CenterRow = {
   district: string
   category: string
   status: string
+  plan_tier?: string | null
+  max_teachers?: number | null
+  max_students?: number | null
   admin_email?: string | null
   admin_name?: string | null
   created_at?: string
@@ -63,14 +72,41 @@ type FormState = {
   district: string
   category: string
   status: string
+  plan_tier: string
+  max_teachers: string
+  max_students: string
 }
 
-const emptyForm = (): FormState => ({
-  center_name: "",
-  district: DISTRICTS[0],
-  category: "dance",
-  status: "pending_approval",
-})
+const emptyForm = (): FormState => {
+  const d = defaultsForPlan("free")
+  return {
+    center_name: "",
+    district: DISTRICTS[0],
+    category: "dance",
+    status: "pending_approval",
+    plan_tier: d.plan_tier,
+    max_teachers: d.max_teachers != null ? String(d.max_teachers) : "",
+    max_students: d.max_students != null ? String(d.max_students) : "",
+  }
+}
+
+function formatCap(n: number | null | undefined) {
+  if (n == null) return "∞"
+  return String(n)
+}
+
+function planLabel(planTier: string | null | undefined, zh: boolean) {
+  const id = normalizePlanId(planTier)
+  const plan = PLAN_OPTIONS.find((p) => p.id === id)
+  return plan ? (zh ? plan.labelZh : plan.labelEn) : id
+}
+
+function parseCapInput(raw: string): number | null {
+  const t = raw.trim()
+  if (!t) return null
+  const n = Number(t)
+  return Number.isFinite(n) && n >= 0 ? n : null
+}
 
 export function CentersManager() {
   const { locale } = useLanguage()
@@ -119,8 +155,24 @@ export function CentersManager() {
       district: c.district,
       category: c.category,
       status: c.status,
+      plan_tier: normalizePlanId(c.plan_tier),
+      max_teachers: c.max_teachers != null ? String(c.max_teachers) : "",
+      max_students: c.max_students != null ? String(c.max_students) : "",
     })
     setModal("edit")
+  }
+
+  function onPlanChange(planId: string) {
+    const plan = normalizePlanId(planId) as PlanId
+    const d = defaultsForPlan(plan)
+    setForm((f) => ({
+      ...f,
+      plan_tier: plan,
+      max_teachers:
+        plan === "enterprise" ? "" : d.max_teachers != null ? String(d.max_teachers) : "",
+      max_students:
+        plan === "enterprise" ? "" : d.max_students != null ? String(d.max_students) : "",
+    }))
   }
 
   async function save() {
@@ -135,6 +187,9 @@ export function CentersManager() {
         district: form.district,
         category: form.category.trim(),
         status: form.status,
+        plan_tier: form.plan_tier,
+        max_teachers: parseCapInput(form.max_teachers),
+        max_students: parseCapInput(form.max_students),
       }
       if (modal === "create") {
         await apiPost("/centers", body, "platform_admin")
@@ -195,7 +250,7 @@ export function CentersManager() {
       />
 
       <AdminToolbar>
-        <div className="relative flex-1 min-w-[12rem]">
+        <div className="relative w-full xl:flex-1 xl:min-w-[12rem]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400" />
           <AdminInput
             className="pl-9"
@@ -205,7 +260,7 @@ export function CentersManager() {
             onKeyDown={(e) => e.key === "Enter" && load()}
           />
         </div>
-        <AdminSelect className="w-full sm:w-44" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <AdminSelect className="w-full md:w-52 xl:w-44" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">{zh ? "全部狀態" : "All statuses"}</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>
@@ -213,10 +268,10 @@ export function CentersManager() {
             </option>
           ))}
         </AdminSelect>
-        <AdminGhostButton type="button" onClick={() => load()}>
+        <AdminGhostButton type="button" onClick={() => load()} className="w-full sm:w-auto justify-center">
           {zh ? "搜尋" : "Search"}
         </AdminGhostButton>
-        <AdminPrimaryButton type="button" onClick={openCreate}>
+        <AdminPrimaryButton type="button" onClick={openCreate} className="w-full sm:w-auto justify-center">
           <Plus className="h-4 w-4" />
           {zh ? "新增中心" : "Add centre"}
         </AdminPrimaryButton>
@@ -226,13 +281,16 @@ export function CentersManager() {
 
       <AdminCard>
         <AdminTableShell>
-          <AdminTable>
+          <AdminTable className="min-w-[74rem]">
             <thead className="bg-classz-100">
               <tr>
                 <th className="px-3 py-3 text-left">ID</th>
                 <th className="px-3 py-3 text-left">{zh ? "中心" : "Centre"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "地區" : "District"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "類別" : "Category"}</th>
+                <th className="px-3 py-3 text-left">{zh ? "方案" : "Plan"}</th>
+                <th className="px-3 py-3 text-left">{zh ? "導師上限" : "Teachers max"}</th>
+                <th className="px-3 py-3 text-left">{zh ? "學員上限" : "Students max"}</th>
                 <th className="px-3 py-3 text-left">Admin</th>
                 <th className="px-3 py-3 text-left">{zh ? "狀態" : "Status"}</th>
                 <th className="px-3 py-3 text-right">{zh ? "操作" : "Actions"}</th>
@@ -241,7 +299,7 @@ export function CentersManager() {
             <tbody className="divide-y divide-classz-100">
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-classz-500">
+                  <td colSpan={10} className="px-3 py-8 text-center text-classz-500">
                     {zh ? "暫無中心" : "No centres"}
                   </td>
                 </tr>
@@ -249,14 +307,18 @@ export function CentersManager() {
                 rows.map((c) => (
                   <tr key={c.id} className="bg-white">
                     <td className="px-3 py-2">{c.id}</td>
-                    <td className="px-3 py-2 font-medium">{c.center_name}</td>
-                    <td className="px-3 py-2 text-sm">{c.district}</td>
+                    <td className="px-3 py-2 font-medium min-w-[12rem]">{c.center_name}</td>
+                    <td className="px-3 py-2 text-sm min-w-[9rem]">{c.district}</td>
                     <td className="px-3 py-2 text-sm">{c.category}</td>
-                    <td className="px-3 py-2 text-sm">{c.admin_email || c.admin_name || "—"}</td>
+                    <td className="px-3 py-2 text-sm">{planLabel(c.plan_tier, zh)}</td>
+                    <td className="px-3 py-2 text-sm">{formatCap(c.max_teachers)}</td>
+                    <td className="px-3 py-2 text-sm">{formatCap(c.max_students)}</td>
+                    <td className="px-3 py-2 text-sm min-w-[12rem]">{c.admin_email || c.admin_name || "—"}</td>
                     <td className="px-3 py-2">
                       <AdminStatusChip tone={statusTone(c.status)}>{c.status}</AdminStatusChip>
                     </td>
-                    <td className="px-3 py-2 text-right space-x-1 whitespace-nowrap">
+                    <td className="px-3 py-2">
+                      <div className="flex min-w-[18rem] flex-wrap justify-end gap-1.5">
                       <Link href={centerCrmFlowPath(c.id, "programs")}>
                         <AdminGhostButton type="button" className="inline-flex text-sm py-1 px-2" title={zh ? "管理 CRM" : "Open CRM"}>
                           <ExternalLink className="h-4 w-4" />
@@ -285,6 +347,7 @@ export function CentersManager() {
                       <AdminDangerButton type="button" className="inline-flex text-sm py-1 px-2" onClick={() => removeCenter(c)}>
                         <Trash2 className="h-4 w-4" />
                       </AdminDangerButton>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -298,6 +361,7 @@ export function CentersManager() {
         open={modal !== null}
         title={modal === "create" ? (zh ? "新增中心" : "Add centre") : zh ? "編輯中心" : "Edit centre"}
         onClose={() => setModal(null)}
+        size="lg"
         footer={
           <>
             <AdminGhostButton type="button" onClick={() => setModal(null)}>
@@ -338,6 +402,43 @@ export function CentersManager() {
               ))}
             </AdminSelect>
           </div>
+          <div>
+            <AdminLabel>{zh ? "訂閱方案" : "Subscription plan"}</AdminLabel>
+            <AdminSelect value={form.plan_tier} onChange={(e) => onPlanChange(e.target.value)}>
+              {PLAN_OPTIONS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {zh ? p.labelZh : p.labelEn}
+                </option>
+              ))}
+            </AdminSelect>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <AdminLabel>{zh ? "導師人數上限" : "Max teachers"}</AdminLabel>
+              <AdminInput
+                inputMode="numeric"
+                placeholder={zh ? "留空 = 無上限" : "Empty = unlimited"}
+                value={form.max_teachers}
+                onChange={(e) => setForm((f) => ({ ...f, max_teachers: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "學員人數上限" : "Max students"}</AdminLabel>
+              <AdminInput
+                inputMode="numeric"
+                placeholder={zh ? "留空 = 無上限" : "Empty = unlimited"}
+                value={form.max_students}
+                onChange={(e) => setForm((f) => ({ ...f, max_students: e.target.value }))}
+              />
+            </div>
+          </div>
+          {form.plan_tier === "enterprise" ? (
+            <p className="text-xs text-classz-600 leading-relaxed">
+              {zh
+                ? "企業／擴充方案：更大規模請聯絡 ClassZ。平台管理員仍可在此設定自訂上限。"
+                : "Enterprise / Scale: contact ClassZ for larger scale. Platform admins can still set custom caps here."}
+            </p>
+          ) : null}
           {modal === "create" ? (
             <p className="text-sm text-classz-600">
               {zh ? "新增中心後，請到「中心帳戶」建立主帳戶登入。" : "After creating a centre, add a primary login under Centre accounts."}

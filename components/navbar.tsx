@@ -21,12 +21,12 @@ export function Navbar() {
     <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-classz-50 overflow-visible">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between relative overflow-visible">
         {/* Logo - Always on the left */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0 z-10 max-w-[40%] md:max-w-none">
-          <img src="/logoWeb.png" alt="ClassZ" className="h-8 sm:h-10 md:h-12 w-auto object-contain" />
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0 z-10 max-w-[42%] lg:max-w-none">
+          <img src="/logoWeb.png" alt="ClassZ" className="h-8 sm:h-10 lg:h-12 w-auto object-contain" />
         </Link>
 
         {/* Desktop Links - Hidden on mobile */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-brand-slate/80 flex-1 justify-center">
+        <div className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-medium text-brand-slate/80 flex-1 justify-center">
           <Link href="/our-mission" className={linkClasses("/our-mission")}>
             {t("ourMission")}
           </Link>
@@ -82,7 +82,7 @@ export function Navbar() {
         </div>
 
         {/* Desktop Actions - Hidden on mobile */}
-        <div className="hidden md:flex items-center gap-4 flex-shrink-0">
+        <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
           <Link href="/login" className="text-sm font-medium text-brand-slate hover:text-classz-400 whitespace-nowrap">
             {t("login")}
           </Link>
@@ -92,7 +92,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile: Language Dropdown + Menu Button - Always visible */}
-        <div className="md:hidden flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-50 relative">
+        <div className="lg:hidden flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-50 relative">
           {/* Language Dropdown - Always visible on mobile */}
           <div className="relative z-50">
             <button
@@ -151,7 +151,7 @@ export function Navbar() {
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden bg-white/95 backdrop-blur border-t border-classz-50 shadow-sm relative z-40">
+        <div className="lg:hidden bg-white/95 backdrop-blur border-t border-classz-50 shadow-sm relative z-40">
           <div className="px-4 py-4 space-y-3 text-sm font-medium text-brand-slate">
             <NavLinkMobile href="/our-mission" active={isActive("/our-mission")} onClick={() => setOpen(false)}>
               {t("ourMission")}

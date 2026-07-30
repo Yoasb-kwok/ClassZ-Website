@@ -69,7 +69,7 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={`classz-admin-theme h-[100dvh] flex font-sans antialiased ${adminSurface} overflow-hidden`}>
-      <aside className="hidden lg:flex lg:flex-col lg:w-52 lg:flex-shrink-0 lg:overflow-y-auto bg-[var(--admin-sidebar)] border-r border-white/5">
+      <aside className="hidden lg:flex lg:flex-col lg:w-56 xl:w-60 lg:flex-shrink-0 lg:overflow-y-auto bg-[var(--admin-sidebar)] border-r border-white/5">
         <div className="h-12 shrink-0 flex items-center gap-2 px-3 border-b border-white/5">
           <div className="h-7 w-7 rounded-md bg-brand-teal flex items-center justify-center text-white text-xs font-bold">
             C
@@ -117,7 +117,7 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex-1 min-w-0 flex flex-col bg-[var(--admin-canvas)]">
-        <header className="h-12 shrink-0 flex items-center gap-2 px-4 sm:px-5 border-b border-classz-100/80 bg-white">
+        <header className="shrink-0 flex flex-wrap items-center gap-2 px-4 py-2 sm:px-5 border-b border-classz-100/80 bg-white">
           <button
             type="button"
             className="lg:hidden p-1.5 rounded-lg text-brand-slate hover:bg-classz-50"
@@ -127,7 +127,7 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
             {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
 
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative order-3 w-full md:order-none md:flex-1 md:max-w-xl xl:max-w-2xl">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-brand-slate/40" />
             <input
               value={query}
@@ -140,7 +140,7 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
             <Link
               href="/admin/bookings"
-              className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-white bg-brand-teal hover:brightness-110 transition-colors"
+              className="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-white bg-brand-teal hover:brightness-110 transition-colors"
             >
               <Plus className="h-3.5 w-3.5" />
               {zh ? "新增報名" : "New booking"}
@@ -153,8 +153,8 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
               <Bell className="h-4 w-4" />
               <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-brand-orange" />
             </button>
-            <div className="hidden md:flex flex-col items-end">
-              <span className="text-xs font-medium text-brand-slate truncate max-w-[8rem] leading-tight">{session?.user.name}</span>
+            <div className="hidden lg:flex flex-col items-end min-w-0">
+              <span className="text-xs font-medium text-brand-slate truncate max-w-[10rem] leading-tight">{session?.user.name}</span>
               <span className="text-[10px] text-brand-slate/70 leading-tight">{session?.user.roleLabel}</span>
             </div>
             <div className="h-7 w-7 rounded-full bg-brand-teal text-white text-[10px] font-semibold flex items-center justify-center">

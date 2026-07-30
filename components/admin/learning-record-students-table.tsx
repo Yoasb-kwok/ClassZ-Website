@@ -1,8 +1,8 @@
 "use client"
 
-import { Fragment, useCallback, useEffect, useState } from "react"
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, UserPlus } from "lucide-react"
+import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, Upload, UserPlus } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPost } from "@/lib/classz-api-client"
@@ -73,6 +73,125 @@ const emptyAddForm = (): AddForm => ({
   class_id: "",
 })
 
+type ImportStudentRow = {
+  parent_name: string
+  contact_number: string
+  child_name: string
+  age?: string | null
+  grade?: string | null
+  sex?: number | string | null
+}
+
+type ImportResult = {
+  imported: number
+  failed: number
+  errors: Array<{ row: number; child_name?: string; msg?: string }>
+}
+
+const SAMPLE_CSV_TEMPLATE =
+  "Parent_name,Contact_number,Child_name,Age,Grade,Sex\nJane Doe,91234567,Alex,8,P3,Male\nJohn Smith,98765432,Emily,7,P2,Female"
+
+const CSV_HEADER_KEYS: Record<string, keyof ImportStudentRow> = {
+  parent_name: "parent_name",
+  contact_number: "contact_number",
+  child_name: "child_name",
+  age: "age",
+  grade: "grade",
+  sex: "sex",
+}
+const MIN_RECORDS_FOR_REPORT = 3
+
+function parseCsvRows(text: string): string[][] {
+  const rows: string[][] = []
+  let row: string[] = []
+  let field = ""
+  let inQuotes = false
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    const next = text[i + 1]
+    if (inQuotes) {
+      if (c === '"' && next === '"') {
+        field += '"'
+        i++
+      } else if (c === '"') {
+        inQuotes = false
+      } else {
+        field += c
+      }
+    } else if (c === '"') {
+      inQuotes = true
+    } else if (c === ",") {
+      row.push(field)
+      field = ""
+    } else if (c === "\n" || (c === "\r" && next === "\n")) {
+      row.push(field)
+      field = ""
+      if (row.some((cell) => cell.trim() !== "")) rows.push(row)
+      row = []
+      if (c === "\r") i++
+    } else if (c !== "\r") {
+      field += c
+    }
+  }
+  row.push(field)
+  if (row.some((cell) => cell.trim() !== "")) rows.push(row)
+  return rows
+}
+
+function normalizeCsvHeader(h: string): string {
+  return h.trim().toLowerCase().replace(/\s+/g, "_")
+}
+
+function mapSexValue(raw: string): number | string | null {
+  const s = raw.trim()
+  if (!s) return null
+  const lower = s.toLowerCase()
+  if (lower === "male" || lower === "m" || lower === "男") return 1
+  if (lower === "female" || lower === "f" || lower === "女") return 0
+  if (s === "0" || s === "1") return Number(s)
+  return s
+}
+
+function parseImportStudents(csvText: string): ImportStudentRow[] {
+  const grid = parseCsvRows(csvText)
+  if (grid.length < 2) return []
+  const headerMap = grid[0].map((h) => CSV_HEADER_KEYS[normalizeCsvHeader(h)] || null)
+  const students: ImportStudentRow[] = []
+  for (let r = 1; r < grid.length; r++) {
+    const cells = grid[r]
+    const row: Partial<ImportStudentRow> = {}
+    for (let c = 0; c < headerMap.length; c++) {
+      const key = headerMap[c]
+      if (!key) continue
+      const val = (cells[c] ?? "").trim()
+      if (key === "sex") row.sex = mapSexValue(val)
+      else if (key === "age") row.age = val || null
+      else if (key === "grade") row.grade = val || null
+      else row[key] = val
+    }
+    if (!row.parent_name?.trim() || !row.contact_number?.trim() || !row.child_name?.trim()) continue
+    students.push({
+      parent_name: row.parent_name.trim(),
+      contact_number: row.contact_number.trim(),
+      child_name: row.child_name.trim(),
+      grade: row.grade ?? null,
+      age: row.age ?? null,
+      sex: row.sex ?? null,
+    })
+  }
+  return students
+}
+
+function downloadSampleCsvTemplate() {
+  const blob = new Blob([SAMPLE_CSV_TEMPLATE], { type: "text/csv;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = "learning-record-students-template.csv"
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 function sexLabel(sex: number | null | undefined, zh: boolean) {
   if (sex === 0) return zh ? "女" : "F"
   if (sex === 1) return zh ? "男" : "M"
@@ -89,6 +208,7 @@ export function LearningRecordStudentsTable({
   const zh = locale === "zh-TW"
   const demo = isDemoSession()
   const [rows, setRows] = useState<LearningRecordStudent[]>([])
+  const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<number | null>(null)
@@ -100,6 +220,14 @@ export function LearningRecordStudentsTable({
   const [classes, setClasses] = useState<ClassOption[]>([])
   const [saving, setSaving] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importOpen, setImportOpen] = useState(false)
+  const [importClassId, setImportClassId] = useState("")
+  const [importRows, setImportRows] = useState<ImportStudentRow[]>([])
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importSaving, setImportSaving] = useState(false)
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
 
   const [generatingId, setGeneratingId] = useState<number | null>(null)
   const [reportOpen, setReportOpen] = useState(false)
@@ -131,13 +259,30 @@ export function LearningRecordStudentsTable({
     load()
   }, [load])
 
-  async function openAddModal() {
-    setAddError(null)
-    setAddForm(emptyAddForm())
-    setAddOpen(true)
+  const filteredRows = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter((row) => {
+      const sessionNames = row.enrollments.map((e) => e.class_name || "").join(" ")
+      const haystack = [
+        row.child_name,
+        row.parent_name,
+        row.contact_number,
+        row.parent_email,
+        row.grade,
+        sessionNames,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+      return haystack.includes(q)
+    })
+  }, [rows, search])
+
+  async function loadClassOptions(): Promise<ClassOption[]> {
     try {
       const data = await apiGet<Record<string, unknown>[]>("/classes")
-      const list = (Array.isArray(data) ? data : [])
+      return (Array.isArray(data) ? data : [])
         .map((c) => ({
           id: Number(c.id),
           name: String(c.name || ""),
@@ -145,12 +290,102 @@ export function LearningRecordStudentsTable({
         }))
         .filter((c) => Number.isFinite(c.id) && c.id > 0)
         .sort((a, b) => String(b.start_time || "").localeCompare(String(a.start_time || "")))
-      setClasses(list)
-      if (list.length === 1) {
-        setAddForm((f) => ({ ...f, class_id: String(list[0].id) }))
-      }
     } catch {
-      setClasses([])
+      return []
+    }
+  }
+
+  async function openAddModal() {
+    setAddError(null)
+    setAddForm(emptyAddForm())
+    setAddOpen(true)
+    const list = await loadClassOptions()
+    setClasses(list)
+    if (list.length === 1) {
+      setAddForm((f) => ({ ...f, class_id: String(list[0].id) }))
+    }
+  }
+
+  async function openImportModal(rows: ImportStudentRow[]) {
+    setImportError(null)
+    setImportResult(null)
+    setImportRows(rows)
+    setImportClassId("")
+    setImportOpen(true)
+    const list = await loadClassOptions()
+    setClasses(list)
+    if (list.length === 1) {
+      setImportClassId(String(list[0].id))
+    }
+  }
+
+  function handleCsvFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = String(reader.result || "")
+      const parsed = parseImportStudents(text)
+      if (!parsed.length) {
+        setImportError(zh ? "CSV 無有效資料列（需 Parent_name、Contact_number、Child_name）" : "No valid rows (need Parent_name, Contact_number, Child_name)")
+        setImportOpen(true)
+        setImportRows([])
+        setImportResult(null)
+        return
+      }
+      void openImportModal(parsed)
+    }
+    reader.onerror = () => {
+      setImportError(zh ? "無法讀取檔案" : "Could not read file")
+      setImportOpen(true)
+    }
+    reader.readAsText(file)
+  }
+
+  async function submitImport() {
+    if (demo) {
+      setImportError(zh ? "請用中心帳號登入" : "Sign in as centre admin")
+      return
+    }
+    if (!importClassId) {
+      setImportError(zh ? "請選擇課堂／體驗日場次" : "Please select a class / open-day session")
+      return
+    }
+    if (!importRows.length) {
+      setImportError(zh ? "沒有可匯入的資料列" : "No rows to import")
+      return
+    }
+    setImportSaving(true)
+    setImportError(null)
+    try {
+      const resp = await apiPost<{ imported?: number; failed?: number; errors?: ImportResult["errors"] }>(
+        "/learning-record-students/import",
+        {
+          class_id: Number(importClassId),
+          students: importRows.map((s) => ({
+            parent_name: s.parent_name,
+            contact_number: s.contact_number,
+            child_name: s.child_name,
+            grade: s.grade || null,
+            sex: s.sex ?? null,
+            age: s.age || null,
+          })),
+        },
+      )
+      const result: ImportResult = {
+        imported: Number(resp?.imported ?? 0),
+        failed: Number(resp?.failed ?? 0),
+        errors: Array.isArray(resp?.errors) ? resp.errors : [],
+      }
+      setImportResult(result)
+      if (result.imported > 0) {
+        await load()
+      }
+    } catch (e) {
+      setImportError(e instanceof Error ? e.message : "Import failed")
+    } finally {
+      setImportSaving(false)
     }
   }
 
@@ -319,10 +554,28 @@ export function LearningRecordStudentsTable({
           Icon={ClipboardList}
         />
         {mode === "admin" ? (
-          <AdminPrimaryButton type="button" className="shrink-0" onClick={openAddModal} disabled={demo}>
-            <UserPlus className="h-4 w-4" />
-            {zh ? "新增學生" : "Add student"}
-          </AdminPrimaryButton>
+          <div className="flex w-full sm:w-auto flex-wrap items-center gap-2 shrink-0">
+            <AdminPrimaryButton type="button" onClick={openAddModal} disabled={demo} className="w-full sm:w-auto justify-center">
+              <UserPlus className="h-4 w-4" />
+              {zh ? "新增學生" : "Add student"}
+            </AdminPrimaryButton>
+            <AdminGhostButton
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={demo}
+              className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5"
+            >
+              <Upload className="h-4 w-4" />
+              {zh ? "匯入 CSV" : "Import CSV"}
+            </AdminGhostButton>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={handleCsvFileSelect}
+            />
+          </div>
         ) : null}
       </div>
 
@@ -336,13 +589,25 @@ export function LearningRecordStudentsTable({
       ) : null}
 
       <AdminCard>
+        <div className="mb-4">
+          <AdminLabel>{zh ? "搜尋學生 / 家長 / 電話 / 場次" : "Search student / parent / phone / session"}</AdminLabel>
+          <AdminInput
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={
+              zh
+                ? "輸入電話號碼、學生姓名、家長名稱、家長電郵或場次"
+                : "Search by phone, child name, parent name, parent email, or session"
+            }
+          />
+        </div>
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="h-8 w-8 rounded-full border-2 border-classz-100 border-t-classz-400 animate-spin" />
           </div>
         ) : (
           <AdminTableShell>
-            <AdminTable>
+            <AdminTable className="min-w-[72rem]">
               <thead className="bg-classz-50 text-classz-600">
                 <tr>
                   {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
@@ -360,7 +625,7 @@ export function LearningRecordStudentsTable({
                 </tr>
               </thead>
               <tbody className="divide-y divide-classz-100">
-                {rows.map((r) => {
+                {filteredRows.map((r) => {
                   const open = expanded === r.profile_id
                   const primary = r.enrollments[0]
                   return (
@@ -390,8 +655,10 @@ export function LearningRecordStudentsTable({
                           {primary?.class_name || "—"}
                         </td>
                         <td className="px-3 py-2">
-                          <AdminStatusChip tone={r.record_count >= 4 ? "teal" : r.record_count > 0 ? "orange" : "magenta"}>
-                            {r.record_count}/4+
+                          <AdminStatusChip
+                            tone={r.record_count >= MIN_RECORDS_FOR_REPORT ? "teal" : r.record_count > 0 ? "orange" : "magenta"}
+                          >
+                            {r.record_count}/{MIN_RECORDS_FOR_REPORT}+
                           </AdminStatusChip>
                         </td>
                         {mode === "teacher" ? (
@@ -405,8 +672,8 @@ export function LearningRecordStudentsTable({
                           </td>
                         ) : (
                           <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                            <div className="inline-flex flex-wrap justify-end gap-1.5">
-                              {r.record_count >= 4 ? (
+                            <div className="inline-flex min-w-[14rem] flex-wrap justify-end gap-1.5">
+                              {r.record_count >= MIN_RECORDS_FOR_REPORT ? (
                                 <AdminPrimaryButton
                                   type="button"
                                   className="text-sm py-1.5 px-3 inline-flex"
@@ -424,7 +691,9 @@ export function LearningRecordStudentsTable({
                                 </AdminPrimaryButton>
                               ) : (
                                 <span className="text-[11px] text-brand-slate/45 self-center">
-                                  {zh ? `需 ${4 - r.record_count} 次紀錄` : `Need ${4 - r.record_count} more`}
+                                  {zh
+                                    ? `需 ${MIN_RECORDS_FOR_REPORT - r.record_count} 次紀錄`
+                                    : `Need ${MIN_RECORDS_FOR_REPORT - r.record_count} more`}
                                 </span>
                               )}
                               <AdminGhostButton
@@ -456,7 +725,9 @@ export function LearningRecordStudentsTable({
                               <p className="text-sm text-brand-slate/60">{zh ? "載入中…" : "Loading…"}</p>
                             ) : !(history[r.profile_id] || []).length ? (
                               <p className="text-sm text-brand-slate/55">
-                                {zh ? "尚未有 Learning Record（目標至少 4 次）" : "No learning records yet (target ≥ 4)"}
+                                {zh
+                                  ? `尚未有 Learning Record（目標至少 ${MIN_RECORDS_FOR_REPORT} 次）`
+                                  : `No learning records yet (target ≥ ${MIN_RECORDS_FOR_REPORT})`}
                               </p>
                             ) : (
                               <ul className="space-y-2">
@@ -496,10 +767,16 @@ export function LearningRecordStudentsTable({
                     </Fragment>
                   )
                 })}
-                {!rows.length ? (
+                {!filteredRows.length ? (
                   <tr>
                     <td colSpan={8} className="px-3 py-10 text-center text-brand-slate/50">
-                      {zh ? "尚無已登記學員" : "No enrolled students"}
+                      {search.trim()
+                        ? zh
+                          ? "找不到符合搜尋的學生"
+                          : "No matching students"
+                        : zh
+                          ? "尚無已登記學員"
+                          : "No enrolled students"}
                     </td>
                   </tr>
                 ) : null}
@@ -614,6 +891,110 @@ export function LearningRecordStudentsTable({
               ) : null}
             </div>
           </div>
+        </AdminModal>
+      ) : null}
+
+      {mode === "admin" ? (
+        <AdminModal
+          open={importOpen}
+          title={zh ? "匯入學生 CSV" : "Import students (CSV)"}
+          onClose={() => !importSaving && setImportOpen(false)}
+          size="lg"
+          footer={
+            importResult ? (
+              <AdminGhostButton type="button" onClick={() => setImportOpen(false)}>
+                {zh ? "關閉" : "Close"}
+              </AdminGhostButton>
+            ) : (
+              <>
+                <AdminGhostButton type="button" disabled={importSaving} onClick={() => setImportOpen(false)}>
+                  {zh ? "取消" : "Cancel"}
+                </AdminGhostButton>
+                <AdminPrimaryButton type="button" disabled={importSaving || !importRows.length} onClick={submitImport}>
+                  {importSaving
+                    ? zh
+                      ? "匯入中…"
+                      : "Importing…"
+                    : zh
+                      ? `匯入 ${importRows.length} 筆`
+                      : `Import ${importRows.length} row${importRows.length === 1 ? "" : "s"}`}
+                </AdminPrimaryButton>
+              </>
+            )
+          }
+        >
+          {importResult ? (
+            <div className="space-y-3">
+              <p className="text-sm text-brand-slate">
+                {zh
+                  ? `成功 ${importResult.imported} 筆，失敗 ${importResult.failed} 筆`
+                  : `${importResult.imported} imported, ${importResult.failed} failed`}
+              </p>
+              {importResult.errors.length > 0 ? (
+                <ul className="text-xs text-brand-coral space-y-1 max-h-40 overflow-y-auto">
+                  {importResult.errors.slice(0, 8).map((err, i) => (
+                    <li key={i}>
+                      {zh ? "第" : "Row "}
+                      {err.row}
+                      {err.child_name ? ` · ${err.child_name}` : ""}: {err.msg || "—"}
+                    </li>
+                  ))}
+                  {importResult.errors.length > 8 ? (
+                    <li className="text-brand-slate/60">
+                      {zh
+                        ? `…另有 ${importResult.errors.length - 8} 筆錯誤`
+                        : `…and ${importResult.errors.length - 8} more errors`}
+                    </li>
+                  ) : null}
+                </ul>
+              ) : null}
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-brand-slate/60 mb-3 leading-relaxed">
+                {zh
+                  ? "上傳含 Parent_name、Contact_number、Child_name 的 CSV；可選 Age、Grade、Sex（Male/Female）。"
+                  : "Upload CSV with Parent_name, Contact_number, Child_name; optional Age, Grade, Sex (Male/Female)."}
+                {" "}
+                <button
+                  type="button"
+                  className="text-brand-teal underline underline-offset-2 hover:text-brand-teal/80"
+                  onClick={downloadSampleCsvTemplate}
+                >
+                  {zh ? "下載範本" : "Download template"}
+                </button>
+              </p>
+              {importError ? (
+                <p role="alert" className="text-sm text-brand-coral mb-3">
+                  {importError}
+                </p>
+              ) : null}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-brand-slate">
+                  {zh ? `已解析 ${importRows.length} 筆有效資料` : `${importRows.length} valid row(s) parsed`}
+                </p>
+                <div>
+                  <AdminLabel>{zh ? "課堂／體驗日場次" : "Class / Open Day session"} *</AdminLabel>
+                  <AdminSelect value={importClassId} onChange={(e) => setImportClassId(e.target.value)}>
+                    <option value="">{zh ? "請選擇…" : "Select…"}</option>
+                    {classes.map((c) => (
+                      <option key={c.id} value={String(c.id)}>
+                        {c.name}
+                        {c.start_time ? ` · ${new Date(c.start_time).toLocaleString(zh ? "zh-HK" : "en-HK")}` : ""}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                  {!classes.length ? (
+                    <p className="text-xs text-brand-orange mt-1">
+                      {zh
+                        ? "此中心尚無課堂。請先到排程建立體驗日場次。"
+                        : "No classes yet. Create an Open Day session under Schedule first."}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </>
+          )}
         </AdminModal>
       ) : null}
 

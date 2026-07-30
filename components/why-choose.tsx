@@ -1,13 +1,13 @@
 export function WhyChoose() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-20 md:py-24 bg-white">
       <div className="container mx-auto px-4">
-        <div className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-brand-slate mb-4">A New Standard in Learning.</h2>
-          <p className="text-xl text-brand-slate/70">Why families choose Classz?</p>
+        <div className="mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-brand-slate mb-4">A New Standard in Learning.</h2>
+          <p className="text-lg md:text-xl text-brand-slate/70">Why families choose Classz?</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-12 mb-16">
+        <div className="grid gap-8 md:grid-cols-3 md:gap-10 lg:gap-12 mb-12 md:mb-16">
           <div className="space-y-4">
             <span className="text-6xl font-light text-slate-200">01</span>
             <h3 className="text-xl font-bold text-brand-slate">Targeted Learning</h3>
@@ -37,7 +37,7 @@ export function WhyChoose() {
         </div>
 
         {/* Masonry Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[600px]">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 h-[360px] sm:h-[460px] md:h-[520px] lg:h-[600px]">
           <div className="col-span-1 row-span-2 relative overflow-hidden rounded-2xl">
             <img
               src="/placeholder.svg?height=600&width=400"

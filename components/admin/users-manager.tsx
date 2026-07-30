@@ -257,28 +257,28 @@ export function UsersManager() {
 
       <AdminCard>
         <AdminToolbar>
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+          <div className="relative w-full xl:flex-1 xl:min-w-[200px] xl:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400 pointer-events-none" />
             <AdminInput className="pl-9" placeholder={zh ? "搜尋…" : "Search…"} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <AdminGhostButton type="button" onClick={exportCsv}>
+          <AdminGhostButton type="button" onClick={exportCsv} className="w-full sm:w-auto justify-center">
             <Download className="h-4 w-4" />
             {zh ? "匯出 CSV" : "Export CSV"}
           </AdminGhostButton>
           {selected.size > 0 ? (
-            <AdminPrimaryButton type="button" onClick={bulkReminder}>
+            <AdminPrimaryButton type="button" onClick={bulkReminder} className="w-full sm:w-auto justify-center">
               <Send className="h-4 w-4" />
               {zh ? `發送提醒 (${selected.size})` : `Send reminder (${selected.size})`}
             </AdminPrimaryButton>
           ) : null}
-          <AdminPrimaryButton type="button" className="ml-auto" onClick={openCreate}>
+          <AdminPrimaryButton type="button" className="w-full sm:w-auto justify-center xl:ml-auto" onClick={openCreate}>
             <Plus className="h-4 w-4" />
             {zh ? "新增用戶" : "Add user"}
           </AdminPrimaryButton>
         </AdminToolbar>
 
         <AdminTableShell>
-          <AdminTable>
+          <AdminTable className="min-w-[58rem]">
             <thead className="bg-classz-100">
               <tr>
                 <th className="px-2 py-3 w-10">
@@ -322,7 +322,7 @@ export function UsersManager() {
                   </td>
                   <td className="px-3 py-2 text-classz-700 whitespace-nowrap">{u.account_number}</td>
                   <td className="px-3 py-2 text-classz-700">{u.full_name}</td>
-                  <td className="px-3 py-2 text-classz-600 text-base">{u.email}</td>
+                  <td className="px-3 py-2 text-classz-600 text-base min-w-[14rem]">{u.email}</td>
                   <td className="px-3 py-2 text-classz-700">{u.remaining_tokens}</td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
                     <button type="button" className="p-1.5 text-classz-500 hover:bg-classz-50 rounded" onClick={() => openEdit(u)} title="Edit">

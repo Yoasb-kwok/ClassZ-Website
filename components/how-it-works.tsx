@@ -6,7 +6,7 @@ export function HowItWorks() {
   const { t } = useLanguage()
   return (
     <section className="border-t border-[#E9E9E9] bg-white">
-      <div className="container mx-auto px-4 md:px-10 py-[120px]">
+      <div className="container mx-auto px-4 md:px-8 lg:px-10 py-20 md:py-24 lg:py-[120px]">
         <div className="flex flex-col gap-[80px]">
           {/* Header */}
           <div className="flex flex-col gap-[30px]">
@@ -23,7 +23,7 @@ export function HowItWorks() {
           </div>
 
           {/* Image Grid */}
-          <div className="flex flex-col md:flex-row gap-5 md:gap-[50px] w-full px-4 md:px-0 md:px-[156px]">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-0 sm:px-4 lg:flex-row lg:gap-8 xl:gap-12 xl:px-10">
             {/* Left Column - Two Images */}
             <div className="flex flex-col gap-[10px] flex-1">
               <div className="h-[250px] sm:h-[300px] rounded-[20px] md:rounded-[30px] overflow-hidden">
@@ -44,7 +44,7 @@ export function HowItWorks() {
 
             {/* Right Column - One Large Image (centered vertically) */}
             <div className="flex flex-col justify-center items-center flex-1">
-              <div className="rounded-[20px] md:rounded-[30px] overflow-hidden h-[250px] sm:h-[300px] md:h-[610px] w-full">
+              <div className="rounded-[20px] md:rounded-[30px] overflow-hidden h-[250px] sm:h-[300px] lg:h-[520px] xl:h-[610px] w-full">
                 <img
                   src="/pexels-emma-bauso-1183828-2833394.jpg"
                   alt="Family playing at beach"

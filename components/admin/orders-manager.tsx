@@ -113,21 +113,21 @@ export function OrdersManager() {
       <AdminPageHeader title={zh ? "購買記錄" : "Purchase records"} Icon={Receipt} />
       <AdminCard>
         <AdminToolbar>
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+          <div className="relative w-full xl:flex-1 xl:min-w-[200px] xl:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-classz-400 pointer-events-none" />
             <AdminInput className="pl-9" placeholder={zh ? "搜尋…" : "Search…"} value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <AdminGhostButton type="button" onClick={exportCsv}>
+          <AdminGhostButton type="button" onClick={exportCsv} className="w-full sm:w-auto justify-center">
             <Download className="h-4 w-4" />
             {zh ? "匯出 CSV" : "Export CSV"}
           </AdminGhostButton>
-          <AdminPrimaryButton type="button" className="ml-auto" onClick={() => setOpen(true)}>
+          <AdminPrimaryButton type="button" className="w-full sm:w-auto justify-center xl:ml-auto" onClick={() => setOpen(true)}>
             <Plus className="h-4 w-4" />
             {zh ? "新增訂單" : "Add order"}
           </AdminPrimaryButton>
         </AdminToolbar>
         <AdminTableShell>
-          <AdminTable>
+          <AdminTable className="min-w-[52rem]">
             <thead className="bg-classz-100">
               <tr>
                 <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">ID</th>
@@ -142,12 +142,12 @@ export function OrdersManager() {
               {rows.map((o) => (
                 <tr key={o.id} className="bg-white">
                   <td className="px-3 py-2 text-base text-classz-600 tabular-nums">{o.id.slice(0, 12)}…</td>
-                  <td className="px-3 py-2 text-classz-700">{o.user_name}</td>
+                  <td className="px-3 py-2 text-classz-700 min-w-[10rem]">{o.user_name}</td>
                   <td className="px-3 py-2 text-classz-700">HK${o.total}</td>
                   <td className="px-3 py-2">
                     <AdminStatusChip tone={statusTone(o.payment_status)}>{o.payment_status}</AdminStatusChip>
                   </td>
-                  <td className="px-3 py-2 text-base text-classz-600">{o.package_name}</td>
+                  <td className="px-3 py-2 text-base text-classz-600 min-w-[10rem]">{o.package_name}</td>
                   <td className="px-3 py-2 text-right">
                     <button type="button" className="p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded" onClick={() => remove(o.id)}>
                       <Trash2 className="h-4 w-4" />
