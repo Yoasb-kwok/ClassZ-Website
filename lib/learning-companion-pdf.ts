@@ -6,7 +6,6 @@
 import {
   COMPANION_ANIMALS,
   PARENT_REMINDER,
-  Z_SIR_SRC,
   poseForSlot,
   resolveCompanionAnimal,
   type CompanionAnimalMeta,
@@ -90,6 +89,8 @@ export function buildLearningCompanionPdfHtml(
   options?: { assetBase?: string },
 ): string {
   const narrative = narrativeBag(report)
+  const reportLanguage = String((narrative.report_language || report.report_language || "en")).toLowerCase()
+  const isZh = reportLanguage.startsWith("zh")
   const sections = (narrative.sections || narrative.ai_sections || {}) as Record<string, unknown>
   const companion = getCompanionSection(narrative)
   const supporting = (narrative.supporting_descriptions ||
@@ -138,13 +139,13 @@ export function buildLearningCompanionPdfHtml(
     <header class="cover" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="cover-top">
         <div class="brand-row">
-          <img class="z-sir" src="${asset(Z_SIR_SRC)}" alt="ClassZ" />
+          <div class="z-sir">${escapeHtml(animal.initial || "CZ")}</div>
           <p class="brand">ClassZ · Learning Companion Report</p>
         </div>
         <div class="title-row">
           <div>
             <h1>${escapeHtml(animal.label)}</h1>
-            <p class="snapshot">Snapshot for <strong>${name}</strong> · based on recent class records</p>
+            <p class="snapshot">${isZh ? "學員快照：" : "Snapshot for "} <strong>${name}</strong> ${isZh ? "· 依近期課堂紀錄整理" : "· based on recent class records"}</p>
           </div>
           <div class="initial" aria-hidden="true">${escapeHtml(animal.initial)}</div>
         </div>
@@ -156,8 +157,8 @@ export function buildLearningCompanionPdfHtml(
           <p class="meta">${escapeHtml(confidence)}</p>
           <p>${escapeHtml(meaning1)}</p>
           <p>${escapeHtml(meaning2)}</p>
-          <p class="disclaimer">This does not mean ${name} always learns this way. It is a recent snapshot based on repeated coach and tutor observations.</p>
-          <h3>Often observed as</h3>
+          <p class="disclaimer">${isZh ? `這不代表 ${name} 一定只會以這種方式學習；這是根據近期重複觀察整理出的階段性學習快照。` : `This does not mean ${name} always learns this way. It is a recent snapshot based on repeated coach and tutor observations.`}</p>
+          <h3>${isZh ? "常見觀察" : "Often observed as"}</h3>
           <div class="chips">${chipsHtml(observed, animal.accent)}</div>
         </div>
         <div class="section-art">
@@ -169,7 +170,7 @@ export function buildLearningCompanionPdfHtml(
     <section class="pose-section" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split reverse">
         <div class="section-copy">
-          <h2>What may help</h2>
+          <h2>${isZh ? "可以怎樣幫助" : "What may help"}</h2>
           <ul class="help-list">
             ${help.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
           </ul>
@@ -183,7 +184,7 @@ export function buildLearningCompanionPdfHtml(
     <section class="pose-section theory-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split">
         <div class="section-copy">
-          <h2>Why we think this</h2>
+          <h2>${isZh ? "為什麼這樣理解" : "Why we think this"}</h2>
           <p>${escapeHtml(theory)}</p>
           <p class="reminder">${escapeHtml(reminder)}</p>
         </div>
@@ -199,7 +200,7 @@ export function buildLearningCompanionPdfHtml(
       <section class="pose-section supporting-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
         <div class="section-split reverse">
           <div class="section-copy">
-            <h2>Also reflected in ${name}'s learning</h2>
+            <h2>${isZh ? `同時反映在 ${name} 的學習中` : `Also reflected in ${name}'s learning`}</h2>
     `
     for (const s of supporting) {
       const supportAnimal =
@@ -311,7 +312,7 @@ export function buildLearningCompanionPdfHtml(
       background: #fff;
     }
     .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-    .z-sir { width:42px; height:42px; object-fit:contain; }
+    .z-sir { width:42px; height:42px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:var(--accent); color:#fff; font-weight:700; }
     .brand { color: var(--brand); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 11px; margin: 0; }
     .cover { border:1px solid var(--line); border-radius:18px; overflow:hidden; background:linear-gradient(180deg, var(--accent-soft), #fff 48%); }
     .cover-top { padding:18px 18px 0; }

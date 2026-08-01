@@ -9,6 +9,13 @@ export const PROGRESS_LEVELS = [
   { value: "independent", tier: "Independent", description: "Can complete independently." },
 ] as const
 
+export const CLASS_FOCUS_OPTIONS = [
+  "Lego陀螺",
+  "Cospaces AR/VR",
+  "TinkerCAD",
+  "ERC",
+] as const
+
 export const OBSERVED_OPTIONS = [
   "Needed demonstration first",
   "Completed with reminders",
@@ -67,6 +74,9 @@ export type ActivityLearningRecordForm = {
 
 export function validateActivityLearningRecordForm(form: ActivityLearningRecordForm): string | null {
   if (!form.class_focus.trim()) return "Class focus is required."
+  if (!(CLASS_FOCUS_OPTIONS as readonly string[]).includes(form.class_focus.trim())) {
+    return "Invalid class focus. Re-select from the dropdown."
+  }
   if (!form.progress_level) return "Progress level is required."
   if (!form.student_work_on.trim()) return "Suggestions for student work are required."
   if (form.observed.length < 1 || form.observed.length > 2) return "What Was Observed: choose 1–2."
@@ -99,6 +109,9 @@ export function sanitizeActivityLearningRecordForm(
   const traitSet = new Set<string>(LEARNING_TRAIT_OPTIONS)
   return {
     ...form,
+    class_focus: (CLASS_FOCUS_OPTIONS as readonly string[]).includes(form.class_focus)
+      ? form.class_focus
+      : "",
     observed: form.observed.filter((v) => observedSet.has(v)),
     strongest_areas: form.strongest_areas.filter((v) => areaSet.has(v)),
     attention_areas: form.attention_areas.filter((v) => areaSet.has(v)),

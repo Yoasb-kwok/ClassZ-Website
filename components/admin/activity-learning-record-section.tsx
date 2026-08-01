@@ -8,6 +8,7 @@ import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 import { FEEDBACK_FORM_FIELD, FEEDBACK_FORM_GRID, FEEDBACK_FORM_STACK, FEEDBACK_LIST_TITLE, FEEDBACK_STACK } from "@/lib/feedback-layout"
 import {
+  CLASS_FOCUS_OPTIONS,
   type ActivityLearningRecordForm,
   type ActivityLearningRecordRow,
   countWords,
@@ -22,15 +23,7 @@ import {
   toggleMultiSelect,
   validateActivityLearningRecordForm,
 } from "@/lib/activity-learning-record"
-import {
-  AdminCard,
-  AdminGhostButton,
-  AdminInput,
-  AdminLabel,
-  AdminPrimaryButton,
-  AdminSelect,
-  AdminTextarea,
-} from "@/components/classz-admin-ui"
+import { AdminCard, AdminGhostButton, AdminLabel, AdminPrimaryButton, AdminSelect, AdminTextarea } from "@/components/classz-admin-ui"
 
 type ClassOption = { id: string; name: string }
 type EnrollmentOption = { id: string; profile_name: string; user_name: string }
@@ -486,11 +479,17 @@ export function ActivityLearningRecordSection({
 
             <div className={FEEDBACK_FORM_FIELD}>
               <AdminLabel>What was the focus of the class today?</AdminLabel>
-              <AdminInput
-                placeholder="e.g. Algebra, Chemical bonding"
+              <AdminSelect
                 value={form.class_focus}
                 onChange={(e) => setForm((f) => ({ ...f, class_focus: e.target.value }))}
-              />
+              >
+                <option value="">Select class focus…</option>
+                {CLASS_FOCUS_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </AdminSelect>
             </div>
 
             <div className={FEEDBACK_FORM_FIELD}>

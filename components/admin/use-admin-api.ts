@@ -24,11 +24,12 @@ export function getAdminNavGroupsForRole(role: ClasszPortalRole): AdminNavGroup[
   if (role === "coach") {
     return getCoachNavGroups()
   }
-  const base = allGroups()
   if (role === "platform_admin") {
-    return [...PLATFORM_ONLY, ...base.filter((g) => g.titleEn === "Content")]
+    const centerGroups = getCenterAdminNavGroups()
+    const centerOnly = centerGroups.filter((group) => group.titleEn !== "Overview")
+    return [...PLATFORM_ONLY, ...centerOnly]
   }
-  return base
+  return allGroups()
 }
 
 export function isDemoSession(): boolean {

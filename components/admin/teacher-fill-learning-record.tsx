@@ -9,6 +9,7 @@ import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPost } from "@/lib/classz-api-client"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 import {
+  CLASS_FOCUS_OPTIONS,
   countWords,
   emptyActivityLearningRecordForm,
   LEARNING_AREA_OPTIONS,
@@ -240,11 +241,17 @@ export function TeacherFillLearningRecord() {
 
           <div>
             <AdminLabel>{zh ? "課堂焦點" : "Class focus"}</AdminLabel>
-            <AdminInput
+            <AdminSelect
               value={form.class_focus}
               onChange={(e) => setForm((f) => ({ ...f, class_focus: e.target.value }))}
-              placeholder={zh ? "例：STEM 體驗站觀察" : "e.g. STEM station observation"}
-            />
+            >
+              <option value="">{zh ? "請選擇課堂焦點" : "Select class focus"}</option>
+              {CLASS_FOCUS_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </AdminSelect>
           </div>
 
           {(
