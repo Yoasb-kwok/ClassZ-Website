@@ -321,10 +321,10 @@ export function TeachersManager() {
   const [perf, setPerf] = useState<unknown>(null)
   const [newSlot, setNewSlot] = useState<Slot>({ weekday: 1, start_time: "09:00", end_time: "12:00" })
   const [payForm, setPayForm] = useState({ period_start: "", period_end: "", classes_count: "0", amount: "0" })
-  const [loginForm, setLoginForm] = useState({ email: "", password: "111111" })
+  const [loginForm, setLoginForm] = useState({ email: "", password: "Classz2026" })
   const [createLoginEnabled, setCreateLoginEnabled] = useState(false)
   const [createLoginEmail, setCreateLoginEmail] = useState("")
-  const [createLoginPassword, setCreateLoginPassword] = useState("111111")
+  const [createLoginPassword, setCreateLoginPassword] = useState("Classz2026")
   const [bulkCreatingRoster, setBulkCreatingRoster] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [autoSyncAttempted, setAutoSyncAttempted] = useState(false)
@@ -436,7 +436,7 @@ export function TeachersManager() {
     setForm(EMPTY_FORM)
     setCreateLoginEnabled(false)
     setCreateLoginEmail("")
-    setCreateLoginPassword("111111")
+    setCreateLoginPassword("Classz2026")
     setModal("create")
   }
 
@@ -476,7 +476,7 @@ export function TeachersManager() {
     setEditing(null)
     setCreateLoginEnabled(false)
     setCreateLoginEmail("")
-    setCreateLoginPassword("111111")
+    setCreateLoginPassword("Classz2026")
   }
 
   function openLogin(i: Instructor) {
@@ -484,7 +484,7 @@ export function TeachersManager() {
     setEditing(i)
     setLoginForm({
       email: existing?.email || "",
-      password: "111111",
+      password: "Classz2026",
     })
     setModal("login")
   }
