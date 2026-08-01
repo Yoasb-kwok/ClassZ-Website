@@ -16,6 +16,7 @@ export const SECTIONS = [
 export type LearningCompanionReport = {
   id?: number
   profile_id?: number
+  report_language?: "en" | "zh" | string
   student_name?: string | null
   status: string
   records_used?: number
@@ -25,14 +26,24 @@ export type LearningCompanionReport = {
   algorithm_json?: unknown
   narrative_json?: {
     report_status?: string
+    report_language?: "en" | "zh" | string
     sections?: Record<string, unknown>
     supporting_descriptions?: unknown[]
+    learning_companion_section?: Record<string, unknown>
+    supporting_companion_sections?: unknown[]
+    ai_sections?: Record<string, unknown>
+    validation_errors?: string[]
   } | null
   /** Present on freshly generated API payload */
   narrative?: {
     report_status?: string
+    report_language?: "en" | "zh" | string
     sections?: Record<string, unknown>
     supporting_descriptions?: unknown[]
+    learning_companion_section?: Record<string, unknown>
+    supporting_companion_sections?: unknown[]
+    ai_sections?: Record<string, unknown>
+    validation_errors?: string[]
   } | null
   validation_log?: unknown
   created_at?: string

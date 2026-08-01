@@ -1,12 +1,20 @@
 /**
- * Build a print-ready HTML Learning Companion report (Train.ipynb-style PDF).
- * Prints via a hidden iframe so the app does not navigate to a blank page.
+ * Print-ready Learning Companion report HTML — matches ClassZ sample PDF layout
+ * (animal hero, often observed, what may help, theory, supporting, personalised sections).
  */
 
+import {
+  COMPANION_ANIMALS,
+  PARENT_REMINDER,
+  Z_SIR_SRC,
+  poseForSlot,
+  resolveCompanionAnimal,
+  type CompanionAnimalMeta,
+} from "@/lib/learning-companion-animals"
 import { SECTIONS, type LearningCompanionReport } from "@/lib/learning-companion-report"
 
 const SECTION_LABELS_EN: Record<string, string> = {
-  current_learning_portrait: "Current learning portrait",
+  current_learning_portrait: "Your child's current learning portrait",
   how_they_approach_something_new: "How they approach something new",
   how_they_respond_to_challenge: "How they respond to challenge",
   how_they_learn_with_other_people: "How they learn with other people",
@@ -36,89 +44,250 @@ function sectionPlain(value: unknown): string {
   return String(value)
 }
 
+function absoluteAssetUrl(path: string) {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}${path}`
+  }
+  return path
+}
+
+type CompanionSection = {
+  animal_title?: string
+  emoji?: string
+  hero_line?: string
+  confidence_message?: string
+  meaning_paragraph_1?: string
+  meaning_paragraph_2?: string
+  What_this_mean1?: string
+  What_this_mean2?: string
+  often_observed_as?: string[]
+  Often_observed_as?: string[]
+  what_may_help?: string[]
+  What_may_help?: string[]
+  theory?: string
+  parent_reminder?: string
+}
+
 function narrativeBag(report: LearningCompanionReport) {
   return (report.narrative_json || report.narrative || {}) as Record<string, unknown>
 }
 
-export function buildLearningCompanionPdfHtml(report: LearningCompanionReport): string {
+function getCompanionSection(narrative: Record<string, unknown>): CompanionSection | undefined {
+  return (narrative.learning_companion_section || undefined) as CompanionSection | undefined
+}
+
+function chipsHtml(items: string[], accent: string) {
+  return items
+    .map(
+      (item) =>
+        `<span class="chip" style="border-color:${escapeHtml(accent)}33;color:${escapeHtml(accent)}">${escapeHtml(item)}</span>`,
+    )
+    .join("")
+}
+
+export function buildLearningCompanionPdfHtml(
+  report: LearningCompanionReport,
+  options?: { assetBase?: string },
+): string {
   const narrative = narrativeBag(report)
   const sections = (narrative.sections || narrative.ai_sections || {}) as Record<string, unknown>
-  const companion = narrative.learning_companion_section as
-    | {
-        animal_title?: string
-        What_this_mean1?: string
-        What_this_mean2?: string
-        emoji?: string
-        What_may_help?: string[]
-      }
-    | undefined
+  const companion = getCompanionSection(narrative)
   const supporting = (narrative.supporting_descriptions ||
     narrative.supporting_companion_sections ||
-    []) as Array<{ animal_title?: string; companion_key?: string; text?: string }>
+    []) as Array<{ animal_title?: string; companion_key?: string; text?: string; emoji?: string }>
+
+  const animal =
+    resolveCompanionAnimal(companion?.animal_title) ||
+    resolveCompanionAnimal(report.primary_companion) ||
+    COMPANION_ANIMALS.Rabbit
 
   const name = escapeHtml(report.student_name || "Student")
-  const primary = escapeHtml(report.primary_companion || "—")
-  const supportingLabels = Array.isArray(report.supporting_companions)
-    ? report.supporting_companions.map(escapeHtml).join(", ")
-    : ""
-  const created = report.created_at
-    ? escapeHtml(new Date(report.created_at).toLocaleString("en-HK"))
-    : ""
+  const recordsUsed = report.records_used || 0
+  const heroLine =
+    companion?.hero_line ||
+    `Across recent ClassZ records, your child was often observed as ${(companion?.often_observed_as || companion?.Often_observed_as || animal.oftenObservedAs)
+      .slice(0, 4)
+      .join(", ")
+      .toLowerCase()}.`
+  const confidence =
+    companion?.confidence_message ||
+    `Based on ${recordsUsed || "recent"} learning records. Similar learning patterns have appeared repeatedly across the recent records.`
+  const meaning1 = companion?.meaning_paragraph_1 || companion?.What_this_mean1 || animal.meaning1
+  const meaning2 = companion?.meaning_paragraph_2 || companion?.What_this_mean2 || animal.meaning2
+  const observed = companion?.often_observed_as || companion?.Often_observed_as || animal.oftenObservedAs
+  const help = companion?.what_may_help || companion?.What_may_help || animal.whatMayHelp
+  const theory = companion?.theory || animal.theory
+  const reminder = companion?.parent_reminder || PARENT_REMINDER
+
+  const asset = (path: string) => {
+    const abs = options?.assetBase ? `${options.assetBase}${path}` : absoluteAssetUrl(path)
+    return escapeHtml(abs)
+  }
+
+  const poseCover = poseForSlot(animal, "cover")
+  const poseHelp = poseForSlot(animal, "what_may_help")
+  const poseTheory = poseForSlot(animal, "why_we_think_this")
+  const poseSupport = poseForSlot(animal, "supporting")
+  const poseInterp = poseForSlot(animal, "personalised_interpretation")
+  const poseNext = poseForSlot(animal, "strategies_and_next")
+
+  const earlySectionKeys = SECTIONS.slice(0, 5)
+  const laterSectionKeys = SECTIONS.slice(5)
 
   let body = `
-    <header>
-      <p class="brand">ClassZ Learning Companion</p>
-      <h1>${name}</h1>
-      <p class="meta">Primary: <strong>${primary}</strong>
-        ${supportingLabels ? ` · Supporting: ${supportingLabels}` : ""}
-      </p>
-      <p class="meta">${report.records_used || 0} records analysed${created ? ` · ${created}` : ""}</p>
+    <header class="cover" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
+      <div class="cover-top">
+        <div class="brand-row">
+          <img class="z-sir" src="${asset(Z_SIR_SRC)}" alt="ClassZ" />
+          <p class="brand">ClassZ · Learning Companion Report</p>
+        </div>
+        <div class="title-row">
+          <div>
+            <h1>${escapeHtml(animal.label)}</h1>
+            <p class="snapshot">Snapshot for <strong>${name}</strong> · based on recent class records</p>
+          </div>
+          <div class="initial" aria-hidden="true">${escapeHtml(animal.initial)}</div>
+        </div>
+      </div>
+
+      <div class="section-split">
+        <div class="section-copy">
+          <p class="hero-line">${escapeHtml(heroLine)}</p>
+          <p class="meta">${escapeHtml(confidence)}</p>
+          <p>${escapeHtml(meaning1)}</p>
+          <p>${escapeHtml(meaning2)}</p>
+          <p class="disclaimer">This does not mean ${name} always learns this way. It is a recent snapshot based on repeated coach and tutor observations.</p>
+          <h3>Often observed as</h3>
+          <div class="chips">${chipsHtml(observed, animal.accent)}</div>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="${asset(poseCover)}" alt="${escapeHtml(animal.label)}" />
+        </div>
+      </div>
     </header>
+
+    <section class="pose-section" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
+      <div class="section-split reverse">
+        <div class="section-copy">
+          <h2>What may help</h2>
+          <ul class="help-list">
+            ${help.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="${asset(poseHelp)}" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <section class="pose-section theory-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
+      <div class="section-split">
+        <div class="section-copy">
+          <h2>Why we think this</h2>
+          <p>${escapeHtml(theory)}</p>
+          <p class="reminder">${escapeHtml(reminder)}</p>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="${asset(poseTheory)}" alt="" />
+        </div>
+      </div>
+    </section>
   `
 
-  if (companion) {
+  if (supporting.length) {
     body += `
-      <section>
-        <h2>${escapeHtml((companion.emoji ? `${companion.emoji} ` : "") + (companion.animal_title || report.primary_companion || ""))}</h2>
-        ${companion.What_this_mean1 ? `<p>${escapeHtml(companion.What_this_mean1)}</p>` : ""}
-        ${companion.What_this_mean2 ? `<p>${escapeHtml(companion.What_this_mean2)}</p>` : ""}
-        ${
-          Array.isArray(companion.What_may_help) && companion.What_may_help.length
-            ? `<h3>What may help</h3><ul>${companion.What_may_help.map((x) => `<li>${escapeHtml(String(x))}</li>`).join("")}</ul>`
-            : ""
-        }
+      <section class="pose-section supporting-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
+        <div class="section-split reverse">
+          <div class="section-copy">
+            <h2>Also reflected in ${name}'s learning</h2>
+    `
+    for (const s of supporting) {
+      const supportAnimal =
+        resolveCompanionAnimal(s.animal_title) || resolveCompanionAnimal(s.companion_key)
+      const label = s.animal_title || supportAnimal?.label || s.companion_key || "Supporting"
+      const t = s.text || sectionPlain(s)
+      if (!t) continue
+      const accent = supportAnimal?.accent || "#0ABAB5"
+      const soft = supportAnimal?.accentSoft || "#E7F8F7"
+      const initial = supportAnimal?.initial || label.charAt(0).toUpperCase()
+      const thumb = supportAnimal ? poseForSlot(supportAnimal, "cover") : ""
+      body += `
+        <div class="supporting" style="--accent:${escapeHtml(accent)};--accent-soft:${escapeHtml(soft)}">
+          <div class="supporting-head">
+            ${thumb ? `<img class="supporting-thumb" src="${asset(thumb)}" alt="" />` : ""}
+            <div>
+              <h3>${escapeHtml(label)}</h3>
+            </div>
+            <div class="initial small">${escapeHtml(initial)}</div>
+          </div>
+          <p>${escapeHtml(t)}</p>
+        </div>
+      `
+    }
+    body += `
+          </div>
+          <div class="section-art">
+            <img class="pose" src="${asset(poseSupport)}" alt="" />
+          </div>
+        </div>
       </section>
     `
   }
 
-  for (const key of SECTIONS) {
+  body += `
+    <section class="pose-section interpretation" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
+      <div class="section-split">
+        <div class="section-copy">
+          <h2>Personalised interpretation</h2>
+  `
+  for (const key of earlySectionKeys) {
     const raw = sections[key]
     const text = sectionPlain(raw)
     if (!text) continue
     const title = SECTION_LABELS_EN[key] || key
     if (Array.isArray(raw)) {
-      body += `<section><h2>${escapeHtml(title)}</h2><ul>${raw
+      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><ul>${raw
         .map((item) => `<li>${escapeHtml(String(item))}</li>`)
-        .join("")}</ul></section>`
+        .join("")}</ul></div>`
     } else {
-      body += `<section><h2>${escapeHtml(title)}</h2><p>${escapeHtml(text)}</p></section>`
+      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
     }
   }
-
-  if (supporting.length) {
-    body += `<section><h2>Supporting companions</h2>`
-    for (const s of supporting) {
-      const label = s.animal_title || s.companion_key || "Supporting"
-      const t = s.text || sectionPlain(s)
-      if (!t) continue
-      body += `<div class="supporting"><h3>${escapeHtml(label)}</h3><p>${escapeHtml(t)}</p></div>`
-    }
-    body += `</section>`
-  }
-
   body += `
+        </div>
+        <div class="section-art">
+          <img class="pose" src="${asset(poseInterp)}" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <section class="pose-section strategies" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
+      <div class="section-split reverse">
+        <div class="section-copy">
+  `
+  for (const key of laterSectionKeys) {
+    const raw = sections[key]
+    const text = sectionPlain(raw)
+    if (!text) continue
+    const title = SECTION_LABELS_EN[key] || key
+    if (Array.isArray(raw)) {
+      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><ul>${raw
+        .map((item) => `<li>${escapeHtml(String(item))}</li>`)
+        .join("")}</ul></div>`
+    } else {
+      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
+    }
+  }
+  body += `
+        </div>
+        <div class="section-art">
+          <img class="pose" src="${asset(poseNext)}" alt="" />
+        </div>
+      </div>
+    </section>
+
     <footer>
-      <p>This is not a diagnosis or a fixed personality label — it is a recent snapshot based on ClassZ learning records and may change as your child joins more classes.</p>
+      <p>${escapeHtml(reminder)}</p>
     </footer>
   `
 
@@ -126,28 +295,80 @@ export function buildLearningCompanionPdfHtml(report: LearningCompanionReport): 
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>ClassZ Learning Companion — ${name}</title>
+  <title>ClassZ Learning Companion — ${name} · ${escapeHtml(animal.label)}</title>
   <style>
-    @page { margin: 18mm 16mm; }
+    @page { margin: 14mm 12mm; }
+    :root { --ink:#2c3a3b; --muted:#667778; --line:#d7e3e3; --brand:#0ABAB5; }
+    * { box-sizing: border-box; }
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: #2c3a3b;
+      color: var(--ink);
       line-height: 1.55;
       font-size: 12.5px;
-      max-width: 720px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 18px;
+      background: #fff;
     }
-    .brand { color: #0ABAB5; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 11px; margin: 0 0 4px; }
-    h1 { font-size: 22px; margin: 0 0 8px; color: #1f2d2e; }
-    h2 { font-size: 15px; margin: 22px 0 8px; border-bottom: 1px solid #d7e3e3; padding-bottom: 4px; color: #0ABAB5; }
-    h3 { font-size: 13px; margin: 10px 0 4px; color: #4C5B5C; }
-    .meta { color: #667778; font-size: 11.5px; margin: 2px 0; }
+    .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .z-sir { width:42px; height:42px; object-fit:contain; }
+    .brand { color: var(--brand); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 11px; margin: 0; }
+    .cover { border:1px solid var(--line); border-radius:18px; overflow:hidden; background:linear-gradient(180deg, var(--accent-soft), #fff 48%); }
+    .cover-top { padding:18px 18px 0; }
+    .title-row { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+    h1 { font-size: 26px; margin: 0 0 6px; color: #1f2d2e; }
+    .snapshot { color: var(--muted); margin:0 0 12px; }
+    .initial {
+      width:48px; height:48px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+      background: var(--accent); color:#fff; font-weight:800; font-size:22px; flex-shrink:0;
+    }
+    .initial.small { width:36px; height:36px; font-size:16px; }
+    .pose-section { margin-top: 18px; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+    .theory-block { background: var(--accent-soft); }
+    .section-split {
+      display:grid; grid-template-columns: 1.2fr 0.8fr; gap:16px; padding:16px 18px; align-items:center;
+    }
+    .section-split.reverse { grid-template-columns: 0.8fr 1.2fr; }
+    .section-split.reverse .section-art { order: -1; }
+    .section-art { text-align:center; }
+    .pose {
+      width:100%; max-width:260px; height:180px; object-fit:contain; object-position:center;
+      background:#0b0b0b; border-radius:16px; padding:8px;
+    }
+    .hero-line { font-size:14px; font-weight:600; }
+    .meta { color: var(--muted); font-size: 11.5px; }
+    .disclaimer { color: var(--muted); font-size:11px; }
+    h2 { font-size: 15px; margin: 0 0 8px; color: var(--brand); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+    h3 { font-size: 12.5px; margin: 14px 0 6px; color: #4C5B5C; text-transform: uppercase; letter-spacing: 0.04em; }
     p { margin: 0 0 8px; }
-    ul { margin: 0 0 8px; padding-left: 1.2rem; }
+    ul { margin: 0 0 8px; padding-left: 1.15rem; }
     li { margin-bottom: 4px; }
-    .supporting { background: #f4fafa; padding: 10px 12px; border-radius: 6px; margin: 8px 0; }
-    footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #d7e3e3; color: #7a8889; font-size: 10.5px; }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+    .chip {
+      display:inline-flex; align-items:center; border:1px solid; border-radius:999px;
+      padding:4px 10px; font-size:11px; background:#fff; font-weight:600;
+    }
+    .reminder { color: var(--muted); font-size:11px; margin-top:10px; }
+    .supporting {
+      background: #fff; border:1px solid color-mix(in srgb, var(--accent) 25%, white);
+      border-radius:12px; padding:12px 14px; margin:10px 0;
+    }
+    .supporting-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .supporting-head h3 { margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--accent); }
+    .supporting-thumb {
+      width:48px; height:48px; object-fit:contain; background:#111; border-radius:10px; padding:3px;
+    }
+    .section-card { margin: 12px 0 16px; }
+    .section-card h3 { text-transform:none; letter-spacing:0; font-size:14px; color:#1f2d2e; margin-bottom:6px; }
+    footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line); color: #7a8889; font-size: 10.5px; }
+    @media print {
+      body { padding: 0; }
+      .cover, .pose-section, .supporting { break-inside: avoid; }
+    }
+    @media (max-width: 720px) {
+      .section-split, .section-split.reverse { grid-template-columns: 1fr; }
+      .section-split.reverse .section-art { order: 0; }
+    }
   </style>
 </head>
 <body>
@@ -195,13 +416,74 @@ export function exportLearningCompanionPdf(report: LearningCompanionReport) {
       win.focus()
       win.print()
     } finally {
-      // Remove frame after print dialog closes (or shortly if afterprint unsupported)
       const done = () => cleanup()
       win.addEventListener?.("afterprint", done, { once: true })
       setTimeout(done, 60_000)
     }
   }
 
-  // Give the iframe a tick to layout fonts/styles
   setTimeout(runPrint, 300)
+}
+
+export function buildSampleCompanionReport(
+  animal: CompanionAnimalMeta,
+  studentName: string,
+): LearningCompanionReport {
+  const supportKeys = (Object.keys(COMPANION_ANIMALS) as Array<keyof typeof COMPANION_ANIMALS>)
+    .filter((k) => k !== animal.key)
+    .slice(0, 2)
+
+  return {
+    status: "complete",
+    student_name: studentName,
+    records_used: 6,
+    records_required: 3,
+    primary_companion: animal.label,
+    supporting_companions: supportKeys.map((k) => COMPANION_ANIMALS[k].label),
+    created_at: new Date().toISOString(),
+    narrative: {
+      report_status: "complete",
+      learning_companion_section: {
+        animal_title: animal.label,
+        emoji: animal.emoji,
+        hero_line: `Across recent ClassZ records, your child was often observed as ${animal.oftenObservedAs
+          .slice(0, 4)
+          .join(", ")
+          .toLowerCase()}.`,
+        confidence_message:
+          "Based on 6 recent learning records. Similar learning patterns have appeared repeatedly across the recent records.",
+        meaning_paragraph_1: animal.meaning1,
+        meaning_paragraph_2: animal.meaning2,
+        often_observed_as: animal.oftenObservedAs,
+        what_may_help: animal.whatMayHelp,
+        theory: animal.theory,
+        parent_reminder: PARENT_REMINDER,
+      },
+      supporting_companion_sections: supportKeys.map((k) => ({
+        companion_key: k,
+        animal_title: COMPANION_ANIMALS[k].label,
+        emoji: COMPANION_ANIMALS[k].emoji,
+        text: `In recent STEM sessions, a complementary ${COMPANION_ANIMALS[k].shortName.toLowerCase()} pattern appeared alongside the primary ${animal.shortName.toLowerCase()} style. This adds another useful dimension to how your child approaches learning.`,
+      })),
+      sections: {
+        current_learning_portrait: `Across recent STEM sessions, your child has shown a clear ${animal.shortName.toLowerCase()} learning pattern. Similar learning patterns have appeared repeatedly across the recent records, giving a stable snapshot of how they currently approach class activities.`,
+        how_they_approach_something_new: `When something new appears, your child tends to lean on the strengths associated with the ${animal.label}. This helps them settle into unfamiliar tasks with a recognisable style.`,
+        how_they_respond_to_challenge: `When challenged, they often return to the habits coaches have seen repeatedly — especially ${animal.oftenObservedAs[0].toLowerCase()} and ${animal.oftenObservedAs[1].toLowerCase()}.`,
+        how_they_learn_with_other_people:
+          "There is growing evidence about how they work with others, though more collaborative sessions will make this clearer.",
+        how_they_respond_to_guidance_and_feedback:
+          "Your child generally makes good use of guidance, adjusting their approach after clear feedback from coaches.",
+        conditions_that_bring_out_their_best: animal.whatMayHelp.slice(0, 2).join(" "),
+        what_parents_may_notice_at_home: `At home, you may notice behaviours that match this ${animal.shortName.toLowerCase()} snapshot — especially when tasks feel new, structured, or interesting.`,
+        personalised_strategies: animal.whatMayHelp.slice(0, 4),
+        what_classz_will_continue_observing: [
+          "Whether the same pattern appears across more subjects and class formats.",
+          "How supporting companions grow or fade with more records.",
+          "How guidance and collaboration develop over time.",
+        ],
+        evidence_and_confidence:
+          "This portrait is based on 6 valid records. The pattern is useful for coaching and home support, and may evolve as more classes are completed.",
+      },
+    },
+  } as LearningCompanionReport
 }

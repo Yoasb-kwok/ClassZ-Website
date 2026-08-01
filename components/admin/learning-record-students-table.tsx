@@ -2,10 +2,10 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, Upload, UserPlus } from "lucide-react"
+import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, Trash2, Upload, UserPlus } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
-import { apiGet, apiPost } from "@/lib/classz-api-client"
+import { apiDelete, apiGet, apiPost } from "@/lib/classz-api-client"
 import {
   formatRecordSummary,
   progressLevelLabel,
@@ -38,6 +38,7 @@ export type LearningRecordStudent = {
   contact_number: string
   parent_email: string
   record_count: number
+  report_count?: number
   enrollments: Array<{
     enrollment_id: number
     class_id: number
@@ -100,6 +101,7 @@ const CSV_HEADER_KEYS: Record<string, keyof ImportStudentRow> = {
   sex: "sex",
 }
 const MIN_RECORDS_FOR_REPORT = 3
+type ReportLanguage = "en" | "zh"
 
 function parseCsvRows(text: string): string[][] {
   const rows: string[][] = []
@@ -230,6 +232,8 @@ export function LearningRecordStudentsTable({
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
 
   const [generatingId, setGeneratingId] = useState<number | null>(null)
+  const [deletingProfileId, setDeletingProfileId] = useState<number | null>(null)
+  const [reportLanguageByProfile, setReportLanguageByProfile] = useState<Record<number, ReportLanguage>>({})
   const [reportOpen, setReportOpen] = useState(false)
   const [activeReport, setActiveReport] = useState<LearningCompanionReport | null>(null)
   const [reportError, setReportError] = useState<string | null>(null)
@@ -424,7 +428,11 @@ export function LearningRecordStudentsTable({
     }
   }
 
-  async function generateReport(profileId: number, e?: React.MouseEvent) {
+  function preferredReportLanguage(profileId: number): ReportLanguage {
+    return reportLanguageByProfile[profileId] || (zh ? "zh" : "en")
+  }
+
+  async function generateReport(profileId: number, language: ReportLanguage, e?: React.MouseEvent) {
     e?.stopPropagation()
     if (demo) return
     setGeneratingId(profileId)
@@ -432,7 +440,7 @@ export function LearningRecordStudentsTable({
     try {
       const data = await apiPost<LearningCompanionReport>(
         `/learning-record-students/${profileId}/generate-report`,
-        {},
+        { report_language: language },
       )
       setActiveReport(data)
       setReportOpen(true)
@@ -475,6 +483,45 @@ export function LearningRecordStudentsTable({
       setReportError(err instanceof Error ? err.message : "Load failed")
       setActiveReport(null)
       setReportOpen(true)
+    }
+  }
+
+  async function deleteLatestReport(profileId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    const ok = window.confirm(zh ? "確定要刪除最新一份已產生報告？" : "Delete the latest generated report?")
+    if (!ok) return
+
+    setDeletingProfileId(profileId)
+    setReportError(null)
+    try {
+      let list = savedReports[profileId]
+      if (!list) {
+        list = await apiGet<LearningCompanionReport[]>(`/learning-record-students/${profileId}/reports`)
+        list = Array.isArray(list) ? list : []
+      }
+      const latest = list[0]
+      if (!latest?.id) {
+        setReportError(zh ? "尚未有可刪除的報告" : "No report to delete")
+        setActiveReport(null)
+        setReportOpen(true)
+        return
+      }
+
+      await apiDelete(`/learning-companion-reports/${latest.id}`)
+      const nextList = list.filter((item) => item.id !== latest.id)
+      setSavedReports((prev) => ({ ...prev, [profileId]: nextList }))
+      await load()
+
+      if (activeReport?.id === latest.id) {
+        setActiveReport(nextList[0] || null)
+        setReportOpen(Boolean(nextList[0]))
+      }
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Delete failed")
+      setReportOpen(true)
+    } finally {
+      setDeletingProfileId(null)
     }
   }
 
@@ -674,21 +721,61 @@ export function LearningRecordStudentsTable({
                           <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="inline-flex min-w-[14rem] flex-wrap justify-end gap-1.5">
                               {r.record_count >= MIN_RECORDS_FOR_REPORT ? (
-                                <AdminPrimaryButton
-                                  type="button"
-                                  className="text-sm py-1.5 px-3 inline-flex"
-                                  disabled={generatingId === r.profile_id || demo}
-                                  onClick={(e) => generateReport(r.profile_id, e)}
-                                >
-                                  <FileText className="h-3.5 w-3.5" />
-                                  {generatingId === r.profile_id
-                                    ? zh
-                                      ? "產生中…"
-                                      : "Generating…"
-                                    : zh
-                                      ? "產生報告"
-                                      : "Generate report"}
-                                </AdminPrimaryButton>
+                                <div className="inline-flex items-center gap-1.5">
+                                  <div className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5">
+                                    <button
+                                      type="button"
+                                      className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                                        preferredReportLanguage(r.profile_id) === "en"
+                                          ? "bg-brand-teal text-white"
+                                          : "text-brand-slate hover:bg-classz-50"
+                                      }`}
+                                      disabled={generatingId === r.profile_id || demo}
+                                      onClick={() =>
+                                        setReportLanguageByProfile((prev) => ({
+                                          ...prev,
+                                          [r.profile_id]: "en",
+                                        }))
+                                      }
+                                      title={zh ? "切換為英文報告" : "Switch to English report"}
+                                    >
+                                      EN
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                                        preferredReportLanguage(r.profile_id) === "zh"
+                                          ? "bg-brand-teal text-white"
+                                          : "text-brand-slate hover:bg-classz-50"
+                                      }`}
+                                      disabled={generatingId === r.profile_id || demo}
+                                      onClick={() =>
+                                        setReportLanguageByProfile((prev) => ({
+                                          ...prev,
+                                          [r.profile_id]: "zh",
+                                        }))
+                                      }
+                                      title={zh ? "切換為中文報告" : "Switch to Chinese report"}
+                                    >
+                                      中文
+                                    </button>
+                                  </div>
+                                  <AdminPrimaryButton
+                                    type="button"
+                                    className="text-sm py-1.5 px-3 inline-flex"
+                                    disabled={generatingId === r.profile_id || demo}
+                                    onClick={(e) => generateReport(r.profile_id, preferredReportLanguage(r.profile_id), e)}
+                                  >
+                                    <FileText className="h-3.5 w-3.5" />
+                                    {generatingId === r.profile_id
+                                      ? zh
+                                        ? "產生中…"
+                                        : "Generating…"
+                                      : zh
+                                        ? "產生報告"
+                                        : "Generate report"}
+                                  </AdminPrimaryButton>
+                                </div>
                               ) : (
                                 <span className="text-[11px] text-brand-slate/45 self-center">
                                   {zh
@@ -696,24 +783,45 @@ export function LearningRecordStudentsTable({
                                     : `Need ${MIN_RECORDS_FOR_REPORT - r.record_count} more`}
                                 </span>
                               )}
-                              <AdminGhostButton
-                                type="button"
-                                className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
-                                disabled={demo}
-                                onClick={(e) => viewLatestReport(r.profile_id, e)}
-                              >
-                                <Eye className="h-3.5 w-3.5" />
-                                {zh ? "查看報告" : "Check report"}
-                              </AdminGhostButton>
-                              <AdminGhostButton
-                                type="button"
-                                className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
-                                disabled={demo}
-                                onClick={(e) => exportPdfForProfile(r.profile_id, e)}
-                              >
-                                <Download className="h-3.5 w-3.5" />
-                                PDF
-                              </AdminGhostButton>
+                              {(Number(r.report_count) || 0) > 0 ? (
+                                <AdminGhostButton
+                                  type="button"
+                                  className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
+                                  disabled={demo}
+                                  onClick={(e) => viewLatestReport(r.profile_id, e)}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                  {zh ? "查看報告" : "Check report"}
+                                </AdminGhostButton>
+                              ) : null}
+                              {(Number(r.report_count) || 0) > 0 ? (
+                                <AdminGhostButton
+                                  type="button"
+                                  className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
+                                  disabled={demo}
+                                  onClick={(e) => exportPdfForProfile(r.profile_id, e)}
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                  PDF
+                                </AdminGhostButton>
+                              ) : null}
+                              {(Number(r.report_count) || 0) > 0 ? (
+                                <AdminGhostButton
+                                  type="button"
+                                  className="text-sm py-1.5 px-2 inline-flex items-center gap-1 text-brand-coral border-brand-coral/30 hover:bg-brand-coral/10"
+                                  disabled={demo || deletingProfileId === r.profile_id}
+                                  onClick={(e) => deleteLatestReport(r.profile_id, e)}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                  {deletingProfileId === r.profile_id
+                                    ? zh
+                                      ? "刪除中…"
+                                      : "Deleting…"
+                                    : zh
+                                      ? "刪除報告"
+                                      : "Delete report"}
+                                </AdminGhostButton>
+                              ) : null}
                             </div>
                           </td>
                         )}

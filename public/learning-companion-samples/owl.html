@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ClassZ Learning Companion — Emily Wong · Owl Thoughtful Learner</title>
+  <style>
+    @page { margin: 14mm 12mm; }
+    :root { --ink:#2c3a3b; --muted:#667778; --line:#d7e3e3; --brand:#0ABAB5; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.55;
+      font-size: 12.5px;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 18px;
+      background: #fff;
+    }
+    .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .z-sir { width:42px; height:42px; object-fit:contain; }
+    .brand { color: var(--brand); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 11px; margin: 0; }
+    .cover { border:1px solid var(--line); border-radius:18px; overflow:hidden; background:linear-gradient(180deg, var(--accent-soft), #fff 48%); }
+    .cover-top { padding:18px 18px 0; }
+    .title-row { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+    h1 { font-size: 26px; margin: 0 0 6px; color: #1f2d2e; }
+    .snapshot { color: var(--muted); margin:0 0 12px; }
+    .initial {
+      width:48px; height:48px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+      background: var(--accent); color:#fff; font-weight:800; font-size:22px; flex-shrink:0;
+    }
+    .initial.small { width:36px; height:36px; font-size:16px; }
+    .pose-section { margin-top: 18px; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+    .theory-block { background: var(--accent-soft); }
+    .section-split {
+      display:grid; grid-template-columns: 1.2fr 0.8fr; gap:16px; padding:16px 18px; align-items:center;
+    }
+    .section-split.reverse { grid-template-columns: 0.8fr 1.2fr; }
+    .section-split.reverse .section-art { order: -1; }
+    .section-art { text-align:center; }
+    .pose {
+      width:100%; max-width:260px; height:180px; object-fit:contain; object-position:center;
+      background:#0b0b0b; border-radius:16px; padding:8px;
+    }
+    .hero-line { font-size:14px; font-weight:600; }
+    .meta { color: var(--muted); font-size: 11.5px; }
+    .disclaimer { color: var(--muted); font-size:11px; }
+    h2 { font-size: 15px; margin: 0 0 8px; color: var(--brand); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+    h3 { font-size: 12.5px; margin: 14px 0 6px; color: #4C5B5C; text-transform: uppercase; letter-spacing: 0.04em; }
+    p { margin: 0 0 8px; }
+    ul { margin: 0 0 8px; padding-left: 1.15rem; }
+    li { margin-bottom: 4px; }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+    .chip {
+      display:inline-flex; align-items:center; border:1px solid; border-radius:999px;
+      padding:4px 10px; font-size:11px; background:#fff; font-weight:600;
+    }
+    .reminder { color: var(--muted); font-size:11px; margin-top:10px; }
+    .supporting {
+      background: #fff; border:1px solid color-mix(in srgb, var(--accent) 25%, white);
+      border-radius:12px; padding:12px 14px; margin:10px 0;
+    }
+    .supporting-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .supporting-head h3 { margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--accent); }
+    .supporting-thumb {
+      width:48px; height:48px; object-fit:contain; background:#111; border-radius:10px; padding:3px;
+    }
+    .section-card { margin: 12px 0 16px; }
+    .section-card h3 { text-transform:none; letter-spacing:0; font-size:14px; color:#1f2d2e; margin-bottom:6px; }
+    footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line); color: #7a8889; font-size: 10.5px; }
+    @media print {
+      body { padding: 0; }
+      .cover, .pose-section, .supporting { break-inside: avoid; }
+    }
+    @media (max-width: 720px) {
+      .section-split, .section-split.reverse { grid-template-columns: 1fr; }
+      .section-split.reverse .section-art { order: 0; }
+    }
+  </style>
+</head>
+<body>
+  
+    <header class="cover" style="--accent:#4C5B5C;--accent-soft:#F2F5F5">
+      <div class="cover-top">
+        <div class="brand-row">
+          <img class="z-sir" src="/assets/learning-companion/z-sir.png" alt="ClassZ" />
+          <p class="brand">ClassZ · Learning Companion Report</p>
+        </div>
+        <div class="title-row">
+          <div>
+            <h1>Owl Thoughtful Learner</h1>
+            <p class="snapshot">Snapshot for <strong>Emily Wong</strong> · based on recent class records</p>
+          </div>
+          <div class="initial" aria-hidden="true">O</div>
+        </div>
+      </div>
+
+      <div class="section-split">
+        <div class="section-copy">
+          <p class="hero-line">Across recent ClassZ records, your child was often observed as working carefully, responding well to feedback, asks questions, checking mistakes carefully.</p>
+          <p class="meta">Based on 6 recent learning records. Similar learning patterns have appeared repeatedly across the recent records.</p>
+          <p>Your child may learn best when they have time to think, review their work, and receive clear feedback. They may show progress through careful practice, reflection, and gradual improvement rather than rushing into tasks.</p>
+          <p>They may benefit from understanding the reason behind a task and may improve well when feedback is specific and constructive.</p>
+          <p class="disclaimer">This does not mean Emily Wong always learns this way. It is a recent snapshot based on repeated coach and tutor observations.</p>
+          <h3>Often observed as</h3>
+          <div class="chips"><span class="chip" style="border-color:#4C5B5C33;color:#4C5B5C">Working carefully</span><span class="chip" style="border-color:#4C5B5C33;color:#4C5B5C">Responding well to feedback</span><span class="chip" style="border-color:#4C5B5C33;color:#4C5B5C">Asks questions</span><span class="chip" style="border-color:#4C5B5C33;color:#4C5B5C">Checking mistakes carefully</span></div>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="/assets/learning-companion/owl/pose-07.png" alt="Owl Thoughtful Learner" />
+        </div>
+      </div>
+    </header>
+
+    <section class="pose-section" style="--accent:#4C5B5C;--accent-soft:#F2F5F5">
+      <div class="section-split reverse">
+        <div class="section-copy">
+          <h2>What may help</h2>
+          <ul class="help-list">
+            <li>Give clear instructions and examples.</li><li>Allow time to process and review.</li><li>Encourage them to ask questions.</li><li>Praise effort, strategy, and improvement, not only results.</li><li>Help them notice what improved from last time.</li>
+          </ul>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="/assets/learning-companion/owl/pose-08.png" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <section class="pose-section theory-block" style="--accent:#4C5B5C;--accent-soft:#F2F5F5">
+      <div class="section-split">
+        <div class="section-copy">
+          <h2>Why we think this</h2>
+          <p>This is grounded in the idea that children learn well when feedback and support match their current level of development. Vygotsky’s Zone of Proximal Development describes the space between what a learner can do independently and what they can do with guidance, which supports the idea of showing “what helps next” rather than only judging performance.</p>
+          <p class="reminder">This is not a diagnosis or a fixed personality label — it's a recent snapshot based on ClassZ records, and it may change as your child joins more classes and receives more feedback.</p>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="/assets/learning-companion/owl/pose-09.png" alt="" />
+        </div>
+      </div>
+    </section>
+  
+      <section class="pose-section supporting-block" style="--accent:#4C5B5C;--accent-soft:#F2F5F5">
+        <div class="section-split reverse">
+          <div class="section-copy">
+            <h2>Also reflected in Emily Wong's learning</h2>
+    
+        <div class="supporting" style="--accent:#0ABAB5;--accent-soft:#E7F8F7">
+          <div class="supporting-head">
+            <img class="supporting-thumb" src="/assets/learning-companion/rabbit/pose-01.png" alt="" />
+            <div>
+              <h3>Rabbit Active Explorer</h3>
+            </div>
+            <div class="initial small">R</div>
+          </div>
+          <p>In recent STEM sessions, a complementary rabbit pattern appeared alongside the primary owl style. This adds another useful dimension to how your child approaches learning.</p>
+        </div>
+      
+        <div class="supporting" style="--accent:#2F8FCE;--accent-soft:#EAF5FC">
+          <div class="supporting-head">
+            <img class="supporting-thumb" src="/assets/learning-companion/dolphin/pose-13.png" alt="" />
+            <div>
+              <h3>Dolphin Social Collaborator</h3>
+            </div>
+            <div class="initial small">D</div>
+          </div>
+          <p>In recent STEM sessions, a complementary dolphin pattern appeared alongside the primary owl style. This adds another useful dimension to how your child approaches learning.</p>
+        </div>
+      
+          </div>
+          <div class="section-art">
+            <img class="pose" src="/assets/learning-companion/owl/pose-10.png" alt="" />
+          </div>
+        </div>
+      </section>
+    
+    <section class="pose-section interpretation" style="--accent:#4C5B5C;--accent-soft:#F2F5F5">
+      <div class="section-split">
+        <div class="section-copy">
+          <h2>Personalised interpretation</h2>
+  <div class="section-card"><h3>Your child's current learning portrait</h3><p>Across recent STEM sessions, your child has shown a clear owl learning pattern. Similar learning patterns have appeared repeatedly across the recent records, giving a stable snapshot of how they currently approach class activities.</p></div><div class="section-card"><h3>How they approach something new</h3><p>When something new appears, your child tends to lean on the strengths associated with the Owl Thoughtful Learner. This helps them settle into unfamiliar tasks with a recognisable style.</p></div><div class="section-card"><h3>How they respond to challenge</h3><p>When challenged, they often return to the habits coaches have seen repeatedly — especially working carefully and responding well to feedback.</p></div><div class="section-card"><h3>How they learn with other people</h3><p>There is growing evidence about how they work with others, though more collaborative sessions will make this clearer.</p></div><div class="section-card"><h3>How they respond to guidance and feedback</h3><p>Your child generally makes good use of guidance, adjusting their approach after clear feedback from coaches.</p></div>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="/assets/learning-companion/owl/pose-11.png" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <section class="pose-section strategies" style="--accent:#4C5B5C;--accent-soft:#F2F5F5">
+      <div class="section-split reverse">
+        <div class="section-copy">
+  <div class="section-card"><h3>Conditions that bring out their best</h3><p>Give clear instructions and examples. Allow time to process and review.</p></div><div class="section-card"><h3>What parents may notice at home</h3><p>At home, you may notice behaviours that match this owl snapshot — especially when tasks feel new, structured, or interesting.</p></div><div class="section-card"><h3>Personalised strategies</h3><ul><li>Give clear instructions and examples.</li><li>Allow time to process and review.</li><li>Encourage them to ask questions.</li><li>Praise effort, strategy, and improvement, not only results.</li></ul></div><div class="section-card"><h3>What ClassZ will continue observing</h3><ul><li>Whether the same pattern appears across more subjects and class formats.</li><li>How supporting companions grow or fade with more records.</li><li>How guidance and collaboration develop over time.</li></ul></div><div class="section-card"><h3>Evidence and confidence</h3><p>This portrait is based on 6 valid records. The pattern is useful for coaching and home support, and may evolve as more classes are completed.</p></div>
+        </div>
+        <div class="section-art">
+          <img class="pose" src="/assets/learning-companion/owl/pose-12.png" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>This is not a diagnosis or a fixed personality label — it's a recent snapshot based on ClassZ records, and it may change as your child joins more classes and receives more feedback.</p>
+    </footer>
+  
+</body>
+</html>
