@@ -81,6 +81,17 @@ const EMPTY_FORM: FormState = {
   background_image: "",
 }
 
+const DEFAULT_COMPANION_COACH_ROSTER = [
+  { name: "Karina", email: "karina@classz.co" },
+  { name: "Jason", email: "jason@classz.co" },
+  { name: "Jesse", email: "jesse@classz.co" },
+  { name: "Kelvin", email: "kelvin@classz.co" },
+  { name: "Stella", email: "stella@classz.co" },
+  { name: "Avery", email: "avery@classz.co" },
+  { name: "Lucas", email: "lucas@classz.co" },
+  { name: "Marvelle", email: "marvelle@classz.co" },
+] as const
+
 function awardsText(awards?: string[] | string | null) {
   if (!awards) return ""
   if (Array.isArray(awards)) return awards.join("\n")
@@ -311,6 +322,10 @@ export function TeachersManager() {
   const [newSlot, setNewSlot] = useState<Slot>({ weekday: 1, start_time: "09:00", end_time: "12:00" })
   const [payForm, setPayForm] = useState({ period_start: "", period_end: "", classes_count: "0", amount: "0" })
   const [loginForm, setLoginForm] = useState({ email: "", password: "111111" })
+  const [createLoginEnabled, setCreateLoginEnabled] = useState(false)
+  const [createLoginEmail, setCreateLoginEmail] = useState("")
+  const [createLoginPassword, setCreateLoginPassword] = useState("111111")
+  const [bulkCreatingRoster, setBulkCreatingRoster] = useState(false)
 
   const load = useCallback(async () => {
     if (demo) {
@@ -379,6 +394,9 @@ export function TeachersManager() {
   function openCreate() {
     setEditing(null)
     setForm(EMPTY_FORM)
+    setCreateLoginEnabled(false)
+    setCreateLoginEmail("")
+    setCreateLoginPassword("111111")
     setModal("create")
   }
 
@@ -416,6 +434,9 @@ export function TeachersManager() {
     if (saving) return
     setModal(null)
     setEditing(null)
+    setCreateLoginEnabled(false)
+    setCreateLoginEmail("")
+    setCreateLoginPassword("111111")
   }
 
   function openLogin(i: Instructor) {
@@ -472,11 +493,114 @@ export function TeachersManager() {
     }
   }
 
+  async function addDefaultCompanionCoachRoster() {
+    if (demo || bulkCreatingRoster) return
+    const password = window.prompt(
+      zh
+        ? "請輸入這批導師帳號的預設密碼（至少 6 碼）"
+        : "Enter default password for this coach roster (min 6 chars)",
+      "Classz2026",
+    )
+    if (password == null) return
+    if (password.length < 6) {
+      alert(zh ? "密碼至少 6 碼" : "Password must be at least 6 characters")
+      return
+    }
+    setBulkCreatingRoster(true)
+    try {
+      const latestInstructors = await apiGet<Instructor[]>("/instructors")
+      const latestCoaches = await apiGet<CoachAccount[]>("/coaches?include_inactive=1")
+      const instructorByName = new Map(
+        (Array.isArray(latestInstructors) ? latestInstructors : []).map((x) => [x.name.trim().toLowerCase(), x]),
+      )
+      const coachByEmail = new Map(
+        (Array.isArray(latestCoaches) ? latestCoaches : []).map((x) => [String(x.email || "").trim().toLowerCase(), x]),
+      )
+
+      const warnings: string[] = []
+      for (const item of DEFAULT_COMPANION_COACH_ROSTER) {
+        const key = item.name.trim().toLowerCase()
+        let instructor = instructorByName.get(key)
+        if (!instructor) {
+          instructor = await apiPost<Instructor>("/instructors", {
+            name: item.name,
+            profile_image_url: null,
+            intro: null,
+            awards: null,
+            dance_school: null,
+            background_image: null,
+          })
+          instructorByName.set(key, instructor)
+        }
+        try {
+          const emailKey = item.email.toLowerCase()
+          const existingCoach = coachByEmail.get(emailKey)
+          if (existingCoach?.id) {
+            await apiPatch(`/coaches/${existingCoach.id}`, {
+              full_name: item.name,
+              instructor_id: instructor?.id,
+              password,
+              isActivated: 1,
+            })
+          } else {
+            await apiPost("/coaches", {
+              email: item.email,
+              full_name: item.name,
+              instructor_id: instructor?.id,
+              password,
+            })
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Create coach failed"
+          warnings.push(`${item.name}: ${msg}`)
+        }
+      }
+
+      await load()
+      if (warnings.length) {
+        alert(
+          (zh
+            ? `已處理名單，但有部分帳號未更新：\n`
+            : `Roster processed with some account issues:\n`) + warnings.join("\n"),
+        )
+      } else {
+        alert(
+          zh
+            ? `已建立/更新 ${DEFAULT_COMPANION_COACH_ROSTER.length} 位 Companion 導師`
+            : `Created/updated ${DEFAULT_COMPANION_COACH_ROSTER.length} companion coaches`,
+        )
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed")
+    } finally {
+      setBulkCreatingRoster(false)
+    }
+  }
+
   async function saveCreate() {
     if (demo || !form.name.trim()) return
+    const loginEmail = createLoginEmail.trim().toLowerCase()
+    const loginPassword = createLoginPassword
+    if (createLoginEnabled) {
+      if (!loginEmail || loginPassword.length < 6) {
+        alert(zh ? "若同時建立登入，請填有效 Email 與至少 6 碼密碼" : "For login creation, provide valid email and password (min 6 chars).")
+        return
+      }
+    }
     setSaving(true)
     try {
-      await apiPost("/instructors", payloadFromForm(form))
+      const created = await apiPost<Instructor>("/instructors", payloadFromForm(form))
+      if (createLoginEnabled) {
+        if (!created?.id) {
+          throw new Error(zh ? "導師建立成功，但未取得 instructor id，無法建立登入" : "Teacher created but missing instructor id for login creation")
+        }
+        await apiPost("/coaches", {
+          email: loginEmail,
+          password: loginPassword,
+          full_name: form.name.trim(),
+          instructor_id: Number(created?.id),
+        })
+      }
       setModal(null)
       setForm(EMPTY_FORM)
       await load()
@@ -560,6 +684,21 @@ export function TeachersManager() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <AdminGhostButton
+            type="button"
+            className="w-full sm:w-auto justify-center"
+            onClick={() => void addDefaultCompanionCoachRoster()}
+            disabled={demo || bulkCreatingRoster}
+          >
+            <KeyRound className="h-4 w-4" />
+            {bulkCreatingRoster
+              ? zh
+                ? "建立中…"
+                : "Creating…"
+              : zh
+                ? "加入Companion導師名單"
+                : "Add companion coach roster"}
+          </AdminGhostButton>
           <AdminPrimaryButton type="button" className="w-full sm:w-auto justify-center lg:ml-auto" onClick={openCreate} disabled={demo}>
             <Plus className="h-4 w-4" />
             {zh ? "新增導師" : "Add teacher"}
@@ -661,7 +800,40 @@ export function TeachersManager() {
           </>
         }
       >
-        <ProfileFormFields form={form} setForm={setForm} zh={zh} demo={demo} />
+        <div className="space-y-4">
+          <ProfileFormFields form={form} setForm={setForm} zh={zh} demo={demo} />
+          <div className="rounded-lg border border-classz-100 p-3">
+            <label className="inline-flex items-center gap-2 text-sm text-classz-700">
+              <input
+                type="checkbox"
+                checked={createLoginEnabled}
+                onChange={(e) => setCreateLoginEnabled(e.target.checked)}
+              />
+              {zh ? "同時建立登入帳號" : "Create login account at the same time"}
+            </label>
+            {createLoginEnabled ? (
+              <div className="mt-3 space-y-2">
+                <div>
+                  <AdminLabel>Email</AdminLabel>
+                  <AdminInput
+                    type="email"
+                    value={createLoginEmail}
+                    onChange={(e) => setCreateLoginEmail(e.target.value)}
+                    placeholder="teacher@classz.co"
+                  />
+                </div>
+                <div>
+                  <AdminLabel>{zh ? "密碼（至少 6 碼）" : "Password (min 6)"}</AdminLabel>
+                  <AdminInput
+                    type="text"
+                    value={createLoginPassword}
+                    onChange={(e) => setCreateLoginPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </AdminModal>
 
       {/* Update */}

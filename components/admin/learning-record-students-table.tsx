@@ -5,7 +5,7 @@ import Link from "next/link"
 import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, Trash2, Upload, UserPlus } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
-import { apiDelete, apiGet, apiPost } from "@/lib/classz-api-client"
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import {
   formatRecordSummary,
   progressLevelLabel,
@@ -39,6 +39,9 @@ export type LearningRecordStudent = {
   parent_email: string
   record_count: number
   report_count?: number
+  report_coach_user_id?: number | null
+  report_coach_name?: string | null
+  report_coach_email?: string | null
   enrollments: Array<{
     enrollment_id: number
     class_id: number
@@ -87,6 +90,13 @@ type ImportResult = {
   imported: number
   failed: number
   errors: Array<{ row: number; child_name?: string; msg?: string }>
+}
+
+type CoachOption = {
+  id: number
+  full_name?: string | null
+  name?: string | null
+  email: string
 }
 
 const SAMPLE_CSV_TEMPLATE =
@@ -233,7 +243,9 @@ export function LearningRecordStudentsTable({
 
   const [generatingId, setGeneratingId] = useState<number | null>(null)
   const [deletingProfileId, setDeletingProfileId] = useState<number | null>(null)
+  const [assigningProfileId, setAssigningProfileId] = useState<number | null>(null)
   const [reportLanguageByProfile, setReportLanguageByProfile] = useState<Record<number, ReportLanguage>>({})
+  const [coachOptions, setCoachOptions] = useState<CoachOption[]>([])
   const [reportOpen, setReportOpen] = useState(false)
   const [activeReport, setActiveReport] = useState<LearningCompanionReport | null>(null)
   const [reportError, setReportError] = useState<string | null>(null)
@@ -249,15 +261,22 @@ export function LearningRecordStudentsTable({
     setLoading(true)
     setError(null)
     try {
-      const data = await apiGet<LearningRecordStudent[]>("/learning-record-students")
-      setRows(Array.isArray(data) ? data : [])
+      const [students, coaches] = await Promise.all([
+        apiGet<LearningRecordStudent[]>("/learning-record-students"),
+        mode === "admin"
+          ? apiGet<CoachOption[]>("/coaches?include_inactive=0").catch(() => [] as CoachOption[])
+          : Promise.resolve([] as CoachOption[]),
+      ])
+      setRows(Array.isArray(students) ? students : [])
+      setCoachOptions(Array.isArray(coaches) ? coaches : [])
     } catch (e) {
       setError(e instanceof Error ? e.message : "Load failed")
       setRows([])
+      setCoachOptions([])
     } finally {
       setLoading(false)
     }
-  }, [demo, zh])
+  }, [demo, mode, zh])
 
   useEffect(() => {
     load()
@@ -486,6 +505,43 @@ export function LearningRecordStudentsTable({
     }
   }
 
+  async function assignCompanionCoach(
+    profileId: number,
+    coachUserId: number | null,
+    e?: { stopPropagation?: () => void },
+  ) {
+    e?.stopPropagation()
+    if (demo) return
+    setAssigningProfileId(profileId)
+    setReportError(null)
+    try {
+      const assigned = await apiPatch<{
+        coach_user_id: number | null
+        coach_name?: string | null
+        coach_email?: string | null
+      }>(`/learning-record-students/${profileId}/report-coach`, {
+        coach_user_id: coachUserId,
+      })
+      setRows((prev) =>
+        prev.map((row) =>
+          row.profile_id === profileId
+            ? {
+                ...row,
+                report_coach_user_id: assigned?.coach_user_id ?? null,
+                report_coach_name: assigned?.coach_name ?? null,
+                report_coach_email: assigned?.coach_email ?? null,
+              }
+            : row,
+        ),
+      )
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Assign failed")
+      setReportOpen(true)
+    } finally {
+      setAssigningProfileId(null)
+    }
+  }
+
   async function deleteLatestReport(profileId: number, e?: React.MouseEvent) {
     e?.stopPropagation()
     if (demo) return
@@ -584,6 +640,8 @@ export function LearningRecordStudentsTable({
     }
   }
 
+  const tableColSpan = mode === "admin" ? 9 : 7
+
   return (
     <AdminPageFrame>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -654,7 +712,7 @@ export function LearningRecordStudentsTable({
           </div>
         ) : (
           <AdminTableShell>
-            <AdminTable className="min-w-[72rem]">
+            <AdminTable className="min-w-[82rem]">
               <thead className="bg-classz-50 text-classz-600">
                 <tr>
                   {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
@@ -664,6 +722,9 @@ export function LearningRecordStudentsTable({
                   <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
                   <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
                   <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
+                  {mode === "admin" ? (
+                    <th className="px-3 py-2 text-left">{zh ? "Companion導師" : "Companion coach"}</th>
+                  ) : null}
                   {mode === "teacher" ? (
                     <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
                   ) : (
@@ -708,6 +769,34 @@ export function LearningRecordStudentsTable({
                             {r.record_count}/{MIN_RECORDS_FOR_REPORT}+
                           </AdminStatusChip>
                         </td>
+                        {mode === "admin" ? (
+                          <td className="px-3 py-2 text-sm" onClick={(e) => e.stopPropagation()}>
+                            <AdminSelect
+                              value={String(r.report_coach_user_id || "")}
+                              onChange={(e) => {
+                                const raw = e.target.value
+                                void assignCompanionCoach(r.profile_id, raw ? Number(raw) : null, e)
+                              }}
+                              disabled={demo || assigningProfileId === r.profile_id}
+                              className="min-w-[12rem] py-1.5 text-sm"
+                            >
+                              <option value="">{zh ? "未指派" : "Unassigned"}</option>
+                              {coachOptions.map((coach) => {
+                                const label = (coach.full_name || coach.name || coach.email || "").trim()
+                                return (
+                                  <option key={coach.id} value={String(coach.id)}>
+                                    {label || coach.email}
+                                  </option>
+                                )
+                              })}
+                            </AdminSelect>
+                            {r.report_coach_name || r.report_coach_email ? (
+                              <div className="mt-1 text-[11px] text-brand-slate/55 truncate max-w-[13rem]">
+                                {r.report_coach_name || r.report_coach_email}
+                              </div>
+                            ) : null}
+                          </td>
+                        ) : null}
                         {mode === "teacher" ? (
                           <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                             <Link href={`/admin/teacher-students/${r.profile_id}`}>
@@ -828,7 +917,7 @@ export function LearningRecordStudentsTable({
                       </tr>
                       {mode === "admin" && open ? (
                         <tr className="bg-[var(--admin-canvas)]">
-                          <td colSpan={8} className="px-4 py-3">
+                          <td colSpan={tableColSpan} className="px-4 py-3">
                             {historyLoading === r.profile_id ? (
                               <p className="text-sm text-brand-slate/60">{zh ? "載入中…" : "Loading…"}</p>
                             ) : !(history[r.profile_id] || []).length ? (
@@ -877,7 +966,7 @@ export function LearningRecordStudentsTable({
                 })}
                 {!filteredRows.length ? (
                   <tr>
-                    <td colSpan={8} className="px-3 py-10 text-center text-brand-slate/50">
+                    <td colSpan={tableColSpan} className="px-3 py-10 text-center text-brand-slate/50">
                       {search.trim()
                         ? zh
                           ? "找不到符合搜尋的學生"
