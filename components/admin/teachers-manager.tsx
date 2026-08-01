@@ -85,11 +85,11 @@ const DEFAULT_COMPANION_COACH_ROSTER = [
   { name: "Karina", email: "karina@classz.co" },
   { name: "Jason", email: "jason@classz.co" },
   { name: "Jesse", email: "jesse@classz.co" },
-  { name: "Kelvin", email: "kelvin@classz.co" },
   { name: "Stella", email: "stella@classz.co" },
   { name: "Avery", email: "avery@classz.co" },
   { name: "Lucas", email: "lucas@classz.co" },
-  { name: "Marvelle", email: "marvelle@classz.co" },
+  { name: "Wayne", email: "wayne@classz.co" },
+  { name: "Marvalle", email: "marvalle@classz.co" },
 ] as const
 
 function awardsText(awards?: string[] | string | null) {
@@ -495,21 +495,21 @@ export function TeachersManager() {
 
   async function addDefaultCompanionCoachRoster() {
     if (demo || bulkCreatingRoster) return
-    const password = window.prompt(
-      zh
-        ? "請輸入這批導師帳號的預設密碼（至少 6 碼）"
-        : "Enter default password for this coach roster (min 6 chars)",
-      "Classz2026",
-    )
-    if (password == null) return
-    if (password.length < 6) {
-      alert(zh ? "密碼至少 6 碼" : "Password must be at least 6 characters")
-      return
-    }
     setBulkCreatingRoster(true)
     try {
+      // Import existing ClassZ coach / centre-admin accounts into the teachers list
+      // (creates instructor rows + links; does not invent new logins).
+      const sync = await apiPost<{
+        processed?: number
+        created_instructors?: unknown[]
+        linked?: unknown[]
+        already_linked?: unknown[]
+      }>("/coaches/sync-instructors", {})
+
       const latestInstructors = await apiGet<Instructor[]>("/instructors")
-      const latestCoaches = await apiGet<CoachAccount[]>("/coaches?include_inactive=1")
+      const latestCoaches = await apiGet<CoachAccount[]>("/coaches?include_inactive=1").catch(
+        () => [] as CoachAccount[],
+      )
       const instructorByName = new Map(
         (Array.isArray(latestInstructors) ? latestInstructors : []).map((x) => [x.name.trim().toLowerCase(), x]),
       )
@@ -532,43 +532,43 @@ export function TeachersManager() {
           })
           instructorByName.set(key, instructor)
         }
-        try {
-          const emailKey = item.email.toLowerCase()
-          const existingCoach = coachByEmail.get(emailKey)
-          if (existingCoach?.id) {
+
+        // Jesse is centre_admin — keep instructor row only; do not force a coach login.
+        if (item.email.toLowerCase() === "jesse@classz.co") continue
+
+        const emailKey = item.email.toLowerCase()
+        const existingCoach = coachByEmail.get(emailKey)
+        if (existingCoach?.id) {
+          try {
             await apiPatch(`/coaches/${existingCoach.id}`, {
               full_name: item.name,
               instructor_id: instructor?.id,
-              password,
               isActivated: 1,
             })
-          } else {
-            await apiPost("/coaches", {
-              email: item.email,
-              full_name: item.name,
-              instructor_id: instructor?.id,
-              password,
-            })
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : "Link coach failed"
+            warnings.push(`${item.name}: ${msg}`)
           }
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : "Create coach failed"
-          warnings.push(`${item.name}: ${msg}`)
+        } else if (!coachByEmail.has(emailKey)) {
+          warnings.push(
+            zh
+              ? `${item.name}: 尚無登入帳號（${item.email}），請用「設定登入」建立`
+              : `${item.name}: no login yet (${item.email}); use Set login`,
+          )
         }
       }
 
       await load()
+      const created = Array.isArray(sync?.created_instructors) ? sync.created_instructors.length : 0
+      const linked = Array.isArray(sync?.linked) ? sync.linked.length : 0
+      const already = Array.isArray(sync?.already_linked) ? sync.already_linked.length : 0
+      const summary = zh
+        ? `已同步 ClassZ 導師：${already} 位已連結${created ? `、新建 ${created} 位` : ""}${linked ? `、補連結 ${linked} 位` : ""}`
+        : `Synced ClassZ teachers: ${already} already linked${created ? `, created ${created}` : ""}${linked ? `, linked ${linked}` : ""}`
       if (warnings.length) {
-        alert(
-          (zh
-            ? `已處理名單，但有部分帳號未更新：\n`
-            : `Roster processed with some account issues:\n`) + warnings.join("\n"),
-        )
+        alert(`${summary}\n\n` + (zh ? "注意：\n" : "Notes:\n") + warnings.join("\n"))
       } else {
-        alert(
-          zh
-            ? `已建立/更新 ${DEFAULT_COMPANION_COACH_ROSTER.length} 位 Companion 導師`
-            : `Created/updated ${DEFAULT_COMPANION_COACH_ROSTER.length} companion coaches`,
-        )
+        alert(summary)
       }
     } catch (e) {
       alert(e instanceof Error ? e.message : "Failed")
@@ -693,11 +693,11 @@ export function TeachersManager() {
             <KeyRound className="h-4 w-4" />
             {bulkCreatingRoster
               ? zh
-                ? "建立中…"
-                : "Creating…"
+                ? "同步中…"
+                : "Syncing…"
               : zh
-                ? "加入Companion導師名單"
-                : "Add companion coach roster"}
+                ? "同步 ClassZ 導師帳號"
+                : "Sync ClassZ coach accounts"}
           </AdminGhostButton>
           <AdminPrimaryButton type="button" className="w-full sm:w-auto justify-center lg:ml-auto" onClick={openCreate} disabled={demo}>
             <Plus className="h-4 w-4" />

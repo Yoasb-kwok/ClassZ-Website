@@ -25,9 +25,8 @@ export function getAdminNavGroupsForRole(role: ClasszPortalRole): AdminNavGroup[
     return getCoachNavGroups()
   }
   if (role === "platform_admin") {
-    const centerGroups = getCenterAdminNavGroups()
-    const centerOnly = centerGroups.filter((group) => group.titleEn !== "Overview")
-    return [...PLATFORM_ONLY, ...centerOnly]
+    // Platform tools + full centre ops (including centre Dashboard as home)
+    return [...PLATFORM_ONLY, ...getCenterAdminNavGroups()]
   }
   return allGroups()
 }

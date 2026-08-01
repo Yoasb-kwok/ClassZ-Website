@@ -77,7 +77,7 @@ export default function LearningCompanionSamplesPage() {
                   <img
                     src={animal.poseSrcs[0]}
                     alt={animal.label}
-                    className="mx-auto mb-2 h-16 w-16 rounded-xl bg-black object-contain p-1"
+                    className="mx-auto mb-2 h-16 w-16 rounded-xl bg-white object-contain p-1"
                   />
                   <div className="text-sm font-semibold">{animal.shortName}</div>
                   <div className="text-[11px] text-brand-slate/55">{animal.label.replace(`${animal.shortName} `, "")}</div>

@@ -20,7 +20,7 @@ function initials(name?: string) {
 export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || ""
   const router = useRouter()
-  const { locale, t } = useLanguage()
+  const { locale, setLocale, t } = useLanguage()
   const zh = locale === "zh-TW"
   const session = getClasszSession()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -138,6 +138,32 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+            <div
+              className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5"
+              role="group"
+              aria-label={zh ? "介面語言" : "Interface language"}
+            >
+              <button
+                type="button"
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  locale === "en" ? "bg-brand-teal text-white" : "text-brand-slate hover:bg-classz-50"
+                }`}
+                onClick={() => setLocale("en")}
+                aria-pressed={locale === "en"}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  locale === "zh-TW" ? "bg-brand-teal text-white" : "text-brand-slate hover:bg-classz-50"
+                }`}
+                onClick={() => setLocale("zh-TW")}
+                aria-pressed={locale === "zh-TW"}
+              >
+                中文
+              </button>
+            </div>
             <Link
               href="/admin/bookings"
               className="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-white bg-brand-teal hover:brightness-110 transition-colors"

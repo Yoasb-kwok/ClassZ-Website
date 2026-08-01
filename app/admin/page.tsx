@@ -4,7 +4,6 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getClasszSession } from "@/lib/classz-auth"
 import { CentreDashboard } from "@/components/admin/centre-dashboard"
-import AdminDashboardPage from "./dashboard-content"
 
 export default function AdminHomePage() {
   const session = getClasszSession()
@@ -24,9 +23,6 @@ export default function AdminHomePage() {
     )
   }
 
-  if (session?.user.role === "center_admin") {
-    return <CentreDashboard />
-  }
-
-  return <AdminDashboardPage />
+  // centre_admin + platform_admin land on centre-side dashboard first
+  return <CentreDashboard />
 }

@@ -214,6 +214,31 @@ const LABEL_TO_KEY: Record<string, CompanionAnimalKey> = Object.fromEntries(
   }),
 ) as Record<string, CompanionAnimalKey>
 
+/** Train_CN.ipynb Chinese animal titles → English key */
+const ZH_TITLE_TO_KEY: Record<string, CompanionAnimalKey> = {
+  "兔子－積極探索型": "Rabbit",
+  "兔子-積極探索型": "Rabbit",
+  "兔子・主動探索者": "Rabbit",
+  "貓頭鷹－沉思學習型": "Owl",
+  "貓頭鷹-沉思學習型": "Owl",
+  "貓頭鷹・深思學習者": "Owl",
+  "海豚－社群協作型": "Dolphin",
+  "海豚-社群協作型": "Dolphin",
+  "海豚・互動協作者": "Dolphin",
+  "烏龜－穩健建構型": "Turtle",
+  "烏龜-穩健建構型": "Turtle",
+  "烏龜・穩健建構者": "Turtle",
+  "狐狸－靈活解題型": "Fox",
+  "狐狸-靈活解題型": "Fox",
+  "狐狸・創意解題者": "Fox",
+  "蜜蜂－專注勤敏型": "Bee",
+  "蜜蜂-專注勤敏型": "Bee",
+  "蜜蜂・專注實踐者": "Bee",
+}
+
+export const PARENT_REMINDER_ZH =
+  "這並非診斷或固定的性格標籤——這是根據 ClassZ 紀錄所得出的近期概況，隨著孩子參與更多課程並獲得更多回饋，結果也可能有所改變。"
+
 export function resolveCompanionAnimal(
   value?: string | null,
 ): CompanionAnimalMeta | null {
@@ -222,8 +247,21 @@ export function resolveCompanionAnimal(
   if (!raw) return null
   const direct = COMPANION_ANIMALS[raw as CompanionAnimalKey]
   if (direct) return direct
+  if (ZH_TITLE_TO_KEY[raw]) return COMPANION_ANIMALS[ZH_TITLE_TO_KEY[raw]]
   const mapped = LABEL_TO_KEY[raw.toLowerCase()]
   if (mapped) return COMPANION_ANIMALS[mapped]
+  // Partial match for Train_CN titles (兔子－… / 貓頭鷹－…)
+  for (const [zhTitle, key] of Object.entries(ZH_TITLE_TO_KEY)) {
+    if (raw === zhTitle || raw.includes(zhTitle) || zhTitle.includes(raw)) {
+      return COMPANION_ANIMALS[key]
+    }
+  }
+  if (raw.includes("兔子")) return COMPANION_ANIMALS.Rabbit
+  if (raw.includes("貓頭鷹")) return COMPANION_ANIMALS.Owl
+  if (raw.includes("海豚")) return COMPANION_ANIMALS.Dolphin
+  if (raw.includes("烏龜")) return COMPANION_ANIMALS.Turtle
+  if (raw.includes("狐狸")) return COMPANION_ANIMALS.Fox
+  if (raw.includes("蜜蜂")) return COMPANION_ANIMALS.Bee
   const firstWord = raw.split(/\s+/)[0]
   const fromFirst = LABEL_TO_KEY[firstWord.toLowerCase()]
   return fromFirst ? COMPANION_ANIMALS[fromFirst] : null

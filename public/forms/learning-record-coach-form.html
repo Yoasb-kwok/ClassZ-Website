@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8" /><title>ClassZ Academic Learning Record — Coach form</title><style>
+    @page { size: A4; margin: 10mm 12mm; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", "PingFang HK", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif; color: #1e293b; font-size: 9.5pt; line-height: 1.35; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sheet { page-break-after: always; max-width: 190mm; margin: 0 auto; }
+    .sheet:last-child { page-break-after: auto; }
+    .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 2.5px solid #0d9488; padding-bottom: 8px; margin-bottom: 8px; }
+    .logo { font-size: 18pt; font-weight: 800; letter-spacing: -0.03em; color: #0f766e; }
+    .subtitle { font-size: 9.5pt; font-weight: 600; color: #334155; margin-top: 1px; }
+    .badge { flex-shrink: 0; font-size: 8pt; font-weight: 600; color: #0f766e; background: #ccfbf1; border: 1px solid #99f6e4; border-radius: 4px; padding: 4px 8px; text-align: right; max-width: 11rem; }
+    .intro { font-size: 8pt; color: #64748b; margin: 0 0 10px; }
+    .zh-inline { display: block; margin-top: 2px; }
+    .meta { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; }
+    .meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 8px; }
+    .meta-row:last-child { margin-bottom: 0; }
+    .meta label { display: flex; align-items: flex-end; gap: 6px; font-size: 8.5pt; font-weight: 600; color: #475569; white-space: nowrap; }
+    .line { flex: 1; border-bottom: 1px solid #94a3b8; min-height: 16px; min-width: 4rem; }
+    .line.wide { min-width: 6rem; }
+    section { margin-bottom: 9px; }
+    .sec-head { margin-bottom: 4px; }
+    .sec-title { font-size: 9.5pt; font-weight: 700; color: #0f766e; }
+    .sec-title .zh { font-weight: 600; color: #64748b; font-size: 8.5pt; }
+    .sec-hint { font-size: 7.5pt; color: #94a3b8; margin-top: 1px; }
+    .box { display: inline-block; width: 11px; height: 11px; border: 1.5px solid #475569; border-radius: 2px; flex-shrink: 0; margin-top: 1px; background: #fff; }
+    .box.lg { width: 13px; height: 13px; }
+    .opt, .progress-opt { display: flex; align-items: flex-start; gap: 6px; break-inside: avoid; }
+    .opt { margin: 1.5px 0; }
+    .opt-text { font-size: 8.5pt; color: #1e293b; }
+    .progress-list { display: grid; gap: 3px; }
+    .progress-opt { margin: 2px 0; font-size: 8.5pt; }
+    .progress-opt .muted { color: #64748b; font-weight: 400; }
+    .grid { display: grid; gap: 1px 10px; }
+    .cols-1 { grid-template-columns: 1fr; }
+    .cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 4px; }
+    .write-lines { margin-top: 4px; }
+    .write-line { border-bottom: 1px solid #cbd5e1; height: 18px; margin-bottom: 2px; }
+    .write-lines.short .write-line { height: 16px; }
+    .foot { margin-top: 8px; padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 7.5pt; color: #94a3b8; text-align: center; }
+    .toolbar { position: sticky; top: 0; z-index: 2; background: #0f766e; color: #fff; padding: 10px 16px; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .toolbar button { border: 0; background: #fff; color: #0f766e; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+    @media print { .toolbar { display: none !important; } body { background: #fff; padding: 0; } .sheet { box-shadow: none; padding: 0; margin: 0; } }
+    @media screen { body { background: #e2e8f0; } .sheet { background: #fff; padding: 14mm 12mm; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12); margin: 16px auto; border-radius: 4px; } }
+</style></head><body><div class="toolbar"><span>ClassZ Learning Record 紙本表單 · Print / Save as PDF</span><button type="button" onclick="window.print()">列印 / 儲存 PDF</button></div>
+  <article class="sheet">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">ClassZ</div>
+        <div class="subtitle">Academic Learning Record · 學業學習紀錄</div>
+      </div>
+      <div class="badge">Coach paper form · 導師紙本填寫</div>
+    </header>
+    <p class="intro">
+      Tick options to match the online Learning Record. Circle / tick <strong>1–2</strong> where noted.
+      After class, enter the same choices in the ClassZ admin form.
+      <span class="zh-inline">請勾選與線上表單相同的選項；標示 1–2 的項目請只選一至兩項，課後再輸入系統。</span>
+    </p>
+    <section class="meta">
+      <div class="meta-row">
+        <label>Date / 日期<span class="line"></span></label>
+        <label>Coach / 導師<span class="line"></span></label>
+      </div>
+      <div class="meta-row">
+        <label>Student / 學員<span class="line wide"></span></label>
+        <label>Class session / 課堂<span class="line"></span></label>
+      </div>
+    </section>
+    <section>
+      <div class="sec-head"><div class="sec-title">Class focus <span class="zh">課堂焦點</span></div><div class="sec-hint">Select one · 選一項</div></div>
+      <div class="grid cols-4"><label class="opt"><span class="box"></span><span class="opt-text">Lego陀螺</span></label><label class="opt"><span class="box"></span><span class="opt-text">Cospaces AR/VR</span></label><label class="opt"><span class="box"></span><span class="opt-text">TinkerCAD</span></label><label class="opt"><span class="box"></span><span class="opt-text">ERC</span></label></div>
+    </section>
+    <section>
+      <div class="sec-head"><div class="sec-title">Progress level <span class="zh">進度等級</span></div><div class="sec-hint">Select one · 選一項</div></div>
+      <div class="progress-list"><label class="progress-opt"><span class="box lg"></span><span><strong>Supported</strong><span class="muted"> — Needs close support.</span></span></label><label class="progress-opt"><span class="box lg"></span><span><strong>Guided</strong><span class="muted"> — Can attempt with demonstration or reminders.</span></span></label><label class="progress-opt"><span class="box lg"></span><span><strong>Developing</strong><span class="muted"> — Can complete familiar parts with light support.</span></span></label><label class="progress-opt"><span class="box lg"></span><span><strong>Independent</strong><span class="muted"> — Can complete independently.</span></span></label></div>
+    </section>
+    <div class="two-col">
+      <section>
+        <div class="sec-head"><div class="sec-title">What was observed? <span class="zh">觀察到的表現</span></div><div class="sec-hint">Tick 1–2 · 勾選 1–2 項</div></div>
+        <div class="grid cols-1"><label class="opt"><span class="box"></span><span class="opt-text">Needed demonstration first</span></label><label class="opt"><span class="box"></span><span class="opt-text">Completed with reminders</span></label><label class="opt"><span class="box"></span><span class="opt-text">Corrected after feedback</span></label><label class="opt"><span class="box"></span><span class="opt-text">Repeated more consistently</span></label><label class="opt"><span class="box"></span><span class="opt-text">Tried independently</span></label><label class="opt"><span class="box"></span><span class="opt-text">Completed with focus</span></label><label class="opt"><span class="box"></span><span class="opt-text">Applied in a new situation</span></label><label class="opt"><span class="box"></span><span class="opt-text">Worked well with others</span></label><label class="opt"><span class="box"></span><span class="opt-text">Showed original ideas</span></label><label class="opt"><span class="box"></span><span class="opt-text">Stayed engaged during challenge</span></label></div>
+      </section>
+      <section>
+        <div class="sec-head"><div class="sec-title">Strongest area today <span class="zh">今日優勢</span></div><div class="sec-hint">Tick 1–2 · 勾選 1–2 項</div></div>
+        <div class="grid cols-1"><label class="opt"><span class="box"></span><span class="opt-text">Technique / Control</span></label><label class="opt"><span class="box"></span><span class="opt-text">Consistency / Quality</span></label><label class="opt"><span class="box"></span><span class="opt-text">Focus / Persistence</span></label><label class="opt"><span class="box"></span><span class="opt-text">Confidence to Try</span></label><label class="opt"><span class="box"></span><span class="opt-text">Communication / Expression</span></label><label class="opt"><span class="box"></span><span class="opt-text">Teamwork / Collaboration</span></label><label class="opt"><span class="box"></span><span class="opt-text">Creativity</span></label><label class="opt"><span class="box"></span><span class="opt-text">Problem Solving</span></label><label class="opt"><span class="box"></span><span class="opt-text">Physical Coordination</span></label><label class="opt"><span class="box"></span><span class="opt-text">Independence</span></label></div>
+      </section>
+    </div>
+    <div class="two-col">
+      <section>
+        <div class="sec-head"><div class="sec-title">Needs more attention <span class="zh">需關注範疇</span></div><div class="sec-hint">Tick 1–2 · 勾選 1–2 項</div></div>
+        <div class="grid cols-1"><label class="opt"><span class="box"></span><span class="opt-text">Technique / Control</span></label><label class="opt"><span class="box"></span><span class="opt-text">Consistency / Quality</span></label><label class="opt"><span class="box"></span><span class="opt-text">Focus / Persistence</span></label><label class="opt"><span class="box"></span><span class="opt-text">Confidence to Try</span></label><label class="opt"><span class="box"></span><span class="opt-text">Communication / Expression</span></label><label class="opt"><span class="box"></span><span class="opt-text">Teamwork / Collaboration</span></label><label class="opt"><span class="box"></span><span class="opt-text">Creativity</span></label><label class="opt"><span class="box"></span><span class="opt-text">Problem Solving</span></label><label class="opt"><span class="box"></span><span class="opt-text">Physical Coordination</span></label><label class="opt"><span class="box"></span><span class="opt-text">Independence</span></label></div>
+      </section>
+      <section>
+        <div class="sec-head"><div class="sec-title">Learning traits <span class="zh">學習特質</span></div><div class="sec-hint">Tick 1–2 · 勾選 1–2 項</div></div>
+        <div class="grid cols-1"><label class="opt"><span class="box"></span><span class="opt-text">Participates actively</span></label><label class="opt"><span class="box"></span><span class="opt-text">Responds well to feedback</span></label><label class="opt"><span class="box"></span><span class="opt-text">Works carefully</span></label><label class="opt"><span class="box"></span><span class="opt-text">Tries independently</span></label><label class="opt"><span class="box"></span><span class="opt-text">Needs encouragement to start</span></label><label class="opt"><span class="box"></span><span class="opt-text">Stays focused</span></label><label class="opt"><span class="box"></span><span class="opt-text">Collaborates well</span></label><label class="opt"><span class="box"></span><span class="opt-text">Shows persistence</span></label><label class="opt"><span class="box"></span><span class="opt-text">Hesitant with new tasks</span></label><label class="opt"><span class="box"></span><span class="opt-text">Shows initiative</span></label><label class="opt"><span class="box"></span><span class="opt-text">Asks questions</span></label><label class="opt"><span class="box"></span><span class="opt-text">Checks mistakes carefully</span></label></div>
+      </section>
+    </div>
+    <section>
+      <div class="sec-head"><div class="sec-title">Student should work on <span class="zh">建議學生繼續練習</span></div><div class="sec-hint">Required · 必填</div></div>
+      <div class="write-lines"><div class="write-line"></div><div class="write-line"></div><div class="write-line"></div></div>
+    </section>
+    <section>
+      <div class="sec-head"><div class="sec-title">Additional comment <span class="zh">附加備註</span></div><div class="sec-hint">Optional · ≤100 words · 選填</div></div>
+      <div class="write-lines short"><div class="write-line"></div><div class="write-line"></div></div>
+    </section>
+    <footer class="foot">ClassZ Learning Companion input · keep with class notes · 請於課後輸入線上系統</footer>
+  </article></body></html>

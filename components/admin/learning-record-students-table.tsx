@@ -2,7 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Plus, Trash2, Upload, UserPlus } from "lucide-react"
+import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Pencil, Plus, Printer, Trash2, Upload, UserPlus } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
@@ -92,10 +92,26 @@ type ImportResult = {
   errors: Array<{ row: number; child_name?: string; msg?: string }>
 }
 
-type CoachOption = {
+type CoachAccountOption = {
   id: number
   full_name?: string | null
   name?: string | null
+  email: string
+  instructor_id?: number | null
+  isActivated?: number | boolean | null
+}
+
+type InstructorOption = {
+  id: number
+  name: string
+  profile_image_url?: string | null
+}
+
+/** Companion dropdown options sourced from 導師管理 (instructors with linked coach login). */
+type CompanionCoachOption = {
+  coach_user_id: number
+  instructor_id: number
+  label: string
   email: string
 }
 
@@ -210,6 +226,17 @@ function sexLabel(sex: number | null | undefined, zh: boolean) {
   return "—"
 }
 
+/** Companion animal seed students (Demo Rabbit / Owl / …). */
+function isCompanionAnimalDemoStudent(row: LearningRecordStudent) {
+  const name = String(row.child_name || "").trim()
+  if (/^Demo\s+(Rabbit|Owl|Dolphin|Turtle|Fox|Bee)$/i.test(name)) return true
+  const email = String(row.parent_email || "").trim().toLowerCase()
+  if (/^demo\.(rabbit|owl|dolphin|turtle|fox|bee)@classz\.co$/.test(email)) return true
+  const parent = String(row.parent_name || "").trim()
+  if (/^Parent\s+(Rabbit|Owl|Dolphin|Turtle|Fox|Bee)$/i.test(parent)) return true
+  return false
+}
+
 export function LearningRecordStudentsTable({
   mode,
 }: {
@@ -243,13 +270,21 @@ export function LearningRecordStudentsTable({
 
   const [generatingId, setGeneratingId] = useState<number | null>(null)
   const [deletingProfileId, setDeletingProfileId] = useState<number | null>(null)
+  const [clearingRecordsProfileId, setClearingRecordsProfileId] = useState<number | null>(null)
+  const [removingStudentProfileId, setRemovingStudentProfileId] = useState<number | null>(null)
+  const [deletingRecordId, setDeletingRecordId] = useState<number | null>(null)
   const [assigningProfileId, setAssigningProfileId] = useState<number | null>(null)
   const [reportLanguageByProfile, setReportLanguageByProfile] = useState<Record<number, ReportLanguage>>({})
-  const [coachOptions, setCoachOptions] = useState<CoachOption[]>([])
+  const [coachOptions, setCoachOptions] = useState<CompanionCoachOption[]>([])
+  const [coachAccounts, setCoachAccounts] = useState<CoachAccountOption[]>([])
   const [reportOpen, setReportOpen] = useState(false)
   const [activeReport, setActiveReport] = useState<LearningCompanionReport | null>(null)
   const [reportError, setReportError] = useState<string | null>(null)
   const [savedReports, setSavedReports] = useState<Record<number, LearningCompanionReport[]>>({})
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set())
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [bulkCoachId, setBulkCoachId] = useState("")
+  const [bulkReportLanguage, setBulkReportLanguage] = useState<ReportLanguage>(zh ? "zh" : "en")
 
   const load = useCallback(async () => {
     if (demo) {
@@ -261,18 +296,54 @@ export function LearningRecordStudentsTable({
     setLoading(true)
     setError(null)
     try {
-      const [students, coaches] = await Promise.all([
+      const [students, instructors, coaches] = await Promise.all([
         apiGet<LearningRecordStudent[]>("/learning-record-students"),
         mode === "admin"
-          ? apiGet<CoachOption[]>("/coaches?include_inactive=0").catch(() => [] as CoachOption[])
-          : Promise.resolve([] as CoachOption[]),
+          ? apiGet<InstructorOption[]>("/instructors").catch(() => [] as InstructorOption[])
+          : Promise.resolve([] as InstructorOption[]),
+        mode === "admin"
+          ? apiGet<CoachAccountOption[]>("/coaches?include_inactive=0").catch(() => [] as CoachAccountOption[])
+          : Promise.resolve([] as CoachAccountOption[]),
       ])
-      setRows(Array.isArray(students) ? students : [])
-      setCoachOptions(Array.isArray(coaches) ? coaches : [])
+      const nextRows = Array.isArray(students) ? students : []
+      setRows(nextRows)
+      const instructorList = Array.isArray(instructors) ? instructors : []
+      const coachList = Array.isArray(coaches) ? coaches : []
+      setCoachAccounts(coachList)
+
+      const coachByInstructorId = new Map<number, CoachAccountOption>()
+      for (const coach of coachList) {
+        const iid = coach.instructor_id != null ? Number(coach.instructor_id) : NaN
+        if (!Number.isFinite(iid) || iid < 1) continue
+        if (!coachByInstructorId.has(iid)) coachByInstructorId.set(iid, coach)
+      }
+
+      // Prefer teachers from 導師管理 that have a linked coach login
+      const fromTeachers: CompanionCoachOption[] = []
+      for (const instructor of instructorList) {
+        const coach = coachByInstructorId.get(Number(instructor.id))
+        if (!coach?.id) continue
+        fromTeachers.push({
+          coach_user_id: Number(coach.id),
+          instructor_id: Number(instructor.id),
+          label: String(instructor.name || "").trim() || coach.email,
+          email: coach.email,
+        })
+      }
+      fromTeachers.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }))
+      setCoachOptions(fromTeachers)
+      setSelectedIds((prev) => {
+        if (!prev.size) return prev
+        const alive = new Set(nextRows.map((r) => r.profile_id))
+        const pruned = new Set<number>()
+        for (const id of prev) if (alive.has(id)) pruned.add(id)
+        return pruned.size === prev.size ? prev : pruned
+      })
     } catch (e) {
       setError(e instanceof Error ? e.message : "Load failed")
       setRows([])
       setCoachOptions([])
+      setCoachAccounts([])
     } finally {
       setLoading(false)
     }
@@ -301,6 +372,66 @@ export function LearningRecordStudentsTable({
       return haystack.includes(q)
     })
   }, [rows, search])
+
+  const mainRows = useMemo(
+    () => filteredRows.filter((row) => !isCompanionAnimalDemoStudent(row)),
+    [filteredRows],
+  )
+  const demoRows = useMemo(
+    () => filteredRows.filter((row) => isCompanionAnimalDemoStudent(row)),
+    [filteredRows],
+  )
+
+  const selectedRows = useMemo(
+    () => filteredRows.filter((row) => selectedIds.has(row.profile_id)),
+    [filteredRows, selectedIds],
+  )
+  const allFilteredSelected =
+    mainRows.length > 0 && mainRows.every((row) => selectedIds.has(row.profile_id))
+  const someFilteredSelected = mainRows.some((row) => selectedIds.has(row.profile_id))
+
+  function toggleSelectProfile(profileId: number, e?: { stopPropagation?: () => void }) {
+    e?.stopPropagation?.()
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(profileId)) next.delete(profileId)
+      else next.add(profileId)
+      return next
+    })
+  }
+
+  function toggleSelectAllFiltered(e?: { stopPropagation?: () => void }) {
+    e?.stopPropagation?.()
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (allFilteredSelected) {
+        for (const row of mainRows) next.delete(row.profile_id)
+      } else {
+        for (const row of mainRows) next.add(row.profile_id)
+      }
+      return next
+    })
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set())
+  }
+
+  function companionOptionsForSelect(currentCoachUserId?: number | null): CompanionCoachOption[] {
+    const list = [...coachOptions]
+    const ids = new Set(list.map((c) => c.coach_user_id))
+    if (currentCoachUserId && !ids.has(currentCoachUserId)) {
+      const account = coachAccounts.find((c) => Number(c.id) === Number(currentCoachUserId))
+      list.push({
+        coach_user_id: Number(currentCoachUserId),
+        instructor_id: account?.instructor_id != null ? Number(account.instructor_id) : 0,
+        label:
+          String(account?.full_name || account?.name || account?.email || `Coach #${currentCoachUserId}`).trim(),
+        email: account?.email || "",
+      })
+    }
+    return list
+  }
 
   async function loadClassOptions(): Promise<ClassOption[]> {
     try {
@@ -542,6 +673,181 @@ export function LearningRecordStudentsTable({
     }
   }
 
+  async function bulkAssignCompanion() {
+    if (demo || bulkBusy || !selectedRows.length) return
+    const coachUserId = bulkCoachId ? Number(bulkCoachId) : null
+    const ok = window.confirm(
+      zh
+        ? `確定為已選 ${selectedRows.length} 位學生${coachUserId ? "指派 Companion 導師" : "取消 Companion 指派"}？`
+        : `${coachUserId ? "Assign companion coach to" : "Unassign companion coach for"} ${selectedRows.length} selected student(s)?`,
+    )
+    if (!ok) return
+    setBulkBusy(true)
+    setReportError(null)
+    const failures: string[] = []
+    try {
+      for (const row of selectedRows) {
+        try {
+          const assigned = await apiPatch<{
+            coach_user_id: number | null
+            coach_name?: string | null
+            coach_email?: string | null
+          }>(`/learning-record-students/${row.profile_id}/report-coach`, {
+            coach_user_id: coachUserId,
+          })
+          setRows((prev) =>
+            prev.map((item) =>
+              item.profile_id === row.profile_id
+                ? {
+                    ...item,
+                    report_coach_user_id: assigned?.coach_user_id ?? null,
+                    report_coach_name: assigned?.coach_name ?? null,
+                    report_coach_email: assigned?.coach_email ?? null,
+                  }
+                : item,
+            ),
+          )
+        } catch (err) {
+          failures.push(`${row.child_name}: ${err instanceof Error ? err.message : "failed"}`)
+        }
+      }
+      if (failures.length) {
+        setReportError(
+          (zh ? `部分指派失敗：\n` : `Some assignments failed:\n`) + failures.join("\n"),
+        )
+        setReportOpen(true)
+      }
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  async function bulkGenerateReports() {
+    if (demo || bulkBusy || !selectedRows.length) return
+    const eligible = selectedRows.filter((row) => row.record_count >= MIN_RECORDS_FOR_REPORT)
+    if (!eligible.length) {
+      alert(
+        zh
+          ? `已選學生皆未滿 ${MIN_RECORDS_FOR_REPORT} 次紀錄，無法產生報告`
+          : `None of the selected students have ${MIN_RECORDS_FOR_REPORT}+ records`,
+      )
+      return
+    }
+    const skipped = selectedRows.length - eligible.length
+    const ok = window.confirm(
+      zh
+        ? `將為 ${eligible.length} 位學生產生${bulkReportLanguage === "zh" ? "中文" : "英文"}報告${skipped ? `（略過 ${skipped} 位未滿紀錄）` : ""}？`
+        : `Generate ${bulkReportLanguage === "zh" ? "Chinese" : "English"} reports for ${eligible.length} student(s)${skipped ? ` (skip ${skipped} under-quota)` : ""}?`,
+    )
+    if (!ok) return
+    setBulkBusy(true)
+    setReportError(null)
+    const failures: string[] = []
+    let lastReport: LearningCompanionReport | null = null
+    try {
+      for (const row of eligible) {
+        setGeneratingId(row.profile_id)
+        try {
+          const data = await apiPost<LearningCompanionReport>(
+            `/learning-record-students/${row.profile_id}/generate-report`,
+            { report_language: bulkReportLanguage },
+          )
+          lastReport = data
+          setSavedReports((prev) => ({
+            ...prev,
+            [row.profile_id]: [data, ...(prev[row.profile_id] || [])],
+          }))
+        } catch (err) {
+          failures.push(`${row.child_name}: ${err instanceof Error ? err.message : "failed"}`)
+        }
+      }
+      await load()
+      if (lastReport) {
+        setActiveReport(lastReport)
+        setReportOpen(true)
+      }
+      if (failures.length) {
+        setReportError(
+          (zh ? `部分報告產生失敗：\n` : `Some reports failed:\n`) + failures.join("\n"),
+        )
+        setReportOpen(true)
+      } else {
+        alert(
+          zh
+            ? `已為 ${eligible.length} 位學生產生報告`
+            : `Generated reports for ${eligible.length} student(s)`,
+        )
+      }
+    } finally {
+      setGeneratingId(null)
+      setBulkBusy(false)
+    }
+  }
+
+  async function bulkClearRecords() {
+    if (demo || bulkBusy || !selectedRows.length) return
+    const targets = selectedRows.filter((row) => row.record_count > 0)
+    if (!targets.length) {
+      alert(zh ? "已選學生沒有可刪除的 Learning Record" : "Selected students have no Learning Records")
+      return
+    }
+    const ok = window.confirm(
+      zh
+        ? `確定刪除已選 ${targets.length} 位學生的全部 Learning Record？`
+        : `Clear all Learning Records for ${targets.length} selected student(s)?`,
+    )
+    if (!ok) return
+    setBulkBusy(true)
+    setReportError(null)
+    try {
+      for (const row of targets) {
+        await apiDelete(`/learning-record-students/${row.profile_id}/records`)
+      }
+      setHistory({})
+      await load()
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Delete failed")
+      setReportOpen(true)
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  async function bulkRemoveStudents() {
+    if (demo || bulkBusy || !selectedRows.length) return
+    const ok = window.confirm(
+      zh
+        ? `確定從 Learning Record 名單移除已選 ${selectedRows.length} 位學生（含紀錄與報告）？`
+        : `Remove ${selectedRows.length} selected student(s) from Learning Record (including records and reports)?`,
+    )
+    if (!ok) return
+    setBulkBusy(true)
+    setReportError(null)
+    const failures: string[] = []
+    try {
+      for (const row of selectedRows) {
+        try {
+          await apiDelete(`/learning-record-students/${row.profile_id}`)
+        } catch (err) {
+          failures.push(`${row.child_name}: ${err instanceof Error ? err.message : "failed"}`)
+        }
+      }
+      clearSelection()
+      setHistory({})
+      setSavedReports({})
+      setExpanded(null)
+      await load()
+      if (failures.length) {
+        setReportError(
+          (zh ? `部分刪除失敗：\n` : `Some deletes failed:\n`) + failures.join("\n"),
+        )
+        setReportOpen(true)
+      }
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
   async function deleteLatestReport(profileId: number, e?: React.MouseEvent) {
     e?.stopPropagation()
     if (demo) return
@@ -578,6 +884,83 @@ export function LearningRecordStudentsTable({
       setReportOpen(true)
     } finally {
       setDeletingProfileId(null)
+    }
+  }
+
+  async function clearStudentLearningRecords(profileId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    const ok = window.confirm(
+      zh
+        ? "確定刪除此學生的全部 Learning Record（紀錄數會歸零）？"
+        : "Delete all Learning Records for this student (record count will reset to 0)?",
+    )
+    if (!ok) return
+    setClearingRecordsProfileId(profileId)
+    setReportError(null)
+    try {
+      await apiDelete(`/learning-record-students/${profileId}/records`)
+      setHistory((prev) => ({ ...prev, [profileId]: [] }))
+      await load()
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Delete failed")
+      setReportOpen(true)
+    } finally {
+      setClearingRecordsProfileId(null)
+    }
+  }
+
+  async function removeStudentFromLearningRecord(profileId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    const ok = window.confirm(
+      zh
+        ? "確定從此 Learning Record 名單移除整個學生（含紀錄與報告）？"
+        : "Remove this student entirely from Learning Record (including records and reports)?",
+    )
+    if (!ok) return
+    setRemovingStudentProfileId(profileId)
+    setReportError(null)
+    try {
+      await apiDelete(`/learning-record-students/${profileId}`)
+      setHistory((prev) => {
+        const next = { ...prev }
+        delete next[profileId]
+        return next
+      })
+      setSavedReports((prev) => {
+        const next = { ...prev }
+        delete next[profileId]
+        return next
+      })
+      if (expanded === profileId) setExpanded(null)
+      await load()
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Delete failed")
+      setReportOpen(true)
+    } finally {
+      setRemovingStudentProfileId(null)
+    }
+  }
+
+  async function deleteSingleLearningRecord(profileId: number, recordId: number, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    const ok = window.confirm(zh ? "確定刪除這一份 Learning Record？" : "Delete this Learning Record?")
+    if (!ok) return
+    setDeletingRecordId(recordId)
+    try {
+      await apiDelete(`/activity-learning-records/${recordId}?force=1`)
+      setHistory((prev) => ({
+        ...prev,
+        [profileId]: (prev[profileId] || []).filter((item) => item.id !== recordId),
+      }))
+      await load()
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : "Delete failed")
+      setReportOpen(true)
+    } finally {
+      setDeletingRecordId(null)
     }
   }
 
@@ -640,108 +1023,36 @@ export function LearningRecordStudentsTable({
     }
   }
 
-  const tableColSpan = mode === "admin" ? 9 : 7
+  const tableColSpan = mode === "admin" ? 10 : 7
 
-  return (
-    <AdminPageFrame>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <AdminPageHeader
-          title={zh ? "Learning Record" : "Learning Record"}
-          description={
-            mode === "teacher"
-              ? zh
-                ? "已登記學員（唯讀）— 點擊填寫該學生的 Academic Learning Record"
-                : "Enrolled students (read-only) — fill Academic Learning Record per student"
-              : zh
-                ? "已登記學生及家長資料；點擊列展開過往 Learning Record。正式上線後會同步就讀課程學員；目前可手動新增以支援資訊日／體驗日測試。"
-                : "Registered students & parents — expand a row for past records. Production will sync enrolled students; for now you can add manually for Open Day testing."
-          }
-          Icon={ClipboardList}
-        />
-        {mode === "admin" ? (
-          <div className="flex w-full sm:w-auto flex-wrap items-center gap-2 shrink-0">
-            <AdminPrimaryButton type="button" onClick={openAddModal} disabled={demo} className="w-full sm:w-auto justify-center">
-              <UserPlus className="h-4 w-4" />
-              {zh ? "新增學生" : "Add student"}
-            </AdminPrimaryButton>
-            <AdminGhostButton
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={demo}
-              className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5"
-            >
-              <Upload className="h-4 w-4" />
-              {zh ? "匯入 CSV" : "Import CSV"}
-            </AdminGhostButton>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,text/csv"
-              className="hidden"
-              onChange={handleCsvFileSelect}
-            />
-          </div>
-        ) : null}
-      </div>
-
-      {error ? (
-        <div
-          role="alert"
-          className="text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2"
-        >
-          {error}
-        </div>
-      ) : null}
-
-      <AdminCard>
-        <div className="mb-4">
-          <AdminLabel>{zh ? "搜尋學生 / 家長 / 電話 / 場次" : "Search student / parent / phone / session"}</AdminLabel>
-          <AdminInput
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={
-              zh
-                ? "輸入電話號碼、學生姓名、家長名稱、家長電郵或場次"
-                : "Search by phone, child name, parent name, parent email, or session"
-            }
-          />
-        </div>
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-8 w-8 rounded-full border-2 border-classz-100 border-t-classz-400 animate-spin" />
-          </div>
-        ) : (
-          <AdminTableShell>
-            <AdminTable className="min-w-[82rem]">
-              <thead className="bg-classz-50 text-classz-600">
-                <tr>
-                  {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
-                  <th className="px-3 py-2 text-left">{zh ? "學生" : "Child"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "年級" : "Grade"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "家長" : "Parent"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
-                  {mode === "admin" ? (
-                    <th className="px-3 py-2 text-left">{zh ? "Companion導師" : "Companion coach"}</th>
-                  ) : null}
-                  {mode === "teacher" ? (
-                    <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
-                  ) : (
-                    <th className="px-3 py-2 text-right">{zh ? "報告" : "Report"}</th>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-classz-100">
-                {filteredRows.map((r) => {
+  function renderStudentRows(list: LearningRecordStudent[]) {
+    return (
+      <>
+        {list.map((r) => {
                   const open = expanded === r.profile_id
                   const primary = r.enrollments[0]
                   return (
                     <Fragment key={r.profile_id}>
                       <tr
-                        className={mode === "admin" ? "cursor-pointer hover:bg-classz-50/80" : "bg-white"}
+                        className={
+                          mode === "admin"
+                            ? `cursor-pointer hover:bg-classz-50/80 ${selectedIds.has(r.profile_id) ? "bg-brand-teal/5" : ""}`
+                            : "bg-white"
+                        }
                         onClick={mode === "admin" ? () => toggleExpand(r.profile_id) : undefined}
                       >
+                        {mode === "admin" ? (
+                          <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 accent-[var(--brand-teal)]"
+                              checked={selectedIds.has(r.profile_id)}
+                              onChange={(e) => toggleSelectProfile(r.profile_id, e)}
+                              disabled={demo || bulkBusy}
+                              aria-label={zh ? `選取 ${r.child_name}` : `Select ${r.child_name}`}
+                            />
+                          </td>
+                        ) : null}
                         {mode === "admin" ? (
                           <td className="px-2 py-2 text-brand-slate/50">
                             {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -763,11 +1074,24 @@ export function LearningRecordStudentsTable({
                           {primary?.class_name || "—"}
                         </td>
                         <td className="px-3 py-2">
-                          <AdminStatusChip
-                            tone={r.record_count >= MIN_RECORDS_FOR_REPORT ? "teal" : r.record_count > 0 ? "orange" : "magenta"}
-                          >
-                            {r.record_count}/{MIN_RECORDS_FOR_REPORT}+
-                          </AdminStatusChip>
+                          <div className="inline-flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            <AdminStatusChip
+                              tone={r.record_count >= MIN_RECORDS_FOR_REPORT ? "teal" : r.record_count > 0 ? "orange" : "magenta"}
+                            >
+                              {r.record_count}/{MIN_RECORDS_FOR_REPORT}+
+                            </AdminStatusChip>
+                            {mode === "admin" && r.record_count > 0 ? (
+                              <button
+                                type="button"
+                                className="p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 disabled:opacity-40"
+                                disabled={demo || clearingRecordsProfileId === r.profile_id}
+                                title={zh ? "刪除此學生全部紀錄" : "Clear this student's records"}
+                                onClick={(e) => clearStudentLearningRecords(r.profile_id, e)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            ) : null}
+                          </div>
                         </td>
                         {mode === "admin" ? (
                           <td className="px-3 py-2 text-sm" onClick={(e) => e.stopPropagation()}>
@@ -781,18 +1105,21 @@ export function LearningRecordStudentsTable({
                               className="min-w-[12rem] py-1.5 text-sm"
                             >
                               <option value="">{zh ? "未指派" : "Unassigned"}</option>
-                              {coachOptions.map((coach) => {
-                                const label = (coach.full_name || coach.name || coach.email || "").trim()
-                                return (
-                                  <option key={coach.id} value={String(coach.id)}>
-                                    {label || coach.email}
-                                  </option>
-                                )
-                              })}
+                              {companionOptionsForSelect(r.report_coach_user_id).map((coach) => (
+                                <option key={coach.coach_user_id} value={String(coach.coach_user_id)}>
+                                  {coach.label}
+                                </option>
+                              ))}
                             </AdminSelect>
                             {r.report_coach_name || r.report_coach_email ? (
                               <div className="mt-1 text-[11px] text-brand-slate/55 truncate max-w-[13rem]">
                                 {r.report_coach_name || r.report_coach_email}
+                              </div>
+                            ) : !coachOptions.length ? (
+                              <div className="mt-1 text-[11px] text-brand-slate/45">
+                                <Link href="/admin/teachers" className="text-brand-teal hover:underline">
+                                  {zh ? "到導師管理設定登入" : "Set teacher login"}
+                                </Link>
                               </div>
                             ) : null}
                           </td>
@@ -864,13 +1191,49 @@ export function LearningRecordStudentsTable({
                                         ? "產生報告"
                                         : "Generate report"}
                                   </AdminPrimaryButton>
+                                  <Link
+                                    href={`/admin/teacher-students/${r.profile_id}`}
+                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
+                                    title={zh ? "編輯 / 填寫紀錄" : "Edit / fill records"}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Link>
+                                  <button
+                                    type="button"
+                                    className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
+                                    disabled={demo || removingStudentProfileId === r.profile_id}
+                                    title={zh ? "刪除整個學生紀錄" : "Delete entire student record"}
+                                    onClick={(e) => removeStudentFromLearningRecord(r.profile_id, e)}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
                                 </div>
                               ) : (
-                                <span className="text-[11px] text-brand-slate/45 self-center">
-                                  {zh
-                                    ? `需 ${MIN_RECORDS_FOR_REPORT - r.record_count} 次紀錄`
-                                    : `Need ${MIN_RECORDS_FOR_REPORT - r.record_count} more`}
-                                </span>
+                                <div className="inline-flex items-center gap-1.5">
+                                  <span className="text-[11px] text-brand-slate/45 self-center">
+                                    {zh
+                                      ? `需 ${MIN_RECORDS_FOR_REPORT - r.record_count} 次紀錄`
+                                      : `Need ${MIN_RECORDS_FOR_REPORT - r.record_count} more`}
+                                  </span>
+                                  <Link
+                                    href={`/admin/teacher-students/${r.profile_id}`}
+                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
+                                    title={zh ? "編輯 / 填寫紀錄" : "Edit / fill records"}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Link>
+                                  <button
+                                    type="button"
+                                    className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
+                                    disabled={demo || removingStudentProfileId === r.profile_id}
+                                    title={zh ? "刪除整個學生紀錄" : "Delete entire student record"}
+                                    onClick={(e) => removeStudentFromLearningRecord(r.profile_id, e)}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
                               )}
                               {(Number(r.report_count) || 0) > 0 ? (
                                 <AdminGhostButton
@@ -950,6 +1313,24 @@ export function LearningRecordStudentsTable({
                                           {progressLevelLabel(rec.progress_level)}
                                         </span>
                                       ) : null}
+                                      <div className="ml-auto inline-flex items-center gap-1">
+                                        <Link
+                                          href={`/admin/teacher-students/${r.profile_id}`}
+                                          className="p-1 rounded-md text-brand-slate hover:bg-classz-50"
+                                          title={zh ? "編輯" : "Edit"}
+                                        >
+                                          <Pencil className="h-3.5 w-3.5" />
+                                        </Link>
+                                        <button
+                                          type="button"
+                                          className="p-1 rounded-md text-brand-coral hover:bg-brand-coral/10 disabled:opacity-40"
+                                          disabled={demo || deletingRecordId === rec.id}
+                                          title={zh ? "刪除這份紀錄" : "Delete this record"}
+                                          onClick={(e) => deleteSingleLearningRecord(r.profile_id, rec.id, e)}
+                                        >
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                      </div>
                                     </div>
                                     <pre className="text-xs text-brand-slate/80 whitespace-pre-wrap font-sans">
                                       {formatRecordSummary(rec)}
@@ -964,7 +1345,292 @@ export function LearningRecordStudentsTable({
                     </Fragment>
                   )
                 })}
-                {!filteredRows.length ? (
+      </>
+    )
+  }
+
+  return (
+    <AdminPageFrame>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <AdminPageHeader
+          title={zh ? "Learning Record" : "Learning Record"}
+          description={
+            mode === "teacher"
+              ? zh
+                ? "已登記學員（唯讀）— 點擊填寫該學生的 Academic Learning Record"
+                : "Enrolled students (read-only) — fill Academic Learning Record per student"
+              : zh
+                ? "已登記學生及家長資料；點擊列展開過往 Learning Record。正式上線後會同步就讀課程學員；目前可手動新增以支援資訊日／體驗日測試。"
+                : "Registered students & parents — expand a row for past records. Production will sync enrolled students; for now you can add manually for Open Day testing."
+          }
+          Icon={ClipboardList}
+        />
+        <div className="flex w-full sm:w-auto flex-wrap items-center gap-2 shrink-0">
+          <AdminGhostButton
+            type="button"
+            onClick={() => {
+              window.open("/forms/learning-record-coach-form.html", "_blank", "noopener,noreferrer")
+            }}
+            className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5"
+            title={zh ? "開啟紙本 Learning Record 表單（可列印／儲存 PDF）" : "Open printable Learning Record form"}
+          >
+            <Printer className="h-4 w-4" />
+            {zh ? "列印紙本表單" : "Print blank form"}
+          </AdminGhostButton>
+          {mode === "admin" ? (
+            <>
+              <AdminPrimaryButton type="button" onClick={openAddModal} disabled={demo} className="w-full sm:w-auto justify-center">
+                <UserPlus className="h-4 w-4" />
+                {zh ? "新增學生" : "Add student"}
+              </AdminPrimaryButton>
+              <AdminGhostButton
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={demo}
+                className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5"
+              >
+                <Upload className="h-4 w-4" />
+                {zh ? "匯入 CSV" : "Import CSV"}
+              </AdminGhostButton>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={handleCsvFileSelect}
+              />
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      {error ? (
+        <div
+          role="alert"
+          className="text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2"
+        >
+          {error}
+        </div>
+      ) : null}
+
+      <AdminCard>
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-3">
+          <div className="min-w-0 flex-1">
+            <AdminLabel>{zh ? "搜尋學生 / 家長 / 電話 / 場次" : "Search student / parent / phone / session"}</AdminLabel>
+            <AdminInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={
+                zh
+                  ? "輸入電話號碼、學生姓名、家長名稱、家長電郵或場次"
+                  : "Search by phone, child name, parent name, parent email, or session"
+              }
+            />
+          </div>
+        </div>
+
+        {mode === "admin" && selectedRows.length > 0 ? (
+          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-classz-200 bg-classz-50/70 px-3 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-medium text-brand-slate">
+                {zh ? `已選 ${selectedRows.length} 位` : `${selectedRows.length} selected`}
+              </p>
+              <button
+                type="button"
+                className="text-xs text-brand-slate/60 hover:text-brand-slate underline-offset-2 hover:underline disabled:opacity-40"
+                disabled={bulkBusy}
+                onClick={clearSelection}
+              >
+                {zh ? "取消選取" : "Clear selection"}
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-end">
+              <div className="min-w-[12rem] flex-1">
+                <AdminLabel>
+                  <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    {zh ? "批次指派 Companion" : "Bulk assign companion"}
+                    <Link
+                      href="/admin/teachers"
+                      className="text-[11px] font-normal text-brand-teal hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {zh ? "來自導師管理" : "From Teachers"}
+                    </Link>
+                  </span>
+                </AdminLabel>
+                <div className="flex flex-wrap gap-2">
+                  <AdminSelect
+                    value={bulkCoachId}
+                    onChange={(e) => setBulkCoachId(e.target.value)}
+                    disabled={demo || bulkBusy}
+                    className="min-w-[11rem] flex-1 py-1.5 text-sm"
+                  >
+                    <option value="">{zh ? "未指派" : "Unassigned"}</option>
+                    {companionOptionsForSelect().map((coach) => (
+                      <option key={coach.coach_user_id} value={String(coach.coach_user_id)}>
+                        {coach.label}
+                        {coach.email ? ` (${coach.email})` : ""}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                  <AdminGhostButton
+                    type="button"
+                    className="inline-flex items-center gap-1.5 justify-center"
+                    disabled={demo || bulkBusy}
+                    onClick={() => void bulkAssignCompanion()}
+                  >
+                    {zh ? "套用指派" : "Apply assign"}
+                  </AdminGhostButton>
+                </div>
+                {!coachOptions.length ? (
+                  <p className="mt-1 text-[11px] text-brand-slate/55">
+                    {zh ? (
+                      <>
+                        尚無已連結登入的導師，請先到{" "}
+                        <Link href="/admin/teachers" className="text-brand-teal hover:underline">
+                          導師管理
+                        </Link>{" "}
+                        同步／設定登入
+                      </>
+                    ) : (
+                      <>
+                        No teachers with login yet — sync or set login in{" "}
+                        <Link href="/admin/teachers" className="text-brand-teal hover:underline">
+                          Teachers
+                        </Link>
+                      </>
+                    )}
+                  </p>
+                ) : null}
+              </div>
+
+              <div>
+                <AdminLabel>{zh ? "批次產生報告" : "Bulk generate reports"}</AdminLabel>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5">
+                    <button
+                      type="button"
+                      className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                        bulkReportLanguage === "en"
+                          ? "bg-brand-teal text-white"
+                          : "text-brand-slate hover:bg-classz-50"
+                      }`}
+                      disabled={bulkBusy || demo}
+                      onClick={() => setBulkReportLanguage("en")}
+                    >
+                      EN
+                    </button>
+                    <button
+                      type="button"
+                      className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                        bulkReportLanguage === "zh"
+                          ? "bg-brand-teal text-white"
+                          : "text-brand-slate hover:bg-classz-50"
+                      }`}
+                      disabled={bulkBusy || demo}
+                      onClick={() => setBulkReportLanguage("zh")}
+                    >
+                      中文
+                    </button>
+                  </div>
+                  <AdminPrimaryButton
+                    type="button"
+                    className="text-sm py-1.5 px-3 inline-flex items-center gap-1.5"
+                    disabled={demo || bulkBusy}
+                    onClick={() => void bulkGenerateReports()}
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    {bulkBusy && generatingId
+                      ? zh
+                        ? "產生中…"
+                        : "Generating…"
+                      : zh
+                        ? "產生報告"
+                        : "Generate"}
+                  </AdminPrimaryButton>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 lg:ml-auto">
+                <AdminGhostButton
+                  type="button"
+                  className="inline-flex items-center gap-1.5 justify-center text-brand-coral border-brand-coral/30 hover:bg-brand-coral/10"
+                  disabled={demo || bulkBusy || !selectedRows.some((row) => row.record_count > 0)}
+                  onClick={() => void bulkClearRecords()}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {zh ? "刪除紀錄" : "Clear records"}
+                </AdminGhostButton>
+                <AdminGhostButton
+                  type="button"
+                  className="inline-flex items-center gap-1.5 justify-center text-brand-coral border-brand-coral/30 hover:bg-brand-coral/10"
+                  disabled={demo || bulkBusy}
+                  onClick={() => void bulkRemoveStudents()}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {zh ? "刪除學生" : "Delete students"}
+                </AdminGhostButton>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="h-8 w-8 rounded-full border-2 border-classz-100 border-t-classz-400 animate-spin" />
+          </div>
+        ) : (
+          <>
+          <AdminTableShell>
+            <AdminTable className="min-w-[82rem]">
+              <thead className="bg-classz-50 text-classz-600">
+                <tr>
+                  {mode === "admin" ? (
+                    <th className="px-2 py-2 w-10" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 accent-[var(--brand-teal)]"
+                        checked={allFilteredSelected}
+                        ref={(el) => {
+                          if (el) el.indeterminate = someFilteredSelected && !allFilteredSelected
+                        }}
+                        onChange={(e) => toggleSelectAllFiltered(e)}
+                        disabled={demo || !mainRows.length || bulkBusy}
+                        aria-label={zh ? "全選目前列表" : "Select all in list"}
+                      />
+                    </th>
+                  ) : null}
+                  {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
+                  <th className="px-3 py-2 text-left">{zh ? "學生" : "Child"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "年級" : "Grade"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "家長" : "Parent"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
+                  <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
+                  {mode === "admin" ? (
+                    <th className="px-3 py-2 text-left">
+                      <span className="inline-flex flex-col gap-0.5">
+                        <span>{zh ? "Companion導師" : "Companion coach"}</span>
+                        <Link
+                          href="/admin/teachers"
+                          className="text-[11px] font-normal text-brand-teal hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {zh ? "導師管理" : "Teachers"}
+                        </Link>
+                      </span>
+                    </th>
+                  ) : null}
+                  {mode === "teacher" ? (
+                    <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
+                  ) : (
+                    <th className="px-3 py-2 text-right">{zh ? "報告" : "Report"}</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-classz-100">
+                {renderStudentRows(mainRows)}
+                {!mainRows.length ? (
                   <tr>
                     <td colSpan={tableColSpan} className="px-3 py-10 text-center text-brand-slate/50">
                       {search.trim()
@@ -980,6 +1646,47 @@ export function LearningRecordStudentsTable({
               </tbody>
             </AdminTable>
           </AdminTableShell>
+
+          {demoRows.length > 0 ? (
+            <div className="mt-8 border-t border-classz-100 pt-6">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-brand-slate">
+                  {zh ? "Companion 動物 Demo（測試用）" : "Companion animal demos (for testing)"}
+                </h3>
+                <p className="mt-1 text-xs text-brand-slate/55">
+                  {zh
+                    ? "這 6 位 Demo 學生各對應一種動物型格，僅供產生報告測試，與上方正式名單分開。"
+                    : "These 6 demo students each map to one animal type for report testing, kept separate from the live list above."}
+                </p>
+              </div>
+              <AdminTableShell>
+                <AdminTable className="min-w-[82rem]">
+                  <thead className="bg-classz-50 text-classz-600">
+                    <tr>
+                      {mode === "admin" ? <th className="px-2 py-2 w-10" /> : null}
+                      {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
+                      <th className="px-3 py-2 text-left">{zh ? "學生" : "Child"}</th>
+                      <th className="px-3 py-2 text-left">{zh ? "年級" : "Grade"}</th>
+                      <th className="px-3 py-2 text-left">{zh ? "家長" : "Parent"}</th>
+                      <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
+                      <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
+                      <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
+                      {mode === "admin" ? (
+                        <th className="px-3 py-2 text-left">{zh ? "Companion導師" : "Companion coach"}</th>
+                      ) : null}
+                      {mode === "teacher" ? (
+                        <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
+                      ) : (
+                        <th className="px-3 py-2 text-right">{zh ? "報告" : "Report"}</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-classz-100">{renderStudentRows(demoRows)}</tbody>
+                </AdminTable>
+              </AdminTableShell>
+            </div>
+          ) : null}
+          </>
         )}
       </AdminCard>
 

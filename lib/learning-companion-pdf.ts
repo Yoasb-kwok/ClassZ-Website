@@ -6,6 +6,7 @@
 import {
   COMPANION_ANIMALS,
   PARENT_REMINDER,
+  PARENT_REMINDER_ZH,
   poseForSlot,
   resolveCompanionAnimal,
   type CompanionAnimalMeta,
@@ -23,6 +24,20 @@ const SECTION_LABELS_EN: Record<string, string> = {
   personalised_strategies: "Personalised strategies",
   what_classz_will_continue_observing: "What ClassZ will continue observing",
   evidence_and_confidence: "Evidence and confidence",
+}
+
+/** Train_CN.ipynb SECTION_TITLES */
+const SECTION_LABELS_ZH: Record<string, string> = {
+  current_learning_portrait: "孩子目前的學習樣貌",
+  how_they_approach_something_new: "他們如何面對新事物",
+  how_they_respond_to_challenge: "他們如何面對挑戰",
+  how_they_learn_with_other_people: "他們如何與他人一起學習",
+  how_they_respond_to_guidance_and_feedback: "他們如何回應指導與回饋",
+  conditions_that_bring_out_their_best: "能激發他們最佳表現的條件",
+  what_parents_may_notice_at_home: "家長在家中可能觀察到的情況",
+  personalised_strategies: "個人化策略",
+  what_classz_will_continue_observing: "ClassZ 將持續觀察的項目",
+  evidence_and_confidence: "證據與信心程度",
 }
 
 function escapeHtml(s: string) {
@@ -65,6 +80,7 @@ type CompanionSection = {
   What_may_help?: string[]
   theory?: string
   parent_reminder?: string
+  section_titles?: Record<string, string>
 }
 
 function narrativeBag(report: LearningCompanionReport) {
@@ -84,6 +100,28 @@ function chipsHtml(items: string[], accent: string) {
     .join("")
 }
 
+const ANIMAL_LABEL_ZH: Record<string, string> = {
+  "Rabbit Active Explorer": "兔子－積極探索型",
+  "Owl Thoughtful Learner": "貓頭鷹－沉思學習型",
+  "Dolphin Social Collaborator": "海豚－社群協作型",
+  "Turtle Steady Builder": "烏龜－穩健建構型",
+  "Fox Creative Problem Solver": "狐狸－靈活解題型",
+  "Bee Focused Worker": "蜜蜂－專注勤敏型",
+  Rabbit: "兔子－積極探索型",
+  Owl: "貓頭鷹－沉思學習型",
+  Dolphin: "海豚－社群協作型",
+  Turtle: "烏龜－穩健建構型",
+  Fox: "狐狸－靈活解題型",
+  Bee: "蜜蜂－專注勤敏型",
+}
+
+function localizeAnimalTitle(label: string | undefined | null, isZh: boolean) {
+  if (!label) return isZh ? "學習夥伴" : "Learning Companion"
+  if (!isZh) return label
+  if (/[\u4e00-\u9fff]/.test(label)) return label
+  return ANIMAL_LABEL_ZH[label] || label
+}
+
 export function buildLearningCompanionPdfHtml(
   report: LearningCompanionReport,
   options?: { assetBase?: string },
@@ -93,6 +131,10 @@ export function buildLearningCompanionPdfHtml(
   const isZh = reportLanguage.startsWith("zh")
   const sections = (narrative.sections || narrative.ai_sections || {}) as Record<string, unknown>
   const companion = getCompanionSection(narrative)
+  const apiSectionTitles = (companion?.section_titles ||
+    (narrative.section_titles as Record<string, string> | undefined)) as
+    | Record<string, string>
+    | undefined
   const supporting = (narrative.supporting_descriptions ||
     narrative.supporting_companion_sections ||
     []) as Array<{ animal_title?: string; companion_key?: string; text?: string; emoji?: string }>
@@ -102,23 +144,40 @@ export function buildLearningCompanionPdfHtml(
     resolveCompanionAnimal(report.primary_companion) ||
     COMPANION_ANIMALS.Rabbit
 
-  const name = escapeHtml(report.student_name || "Student")
+  const titleForDisplay = localizeAnimalTitle(
+    companion?.animal_title || animal.label || report.primary_companion,
+    isZh,
+  )
+
+  const name = escapeHtml(report.student_name || (isZh ? "學員" : "Student"))
   const recordsUsed = report.records_used || 0
   const heroLine =
     companion?.hero_line ||
-    `Across recent ClassZ records, your child was often observed as ${(companion?.often_observed_as || companion?.Often_observed_as || animal.oftenObservedAs)
-      .slice(0, 4)
-      .join(", ")
-      .toLowerCase()}.`
+    (isZh
+      ? `在近期的 ClassZ 紀錄中，您的孩子經常展現出${(companion?.often_observed_as || companion?.Often_observed_as || []).slice(0, 4).join("、") || "多項正向學習表現"}。`
+      : `Across recent ClassZ records, your child was often observed as ${(companion?.often_observed_as || companion?.Often_observed_as || animal.oftenObservedAs)
+          .slice(0, 4)
+          .join(", ")
+          .toLowerCase()}.`)
   const confidence =
     companion?.confidence_message ||
-    `Based on ${recordsUsed || "recent"} learning records. Similar learning patterns have appeared repeatedly across the recent records.`
+    (isZh
+      ? `根據近期 ${recordsUsed || "多"} 份學習紀錄整理。`
+      : `Based on ${recordsUsed || "recent"} learning records. Similar learning patterns have appeared repeatedly across the recent records.`)
   const meaning1 = companion?.meaning_paragraph_1 || companion?.What_this_mean1 || animal.meaning1
   const meaning2 = companion?.meaning_paragraph_2 || companion?.What_this_mean2 || animal.meaning2
   const observed = companion?.often_observed_as || companion?.Often_observed_as || animal.oftenObservedAs
   const help = companion?.what_may_help || companion?.What_may_help || animal.whatMayHelp
   const theory = companion?.theory || animal.theory
-  const reminder = companion?.parent_reminder || PARENT_REMINDER
+  const reminder = companion?.parent_reminder || (isZh ? PARENT_REMINDER_ZH : PARENT_REMINDER)
+  const sectionLabels = isZh ? SECTION_LABELS_ZH : SECTION_LABELS_EN
+  const brandLine = isZh ? "ClassZ · 學習夥伴報告" : "ClassZ · Learning Companion Report"
+  const interpHeading = isZh ? "個人化解讀" : "Personalised interpretation"
+
+  const sectionTitle = (key: string) => {
+    if (isZh && apiSectionTitles?.[key]) return apiSectionTitles[key]
+    return sectionLabels[key] || key
+  }
 
   const asset = (path: string) => {
     const abs = options?.assetBase ? `${options.assetBase}${path}` : absoluteAssetUrl(path)
@@ -128,7 +187,6 @@ export function buildLearningCompanionPdfHtml(
   const poseCover = poseForSlot(animal, "cover")
   const poseHelp = poseForSlot(animal, "what_may_help")
   const poseTheory = poseForSlot(animal, "why_we_think_this")
-  const poseSupport = poseForSlot(animal, "supporting")
   const poseInterp = poseForSlot(animal, "personalised_interpretation")
   const poseNext = poseForSlot(animal, "strategies_and_next")
 
@@ -140,11 +198,11 @@ export function buildLearningCompanionPdfHtml(
       <div class="cover-top">
         <div class="brand-row">
           <div class="z-sir">${escapeHtml(animal.initial || "CZ")}</div>
-          <p class="brand">ClassZ · Learning Companion Report</p>
+          <p class="brand">${escapeHtml(brandLine)}</p>
         </div>
         <div class="title-row">
           <div>
-            <h1>${escapeHtml(animal.label)}</h1>
+            <h1>${escapeHtml(titleForDisplay)}</h1>
             <p class="snapshot">${isZh ? "學員快照：" : "Snapshot for "} <strong>${name}</strong> ${isZh ? "· 依近期課堂紀錄整理" : "· based on recent class records"}</p>
           </div>
           <div class="initial" aria-hidden="true">${escapeHtml(animal.initial)}</div>
@@ -158,11 +216,11 @@ export function buildLearningCompanionPdfHtml(
           <p>${escapeHtml(meaning1)}</p>
           <p>${escapeHtml(meaning2)}</p>
           <p class="disclaimer">${isZh ? `這不代表 ${name} 一定只會以這種方式學習；這是根據近期重複觀察整理出的階段性學習快照。` : `This does not mean ${name} always learns this way. It is a recent snapshot based on repeated coach and tutor observations.`}</p>
-          <h3>${isZh ? "常見觀察" : "Often observed as"}</h3>
+          <h3 class="plain">${isZh ? "經常被觀察到的表現" : "Often observed as"}</h3>
           <div class="chips">${chipsHtml(observed, animal.accent)}</div>
         </div>
         <div class="section-art">
-          <img class="pose" src="${asset(poseCover)}" alt="${escapeHtml(animal.label)}" />
+          <img class="pose" src="${asset(poseCover)}" alt="${escapeHtml(titleForDisplay)}" />
         </div>
       </div>
     </header>
@@ -170,10 +228,13 @@ export function buildLearningCompanionPdfHtml(
     <section class="pose-section" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split reverse">
         <div class="section-copy">
-          <h2>${isZh ? "可以怎樣幫助" : "What may help"}</h2>
+          <h2>${isZh ? "可能有幫助的做法" : "What may help"}</h2>
           <ul class="help-list">
             ${help.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
           </ul>
+          <h2>${isZh ? "解讀依據" : "Why we think this"}</h2>
+          <p>${escapeHtml(theory)}</p>
+          <p class="reminder">${escapeHtml(reminder)}</p>
         </div>
         <div class="section-art">
           <img class="pose" src="${asset(poseHelp)}" alt="" />
@@ -184,28 +245,22 @@ export function buildLearningCompanionPdfHtml(
     <section class="pose-section theory-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split">
         <div class="section-copy">
-          <h2>${isZh ? "為什麼這樣理解" : "Why we think this"}</h2>
-          <p>${escapeHtml(theory)}</p>
-          <p class="reminder">${escapeHtml(reminder)}</p>
-        </div>
-        <div class="section-art">
-          <img class="pose" src="${asset(poseTheory)}" alt="" />
-        </div>
-      </div>
-    </section>
+          <h2>${isZh ? "同時可見的其他學習型態" : "Also reflected in learning"}</h2>
+          <p class="meta">${
+            isZh
+              ? "根據近期紀錄演算法，除主要學習夥伴外，也可能同時出現以下次要型態（非替代結果）。"
+              : "Based on recent records, supporting companion patterns may also appear alongside the primary result."
+          }</p>
   `
 
   if (supporting.length) {
-    body += `
-      <section class="pose-section supporting-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
-        <div class="section-split reverse">
-          <div class="section-copy">
-            <h2>${isZh ? `同時反映在 ${name} 的學習中` : `Also reflected in ${name}'s learning`}</h2>
-    `
     for (const s of supporting) {
       const supportAnimal =
         resolveCompanionAnimal(s.animal_title) || resolveCompanionAnimal(s.companion_key)
-      const label = s.animal_title || supportAnimal?.label || s.companion_key || "Supporting"
+      const label = localizeAnimalTitle(
+        s.animal_title || supportAnimal?.label || s.companion_key,
+        isZh,
+      )
       const t = s.text || sectionPlain(s)
       if (!t) continue
       const accent = supportAnimal?.accent || "#0ABAB5"
@@ -217,7 +272,7 @@ export function buildLearningCompanionPdfHtml(
           <div class="supporting-head">
             ${thumb ? `<img class="supporting-thumb" src="${asset(thumb)}" alt="" />` : ""}
             <div>
-              <h3>${escapeHtml(label)}</h3>
+              <h3 class="plain">${escapeHtml(label)}</h3>
             </div>
             <div class="initial small">${escapeHtml(initial)}</div>
           </div>
@@ -225,33 +280,40 @@ export function buildLearningCompanionPdfHtml(
         </div>
       `
     }
-    body += `
-          </div>
-          <div class="section-art">
-            <img class="pose" src="${asset(poseSupport)}" alt="" />
-          </div>
-        </div>
-      </section>
-    `
+  } else {
+    body += `<p>${
+      isZh
+        ? "目前紀錄尚未達到次要學習型態的門檻；主要型態證據已足夠，其他型態會隨更多課堂紀錄再評估。"
+        : "No supporting companion met the evidence threshold yet. The primary pattern is clear; other patterns will be reassessed as more records accumulate."
+    }</p>`
   }
+
+  body += `
+        </div>
+        <div class="section-art">
+          <img class="pose" src="${asset(poseTheory)}" alt="" />
+        </div>
+      </div>
+    </section>
+  `
 
   body += `
     <section class="pose-section interpretation" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split">
         <div class="section-copy">
-          <h2>Personalised interpretation</h2>
+          <h2>${escapeHtml(interpHeading)}</h2>
   `
   for (const key of earlySectionKeys) {
     const raw = sections[key]
     const text = sectionPlain(raw)
     if (!text) continue
-    const title = SECTION_LABELS_EN[key] || key
+    const title = sectionTitle(key)
     if (Array.isArray(raw)) {
-      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><ul>${raw
+      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><ul>${raw
         .map((item) => `<li>${escapeHtml(String(item))}</li>`)
         .join("")}</ul></div>`
     } else {
-      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
+      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
     }
   }
   body += `
@@ -270,13 +332,13 @@ export function buildLearningCompanionPdfHtml(
     const raw = sections[key]
     const text = sectionPlain(raw)
     if (!text) continue
-    const title = SECTION_LABELS_EN[key] || key
+    const title = sectionTitle(key)
     if (Array.isArray(raw)) {
-      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><ul>${raw
+      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><ul>${raw
         .map((item) => `<li>${escapeHtml(String(item))}</li>`)
         .join("")}</ul></div>`
     } else {
-      body += `<div class="section-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
+      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
     }
   }
   body += `
@@ -293,28 +355,39 @@ export function buildLearningCompanionPdfHtml(
   `
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${isZh ? "zh-Hant" : "en"}">
 <head>
   <meta charset="utf-8" />
-  <title>ClassZ Learning Companion — ${name} · ${escapeHtml(animal.label)}</title>
+  <title>${escapeHtml(brandLine)} — ${name} · ${escapeHtml(titleForDisplay)}</title>
   <style>
     @page { margin: 14mm 12mm; }
-    :root { --ink:#2c3a3b; --muted:#667778; --line:#d7e3e3; --brand:#0ABAB5; }
+    :root {
+      --ink:#2c3a3b;
+      --muted:#667778;
+      --line:${escapeHtml(animal.accent)}33;
+      --brand:${escapeHtml(animal.accent)};
+      --page-soft:${escapeHtml(animal.accentSoft)};
+    }
     * { box-sizing: border-box; }
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Helvetica Neue", "PingFang HK", "Noto Sans TC", Helvetica, Arial, sans-serif;
       color: var(--ink);
       line-height: 1.55;
       font-size: 12.5px;
       max-width: 820px;
       margin: 0 auto;
       padding: 18px;
-      background: #fff;
+      background: linear-gradient(180deg, var(--page-soft) 0%, #ffffff 40%, var(--page-soft) 100%);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
     .z-sir { width:42px; height:42px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:var(--accent); color:#fff; font-weight:700; }
-    .brand { color: var(--brand); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; font-size: 11px; margin: 0; }
-    .cover { border:1px solid var(--line); border-radius:18px; overflow:hidden; background:linear-gradient(180deg, var(--accent-soft), #fff 48%); }
+    .brand { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 11px; margin: 0; }
+    .cover {
+      border:1px solid var(--line); border-radius:18px; overflow:hidden;
+      background:linear-gradient(165deg, var(--accent-soft) 0%, #fff 55%, var(--accent-soft) 140%);
+    }
     .cover-top { padding:18px 18px 0; }
     .title-row { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
     h1 { font-size: 26px; margin: 0 0 6px; color: #1f2d2e; }
@@ -324,7 +397,10 @@ export function buildLearningCompanionPdfHtml(
       background: var(--accent); color:#fff; font-weight:800; font-size:22px; flex-shrink:0;
     }
     .initial.small { width:36px; height:36px; font-size:16px; }
-    .pose-section { margin-top: 18px; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#fff; }
+    .pose-section {
+      margin-top: 18px; border:1px solid var(--line); border-radius:16px; overflow:hidden;
+      background: linear-gradient(180deg, #ffffff 0%, var(--accent-soft) 100%);
+    }
     .theory-block { background: var(--accent-soft); }
     .section-split {
       display:grid; grid-template-columns: 1.2fr 0.8fr; gap:16px; padding:16px 18px; align-items:center;
@@ -334,41 +410,39 @@ export function buildLearningCompanionPdfHtml(
     .section-art { text-align:center; }
     .pose {
       width:100%; max-width:260px; height:180px; object-fit:contain; object-position:center;
-      background:#0b0b0b; border-radius:16px; padding:8px;
+      background:#fff; border-radius:16px; padding:8px;
     }
     .hero-line { font-size:14px; font-weight:600; }
     .meta { color: var(--muted); font-size: 11.5px; }
     .disclaimer { color: var(--muted); font-size:11px; }
-    h2 { font-size: 15px; margin: 0 0 8px; color: var(--brand); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
-    h3 { font-size: 12.5px; margin: 14px 0 6px; color: #4C5B5C; text-transform: uppercase; letter-spacing: 0.04em; }
+    h2 { font-size: 15px; margin: 0 0 8px; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+    h3 { font-size: 12.5px; margin: 14px 0 6px; color: var(--accent); }
+    h3.plain { text-transform: none; letter-spacing: 0; }
     p { margin: 0 0 8px; }
     ul { margin: 0 0 8px; padding-left: 1.15rem; }
     li { margin-bottom: 4px; }
     .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
     .chip {
       display:inline-flex; align-items:center; border:1px solid; border-radius:999px;
-      padding:4px 10px; font-size:11px; background:#fff; font-weight:600;
+      padding:4px 10px; font-size:11px; background:rgba(255,255,255,0.92); font-weight:600;
     }
-    .reminder { color: var(--muted); font-size:11px; margin-top:10px; }
     .supporting {
-      background: #fff; border:1px solid color-mix(in srgb, var(--accent) 25%, white);
-      border-radius:12px; padding:12px 14px; margin:10px 0;
+      background:linear-gradient(135deg, var(--accent-soft) 0%, #fff 70%);
+      border:1px solid color-mix(in srgb, var(--accent) 28%, white);
+      border-radius:12px; padding:10px 12px; margin:10px 0;
     }
     .supporting-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
     .supporting-head h3 { margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--accent); }
     .supporting-thumb {
-      width:48px; height:48px; object-fit:contain; background:#111; border-radius:10px; padding:3px;
+      width:40px; height:40px; object-fit:contain; background:#fff; border-radius:8px; padding:2px;
     }
-    .section-card { margin: 12px 0 16px; }
-    .section-card h3 { text-transform:none; letter-spacing:0; font-size:14px; color:#1f2d2e; margin-bottom:6px; }
-    footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line); color: #7a8889; font-size: 10.5px; }
+    .reminder { color: var(--muted); font-size:11px; }
+    .section-card { margin-top: 10px; }
+    .section-card h3 { color: var(--accent); }
+    footer { margin-top: 18px; padding-top: 10px; border-top: 1px dashed var(--line); color: var(--muted); font-size: 11px; }
     @media print {
-      body { padding: 0; }
+      body { background: var(--page-soft); }
       .cover, .pose-section, .supporting { break-inside: avoid; }
-    }
-    @media (max-width: 720px) {
-      .section-split, .section-split.reverse { grid-template-columns: 1fr; }
-      .section-split.reverse .section-art { order: 0; }
     }
   </style>
 </head>
