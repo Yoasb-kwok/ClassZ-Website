@@ -176,7 +176,7 @@ function LoginForm() {
                   autoComplete="username"
                   required
                   className="block w-full pl-10 pr-3 py-2.5 border border-classz-200 rounded-md text-brand-slate placeholder:text-brand-slate/50 focus:outline-none focus:ring-2 focus:ring-classz-400 focus:border-classz-400 sm:text-sm"
-                  placeholder={portal === "staff" ? "center@demo.com" : "parent@example.com"}
+                  placeholder={portal === "staff" ? "you@classz.co" : "parent@example.com"}
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                 />
@@ -236,80 +236,6 @@ function LoginForm() {
               </p>
             )}
           </div>
-
-          {portal === "staff" ? (
-          <div className="rounded-lg border border-classz-100 bg-classz-50/80 p-4 space-y-3">
-            <p className="text-xs font-semibold text-brand-slate/80">{t("classzLogin.demoTitle")}</p>
-            <p className="text-xs text-brand-slate/70">
-              {t("classzLogin.demoPassword")} <code className="text-brand-slate bg-white px-1.5 py-0.5 rounded border">111111</code>
-            </p>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginIdentifier("admin@admin.com")
-                  setPassword("111111")
-                }}
-                className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
-              >
-                <span className="font-medium text-brand-slate">{t("classzLogin.platformAccount")}</span>
-                <code className="text-xs text-brand-slate/70">admin@admin.com</code>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginIdentifier("center@demo.com")
-                  setPassword("111111")
-                }}
-                className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
-              >
-                <span className="font-medium text-brand-slate">{t("classzLogin.centerAccount")}</span>
-                <code className="text-xs text-brand-slate/70">center@demo.com</code>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginIdentifier("centre@classzcentre.demo")
-                  setPassword("111111")
-                }}
-                className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
-              >
-                <span className="font-medium text-brand-slate">
-                  {locale === "zh-TW" ? "ClassZ Centre" : "ClassZ Centre"}
-                </span>
-                <code className="text-xs text-brand-slate/70">centre@classzcentre.demo</code>
-              </button>
-              {[1, 2, 3, 4].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => {
-                    setLoginIdentifier(`teacher${n}@classzcentre.demo`)
-                    setPassword("111111")
-                  }}
-                  className="flex items-center justify-between rounded-md border border-classz-100 bg-white px-3 py-2 text-left text-sm hover:border-classz-400 hover:bg-classz-50 transition-colors"
-                >
-                  <span className="font-medium text-brand-slate">
-                    {locale === "zh-TW" ? `ClassZ Centre Teacher ${n}` : `ClassZ Centre Teacher ${n}`}
-                  </span>
-                  <code className="text-xs text-brand-slate/70">teacher{n}@classzcentre.demo</code>
-                </button>
-              ))}
-            </div>
-            <p className="text-[11px] text-brand-slate/50 leading-relaxed">{t("classzLogin.offlineHint")}</p>
-          </div>
-          ) : (
-            <div className="rounded-lg border border-classz-100 bg-classz-50/80 p-4 space-y-2">
-              <p className="text-xs font-semibold text-brand-slate/80">
-                {locale === "zh-TW" ? "家庭 Portal 提示" : "Family portal note"}
-              </p>
-              <p className="text-xs leading-relaxed text-brand-slate/70">
-                {locale === "zh-TW"
-                  ? "如需測試家長 / 學生登入，可使用實際已建立的家長帳戶資料登入。"
-                  : "For testing parent/student access, sign in with a real family account that already exists in the system."}
-              </p>
-            </div>
-          )}
         </form>
         </div>
         ) : (

@@ -19,12 +19,7 @@
         "signingIn": "Signing in…",
         "forgotPassword": "Forgot password?",
         "registerHint": "Need an account? Contact your ClassZ administrator.",
-        "invalidCredentials": "Invalid email or password",
-        "demoTitle": "Demo accounts (click to fill)",
-        "demoPassword": "Password for both:",
-        "platformAccount": "Platform",
-        "centerAccount": "Center",
-        "offlineHint": "Demo mode: works without API. Set NEXT_PUBLIC_CLASSZ_API_URL to use your classz-api."
+        "invalidCredentials": "Invalid email or password"
     },
     "classzAdmin": {
         "overview": "Overview",

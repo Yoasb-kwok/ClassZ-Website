@@ -19,12 +19,7 @@
         "signingIn": "登入中…",
         "forgotPassword": "忘記密碼？",
         "registerHint": "需要帳戶？請聯絡 ClassZ 管理員。",
-        "invalidCredentials": "電郵或密碼不正確",
-        "demoTitle": "示範帳號（點擊自動填入）",
-        "demoPassword": "兩組帳號共用密碼：",
-        "platformAccount": "平台",
-        "centerAccount": "中心",
-        "offlineHint": "示範模式：未連 API 亦可登入。設定 NEXT_PUBLIC_CLASSZ_API_URL 可改連你的 classz-api。"
+        "invalidCredentials": "電郵或密碼不正確"
     },
     "classzAdmin": {
         "overview": "總覽",

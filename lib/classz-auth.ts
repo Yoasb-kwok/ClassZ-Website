@@ -15,32 +15,12 @@ export type ClasszSession = {
   }
 }
 
-const DEMO_PASSWORD = "111111"
 const USE_DEMO = process.env.NEXT_PUBLIC_CLASSZ_USE_DEMO === "1"
 
 const DEMO_USERS: Record<
   string,
   { password: string; name: string; role: ClasszPortalRole; roleLabel: string }
-> = {
-  "admin@admin.com": {
-    password: DEMO_PASSWORD,
-    name: "Platform Admin",
-    role: "platform_admin",
-    roleLabel: "平台",
-  },
-  "center@demo.com": {
-    password: DEMO_PASSWORD,
-    name: "Demo Centre Admin",
-    role: "center_admin",
-    roleLabel: "中心",
-  },
-  "coach1@demo.com": {
-    password: DEMO_PASSWORD,
-    name: "李老師",
-    role: "coach",
-    roleLabel: "導師",
-  },
-}
+> = {}
 
 export function roleLabelFor(role: ClasszPortalRole): string {
   if (role === "platform_admin") return "平台"
