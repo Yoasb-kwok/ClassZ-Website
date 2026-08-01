@@ -326,32 +326,72 @@ export function TeachersManager() {
   const [createLoginEmail, setCreateLoginEmail] = useState("")
   const [createLoginPassword, setCreateLoginPassword] = useState("111111")
   const [bulkCreatingRoster, setBulkCreatingRoster] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [autoSyncAttempted, setAutoSyncAttempted] = useState(false)
 
   const load = useCallback(async () => {
     if (demo) {
       setRows([])
       setCoaches([])
+      setLoadError(zh ? "請用中心帳號登入以載入導師" : "Sign in with a centre account to load teachers")
       return
     }
     try {
+      setLoadError(null)
       const [data, coachData] = await Promise.all([
         apiGet<Instructor[]>("/instructors"),
         apiGet<CoachAccount[]>("/coaches?include_inactive=1").catch(() => [] as CoachAccount[]),
       ])
       setRows(Array.isArray(data) ? data : [])
       setCoaches(Array.isArray(coachData) ? coachData : [])
-    } catch {
+    } catch (e) {
       setRows([])
       setCoaches([])
+      setLoadError(e instanceof Error ? e.message : zh ? "載入導師失敗" : "Failed to load teachers")
     }
-  }, [demo])
+  }, [demo, zh])
 
   useEffect(() => {
-    load()
+    void load()
   }, [load])
 
-  function coachForInstructor(instructorId: number) {
-    return coaches.find((c) => Number(c.instructor_id) === Number(instructorId)) || null
+  // If ClassZ coach roster names are missing from the teachers table, sync once.
+  useEffect(() => {
+    if (demo || autoSyncAttempted || loadError || bulkCreatingRoster) return
+    if (!rows.length && !coaches.length) return
+    const names = new Set(rows.map((r) => r.name.trim().toLowerCase()))
+    const missing = DEFAULT_COMPANION_COACH_ROSTER.some((c) => !names.has(c.name.toLowerCase()))
+    if (!missing) return
+    setAutoSyncAttempted(true)
+    void (async () => {
+      try {
+        await apiPost("/coaches/sync-instructors", {})
+        await load()
+      } catch {
+        // Keep table as-is; user can click Sync manually. Error already visible if load fails.
+      }
+    })()
+  }, [demo, autoSyncAttempted, loadError, bulkCreatingRoster, rows, coaches.length, load])
+
+  function coachForInstructor(instructorId: number, instructorName?: string) {
+    const byId = coaches.find((c) => Number(c.instructor_id) === Number(instructorId))
+    if (byId) return byId
+    const key = String(instructorName || "")
+      .trim()
+      .toLowerCase()
+    if (!key) return null
+    return (
+      coaches.find((c) => {
+        const emailLocal = String(c.email || "")
+          .split("@")[0]
+          .trim()
+          .toLowerCase()
+        const full = String(c.full_name || "")
+          .trim()
+          .toLowerCase()
+        return emailLocal === key || full === key
+      }) || null
+    )
   }
 
   const filtered = rows.filter((i) => {
@@ -720,8 +760,16 @@ export function TeachersManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-classz-100">
-              {filtered.map((i) => {
-                const coach = coachForInstructor(i.id)
+              {loadError ? (
+                <tr>
+                  <td colSpan={8} className="px-3 py-8 text-center text-brand-coral">
+                    {loadError}
+                  </td>
+                </tr>
+              ) : null}
+              {!loadError &&
+                filtered.map((i) => {
+                const coach = coachForInstructor(i.id, i.name)
                 const active = coach ? coach.is_active !== false && Number(coach.isActivated) !== 0 : false
                 return (
                 <tr key={i.id} className="bg-white">
@@ -772,7 +820,7 @@ export function TeachersManager() {
                   </td>
                 </tr>
               )})}
-              {!filtered.length ? (
+              {!loadError && !filtered.length ? (
                 <tr>
                   <td colSpan={8} className="px-3 py-8 text-center text-classz-500">
                     {demo ? (zh ? "請用中心帳號登入" : "Sign in with centre account") : zh ? "暫無導師" : "No teachers"}

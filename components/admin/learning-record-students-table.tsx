@@ -318,7 +318,8 @@ export function LearningRecordStudentsTable({
         if (!coachByInstructorId.has(iid)) coachByInstructorId.set(iid, coach)
       }
 
-      // Prefer teachers from 導師管理 that have a linked coach login
+      // Prefer teachers from 導師管理 that have a linked coach login.
+      // Fallback: list active coach accounts directly if instructors API is empty/unavailable.
       const fromTeachers: CompanionCoachOption[] = []
       for (const instructor of instructorList) {
         const coach = coachByInstructorId.get(Number(instructor.id))
@@ -331,7 +332,20 @@ export function LearningRecordStudentsTable({
         })
       }
       fromTeachers.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }))
-      setCoachOptions(fromTeachers)
+      if (fromTeachers.length) {
+        setCoachOptions(fromTeachers)
+      } else {
+        const fromCoaches = coachList
+          .filter((c) => c?.id && Number(c.isActivated) !== 0)
+          .map((c) => ({
+            coach_user_id: Number(c.id),
+            instructor_id: c.instructor_id != null ? Number(c.instructor_id) : 0,
+            label: String(c.full_name || c.name || "").trim() || String(c.email || "").split("@")[0] || c.email,
+            email: c.email,
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }))
+        setCoachOptions(fromCoaches)
+      }
       setSelectedIds((prev) => {
         if (!prev.size) return prev
         const alive = new Set(nextRows.map((r) => r.profile_id))
