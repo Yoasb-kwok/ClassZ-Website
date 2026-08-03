@@ -447,10 +447,10 @@ export function LearningRecordStudentsTable({
     return list
   }
 
-  async function loadClassOptions(): Promise<ClassOption[]> {
+  async function loadClassOptions(): Promise<{ list: ClassOption[]; error: string | null }> {
     try {
       const data = await apiGet<Record<string, unknown>[]>("/classes")
-      return (Array.isArray(data) ? data : [])
+      const list = (Array.isArray(data) ? data : [])
         .map((c) => ({
           id: Number(c.id),
           name: String(c.name || ""),
@@ -458,8 +458,12 @@ export function LearningRecordStudentsTable({
         }))
         .filter((c) => Number.isFinite(c.id) && c.id > 0)
         .sort((a, b) => String(b.start_time || "").localeCompare(String(a.start_time || "")))
-    } catch {
-      return []
+      return { list, error: null }
+    } catch (e) {
+      return {
+        list: [],
+        error: e instanceof Error ? e.message : zh ? "無法載入場次" : "Failed to load sessions",
+      }
     }
   }
 
@@ -467,8 +471,9 @@ export function LearningRecordStudentsTable({
     setAddError(null)
     setAddForm(emptyAddForm())
     setAddOpen(true)
-    const list = await loadClassOptions()
+    const { list, error } = await loadClassOptions()
     setClasses(list)
+    if (error) setAddError(error)
     if (list.length === 1) {
       setAddForm((f) => ({ ...f, class_id: String(list[0].id) }))
     }
@@ -480,8 +485,9 @@ export function LearningRecordStudentsTable({
     setImportRows(rows)
     setImportClassId("")
     setImportOpen(true)
-    const list = await loadClassOptions()
+    const { list, error } = await loadClassOptions()
     setClasses(list)
+    if (error) setImportError(error)
     if (list.length === 1) {
       setImportClassId(String(list[0].id))
     }
