@@ -1324,174 +1324,156 @@ export function LearningRecordStudentsTable({
                             </Link>
                           </td>
                         ) : (
-                          <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                            <div className="inline-flex min-w-[14rem] flex-wrap justify-end gap-1.5">
-                              {r.record_count >= MIN_RECORDS_FOR_REPORT ? (
-                                <div className="inline-flex items-center gap-1.5">
-                                  <div className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5">
+                          <td
+                            className="px-3 py-2 text-right align-top"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="inline-flex flex-col items-end gap-1.5 min-w-[10.5rem]">
+                              {/* Top: report actions */}
+                              <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap">
+                                {r.record_count >= MIN_RECORDS_FOR_REPORT ? (
+                                  <>
+                                    <div className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5">
+                                      <button
+                                        type="button"
+                                        className={`inline-flex items-center justify-center rounded-md px-1.5 py-1 text-base leading-none transition-colors ${
+                                          preferredReportLanguage(r.profile_id) === "en"
+                                            ? "bg-brand-teal/15 ring-1 ring-brand-teal/40"
+                                            : "hover:bg-classz-50 opacity-60"
+                                        }`}
+                                        disabled={generatingId === r.profile_id || demo}
+                                        onClick={() =>
+                                          setReportLanguageByProfile((prev) => ({
+                                            ...prev,
+                                            [r.profile_id]: "en",
+                                          }))
+                                        }
+                                        title={zh ? "英文報告" : "English report"}
+                                        aria-label={zh ? "英文報告" : "English report"}
+                                      >
+                                        <span aria-hidden>🇬🇧</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className={`inline-flex items-center justify-center rounded-md px-1.5 py-1 text-base leading-none transition-colors ${
+                                          preferredReportLanguage(r.profile_id) === "zh"
+                                            ? "bg-brand-teal/15 ring-1 ring-brand-teal/40"
+                                            : "hover:bg-classz-50 opacity-60"
+                                        }`}
+                                        disabled={generatingId === r.profile_id || demo}
+                                        onClick={() =>
+                                          setReportLanguageByProfile((prev) => ({
+                                            ...prev,
+                                            [r.profile_id]: "zh",
+                                          }))
+                                        }
+                                        title={zh ? "中文報告" : "Chinese report"}
+                                        aria-label={zh ? "中文報告" : "Chinese report"}
+                                      >
+                                        <span aria-hidden>🇭🇰</span>
+                                      </button>
+                                    </div>
                                     <button
                                       type="button"
-                                      className={`inline-flex items-center justify-center rounded-md px-1.5 py-1 text-base leading-none transition-colors ${
-                                        preferredReportLanguage(r.profile_id) === "en"
-                                          ? "bg-brand-teal/15 ring-1 ring-brand-teal/40"
-                                          : "hover:bg-classz-50 opacity-60"
-                                      }`}
+                                      className="inline-flex p-1.5 rounded-md text-white bg-brand-teal hover:bg-brand-teal/90 border border-brand-teal disabled:opacity-40"
                                       disabled={generatingId === r.profile_id || demo}
-                                      onClick={() =>
-                                        setReportLanguageByProfile((prev) => ({
-                                          ...prev,
-                                          [r.profile_id]: "en",
-                                        }))
+                                      onClick={(e) =>
+                                        generateReport(r.profile_id, preferredReportLanguage(r.profile_id), e)
                                       }
-                                      title={zh ? "英文報告" : "English report"}
-                                      aria-label={zh ? "英文報告" : "English report"}
-                                    >
-                                      <span aria-hidden>🇬🇧</span>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className={`inline-flex items-center justify-center rounded-md px-1.5 py-1 text-base leading-none transition-colors ${
-                                        preferredReportLanguage(r.profile_id) === "zh"
-                                          ? "bg-brand-teal/15 ring-1 ring-brand-teal/40"
-                                          : "hover:bg-classz-50 opacity-60"
-                                      }`}
-                                      disabled={generatingId === r.profile_id || demo}
-                                      onClick={() =>
-                                        setReportLanguageByProfile((prev) => ({
-                                          ...prev,
-                                          [r.profile_id]: "zh",
-                                        }))
+                                      title={
+                                        generatingId === r.profile_id
+                                          ? zh
+                                            ? "產生中…"
+                                            : "Generating…"
+                                          : zh
+                                            ? "產生報告"
+                                            : "Generate report"
                                       }
-                                      title={zh ? "中文報告" : "Chinese report"}
-                                      aria-label={zh ? "中文報告" : "Chinese report"}
+                                      aria-label={zh ? "產生報告" : "Generate report"}
                                     >
-                                      <span aria-hidden>🇭🇰</span>
+                                      <FileText className="h-3.5 w-3.5" />
                                     </button>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    className="inline-flex p-1.5 rounded-md text-white bg-brand-teal hover:bg-brand-teal/90 border border-brand-teal disabled:opacity-40"
-                                    disabled={generatingId === r.profile_id || demo}
-                                    onClick={(e) => generateReport(r.profile_id, preferredReportLanguage(r.profile_id), e)}
-                                    title={
-                                      generatingId === r.profile_id
-                                        ? zh
-                                          ? "產生中…"
-                                          : "Generating…"
-                                        : zh
-                                          ? "產生報告"
-                                          : "Generate report"
-                                    }
-                                    aria-label={zh ? "產生報告" : "Generate report"}
-                                  >
-                                    <FileText className="h-3.5 w-3.5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
-                                    disabled={demo || saving}
-                                    title={zh ? "編輯學生資料" : "Edit student"}
-                                    onClick={(e) => openEditModal(r, e)}
-                                  >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </button>
-                                  <Link
-                                    href={`/admin/teacher-students/${r.profile_id}`}
-                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
-                                    title={zh ? "填寫 Learning Record" : "Fill learning record"}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <ClipboardList className="h-3.5 w-3.5" />
-                                  </Link>
-                                  <button
-                                    type="button"
-                                    className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
-                                    disabled={demo || removingStudentProfileId === r.profile_id}
-                                    title={zh ? "刪除整個學生紀錄" : "Delete entire student record"}
-                                    onClick={(e) => removeStudentFromLearningRecord(r.profile_id, e)}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="inline-flex items-center gap-1.5">
-                                  <span className="text-[11px] text-brand-slate/45 self-center">
+                                  </>
+                                ) : (
+                                  <span className="text-[11px] text-brand-slate/45 self-center whitespace-nowrap">
                                     {zh
                                       ? `需 ${MIN_RECORDS_FOR_REPORT - r.record_count} 次紀錄`
                                       : `Need ${MIN_RECORDS_FOR_REPORT - r.record_count} more`}
                                   </span>
-                                  <button
-                                    type="button"
-                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
-                                    disabled={demo || saving}
-                                    title={zh ? "編輯學生資料" : "Edit student"}
-                                    onClick={(e) => openEditModal(r, e)}
-                                  >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </button>
-                                  <Link
-                                    href={`/admin/teacher-students/${r.profile_id}`}
-                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
-                                    title={zh ? "填寫 Learning Record" : "Fill learning record"}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <ClipboardList className="h-3.5 w-3.5" />
-                                  </Link>
-                                  <button
-                                    type="button"
-                                    className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
-                                    disabled={demo || removingStudentProfileId === r.profile_id}
-                                    title={zh ? "刪除整個學生紀錄" : "Delete entire student record"}
-                                    onClick={(e) => removeStudentFromLearningRecord(r.profile_id, e)}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                </div>
-                              )}
-                              {(Number(r.report_count) || 0) > 0 ? (
+                                )}
+                                {(Number(r.report_count) || 0) > 0 ? (
+                                  <>
+                                    <button
+                                      type="button"
+                                      className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                      disabled={demo}
+                                      onClick={(e) => viewLatestReport(r.profile_id, e)}
+                                      title={zh ? "查看報告" : "View report"}
+                                      aria-label={zh ? "查看報告" : "View report"}
+                                    >
+                                      <Eye className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                      disabled={demo}
+                                      onClick={(e) => exportPdfForProfile(r.profile_id, e)}
+                                      title={zh ? "下載 PDF" : "Download PDF"}
+                                      aria-label={zh ? "下載 PDF" : "Download PDF"}
+                                    >
+                                      <Download className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
+                                      disabled={demo || deletingProfileId === r.profile_id}
+                                      onClick={(e) => deleteLatestReport(r.profile_id, e)}
+                                      title={
+                                        deletingProfileId === r.profile_id
+                                          ? zh
+                                            ? "刪除中…"
+                                            : "Deleting…"
+                                          : zh
+                                            ? "刪除報告"
+                                            : "Delete report"
+                                      }
+                                      aria-label={zh ? "刪除報告" : "Delete report"}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </>
+                                ) : null}
+                              </div>
+
+                              {/* Bottom: student / learning-record actions */}
+                              <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap">
                                 <button
                                   type="button"
                                   className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
-                                  disabled={demo}
-                                  onClick={(e) => viewLatestReport(r.profile_id, e)}
-                                  title={zh ? "查看報告" : "View report"}
-                                  aria-label={zh ? "查看報告" : "View report"}
+                                  disabled={demo || saving}
+                                  title={zh ? "編輯學生資料" : "Edit student"}
+                                  onClick={(e) => openEditModal(r, e)}
                                 >
-                                  <Eye className="h-3.5 w-3.5" />
+                                  <Pencil className="h-3.5 w-3.5" />
                                 </button>
-                              ) : null}
-                              {(Number(r.report_count) || 0) > 0 ? (
-                                <button
-                                  type="button"
-                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
-                                  disabled={demo}
-                                  onClick={(e) => exportPdfForProfile(r.profile_id, e)}
-                                  title={zh ? "下載 PDF" : "Download PDF"}
-                                  aria-label={zh ? "下載 PDF" : "Download PDF"}
+                                <Link
+                                  href={`/admin/teacher-students/${r.profile_id}`}
+                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
+                                  title={zh ? "填寫 Learning Record" : "Fill learning record"}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
-                                  <Download className="h-3.5 w-3.5" />
-                                </button>
-                              ) : null}
-                              {(Number(r.report_count) || 0) > 0 ? (
+                                  <ClipboardList className="h-3.5 w-3.5" />
+                                </Link>
                                 <button
                                   type="button"
                                   className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
-                                  disabled={demo || deletingProfileId === r.profile_id}
-                                  onClick={(e) => deleteLatestReport(r.profile_id, e)}
-                                  title={
-                                    deletingProfileId === r.profile_id
-                                      ? zh
-                                        ? "刪除中…"
-                                        : "Deleting…"
-                                      : zh
-                                        ? "刪除報告"
-                                        : "Delete report"
-                                  }
-                                  aria-label={zh ? "刪除報告" : "Delete report"}
+                                  disabled={demo || removingStudentProfileId === r.profile_id}
+                                  title={zh ? "刪除整個學生紀錄" : "Delete entire student record"}
+                                  onClick={(e) => removeStudentFromLearningRecord(r.profile_id, e)}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
-                              ) : null}
+                              </div>
                             </div>
                           </td>
                         )}
