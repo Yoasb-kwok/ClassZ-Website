@@ -1449,43 +1449,48 @@ export function LearningRecordStudentsTable({
                                 </div>
                               )}
                               {(Number(r.report_count) || 0) > 0 ? (
-                                <AdminGhostButton
+                                <button
                                   type="button"
-                                  className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
+                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
                                   disabled={demo}
                                   onClick={(e) => viewLatestReport(r.profile_id, e)}
+                                  title={zh ? "查看報告" : "View report"}
+                                  aria-label={zh ? "查看報告" : "View report"}
                                 >
                                   <Eye className="h-3.5 w-3.5" />
-                                  {zh ? "查看報告" : "Check report"}
-                                </AdminGhostButton>
+                                </button>
                               ) : null}
                               {(Number(r.report_count) || 0) > 0 ? (
-                                <AdminGhostButton
+                                <button
                                   type="button"
-                                  className="text-sm py-1.5 px-2 inline-flex items-center gap-1"
+                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
                                   disabled={demo}
                                   onClick={(e) => exportPdfForProfile(r.profile_id, e)}
+                                  title={zh ? "下載 PDF" : "Download PDF"}
+                                  aria-label={zh ? "下載 PDF" : "Download PDF"}
                                 >
                                   <Download className="h-3.5 w-3.5" />
-                                  PDF
-                                </AdminGhostButton>
+                                </button>
                               ) : null}
                               {(Number(r.report_count) || 0) > 0 ? (
-                                <AdminGhostButton
+                                <button
                                   type="button"
-                                  className="text-sm py-1.5 px-2 inline-flex items-center gap-1 text-brand-coral border-brand-coral/30 hover:bg-brand-coral/10"
+                                  className="inline-flex p-1.5 rounded-md text-brand-coral hover:bg-brand-coral/10 border border-brand-coral/30 disabled:opacity-40"
                                   disabled={demo || deletingProfileId === r.profile_id}
                                   onClick={(e) => deleteLatestReport(r.profile_id, e)}
+                                  title={
+                                    deletingProfileId === r.profile_id
+                                      ? zh
+                                        ? "刪除中…"
+                                        : "Deleting…"
+                                      : zh
+                                        ? "刪除報告"
+                                        : "Delete report"
+                                  }
+                                  aria-label={zh ? "刪除報告" : "Delete report"}
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
-                                  {deletingProfileId === r.profile_id
-                                    ? zh
-                                      ? "刪除中…"
-                                      : "Deleting…"
-                                    : zh
-                                      ? "刪除報告"
-                                      : "Delete report"}
-                                </AdminGhostButton>
+                                </button>
                               ) : null}
                             </div>
                           </td>
