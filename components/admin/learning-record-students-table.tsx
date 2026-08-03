@@ -34,6 +34,7 @@ export type LearningRecordStudent = {
   child_name: string
   sex?: number | null
   grade?: string | null
+  date_of_birth?: string | null
   parent_name: string
   contact_number: string
   parent_email: string
@@ -255,10 +256,14 @@ export function LearningRecordStudentsTable({
   const [historyLoading, setHistoryLoading] = useState<number | null>(null)
 
   const [addOpen, setAddOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [editingStudent, setEditingStudent] = useState<LearningRecordStudent | null>(null)
   const [addForm, setAddForm] = useState<AddForm>(emptyAddForm)
+  const [editForm, setEditForm] = useState<AddForm>(emptyAddForm)
   const [classes, setClasses] = useState<ClassOption[]>([])
   const [saving, setSaving] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importOpen, setImportOpen] = useState(false)
@@ -467,6 +472,14 @@ export function LearningRecordStudentsTable({
     }
   }
 
+  function ageFromDob(dob?: string | null): string {
+    if (!dob) return ""
+    const d = new Date(dob)
+    if (Number.isNaN(d.getTime())) return ""
+    const age = new Date().getFullYear() - d.getFullYear()
+    return age > 0 && age < 30 ? String(age) : ""
+  }
+
   async function openAddModal() {
     setAddError(null)
     setAddForm(emptyAddForm())
@@ -477,6 +490,27 @@ export function LearningRecordStudentsTable({
     if (list.length === 1) {
       setAddForm((f) => ({ ...f, class_id: String(list[0].id) }))
     }
+  }
+
+  async function openEditModal(student: LearningRecordStudent, e?: React.MouseEvent) {
+    e?.stopPropagation()
+    if (demo) return
+    setEditError(null)
+    setEditingStudent(student)
+    const primary = student.enrollments[0]
+    setEditForm({
+      parent_name: student.parent_name || "",
+      contact_number: student.contact_number || "",
+      child_name: student.child_name || "",
+      grade: student.grade || "",
+      sex: student.sex === 0 || student.sex === 1 ? String(student.sex) : "",
+      age: ageFromDob(student.date_of_birth),
+      class_id: primary?.class_id ? String(primary.class_id) : "",
+    })
+    setEditOpen(true)
+    const { list, error } = await loadClassOptions()
+    setClasses(list)
+    if (error) setEditError(error)
   }
 
   async function openImportModal(rows: ImportStudentRow[]) {
@@ -593,6 +627,42 @@ export function LearningRecordStudentsTable({
       await load()
     } catch (e) {
       setAddError(e instanceof Error ? e.message : "Save failed")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function submitEdit() {
+    if (demo || !editingStudent) {
+      setEditError(zh ? "請用中心帳號登入" : "Sign in as centre admin")
+      return
+    }
+    if (!editForm.parent_name.trim() || !editForm.child_name.trim() || !editForm.contact_number.trim()) {
+      setEditError(zh ? "請填寫家長、學生姓名及電話" : "Parent, child name and phone are required")
+      return
+    }
+    if (!editForm.class_id) {
+      setEditError(zh ? "請選擇課堂／體驗日場次" : "Please select a class / open-day session")
+      return
+    }
+    setSaving(true)
+    setEditError(null)
+    try {
+      await apiPatch(`/learning-record-students/${editingStudent.profile_id}`, {
+        parent_name: editForm.parent_name.trim(),
+        contact_number: editForm.contact_number.trim(),
+        child_name: editForm.child_name.trim(),
+        grade: editForm.grade.trim() || null,
+        sex: editForm.sex === "" ? null : Number(editForm.sex),
+        age: editForm.age.trim() || null,
+        class_id: Number(editForm.class_id),
+      })
+      setEditOpen(false)
+      setEditingStudent(null)
+      setEditForm(emptyAddForm())
+      await load()
+    } catch (e) {
+      setEditError(e instanceof Error ? e.message : "Save failed")
     } finally {
       setSaving(false)
     }
@@ -1211,13 +1281,22 @@ export function LearningRecordStudentsTable({
                                         ? "產生報告"
                                         : "Generate report"}
                                   </AdminPrimaryButton>
+                                  <button
+                                    type="button"
+                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                    disabled={demo || saving}
+                                    title={zh ? "編輯學生資料" : "Edit student"}
+                                    onClick={(e) => openEditModal(r, e)}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
                                   <Link
                                     href={`/admin/teacher-students/${r.profile_id}`}
                                     className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
-                                    title={zh ? "編輯 / 填寫紀錄" : "Edit / fill records"}
+                                    title={zh ? "填寫 Learning Record" : "Fill learning record"}
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    <Pencil className="h-3.5 w-3.5" />
+                                    <ClipboardList className="h-3.5 w-3.5" />
                                   </Link>
                                   <button
                                     type="button"
@@ -1236,13 +1315,22 @@ export function LearningRecordStudentsTable({
                                       ? `需 ${MIN_RECORDS_FOR_REPORT - r.record_count} 次紀錄`
                                       : `Need ${MIN_RECORDS_FOR_REPORT - r.record_count} more`}
                                   </span>
+                                  <button
+                                    type="button"
+                                    className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                    disabled={demo || saving}
+                                    title={zh ? "編輯學生資料" : "Edit student"}
+                                    onClick={(e) => openEditModal(r, e)}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
                                   <Link
                                     href={`/admin/teacher-students/${r.profile_id}`}
                                     className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
-                                    title={zh ? "編輯 / 填寫紀錄" : "Edit / fill records"}
+                                    title={zh ? "填寫 Learning Record" : "Fill learning record"}
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    <Pencil className="h-3.5 w-3.5" />
+                                    <ClipboardList className="h-3.5 w-3.5" />
                                   </Link>
                                   <button
                                     type="button"
@@ -1797,6 +1885,120 @@ export function LearningRecordStudentsTable({
               <AdminSelect
                 value={addForm.class_id}
                 onChange={(e) => setAddForm((f) => ({ ...f, class_id: e.target.value }))}
+              >
+                <option value="">{zh ? "請選擇…" : "Select…"}</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.name}
+                    {c.start_time ? ` · ${new Date(c.start_time).toLocaleString(zh ? "zh-HK" : "en-HK")}` : ""}
+                  </option>
+                ))}
+              </AdminSelect>
+              {!classes.length ? (
+                <p className="text-xs text-brand-orange mt-1">
+                  {zh
+                    ? "此中心尚無課堂。請先到排程建立體驗日場次。"
+                    : "No classes yet. Create an Open Day session under Schedule first."}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </AdminModal>
+      ) : null}
+
+      {mode === "admin" ? (
+        <AdminModal
+          open={editOpen}
+          title={zh ? "編輯學生資料" : "Edit student"}
+          onClose={() => {
+            if (saving) return
+            setEditOpen(false)
+            setEditingStudent(null)
+          }}
+          footer={
+            <>
+              <AdminGhostButton
+                type="button"
+                disabled={saving}
+                onClick={() => {
+                  setEditOpen(false)
+                  setEditingStudent(null)
+                }}
+              >
+                {zh ? "取消" : "Cancel"}
+              </AdminGhostButton>
+              <AdminPrimaryButton type="button" disabled={saving} onClick={submitEdit}>
+                {saving ? (zh ? "儲存中…" : "Saving…") : zh ? "儲存" : "Save"}
+              </AdminPrimaryButton>
+            </>
+          }
+        >
+          {editError ? (
+            <p role="alert" className="text-sm text-brand-coral mb-3">
+              {editError}
+            </p>
+          ) : null}
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <AdminLabel>{zh ? "家長姓名" : "Parent name"} *</AdminLabel>
+                <AdminInput
+                  value={editForm.parent_name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, parent_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "聯絡電話" : "Phone"} *</AdminLabel>
+                <AdminInput
+                  inputMode="tel"
+                  value={editForm.contact_number}
+                  onChange={(e) => setEditForm((f) => ({ ...f, contact_number: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <AdminLabel>{zh ? "學生姓名" : "Child name"} *</AdminLabel>
+                <AdminInput
+                  value={editForm.child_name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, child_name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <AdminLabel>{zh ? "年級" : "Grade"}</AdminLabel>
+                <AdminInput
+                  placeholder="P1 / K3…"
+                  value={editForm.grade}
+                  onChange={(e) => setEditForm((f) => ({ ...f, grade: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <AdminLabel>{zh ? "性別" : "Sex"}</AdminLabel>
+                <AdminSelect
+                  value={editForm.sex}
+                  onChange={(e) => setEditForm((f) => ({ ...f, sex: e.target.value }))}
+                >
+                  <option value="">{zh ? "未指定" : "Unspecified"}</option>
+                  <option value="1">{zh ? "男" : "Male"}</option>
+                  <option value="0">{zh ? "女" : "Female"}</option>
+                </AdminSelect>
+              </div>
+              <div>
+                <AdminLabel>{zh ? "年齡" : "Age"}</AdminLabel>
+                <AdminInput
+                  inputMode="numeric"
+                  value={editForm.age}
+                  onChange={(e) => setEditForm((f) => ({ ...f, age: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div>
+              <AdminLabel>{zh ? "課堂／體驗日場次" : "Class / Open Day session"} *</AdminLabel>
+              <AdminSelect
+                value={editForm.class_id}
+                onChange={(e) => setEditForm((f) => ({ ...f, class_id: e.target.value }))}
               >
                 <option value="">{zh ? "請選擇…" : "Select…"}</option>
                 {classes.map((c) => (
