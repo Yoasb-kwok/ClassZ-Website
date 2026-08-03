@@ -2,7 +2,23 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronRight, ClipboardList, Download, Eye, FileText, Pencil, Plus, Printer, Trash2, Upload, UserPlus } from "lucide-react"
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  Download,
+  Eye,
+  FileText,
+  Pencil,
+  Plus,
+  Printer,
+  Trash2,
+  Upload,
+  UserPlus,
+} from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
@@ -130,6 +146,34 @@ const CSV_HEADER_KEYS: Record<string, keyof ImportStudentRow> = {
 const MIN_RECORDS_FOR_REPORT = 3
 type ReportLanguage = "en" | "zh"
 
+type SortKey = "child" | "grade" | "parent" | "phone" | "session" | "records" | "coach"
+type SortDir = "asc" | "desc"
+
+function compareLocale(a: string, b: string) {
+  return a.localeCompare(b, undefined, { sensitivity: "base", numeric: true })
+}
+
+function sortValue(row: LearningRecordStudent, key: SortKey): string | number {
+  switch (key) {
+    case "child":
+      return String(row.child_name || "")
+    case "grade":
+      return String(row.grade || "")
+    case "parent":
+      return String(row.parent_name || "")
+    case "phone":
+      return String(row.contact_number || "").replace(/\D/g, "") || String(row.contact_number || "")
+    case "session":
+      return String(row.enrollments[0]?.class_name || "")
+    case "records":
+      return Number(row.record_count) || 0
+    case "coach":
+      return String(row.report_coach_name || row.report_coach_email || "")
+    default:
+      return ""
+  }
+}
+
 function parseCsvRows(text: string): string[][] {
   const rows: string[][] = []
   let row: string[] = []
@@ -249,6 +293,8 @@ export function LearningRecordStudentsTable({
   const demo = isDemoSession()
   const [rows, setRows] = useState<LearningRecordStudent[]>([])
   const [search, setSearch] = useState("")
+  const [sortKey, setSortKey] = useState<SortKey>("child")
+  const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<number | null>(null)
@@ -392,18 +438,72 @@ export function LearningRecordStudentsTable({
     })
   }, [rows, search])
 
+  const sortedRows = useMemo(() => {
+    const list = [...filteredRows]
+    const dir = sortDir === "asc" ? 1 : -1
+    list.sort((a, b) => {
+      const av = sortValue(a, sortKey)
+      const bv = sortValue(b, sortKey)
+      if (typeof av === "number" && typeof bv === "number") {
+        if (av === bv) return compareLocale(a.child_name, b.child_name) * dir
+        return (av - bv) * dir
+      }
+      const cmp = compareLocale(String(av), String(bv))
+      if (cmp !== 0) return cmp * dir
+      return compareLocale(a.child_name, b.child_name) * dir
+    })
+    return list
+  }, [filteredRows, sortKey, sortDir])
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"))
+      return
+    }
+    setSortKey(key)
+    setSortDir("asc")
+  }
+
+  function SortableTh({
+    label,
+    column,
+    className = "px-3 py-2 text-left",
+  }: {
+    label: string
+    column: SortKey
+    className?: string
+  }) {
+    const active = sortKey === column
+    const Icon = !active ? ArrowUpDown : sortDir === "asc" ? ArrowUp : ArrowDown
+    return (
+      <th className={className}>
+        <button
+          type="button"
+          className={`inline-flex items-center gap-1 font-medium transition-colors ${
+            active ? "text-brand-teal" : "text-classz-600 hover:text-brand-slate"
+          }`}
+          onClick={() => toggleSort(column)}
+          aria-label={zh ? `依${label}排序` : `Sort by ${label}`}
+        >
+          <span>{label}</span>
+          <Icon className={`h-3.5 w-3.5 ${active ? "opacity-100" : "opacity-45"}`} />
+        </button>
+      </th>
+    )
+  }
+
   const mainRows = useMemo(
-    () => filteredRows.filter((row) => !isCompanionAnimalDemoStudent(row)),
-    [filteredRows],
+    () => sortedRows.filter((row) => !isCompanionAnimalDemoStudent(row)),
+    [sortedRows],
   )
   const demoRows = useMemo(
-    () => filteredRows.filter((row) => isCompanionAnimalDemoStudent(row)),
-    [filteredRows],
+    () => sortedRows.filter((row) => isCompanionAnimalDemoStudent(row)),
+    [sortedRows],
   )
 
   const selectedRows = useMemo(
-    () => filteredRows.filter((row) => selectedIds.has(row.profile_id)),
-    [filteredRows, selectedIds],
+    () => sortedRows.filter((row) => selectedIds.has(row.profile_id)),
+    [sortedRows, selectedIds],
   )
   const allFilteredSelected =
     mainRows.length > 0 && mainRows.every((row) => selectedIds.has(row.profile_id))
@@ -1709,16 +1809,34 @@ export function LearningRecordStudentsTable({
                     </th>
                   ) : null}
                   {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
-                  <th className="px-3 py-2 text-left">{zh ? "學生" : "Child"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "年級" : "Grade"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "家長" : "Parent"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
+                  <SortableTh label={zh ? "學生" : "Child"} column="child" />
+                  <SortableTh label={zh ? "年級" : "Grade"} column="grade" />
+                  <SortableTh label={zh ? "家長" : "Parent"} column="parent" />
+                  <SortableTh label={zh ? "電話" : "Phone"} column="phone" />
+                  <SortableTh label={zh ? "課堂" : "Session"} column="session" />
+                  <SortableTh label={zh ? "紀錄數" : "Records"} column="records" />
                   {mode === "admin" ? (
                     <th className="px-3 py-2 text-left">
                       <span className="inline-flex flex-col gap-0.5">
-                        <span>{zh ? "Companion導師" : "Companion coach"}</span>
+                        <button
+                          type="button"
+                          className={`inline-flex items-center gap-1 font-medium transition-colors ${
+                            sortKey === "coach" ? "text-brand-teal" : "text-classz-600 hover:text-brand-slate"
+                          }`}
+                          onClick={() => toggleSort("coach")}
+                          aria-label={zh ? "依 Companion 導師排序" : "Sort by companion coach"}
+                        >
+                          <span>{zh ? "Companion導師" : "Companion coach"}</span>
+                          {sortKey === "coach" ? (
+                            sortDir === "asc" ? (
+                              <ArrowUp className="h-3.5 w-3.5" />
+                            ) : (
+                              <ArrowDown className="h-3.5 w-3.5" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="h-3.5 w-3.5 opacity-45" />
+                          )}
+                        </button>
                         <Link
                           href="/admin/teachers"
                           className="text-[11px] font-normal text-brand-teal hover:underline"
@@ -1773,14 +1891,14 @@ export function LearningRecordStudentsTable({
                     <tr>
                       {mode === "admin" ? <th className="px-2 py-2 w-10" /> : null}
                       {mode === "admin" ? <th className="px-2 py-2 w-8" /> : null}
-                      <th className="px-3 py-2 text-left">{zh ? "學生" : "Child"}</th>
-                      <th className="px-3 py-2 text-left">{zh ? "年級" : "Grade"}</th>
-                      <th className="px-3 py-2 text-left">{zh ? "家長" : "Parent"}</th>
-                      <th className="px-3 py-2 text-left">{zh ? "電話" : "Phone"}</th>
-                      <th className="px-3 py-2 text-left">{zh ? "課堂" : "Session"}</th>
-                      <th className="px-3 py-2 text-left">{zh ? "紀錄數" : "Records"}</th>
+                      <SortableTh label={zh ? "學生" : "Child"} column="child" />
+                      <SortableTh label={zh ? "年級" : "Grade"} column="grade" />
+                      <SortableTh label={zh ? "家長" : "Parent"} column="parent" />
+                      <SortableTh label={zh ? "電話" : "Phone"} column="phone" />
+                      <SortableTh label={zh ? "課堂" : "Session"} column="session" />
+                      <SortableTh label={zh ? "紀錄數" : "Records"} column="records" />
                       {mode === "admin" ? (
-                        <th className="px-3 py-2 text-left">{zh ? "Companion導師" : "Companion coach"}</th>
+                        <SortableTh label={zh ? "Companion導師" : "Companion coach"} column="coach" />
                       ) : null}
                       {mode === "teacher" ? (
                         <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
