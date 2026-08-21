@@ -5,64 +5,75 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #4c5b5c;
+  --foreground: #222222;
   --card: #ffffff;
-  --card-foreground: #4c5b5c;
+  --card-foreground: #222222;
   --popover: #ffffff;
-  --popover-foreground: #4c5b5c;
+  --popover-foreground: #222222;
   --primary: #0abab5;
   --primary-foreground: #ffffff;
-  --secondary: #eef6f6;
-  --secondary-foreground: #4c5b5c;
-  --muted: #f3f6f6;
-  --muted-foreground: #6a7879;
-  --accent: #eef6f6;
-  --accent-foreground: #4c5b5c;
+  --secondary: #ebebeb;
+  --secondary-foreground: #222222;
+  --muted: #f5f5f5;
+  --muted-foreground: #717171;
+  --accent: #d7f4f3;
+  --accent-foreground: #222222;
   --destructive: #db5461;
   --destructive-foreground: #ffffff;
-  --border: #d5e0e0;
-  --input: #d5e0e0;
+  --border: #e0e0e0;
+  --input: #e0e0e0;
   --ring: #0abab5;
   --chart-1: #0abab5;
   --chart-2: #ff8400;
   --chart-3: #bf07d0;
   --chart-4: #db5461;
-  --chart-5: #4c5b5c;
-  --radius: 0.625rem;
-  --sidebar: #343f40;
-  --sidebar-foreground: #f5f8f8;
+  --chart-5: #222222;
+  --radius: 0.75rem;
+  --sidebar: #222222;
+  --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #0abab5;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #3d4a4b;
-  --sidebar-accent-foreground: #f5f8f8;
-  --sidebar-border: #445152;
+  --sidebar-accent: #292929;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #525252;
   --sidebar-ring: #0abab5;
 
   /*
-   * ClassZ system palette — stylerecord 5 tones
-   * #0ABAB5 teal · #4C5B5C slate · #BF07D0 magenta · #FF8400 orange · #DB5461 coral
-   *
-   * classz-* keeps existing utility names:
-   *  50–300 surface tints of teal
-   *  400–500 primary teal + hover
-   *  600–700 slate ink
+   * ClassZ rebrand tokens (Figma "ClassZ Rebrand")
+   * Aqua Teal 500 #0ABAB5 · ink #222 · neutral shade ramp
+   * Legacy aliases (brand-*, classz-*, crm-*) kept working:
+   * classz 50–500 teal ramp, 600–900 neutral ink ramp.
    */
+  --ink: #222222;
+  --shade-50: #ebebeb;
+  --shade-100: #e0e0e0;
+  --shade-200: #cccccc;
+  --shade-300: #a3a3a3;
+  --shade-400: #717171;
+  --shade-500: #525252;
+  --shade-600: #292929;
+  --aqua-100: #d7f4f3;
+  --aqua-500: #0abab5;
+  --success: #008a05;
+  --warning-soft: #fbf0d8;
+  --error-soft: #f3c5c1;
+
   --brand-teal: #0abab5;
-  --brand-slate: #4c5b5c;
+  --brand-slate: #525252;
   --brand-magenta: #bf07d0;
   --brand-orange: #ff8400;
   --brand-coral: #db5461;
 
-  --classz-50: #e7f8f7;
+  --classz-50: #d7f4f3;
   --classz-100: #c9efed;
   --classz-200: #8fdfdb;
   --classz-300: #3bc8c4;
   --classz-400: #0abab5;
   --classz-500: #089591;
-  --classz-600: #5f6e6f;
-  --classz-700: #4c5b5c;
-  --classz-800: #3a4748;
-  --classz-900: #2a3536;
+  --classz-600: #717171;
+  --classz-700: #525252;
+  --classz-800: #292929;
+  --classz-900: #222222;
 
   /* Aliases (CRM + charts) */
   --crm-magenta: var(--brand-magenta);
@@ -73,9 +84,9 @@
 
   --admin-bg: #ffffff;
   --admin-surface: var(--classz-50);
-  --admin-ink: var(--brand-slate);
-  --admin-sidebar: #343f40;
-  --admin-canvas: #f5f8f8;
+  --admin-ink: #222222;
+  --admin-sidebar: #222222;
+  --admin-canvas: #f5f5f5;
 }
 
 .dark {
@@ -114,7 +125,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', 'Segoe UI', Roboto, Arial, sans-serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -172,6 +183,22 @@
   --color-brand-magenta: var(--brand-magenta);
   --color-brand-orange: var(--brand-orange);
   --color-brand-coral: var(--brand-coral);
+  --color-ink: var(--ink);
+  --color-shade-50: var(--shade-50);
+  --color-shade-100: var(--shade-100);
+  --color-shade-200: var(--shade-200);
+  --color-shade-300: var(--shade-300);
+  --color-shade-400: var(--shade-400);
+  --color-shade-500: var(--shade-500);
+  --color-shade-600: var(--shade-600);
+  --color-success: var(--success);
+  --color-warning-soft: var(--warning-soft);
+  --color-error-soft: var(--error-soft);
+  --radius-card: 12px;
+  --radius-modal: 24px;
+  --radius-input: 8px;
+  --radius-pill: 100px;
+  --shadow-card: 0 6px 16px 0 rgb(0 0 0 / 0.12);
 }
 
 @layer base {
@@ -189,7 +216,7 @@
   }
 
   body {
-    /* Poppins via --font-sans (see layout.tsx `poppins.variable` + @theme --font-sans) — same as 我們的特色 / 使命 */
+    /* Rebrand: SF-Pro-substitute system stack (SF Pro cannot be self-hosted) */
     @apply bg-background text-foreground font-sans antialiased;
     overflow-x: hidden;
     width: 100%;
@@ -245,7 +272,7 @@ input[type="checkbox"] {
   appearance: none;
   width: 1rem;
   height: 1rem;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--shade-200);
   border-radius: 0.25rem;
   background-color: white;
   cursor: pointer;
@@ -328,4 +355,21 @@ input[type="checkbox"]:checked::after {
 
 .classz-admin-theme .bg-emerald-500 {
   background-color: var(--brand-teal) !important;
+}
+
+/* Program detail options strip (Figma #1895:7904 Thumb): 8px scrollbar,
+   thumb #C1C1C1 r4 */
+.detail-options-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+.detail-options-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.detail-options-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.detail-options-scroll::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
 }

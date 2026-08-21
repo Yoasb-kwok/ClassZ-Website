@@ -2,206 +2,145 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Menu, X, ChevronDown } from "lucide-react"
-import { useState } from "react"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import {
+  Menu,
+  Calendar,
+  Bell,
+  MessageSquare,
+  Fingerprint,
+  Globe,
+  FileText,
+  HelpCircle,
+  ChevronRight,
+} from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
-export function Navbar() {
-  const [open, setOpen] = useState(false)
-  const [langOpen, setLangOpen] = useState(false)
-  const pathname = usePathname()
-  const { locale, setLocale, t } = useLanguage()
-  const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path))
+const MAIN_LINKS = [
+  { key: "nav.home", href: "/" },
+  { key: "nav.aboutUs", href: "/our-mission" },
+  { key: "nav.programs", href: "/programs" },
+  { key: "nav.workshops", href: "/workshops" },
+] as const
 
-  const linkClasses = (path: string) =>
-    `${isActive(path) ? "text-classz-400" : "text-brand-slate/80"} hover:text-classz-400 transition-colors`
+export function Navbar() {
+  const pathname = usePathname()
+  const { setLocale, t } = useLanguage()
+
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href))
+
+  const quickLinks = [
+    { key: "nav.schedule", href: "/schedule", icon: Calendar },
+    { key: "nav.notifications", href: "/notifications", icon: Bell },
+    { key: "nav.inbox", href: "/inbox", icon: MessageSquare },
+    { key: "nav.changePassword", href: "/change-password", icon: Fingerprint },
+    { key: "nav.terms", href: "/terms", icon: FileText },
+    { key: "nav.helpCentre", href: "/faqs", icon: HelpCircle },
+  ]
 
   return (
-    <nav className="relative z-50 bg-white/90 backdrop-blur-md border-b border-classz-50 overflow-visible">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between relative overflow-visible">
-        {/* Logo - Always on the left */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0 z-10 max-w-[42%] lg:max-w-none">
-          <img src="/logoWeb.png" alt="ClassZ" className="h-8 sm:h-10 lg:h-12 w-auto object-contain" />
-        </Link>
+    <nav
+      aria-label="Main"
+      className="relative z-50 bg-[linear-gradient(180deg,#FFFFFF_0%,rgba(255,255,255,0)_91%)]"
+    >
+      <div className="flex items-center justify-between gap-4 px-6 pt-8">
+        {/* Hamburger + logo (Figma "Logo bar") */}
+        <div className="flex items-center gap-5">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                aria-label={t("nav.openMenu")}
+                className="rounded-md p-1 text-ink transition-colors hover:text-classz-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400"
+              >
+                <Menu className="h-8 w-8" strokeWidth={1.5} />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                sideOffset={24}
+                align="start"
+                className="z-[100] w-64 rounded-xl border-0 bg-white p-8 shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)]"
+              >
+                <div className="flex flex-col gap-5">
+                  {quickLinks.map(({ key, href, icon: Icon }) => (
+                    <DropdownMenu.Item asChild key={key}>
+                      <Link
+                        href={href}
+                        className="flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
+                      >
+                        <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center">
+                          <Icon className="h-[18px] w-[18px]" strokeWidth={1.5} />
+                        </span>
+                        {t(key)}
+                      </Link>
+                    </DropdownMenu.Item>
+                  ))}
+                  <DropdownMenu.Sub>
+                    <DropdownMenu.SubTrigger className="flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]">
+                      <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center">
+                        <Globe className="h-4 w-4" strokeWidth={1.5} />
+                      </span>
+                      {t("nav.language")}
+                      <ChevronRight className="ml-auto h-4 w-4 text-shade-400" />
+                    </DropdownMenu.SubTrigger>
+                    <DropdownMenu.Portal>
+                      <DropdownMenu.SubContent
+                        sideOffset={4}
+                        className="z-[101] rounded-lg bg-white p-2 shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)]"
+                      >
+                        <DropdownMenu.Item
+                          onSelect={() => setLocale("en")}
+                          className="flex h-9 cursor-pointer items-center rounded px-3 text-sm text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
+                        >
+                          {t("english")}
+                        </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          onSelect={() => setLocale("zh-TW")}
+                          className="flex h-9 cursor-pointer items-center rounded px-3 text-sm text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
+                        >
+                          {t("chinese")}
+                        </DropdownMenu.Item>
+                      </DropdownMenu.SubContent>
+                    </DropdownMenu.Portal>
+                  </DropdownMenu.Sub>
+                </div>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
 
-        {/* Desktop Links - Hidden on mobile */}
-        <div className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-medium text-brand-slate/80 flex-1 justify-center">
-          <Link href="/our-mission" className={linkClasses("/our-mission")}>
-            {t("ourMission")}
+          <Link href="/" className="flex items-center gap-2 px-2" aria-label="ClassZ">
+            <img src="/brand/logo-icon.svg" alt="" className="h-8 w-auto" />
+            <img src="/brand/logo-wordmark.svg" alt="ClassZ" className="h-[18px] w-auto" />
           </Link>
-          <Link href="/our-features" className={linkClasses("/our-features")}>
-            {t("ourFeatures")}
-          </Link>
-          <Link href="/partnership" className={linkClasses("/partnership")}>
-            {t("partnership")}
-          </Link>
-          <Link href="/contact-us" className={linkClasses("/contact-us")}>
-            {t("contactUs")}
-          </Link>
-          <Link href="/faqs" className={linkClasses("/faqs")}>
-            {t("faqs")}
-          </Link>
-          <div className="relative z-50">
-            <button
-              className="flex items-center gap-1 hover:text-classz-400 transition-colors"
-              onClick={() => setLangOpen((v) => !v)}
-              onBlur={(e) => {
-                // Close dropdown when clicking outside
-                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                  setTimeout(() => setLangOpen(false), 200)
-                }
-              }}
-            >
-              {locale === "en" ? t("english") : t("chinese")}
-              <ChevronDown className={`w-4 h-4 transition-transform ${langOpen ? "rotate-180" : ""}`} />
-            </button>
-            {langOpen && (
-              <div className="absolute right-0 mt-2 w-32 rounded-md border border-classz-100 bg-white shadow-lg z-[60] min-w-[120px]">
-                <button
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
-                  onClick={() => {
-                    setLocale("en")
-                    setLangOpen(false)
-                  }}
-                >
-                  {t("english")}
-                </button>
-                <button
-                  className="block w-full text-left px-3 py-2 text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
-                  onClick={() => {
-                    setLocale("zh-TW")
-                    setLangOpen(false)
-                  }}
-                >
-                  {t("chinese")}
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Desktop Actions - Hidden on mobile */}
-        <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
-          <Link href="/login" className="text-sm font-medium text-brand-slate hover:text-classz-400 whitespace-nowrap">
-            {t("login")}
-          </Link>
-          <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full px-6 whitespace-nowrap">
-            {t("getStarted")}
-          </Button>
-        </div>
-
-        {/* Mobile: Language Dropdown + Menu Button - Always visible */}
-        <div className="lg:hidden flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-50 relative">
-          {/* Language Dropdown - Always visible on mobile */}
-          <div className="relative z-50">
-            <button
-              className="flex items-center gap-1 px-2 py-1.5 text-xs sm:text-sm font-medium text-brand-slate/80 hover:text-classz-400 transition-colors rounded-md hover:bg-classz-50 whitespace-nowrap"
-              onClick={(e) => {
-                e.stopPropagation()
-                setLangOpen((v) => !v)
-              }}
-              onBlur={(e) => {
-                // Close dropdown when clicking outside
-                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                  setTimeout(() => setLangOpen(false), 200)
-                }
-              }}
-            >
-              <span className="text-xs sm:text-sm">{locale === "en" ? t("english") : t("chinese")}</span>
-              <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${langOpen ? "rotate-180" : ""}`} />
-            </button>
-            {langOpen && (
-              <div className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md border border-classz-100 bg-white shadow-xl z-[100] min-w-[100px]">
-                <button
-                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
-                  onClick={() => {
-                    setLocale("en")
-                    setLangOpen(false)
-                  }}
-                >
-                  {t("english")}
-                </button>
-                <button
-                  className="block w-full text-left px-3 py-2 text-xs sm:text-sm hover:bg-classz-50 transition-colors first:rounded-t-md last:rounded-b-md"
-                  onClick={() => {
-                    setLocale("zh-TW")
-                    setLangOpen(false)
-                  }}
-                >
-                  {t("chinese")}
-                </button>
-              </div>
-            )}
+        {/* Links + Log In (Figma "Selection") */}
+        <div className="flex items-center gap-12">
+          <div className="flex items-center gap-6 overflow-x-auto md:gap-10">
+            {MAIN_LINKS.map(({ key, href }) => (
+              <Link
+                key={key}
+                href={href}
+                className="group flex flex-col items-center gap-2.5 whitespace-nowrap text-base text-ink"
+              >
+                <span>{t(key)}</span>
+                <span
+                  aria-hidden
+                  className={`h-px w-full ${
+                    isActive(href) ? "bg-ink" : "bg-transparent group-hover:bg-ink/40"
+                  }`}
+                />
+              </Link>
+            ))}
           </div>
-          
-          {/* Mobile Menu Button */}
-          <button
-            className="p-2 text-brand-slate/80 flex-shrink-0 relative z-10"
-            onClick={() => {
-              setOpen((v) => !v)
-              setLangOpen(false) // Close language dropdown when opening menu
-            }}
-            aria-label="Toggle menu"
+          <Link
+            href="/login"
+            className="whitespace-nowrap text-base font-semibold text-ink transition-colors hover:text-classz-400"
           >
-            {open ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
-          </button>
+            {t("nav.login")}
+          </Link>
         </div>
       </div>
-
-      {/* Mobile panel */}
-      {open && (
-        <div className="lg:hidden bg-white/95 backdrop-blur border-t border-classz-50 shadow-sm relative z-40">
-          <div className="px-4 py-4 space-y-3 text-sm font-medium text-brand-slate">
-            <NavLinkMobile href="/our-mission" active={isActive("/our-mission")} onClick={() => setOpen(false)}>
-              {t("ourMission")}
-            </NavLinkMobile>
-            <NavLinkMobile href="/our-features" active={isActive("/our-features")} onClick={() => setOpen(false)}>
-              {t("ourFeatures")}
-            </NavLinkMobile>
-            <NavLinkMobile href="/partnership" active={isActive("/partnership")} onClick={() => setOpen(false)}>
-              {t("partnership")}
-            </NavLinkMobile>
-            <NavLinkMobile href="/contact-us" active={isActive("/contact-us")} onClick={() => setOpen(false)}>
-              {t("contactUs")}
-            </NavLinkMobile>
-            <NavLinkMobile href="/faqs" active={isActive("/faqs")} onClick={() => setOpen(false)}>
-              {t("faqs")}
-            </NavLinkMobile>
-            
-            <div className="pt-2 flex flex-col gap-2">
-              <Link href="/login" className="text-sm font-medium text-brand-slate hover:text-classz-400 transition-colors" onClick={() => setOpen(false)}>
-                {t("login")}
-              </Link>
-              <Button className="bg-classz-400 hover:bg-classz-500 text-white rounded-full w-full" onClick={() => setOpen(false)}>
-                {t("getStarted")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
-  )
-}
-
-function NavLinkMobile({
-  href,
-  children,
-  active,
-  onClick,
-}: {
-  href: string
-  children: React.ReactNode
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`block ${active ? "text-classz-400" : "text-brand-slate"} hover:text-classz-400 transition-colors`}
-    >
-      {children}
-    </Link>
   )
 }

@@ -1,15 +1,7 @@
-import type { Metadata } from 'next'
-import { Poppins } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { LanguageProvider } from '@/components/language-provider'
 import { ViewportHeightFix } from '@/components/viewport-height-fix'
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-});
 
 import { generateMetadata as genMeta, generateStructuredData } from '@/lib/metadata'
 
@@ -62,7 +54,7 @@ export default function RootLayout({
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
-      <body className={`${poppins.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <ViewportHeightFix />
         <LanguageProvider>{children}</LanguageProvider>
         <Analytics />
