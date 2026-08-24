@@ -173,6 +173,6 @@ Export via the figma-to-prompt plugin into `figma prompt/2408/` (each frame = on
 
 - **W8 — `/centres` centre listing** — **unblocked (D5)**. Clone the discovery-page chrome from `/programs`, swap card data for centre placeholders (D2), link cards → `/centres/[id]`. Capture basis = Programs listing `1582:16181` (`2208/Programs.figmacapture`) — check its `manifest.json` `capturedAt` against any designer changes first; re-export if stale. Cards are centre placeholders on a program-frame design — declare that basis in INDEX.
 - **W9 — `/payment` + success state** — blocked on §6.3 captures (version already decided: v3, D4). Visual-only (D2-style placeholders for booking summary). Entry point = Enroll button on `/programs/[id]` → `/payment`. Follows W3 (enroll button lives in the expand/options area).
-- **W10 — flow wiring** (after W6/W7): centre-detail program cards link → `/programs/[id]`; navbar "Centres" link once `/centres` exists; Enroll → `/payment`.
+- **W10 — flow wiring** (after W6/W7): centre-detail program cards link → `/programs/[id]`; Enroll → `/payment`. Navbar (final, user decision 2026-08-24): **no separate "Centres" link** — the "Programs" link goes to `/centres` (the centre list, D5) and stays active on `/programs/*` too (match prefix), restoring the captured 4-item nav (2596:12227) + ZPassport.
 
 Execution order: **W3 → W4 → W5 → W6 → W7 → W8** (W8 last so `/centres` cards don't dead-link; it has no other dependency). **W9** slots in whenever the §6.3 exports land; **W10** (flow wiring) last.

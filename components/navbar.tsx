@@ -16,25 +16,27 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
-const MAIN_LINKS = [
+const MAIN_LINKS: { key: string; href: string; match?: string[] }[] = [
   { key: "nav.home", href: "/" },
   { key: "nav.aboutUs", href: "/our-mission" },
-  { key: "nav.programs", href: "/programs" },
+  // Programs enters the flow via the centre list — /centres renders the
+  // redesigned Programs frame 1582:16181 (user flow decision). Nav capture
+  // 2596:12227 lists 4 items; "Centres" merged into this link, not separate.
+  { key: "nav.programs", href: "/centres", match: ["/programs"] },
   { key: "nav.workshops", href: "/workshops" },
-  // W10 flow wiring — "Centres" is not in the 2596:12227 capture (4 items);
-  // appended after Workshops so the captured order stays intact.
-  { key: "nav.centres", href: "/centres" },
   // ZPassport — not in the nav capture either (user-directed, spec-silent);
   // placeholder destination /login until the ZPassport product page exists.
   { key: "nav.zPassport", href: "/login" },
-] as const;
+];
 
 export function Navbar() {
   const pathname = usePathname();
   const { setLocale, t } = useLanguage();
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string, extra: string[] = []) =>
+    [href, ...extra].some((path) =>
+      path === "/" ? pathname === "/" : pathname.startsWith(path),
+    );
 
   const quickLinks = [
     { key: "nav.schedule", href: "/schedule", icon: Calendar },
@@ -138,7 +140,7 @@ export function Navbar() {
         {/* Selection 2596:12226 — gap 48; menu 2596:12227 gap 39.9; items: 16px/400 + 1px underline (active only — landing capture 2596:12491 visible, rest hidden) */}
         <div className="flex items-center gap-12">
           <div className="flex items-center gap-6 overflow-x-auto md:gap-[39.9px]">
-            {MAIN_LINKS.map(({ key, href }) => (
+            {MAIN_LINKS.map(({ key, href, match }) => (
               <Link
                 key={key}
                 href={href}
@@ -148,7 +150,7 @@ export function Navbar() {
                 <span
                   aria-hidden
                   className={`h-px w-full ${
-                    isActive(href)
+                    isActive(href, match)
                       ? "bg-ink"
                       : "bg-transparent group-hover:bg-ink/40"
                   }`}
