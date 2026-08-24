@@ -5,6 +5,7 @@ import { Edit, MessageSquareText, Save, Send, Trash2 } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { ActivityLearningRecordSection } from "@/components/admin/activity-learning-record-section"
+import { LearningCompanionPanel } from "@/components/admin/learning-companion-panel"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { FEEDBACK_CONTENT, FEEDBACK_FORM_STACK, FEEDBACK_LIST_TITLE, FEEDBACK_STACK } from "@/lib/feedback-layout"
 import { useCenterApiList } from "@/components/admin/use-center-api-list"
@@ -38,7 +39,7 @@ export function FeedbackManager() {
   const zh = locale === "zh-TW"
   const demo = isDemoSession()
   const { rows: classes, ready: classesReady } = useCenterApiList("/classes", mapClass)
-  const [tab, setTab] = useState<"alr" | "message">("alr")
+  const [tab, setTab] = useState<"alr" | "companion" | "message">("alr")
   const [classId, setClassId] = useState("")
   const [message, setMessage] = useState("")
   const [notices, setNotices] = useState<NoticeRow[]>([])
@@ -128,6 +129,15 @@ export function FeedbackManager() {
           </button>
           <button
             type="button"
+            onClick={() => setTab("companion")}
+            className={`px-4 py-2 rounded-md text-sm font-medium border ${
+              tab === "companion" ? "bg-classz-100 border-classz-400 text-classz-800" : "bg-white border-classz-200 text-classz-600"
+            }`}
+          >
+            {zh ? "Learning Companion" : "Learning Companion"}
+          </button>
+          <button
+            type="button"
             onClick={() => setTab("message")}
             className={`px-4 py-2 rounded-md text-sm font-medium border ${
               tab === "message" ? "bg-classz-100 border-classz-400 text-classz-800" : "bg-white border-classz-200 text-classz-600"
@@ -139,7 +149,11 @@ export function FeedbackManager() {
 
         {tab === "alr" ? (
           <ActivityLearningRecordSection classes={classes} classFilter={classId} onClassFilterChange={setClassId} />
-        ) : (
+        ) : null}
+
+        {tab === "companion" ? <LearningCompanionPanel /> : null}
+
+        {tab === "message" ? (
           <>
             <AdminCard className="overflow-hidden">
               <h2 className={`${FEEDBACK_LIST_TITLE} flex items-center gap-2`}>
@@ -230,7 +244,7 @@ export function FeedbackManager() {
             )}
             </AdminCard>
           </>
-        )}
+        ) : null}
       </div>
     </AdminPageFrame>
   )
