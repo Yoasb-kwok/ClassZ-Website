@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown, Check, Star } from "lucide-react"
-import { useLanguage } from "@/components/language-provider"
+import { useState } from "react";
+import { ChevronDown, Check, Star } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 import {
   HK_ISLAND_DISTRICTS,
   KOWLOON_DISTRICTS,
   NEW_TERRITORIES_DISTRICTS,
   type District,
-} from "@/lib/locations"
+} from "@/lib/locations";
 
 /** Category order per capture rows #1979:739x: Academic, Music, Art, Dance,
  *  Sports, STEM, Language, Parent Child, Others (Academic checked). */
@@ -22,20 +22,23 @@ const CATEGORY_KEYS = [
   "language",
   "parentChild",
   "others",
-] as const
+] as const;
 
-const CHECKED_CATEGORY = "academic"
+const CHECKED_CATEGORY = "academic";
 
 /**
- * Sidebar from capture `figma prompt/Programs.figmacapture` (fresh 2026-08-21).
+ * Sidebar from `figma prompt/Programs.figmacapture` (2026-08-21), cross-checked
+ * against 2408 `workshop.figmacapture` #3816:20993 (shared page chrome).
  * - node #1727:17673 — column gap 64, pad 32/0/32/80, sizing fill (grows; 337.8 @1440)
- * - node #1737:7322 Category — w147, gap 14; title 16/590 #222 lh19; rows gap 16;
+ * - node #3816:20994 Category (2408) — w147, gap 16 (2208 capture had 14;
+ *   2408 wins — LINE sits @0,35); title 16/590 #222 lh19; rows gap 16;
  *   checkbox 16×16 r4 (checked #0ABAB5 + check icon, unchecked #B0B0B0 border);
  *   row gap 20; label 14/400 lh21. Academic checked per design.
  * - node #1973:20021 Filter by — w225, gap 16; title 18/590 #000 lh21
  * - node #1973:20025 Language — gap 10 pad 6/0; title 16/400 #000; rows gap 16
  *   (English checked, 繁體中文 unchecked — same checkbox row style as Category)
- * - node #1973:20037 Place — gap 10, pad 6/0; title 16/400 #000 lh19; regions gap 16;
+ * - node #3816:21052 Place (2408) — gap 16; title 16/400 #000 lh19; regions gap 16;
+ *   region header→pills gap 16 (#3816:21054 — W2 shipped 8, both captures say 16);
  *   header text 12/400 #222 lh14 + chevron 16 #5E5E5E; pills h25 pad 4/8 r4, node
  *   opacity 0.8 + fill alpha (selected rgba(10,186,181,0.3) font 590, rest rgba(34,34,34,0.1))
  * - node #1973:20101 Price — two boxes 105×57 r8 stroke #B0B0B0 pad 12/6, col gap 4:
@@ -55,12 +58,12 @@ function Pill({
   selected,
   onToggle,
 }: {
-  district: District
-  selected: boolean
-  onToggle: () => void
+  district: District;
+  selected: boolean;
+  onToggle: () => void;
 }) {
-  const { locale } = useLanguage()
-  const label = locale === "zh-TW" ? district.zh : district.en
+  const { locale } = useLanguage();
+  const label = locale === "zh-TW" ? district.zh : district.en;
   return (
     <button
       type="button"
@@ -74,7 +77,7 @@ function Pill({
     >
       {label}
     </button>
-  )
+  );
 }
 
 function RegionSection({
@@ -84,17 +87,19 @@ function RegionSection({
   onToggle,
   defaultOpen,
 }: {
-  titleKey: string
-  districts: District[]
-  selected: Set<string>
-  onToggle: (slug: string) => void
-  defaultOpen: boolean
+  titleKey: string;
+  districts: District[];
+  selected: Set<string>;
+  onToggle: (slug: string) => void;
+  defaultOpen: boolean;
 }) {
-  const { t } = useLanguage()
-  const [open, setOpen] = useState(defaultOpen)
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="flex flex-col gap-2">
+    /* #3816:21054 — region group: header→pills gap 16 (2208 #1973:20039
+       and 2408 #3816:21054 agree; pills @0,32 after h16 header) */
+    <div className="flex flex-col gap-4">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -123,7 +128,7 @@ function RegionSection({
         </div>
       ) : null}
     </div>
-  )
+  );
 }
 
 /** Checkbox row — Category/Language style (#1979:739x / #1973:2002x):
@@ -137,32 +142,38 @@ function CheckRow({ label, checked }: { label: string; checked?: boolean }) {
           checked ? "bg-[#0ABAB5]" : "border border-[#B0B0B0] bg-white"
         }`}
       >
-        {checked ? <Check className="h-3 w-3 text-white" strokeWidth={1.11} /> : null}
+        {checked ? (
+          <Check className="h-3 w-3 text-white" strokeWidth={1.11} />
+        ) : null}
       </span>
       <span className="text-sm leading-[21px] text-ink">{label}</span>
     </div>
-  )
+  );
 }
 
 export function FilterSidebar({
   selectedDistricts,
   onToggleDistrict,
+  showPlace = true,
 }: {
-  selectedDistricts: Set<string>
-  onToggleDistrict: (slug: string) => void
+  selectedDistricts: Set<string>;
+  onToggleDistrict: (slug: string) => void;
+  /** W7 centre listing (#2568:10812): Place is hidden — the list is already
+   *  scoped to one centre. /programs + /workshops keep it (default). */
+  showPlace?: boolean;
 }) {
-  const { t } = useLanguage()
+  const { t } = useLanguage();
 
   return (
-    /* node #1727:17673 — w337.8 (derived: 1440 − 1102.2 cards area; pinned,
-       not grown, so the sidebar↔card gap holds at every viewport),
-       pad 32/0/32/80, gap 64 */
+    /* node #1727:17673 (= 2408 #3816:20993) — w337.8 (derived: 1440 − 1102.2
+       cards area; pinned, not grown, so the sidebar↔card gap holds at every
+       viewport), pad 32/0/32/80, gap 64 */
     <aside
       className="flex w-full flex-col gap-16 py-8 lg:w-[337.8px] lg:shrink-0 lg:pl-20"
       aria-label={t("programs.filterBy")}
     >
-      {/* node #1737:7322 Category — w147, gap 14 */}
-      <section className="flex w-full flex-col gap-3.5 lg:w-[147px]">
+      {/* node #3816:20994 Category — w147, gap 16 (2408; 2208 capture had 14) */}
+      <section className="flex w-full flex-col gap-4 lg:w-[147px]">
         <h2 className="text-[16px] font-[weight:590] leading-[19px] text-ink">
           {t("programs.category")}
         </h2>
@@ -206,33 +217,38 @@ export function FilterSidebar({
           </div>
         </fieldset>
 
-        {/* node #1973:20037 Place — gap 10, pad 6/0 (interactive) */}
-        <div className="flex flex-col gap-2.5 py-1.5">
-          <h3 className="text-[16px] leading-[19px] text-black">{t("programs.place")}</h3>
-          <div className="flex flex-col gap-4">
-            <RegionSection
-              titleKey="programs.hkIsland"
-              districts={HK_ISLAND_DISTRICTS}
-              selected={selectedDistricts}
-              onToggle={onToggleDistrict}
-              defaultOpen
-            />
-            <RegionSection
-              titleKey="programs.kowloon"
-              districts={KOWLOON_DISTRICTS}
-              selected={selectedDistricts}
-              onToggle={onToggleDistrict}
-              defaultOpen={false}
-            />
-            <RegionSection
-              titleKey="programs.newTerritories"
-              districts={NEW_TERRITORIES_DISTRICTS}
-              selected={selectedDistricts}
-              onToggle={onToggleDistrict}
-              defaultOpen={false}
-            />
+        {/* node #1973:20037 Place — gap 10, pad 6/0 (interactive); hidden on
+            the centre listing (2408 #2568:10855 has no Place group) */}
+        {showPlace ? (
+          <div className="flex flex-col gap-2.5 py-1.5">
+            <h3 className="text-[16px] leading-[19px] text-black">
+              {t("programs.place")}
+            </h3>
+            <div className="flex flex-col gap-4">
+              <RegionSection
+                titleKey="programs.hkIsland"
+                districts={HK_ISLAND_DISTRICTS}
+                selected={selectedDistricts}
+                onToggle={onToggleDistrict}
+                defaultOpen
+              />
+              <RegionSection
+                titleKey="programs.kowloon"
+                districts={KOWLOON_DISTRICTS}
+                selected={selectedDistricts}
+                onToggle={onToggleDistrict}
+                defaultOpen={false}
+              />
+              <RegionSection
+                titleKey="programs.newTerritories"
+                districts={NEW_TERRITORIES_DISTRICTS}
+                selected={selectedDistricts}
+                onToggle={onToggleDistrict}
+                defaultOpen={false}
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {/* node #1973:20101 Price — two boxes 105×57 r8 stroke #B0B0B0,
             pad 12/6, col gap 4: label 10/400 #717171 + value 14px #222 */}
@@ -278,7 +294,7 @@ export function FilterSidebar({
           </legend>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((n) => {
-              const selected = n >= 4
+              const selected = n >= 4;
               return (
                 <span
                   key={n}
@@ -288,10 +304,15 @@ export function FilterSidebar({
                       : "bg-[rgba(34,34,34,0.1)] font-normal"
                   }`}
                 >
-                  <Star aria-hidden className="h-3 w-3 text-ink" strokeWidth={0} fill="#222222" />
+                  <Star
+                    aria-hidden
+                    className="h-3 w-3 text-ink"
+                    strokeWidth={0}
+                    fill="#222222"
+                  />
                   {n}
                 </span>
-              )
+              );
             })}
           </div>
         </fieldset>
@@ -326,5 +347,5 @@ export function FilterSidebar({
         </fieldset>
       </section>
     </aside>
-  )
+  );
 }

@@ -1,5 +1,9 @@
 import { generateMetadata } from "@/lib/metadata"
-import { getPublicCourses } from "@/lib/public-courses"
+import {
+  getPublicClasses,
+  getPublicCourses,
+  classesForCourse,
+} from "@/lib/public-courses"
 import { DiscoveryPage } from "@/components/programs/discovery-page"
 
 export const metadata = generateMetadata({
@@ -10,6 +14,20 @@ export const metadata = generateMetadata({
 })
 
 export default async function WorkshopsPage() {
-  const courses = await getPublicCourses()
-  return <DiscoveryPage courses={courses} variant="workshops" />
+  const [courses, classes] = await Promise.all([
+    getPublicCourses(),
+    getPublicClasses(),
+  ])
+  // "N schedules" row on the 2408 wide card — active classes per course
+  const scheduleCounts: Record<number, number> = {}
+  for (const course of courses) {
+    scheduleCounts[course.id] = classesForCourse(classes, course).length
+  }
+  return (
+    <DiscoveryPage
+      courses={courses}
+      variant="workshops"
+      scheduleCounts={scheduleCounts}
+    />
+  )
 }

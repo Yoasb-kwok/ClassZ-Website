@@ -183,6 +183,8 @@ explicit, not silent:
 
 - Pixel-diff screenshots against `references/*.png` (blocked: no pixelmatch/
   Pillow; use the plugin's Verify AI checker manually).
-- Walker `--brief`: show fill opacity to make alpha mapping mechanical.
+- ~~Walker `--brief`: show fill opacity~~ done 2026-08-21 — now also prints
+  `pa/ca` align, `flip=H/V`, `ovf`, `HIDDEN`, `fills=inherit-or-empty`, and
+  fill `opacity` (`fillOp`); extraction checklist is mechanical.
 - Reusable `e2e/geometry.spec.ts` instead of throwaway measure scripts.
 - Define re-export triggers (design-change notification → new capture).

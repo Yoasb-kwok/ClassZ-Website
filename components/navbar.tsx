@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Menu,
   Calendar,
@@ -13,21 +13,28 @@ import {
   FileText,
   HelpCircle,
   ChevronRight,
-} from "lucide-react"
-import { useLanguage } from "@/components/language-provider"
+} from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 const MAIN_LINKS = [
   { key: "nav.home", href: "/" },
   { key: "nav.aboutUs", href: "/our-mission" },
   { key: "nav.programs", href: "/programs" },
   { key: "nav.workshops", href: "/workshops" },
-] as const
+  // W10 flow wiring — "Centres" is not in the 2596:12227 capture (4 items);
+  // appended after Workshops so the captured order stays intact.
+  { key: "nav.centres", href: "/centres" },
+  // ZPassport — not in the nav capture either (user-directed, spec-silent);
+  // placeholder destination /login until the ZPassport product page exists.
+  { key: "nav.zPassport", href: "/login" },
+] as const;
 
 export function Navbar() {
-  const pathname = usePathname()
-  const { setLocale, t } = useLanguage()
+  const pathname = usePathname();
+  const { setLocale, t } = useLanguage();
 
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href))
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   const quickLinks = [
     { key: "nav.schedule", href: "/schedule", icon: Calendar },
@@ -36,23 +43,25 @@ export function Navbar() {
     { key: "nav.changePassword", href: "/change-password", icon: Fingerprint },
     { key: "nav.terms", href: "/terms", icon: FileText },
     { key: "nav.helpCentre", href: "/faqs", icon: HelpCircle },
-  ]
+  ];
 
   return (
     <nav
       aria-label="Main"
-      className="relative z-50 bg-[linear-gradient(180deg,#FFFFFF_0%,rgba(255,255,255,0)_91%)]"
+      className="relative z-50 overflow-hidden bg-[linear-gradient(180deg,#FFFFFF_0%,rgba(255,255,255,0)_91%)]"
     >
-      <div className="flex items-center justify-between gap-4 px-6 pt-8">
-        {/* Hamburger + logo (Figma "Logo bar") */}
-        <div className="flex items-center gap-5">
+      {/* node 2596:12215 — 1440×64, pad 32/24/0/24, gradient #FFF→transparent 91%, overflow hidden */}
+      <div className="flex items-center justify-between px-6 pt-8">
+        {/* Logo bar 2596:12216 — gap 19.94795036315918 */}
+        <div className="flex items-center gap-[19.94795036315918px]">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button
                 aria-label={t("nav.openMenu")}
-                className="rounded-md p-1 text-ink transition-colors hover:text-classz-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400"
+                className="flex h-8 w-8 items-center justify-center text-ink transition-colors hover:text-classz-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400"
               >
-                <Menu className="h-8 w-8" strokeWidth={1.5} />
+                {/* Hamburger menu 2596:12217 — 32×32 hit area; Hamburger_MD glyph 18.67×13.33, stroke 1.07 (lucide substitution) */}
+                <Menu className="h-[13.33px] w-[18.67px]" strokeWidth={1.07} />
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
@@ -69,7 +78,10 @@ export function Navbar() {
                         className="flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
                       >
                         <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center">
-                          <Icon className="h-[18px] w-[18px]" strokeWidth={1.5} />
+                          <Icon
+                            className="h-[18px] w-[18px]"
+                            strokeWidth={1.5}
+                          />
                         </span>
                         {t(key)}
                       </Link>
@@ -108,15 +120,24 @@ export function Navbar() {
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
 
-          <Link href="/" className="flex items-center gap-2 px-2" aria-label="ClassZ">
+          {/* Frame 2147224368 — gap 8, pad 8; mark 26.67×32, wordmark 70×18.19 (#0ABAB5) */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 px-2"
+            aria-label="ClassZ"
+          >
             <img src="/brand/logo-icon.svg" alt="" className="h-8 w-auto" />
-            <img src="/brand/logo-wordmark.svg" alt="ClassZ" className="h-[18px] w-auto" />
+            <img
+              src="/brand/logo-wordmark.svg"
+              alt="ClassZ"
+              className="h-[18.19px] w-auto"
+            />
           </Link>
         </div>
 
-        {/* Links + Log In (Figma "Selection") */}
+        {/* Selection 2596:12226 — gap 48; menu 2596:12227 gap 39.9; items: 16px/400 + 1px underline (active only — landing capture 2596:12491 visible, rest hidden) */}
         <div className="flex items-center gap-12">
-          <div className="flex items-center gap-6 overflow-x-auto md:gap-10">
+          <div className="flex items-center gap-6 overflow-x-auto md:gap-[39.9px]">
             {MAIN_LINKS.map(({ key, href }) => (
               <Link
                 key={key}
@@ -127,20 +148,23 @@ export function Navbar() {
                 <span
                   aria-hidden
                   className={`h-px w-full ${
-                    isActive(href) ? "bg-ink" : "bg-transparent group-hover:bg-ink/40"
+                    isActive(href)
+                      ? "bg-ink"
+                      : "bg-transparent group-hover:bg-ink/40"
                   }`}
                 />
               </Link>
             ))}
           </div>
+          {/* Log In 2596:12241 — 16px, weight 590 */}
           <Link
             href="/login"
-            className="whitespace-nowrap text-base font-semibold text-ink transition-colors hover:text-classz-400"
+            className="whitespace-nowrap text-base font-[590] text-ink transition-colors hover:text-classz-400"
           >
             {t("nav.login")}
           </Link>
         </div>
       </div>
     </nav>
-  )
+  );
 }
