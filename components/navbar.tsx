@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -32,6 +33,19 @@ const MAIN_LINKS: { key: string; href: string; match?: string[] }[] = [
 export function Navbar() {
   const pathname = usePathname();
   const { setLocale, t } = useLanguage();
+
+  // lg+ → inline menu visible; main links are conditionally excluded from
+  // the dropdown (display:none items would still register in Radix's
+  // collection and degrade arrow-key nav). Dropdown content only renders
+  // when open, so there is no SSR flash.
+  const [showMenuLinksInDropdown, setShowMenuLinksInDropdown] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setShowMenuLinksInDropdown(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const isActive = (href: string, extra: string[] = []) =>
     [href, ...extra].some((path) =>
@@ -73,6 +87,27 @@ export function Navbar() {
                 className="z-[100] w-64 rounded-xl border-0 bg-white p-8 shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)]"
               >
                 <div className="flex flex-col gap-5">
+                  {/* Main links below lg (the inline bar is lg+).
+                      Conditional render, not CSS hiding — see the matchMedia
+                      note above. Active page gets the site's 590 weight;
+                      divider separates from the utility quick links. */}
+                  {showMenuLinksInDropdown ? (
+                    <div className="flex flex-col gap-5">
+                      {MAIN_LINKS.map(({ key, href, match }) => (
+                        <DropdownMenu.Item asChild key={key}>
+                          <Link
+                            href={href}
+                            className={`flex h-11 cursor-pointer items-center rounded-lg px-2.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5] ${
+                              isActive(href, match) ? "font-[590]" : ""
+                            }`}
+                          >
+                            {t(key)}
+                          </Link>
+                        </DropdownMenu.Item>
+                      ))}
+                      <div className="h-px bg-[#EBEBEB]" aria-hidden />
+                    </div>
+                  ) : null}
                   {quickLinks.map(({ key, href, icon: Icon }) => (
                     <DropdownMenu.Item asChild key={key}>
                       <Link
@@ -137,9 +172,9 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Selection 2596:12226 — gap 48; menu 2596:12227 gap 39.9; items: 16px/400 + 1px underline (active only — landing capture 2596:12491 visible, rest hidden) */}
+        {/* Selection 2596:12226 — gap 48; menu 2596:12227 gap 39.9; items: 16px/400 + 1px underline (active only — landing capture 2596:12491 visible, rest hidden). Inline menu is lg+ only: 5 links ≈ 530px + logo + Log In don't fit below 1024 (user pick A, 2026-08-25 — main links join the hamburger menu below lg, see dropdown). */}
         <div className="flex items-center gap-12">
-          <div className="flex items-center gap-6 overflow-x-auto md:gap-[39.9px]">
+          <div className="hidden items-center lg:flex lg:gap-[39.9px]">
             {MAIN_LINKS.map(({ key, href, match }) => (
               <Link
                 key={key}

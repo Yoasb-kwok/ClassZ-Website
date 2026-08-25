@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Outfit } from "next/font/google";
@@ -10,6 +11,68 @@ import type { PublicCourse } from "@/lib/public-courses";
 import { ProgramCard } from "@/components/programs/program-card";
 
 const outfit = Outfit({ weight: "700", subsets: ["latin"] });
+
+/** Mobile-only banner rotation (spec-silent — no mobile frame yet; user
+ *  pick 2026-08-25): the 5-slot collage can't fit 375px, so below md the
+ *  photos rotate one at a time (left → tl → tr → wide → right, loop).
+ *  Sources are mixed-aspect (600×907 portraits, 780×434 landscapes,
+ *  1600×434 panorama), so the frame is fixed-height + object-contain —
+ *  every photo shows COMPLETELY (the point of the change; a uniform
+ *  cover frame would crop portraits to ~37%). Tradeoff: air around
+ *  landscape shots on the white page. Crossfade 700ms, 4s per slide;
+ *  auto-advance stops for prefers-reduced-motion (first photo stays,
+ *  still fully visible). Dots: 6px, active #222 / rest #DDDDDD — ink
+ *  (not the gallery's white) because object-contain often leaves the
+ *  bottom strip white; non-interactive — the section is aria-hidden
+ *  decorative, same as the desktop collage. */
+const MOBILE_BANNER_SRC = [
+  "/landing/collage-left.jpg?v=2408b",
+  "/landing/collage-tl.jpg?v=2408b",
+  "/landing/collage-tr.jpg?v=2408b",
+  "/landing/collage-wide.jpg?v=2408b",
+  "/landing/collage-right.jpg?v=2408b",
+];
+
+function MobileBannerCollage() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    const id = setInterval(
+      () => setIndex((v) => (v + 1) % MOBILE_BANNER_SRC.length),
+      4000,
+    );
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="relative h-[420px] w-full overflow-hidden rounded-xl lg:hidden">
+      {MOBILE_BANNER_SRC.map((src, n) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-700 ${
+            n === index ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
+      <div className="absolute bottom-[10px] left-1/2 flex -translate-x-1/2 items-center gap-[6px]">
+        {MOBILE_BANNER_SRC.map((src, n) => (
+          <span
+            key={src}
+            aria-hidden
+            className={`h-[6px] w-[6px] rounded-full ${
+              n === index ? "bg-[#222222]" : "bg-[#DDDDDD]"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /**
  * Landing from Figma #2346:21370 (2408 capture, 2026-08-24).
@@ -49,12 +112,13 @@ export function LandingPage({
             collage-*.jpg, compressed from capture PNGs; src ?v=2408b
             cache-busts the filename-stable swap — image hashes verified
             identical to the live Figma fills). */}
-        <section className="py-8 md:py-0" aria-hidden>
-          <div className="flex h-[454px] gap-5 overflow-hidden rounded-xl">
+        <section className="py-8 lg:py-0" aria-hidden>
+          <MobileBannerCollage />
+          <div className="hidden h-[454px] gap-5 overflow-hidden rounded-xl lg:flex">
             <img
               src="/landing/collage-left.jpg?v=2408b"
               alt=""
-              className="hidden w-[300px] object-cover md:block"
+              className="hidden w-[300px] object-cover lg:block"
             />
             <div className="flex min-w-0 flex-1 flex-col gap-5">
               <div className="flex min-h-0 flex-1 gap-5">
@@ -78,7 +142,7 @@ export function LandingPage({
             <img
               src="/landing/collage-right.jpg?v=2408b"
               alt=""
-              className="hidden w-[300px] object-cover md:block"
+              className="hidden w-[300px] object-cover lg:block"
             />
           </div>
         </section>
@@ -203,52 +267,56 @@ export function LandingPage({
             {/* node 3963:36134 — visual column: 625 fixed, gap 10 */}
             <div className="flex w-full flex-col gap-[10px] md:w-[625px] md:shrink-0">
               {/* nodes 3963:36123/37 — photo collage 625×288.33, absolute
-                  rects. Flipped nodes (3963:36126, 3963:36130) are
-                  scaleX(-1) per relativeTransform [[-1,0,tx],…] — rendered
-                  left = tx − w. Mobile: right side clips (no mobile spec,
-                  declared assumption). */}
-              <div className="relative h-[288.33px] w-full max-md:overflow-hidden md:w-[625px]">
+                    rects. Flipped nodes (3963:36126, 3963:36130) are
+                    scaleX(-1) per relativeTransform [[-1,0,tx],…] — rendered
+                    left = tx − w. Rects are % of the 625×288.33 frame with
+                    the container aspect locked: the collage scales fluidly
+                    at any width — at md (625px) % resolves to the exact
+                    capture px, and below md every photo stays fully inside
+                    the frame (was: px coords clipped the right side at 375;
+                    user pick A, 2026-08-25). */}
+              <div className="relative aspect-[625/288.33] w-full overflow-hidden md:w-[625px]">
                 <img
                   src="/landing/zpassport-card-1.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[511.49px] top-[150.36px] h-[118.65px] w-[113.51px] object-cover"
+                  className="absolute left-[81.838%] top-[52.141%] h-[41.15%] w-[18.162%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-2.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[110.29px] top-[100.38px] h-[168.44px] w-[154.17px] object-cover"
+                  className="absolute left-[17.646%] top-[34.817%] h-[58.417%] w-[24.667%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-3.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[372.19px] top-[171.43px] h-[90.47px] w-[136.73px] -scale-x-100 object-cover"
+                  className="absolute left-[59.55%] top-[59.459%] h-[31.379%] w-[21.877%] -scale-x-100 object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-4.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-0 top-[126.4px] h-[139.21px] w-[121.03px] object-cover"
+                  className="absolute left-0 top-[43.839%] h-[48.279%] w-[19.365%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-5.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[165.23px] top-0 h-[83.86px] w-[87.16px] object-cover"
+                  className="absolute left-[26.437%] top-0 h-[29.08%] w-[13.946%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-6.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[237.94px] top-[121.86px] h-[166.47px] w-[166.89px] object-cover"
+                  className="absolute left-[38.07%] top-[42.269%] h-[57.731%] w-[26.702%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-7.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[391.61px] top-[32.63px] h-[151.2px] w-[135.49px] -scale-x-100 object-cover"
+                  className="absolute left-[62.578%] top-[11.317%] h-[52.436%] w-[21.678%] -scale-x-100 object-cover"
                 />
               </div>
               {/* node 3963:36135 — tagline: Outfit 700, 25/38, #0ABAB5,
