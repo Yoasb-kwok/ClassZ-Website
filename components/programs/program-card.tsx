@@ -133,7 +133,7 @@ export function ProgramCard({
             </div>
             {/* star / rating (node 3810:20028) — 4.91 is a D2 placeholder
                 (design copy verbatim) until a rating API field exists. */}
-            <div className="flex shrink-0 flex-col items-end justify-center">
+            <div className="flex shrink-0 flex-col items-end justify-start">
               <div className="flex items-center gap-[4px]">
                 <Star
                   aria-hidden

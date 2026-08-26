@@ -1,17 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  MapPin,
-  MessageCircle,
-  Share2,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { CENTRES } from "@/lib/centre-data";
 import { districtLabel } from "@/lib/locations";
 import { HOST_AVATAR, programImage } from "@/lib/program-images";
 import type { PublicCourse, PublicClass } from "@/lib/public-courses";
@@ -60,11 +54,15 @@ export function ProgramDetail({
   course,
   classes,
   similar,
+  prices,
   variant = "program",
 }: {
   course: PublicCourse;
   classes: PublicClass[];
   similar: PublicCourse[];
+  /** Real per-course prices (detail-endpoint fetch in the route) — the
+   *  list API omits `price`; keyed by course id. */
+  prices?: Record<number, number>;
   /** "workshop" = #1988:7824 mirror — only the location row differs (12px) */
   variant?: "program" | "workshop";
 }) {
@@ -73,6 +71,9 @@ export function ProgramDetail({
   const price = course.price != null ? Number(course.price) : null;
   const district = districtLabel(course.location, locale);
   const instructor = classes[0]?.instructor ?? course.instructor;
+  const centre = CENTRES.find((c) => c.id === course.center_id);
+  const centreName = centre?.name ?? instructor;
+  const centreRating = centre?.rating ?? "4.91";
 
   return (
     <main className="min-h-screen bg-white text-ink">
@@ -83,8 +84,9 @@ export function ProgramDetail({
           navbar/footer stay full-width. Without the cap the hero's
           justify-between stretches the 15px design gap on >1440 screens. */}
       <div className="lg:mx-auto lg:max-w-[1440px]">
-        {/* node 1895:7700 — hero h881, pad 32/120, justify-between */}
-        <div className="flex flex-col gap-8 px-6 py-8 md:px-[120px] lg:flex-row lg:justify-between lg:gap-0">
+        {/* node 1895:7700 — hero h881, pad 32/120/32/120 plus the root's
+            32px navbar→hero gap = 64px total top spacing (justify-between) */}
+        <div className="flex flex-col gap-8 px-6 pt-[64px] pb-8 md:px-[120px] lg:flex-row lg:justify-between lg:gap-0">
           {/* node 2652:24302 — gallery 530×817 */}
           <div className="w-full shrink-0 lg:w-[530px]">
             <div
@@ -144,17 +146,18 @@ export function ProgramDetail({
           <div className="flex w-full flex-col gap-[32px] lg:w-[655px] lg:max-w-[655px] lg:shrink-0 lg:px-[16px]">
             {/* node 3872:18230 — action row (moved out of the gallery in the
               2408 update): 3×35×35 r100 white 80%, #EBEBEB 1px stroke,
-              icons 16 #5E5E5E, right-aligned, gap 10 */}
+              icons 16 #5E5E5E, right-aligned, gap 10 (vuesax assets) */}
             <div aria-hidden className="flex justify-end gap-[10px]">
-              {[Share2, MessageCircle, Heart].map((Icon, i) => (
+              {[
+                "/programs/export.svg",
+                "/programs/message-2.svg",
+                "/programs/heart.svg",
+              ].map((src, i) => (
                 <span
                   key={i}
                   className="flex h-[35px] w-[35px] items-center justify-center rounded-full border border-[#EBEBEB] bg-white/80"
                 >
-                  <Icon
-                    className="h-[16px] w-[16px] text-[#5E5E5E]"
-                    strokeWidth={1.6}
-                  />
+                  <img src={src} alt="" className="h-[16px] w-[16px]" />
                 </span>
               ))}
             </div>
@@ -162,11 +165,24 @@ export function ProgramDetail({
             {/* node 1895:7714 — info block, gap 16 */}
             <div className="flex flex-col gap-[16px]">
               {/* node 2471:15548 — title row h29 space-between: title 24/590
-                lh29 + star rating at right (18px star + 4.91 16/400) —
-                rating omitted, no API field */}
-              <h1 className="text-[24px] font-[weight:590] leading-[29px] text-ink">
-                {course.name}
-              </h1>
+                lh29 + star rating at right (18px star + 4.91 16/400).
+                "4.91" is a D2 placeholder (no public course rating). */}
+              <div className="flex items-center justify-between gap-[10.01px]">
+                <h1 className="text-[24px] font-[weight:590] leading-[29px] text-ink">
+                  {course.name}
+                </h1>
+                <span className="flex shrink-0 items-center gap-[5px]">
+                  <Star
+                    aria-hidden
+                    className="h-[18px] w-[18px] text-[#222222]"
+                    fill="#222222"
+                    strokeWidth={0}
+                  />
+                  <span className="text-[16px] font-normal leading-[19px] text-[#222222]">
+                    4.91
+                  </span>
+                </span>
+              </div>
 
               {/* node 1895:7720 — price row h24, gap 5: 20px #222 · dot 2.5 ·
                 age 20/400 #5E5E5E (strike-through price omitted — single
@@ -195,7 +211,7 @@ export function ProgramDetail({
               {/* node 1895:7724/7725 — intro 14/400 #5E5E5E, w605 (2 lines,
                 h34 = 2×17) */}
               {course.intro ? (
-                <p className="text-[14px] font-normal leading-[17px] text-[#5E5E5E]">
+                <p className="min-h-[34px] text-[14px] font-normal leading-[17px] text-[#5E5E5E]">
                   {course.intro}
                 </p>
               ) : null}
@@ -213,29 +229,30 @@ export function ProgramDetail({
                       : "text-[14px] leading-[17px]"
                   }`}
                 >
-                  <MapPin
+                  <img
+                    src="/programs/location.svg"
+                    alt=""
                     aria-hidden
-                    className="h-[20.02px] w-[20.02px] text-[#5E5E5E]"
-                    strokeWidth={1.16}
+                    className="h-[20.02px] w-[20.02px] shrink-0"
                   />
                   {district}
                 </p>
               ) : null}
             </div>
 
-            {/* node 2652:24202 — hosted by, gap 16 */}
-            {instructor ? (
+            {/* node 2652:24202 — hosted by, gap 16; centre name + star rating
+                (node 2652:24209, 16px star + 4.91 14/400) */}
+            {centreName ? (
               <section
                 aria-label={t("programs.hostedBy")}
                 className="flex flex-col gap-[16px]"
               >
-                <h2 className="text-[16px] font-[weight:590] leading-none text-black">
+                <h2 className="text-[16px] font-[weight:590] leading-[19px] text-black">
                   {t("programs.hostedBy")}
                 </h2>
                 {/* node 2652:24204 — row w343 gap 20, px-16: avatar 50 r100
-                  (design photo placeholder — no avatar API) + name 14/590
-                  #222 (2652:24208, wraps to 2 lines at w173); star rating
-                  block #2652:24209 omitted — no API field */}
+                  (design photo placeholder — no avatar API) + centre name
+                  14/590 #222 (2652:24208, wraps) + star rating */}
                 <div className="flex items-center gap-[20px] px-[16px]">
                   <img
                     src={HOST_AVATAR}
@@ -243,9 +260,20 @@ export function ProgramDetail({
                     aria-hidden
                     className="h-[50px] w-[50px] shrink-0 rounded-full object-cover"
                   />
-                  <p className="text-[14px] font-[weight:590] leading-[17px] text-ink">
-                    {instructor}
+                  <p className="min-w-0 flex-1 text-[14px] font-[weight:590] leading-[17px] text-ink">
+                    {centreName}
                   </p>
+                  <span className="flex shrink-0 items-center gap-[4px]">
+                    <Star
+                      aria-hidden
+                      className="h-[16px] w-[16px] text-[#222222]"
+                      fill="#222222"
+                      strokeWidth={0}
+                    />
+                    <span className="text-[14px] font-normal leading-[17px] text-[#222222]">
+                      {centreRating}
+                    </span>
+                  </span>
                 </div>
               </section>
             ) : null}
@@ -291,7 +319,7 @@ export function ProgramDetail({
               </h2>
               <Link
                 href="/programs"
-                className="text-[16px] font-normal leading-none text-[#5E5E5E] underline-offset-4 hover:underline"
+                className="text-[16px] font-normal leading-none text-[#5E5E5E] underline"
               >
                 {t("programs.seeMore")}
               </Link>
@@ -307,7 +335,11 @@ export function ProgramDetail({
               >
                 {similar.map((c) => (
                   <li key={c.id} className="shrink-0">
-                    <ProgramCard course={c} variant="similar" />
+                    <ProgramCard
+                      course={c}
+                      variant="similar"
+                      price={prices?.[c.id]}
+                    />
                   </li>
                 ))}
               </ul>

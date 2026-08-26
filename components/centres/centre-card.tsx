@@ -11,8 +11,9 @@ import type { Centre } from "@/lib/centre-data";
  * Centre card in two variants:
  *
  * - "strip" (default) from Figma #3757:21501 (Centre_View capture, W6
- *   2026-08-24) — 400×299, no radius/shadow/stroke (same geometry family
- *   as the similar-program card #3810:20016).
+ *   2026-08-24) — 400×299, r12 (image #3757:21502 cornerRadii 12/12/0/0 +
+ *   body #3757:21511 0/0/12/12) + shadow 0 6.81/18.16 rgba(0,0,0,0.12)
+ *   (same geometry family as the similar-program card #3810:20016).
  *
  *   Image #3757:21502 400×210, pad 18.16 chrome: SEN badge #3757:21503
  *   (r4.54, #FFFFFF 80% fill, pad 4.54/9.08, tick-circle 15.89 stroke
@@ -40,15 +41,15 @@ import type { Centre } from "@/lib/centre-data";
  *   FRESH workshop capture (same component, `3863:17550`): 974×253, image
  *   panel full-bleed 643:253, white panel w331 pad 14, info space-between
  *   (top: title col + heart gap 40.63; title 22/590 lh26 w239 clamp-2,
- *   inner gap 7.62), heart 23.33 (#BDBDBD/1.94), address 14 #5E5E5E +
- *   MapPin 16 gap 4. Centre-specific rows per the live frame's MCP
- *   (orientation only, pending re-export): star 19.35 #222 + rating 18
- *   #222 gap 4.84 (centre HAS rating data, unlike courses); card radius
- *   9.14 (panel radii — workshop capture has none); age row + right-aligned
- *   underlined "10+ schedules" shown as D2 placeholder mock content
- *   (mock says "Age 3-6" / "10+ schedules"); the mock's price row →
- *   "{count} reviews" (§4.4 mock-mix, W6 strip precedent). Listing image
- *   = design asset `listing.jpg` (imageRef 34319d…, exported 2026-08-24).
+ *   inner gap 7.62), address 14 #5E5E5E + MapPin 16 gap 4.
+ *   Centre-specific rows per the live frame's MCP (orientation only,
+ *   pending re-export): star 19.35 #222 + rating 18 #222 gap 4.84 (centre
+ *   HAS rating data, unlike courses); card radius 9.14 (panel radii —
+ *   workshop capture has none); age row + left-aligned "10+ schedules"
+ *   (D2 placeholder). 2026-08-26 user pass: review-count row dropped,
+ *   "10+ schedules" moved left + underline removed; heart enlarged to
+ *   27.23/22.69×20.23 (user "even bigger"). Listing image = design
+ *   asset `listing.jpg` (imageRef 34319d…, exported 2026-08-24).
  */
 export function CentreCard({
   centre,
@@ -105,21 +106,17 @@ export function CentreCard({
                     {centre.rating}
                   </span>
                 </div>
-                <p className="text-[18px] leading-[21px] text-ink">
-                  {formatTemplate(t, "centres.reviewCount", {
-                    count: centre.reviewCount,
-                  })}
-                </p>
               </div>
-              {/* Heart (workshop `3866:17617`) — 23.33 frame, icon
-                  19.44×17.33 #BDBDBD/1.94 */}
+              {/* Heart (workshop `3866:17617`) — scaled UP from the design's
+                  23.33/19.44×17.33 to 27.23/22.69×20.23 #BDBDBD/2.26
+                  (user 2026-08-26: "even bigger"). */}
               <span
                 aria-hidden
-                className="flex h-[23.33px] w-[23.33px] shrink-0 items-center justify-center"
+                className="flex h-[27.23px] w-[27.23px] shrink-0 items-center justify-center"
               >
                 <Heart
-                  className="h-[17.33px] w-[19.44px] text-[#BDBDBD]"
-                  strokeWidth={1.94}
+                  className="h-[20.23px] w-[22.69px] text-[#BDBDBD]"
+                  strokeWidth={2.26}
                   fill="none"
                 />
               </span>
@@ -145,11 +142,9 @@ export function CentreCard({
                   {centre.address}
                 </p>
               </div>
-              <div className="flex justify-end">
-                <p className="text-[14px] leading-[17px] text-ink underline">
-                  {t("programs.schedulesMany")}
-                </p>
-              </div>
+              <p className="text-[14px] leading-[17px] text-ink">
+                {t("programs.schedulesMany")}
+              </p>
             </div>
           </div>
         </div>
@@ -161,7 +156,7 @@ export function CentreCard({
     <Link
       href={`/centres/${centre.id}`}
       data-testid="centre-card"
-      className="group block w-[400px] max-w-full bg-white"
+      className="group block w-[400px] max-w-full overflow-hidden rounded-[12px] bg-white shadow-[0_6.81px_18.16px_rgba(0,0,0,0.12)]"
     >
       {/* node 3757:21502 — image area h210; chrome inset 18.16 */}
       <div className="relative h-[210px] w-full overflow-hidden bg-classz-50">

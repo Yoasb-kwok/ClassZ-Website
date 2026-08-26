@@ -84,7 +84,7 @@ export function CentreListing({ centres }: { centres: Centre[] }) {
             {t("programs.title")}
           </h1>
           <p className="max-w-[884px] text-[18px] leading-[27px] text-ink">
-            {t("programs.subtitle")}
+            {t("programs.workshopsSubtitle")}
           </p>
         </section>
 

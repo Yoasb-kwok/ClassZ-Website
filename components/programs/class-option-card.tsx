@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, MapPin } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { formatTemplate } from "./format";
 import { BY_AVATAR, CLASS_AVATARS } from "@/lib/program-images";
@@ -10,8 +10,8 @@ import type { PublicClass } from "@/lib/public-courses";
 
 /**
  * "options" card from Figma #1981:7770 (instance, program detail page;
- * re-diffed 2026-08-24): 605×233.9, pad 16, r12, white — NO shadow, NO
- * stroke (capture confirms both absent). Inner column 573 is a FLAT
+ * re-diffed 2026-08-24): 605×233.9, pad 16, r12, white — shadow
+ * 0 6px 16px rgba(0,0,0,0.12), NO stroke. Inner column 573 is a FLAT
  * 7-row flow, gap 10 (header 26.24 / avatars 25 / language 18.59 /
  * location 18.59 / price1 17 / price2 19 / show-dates 17.49 — y =
  * 0/36.24/71.24/99.83/128.41/155.41/184.41 ✓), with the Enroll button
@@ -94,7 +94,7 @@ export function ClassOptionCard({
   return (
     <article
       data-testid="class-option-card"
-      className="flex w-[605px] max-w-full shrink-0 snap-start flex-col gap-[16px] rounded-[12px] bg-white p-[16px]"
+      className="flex w-[605px] max-w-full shrink-0 snap-start flex-col gap-[16px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]"
     >
       {/* node 1981:7552 — inner column: flat 7-row flow, gap 10 */}
       <div className="relative flex flex-col gap-[10px]">
@@ -156,16 +156,19 @@ export function ClassOptionCard({
           </span>
         </p>
 
-        {/* node 1981:7570 — language row omitted (no API field): 17.49
-            global icon + 14/400 #5E5E5E, gap 4.37 */}
+        {/* node 1981:7570 — language row omitted (no API field); spacer
+            reserves its 18.59px height so the rows below (and the absolute
+            Enroll button alignment) stay at the design y-positions */}
+        <div aria-hidden className="h-[18.59px]" />
 
         {/* node 1981:7581 — location row, icon 17.49 + 14/400 #5E5E5E */}
         {cls.location ? (
           <p className="flex items-center gap-[5px] text-[14px] font-normal leading-[17px] text-[#5E5E5E]">
-            <MapPin
+            <img
+              src="/programs/location.svg"
+              alt=""
               aria-hidden
-              className="h-[17.49px] w-[17.49px]"
-              strokeWidth={1.16}
+              className="h-[17.49px] w-[17.49px] shrink-0"
             />
             {cls.location}
           </p>

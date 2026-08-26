@@ -47,6 +47,16 @@ export function Navbar() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  // Scroll-appearing navbar: solid white + shadow fades in once the page is
+  // scrolled (the hamburger/logo stays pinned top). User-directed 2026-08-26.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const isActive = (href: string, extra: string[] = []) =>
     [href, ...extra].some((path) =>
       path === "/" ? pathname === "/" : pathname.startsWith(path),
@@ -61,10 +71,18 @@ export function Navbar() {
     { key: "nav.helpCentre", href: "/faqs", icon: HelpCircle },
   ];
 
+  // Stagger offset: quick links + language start after the main links when
+  // they are rendered in the dropdown (below lg).
+  const mainCount = showMenuLinksInDropdown ? MAIN_LINKS.length : 0;
+
   return (
     <nav
       aria-label="Main"
-      className="relative z-50 overflow-hidden bg-[linear-gradient(180deg,#FFFFFF_0%,rgba(255,255,255,0)_91%)]"
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white shadow-[0_4px_25px_rgba(0,0,0,0.12)]"
+          : "bg-[linear-gradient(180deg,#FFFFFF_0%,rgba(255,255,255,0)_91%)]"
+      }`}
     >
       {/* node 2596:12215 — 1440×64, pad 32/24/0/24, gradient #FFF→transparent 91%, overflow hidden */}
       <div className="flex items-center justify-between px-6 pt-8">
@@ -76,15 +94,17 @@ export function Navbar() {
                 aria-label={t("nav.openMenu")}
                 className="flex h-8 w-8 items-center justify-center text-ink transition-colors hover:text-classz-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400"
               >
-                {/* Hamburger menu 2596:12217 — 32×32 hit area; Hamburger_MD glyph 18.67×13.33, stroke 1.07 (lucide substitution) */}
-                <Menu className="h-[13.33px] w-[18.67px]" strokeWidth={1.07} />
+                {/* Hamburger menu 2596:12217 — 32×32 hit area, sized to match
+                    the 27×32 logo mark (user "just as big as the logo",
+                    2026-08-26); glyph 32×32, stroke 1.5 (lucide substitution) */}
+                <Menu className="h-8 w-8" strokeWidth={1.5} />
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content
                 sideOffset={24}
                 align="start"
-                className="z-[100] w-64 rounded-xl border-0 bg-white p-8 shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)]"
+                className="nav-dropdown z-[100] w-64 rounded-xl border-0 bg-white p-8 shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)]"
               >
                 <div className="flex flex-col gap-5">
                   {/* Main links below lg (the inline bar is lg+).
@@ -93,11 +113,12 @@ export function Navbar() {
                       divider separates from the utility quick links. */}
                   {showMenuLinksInDropdown ? (
                     <div className="flex flex-col gap-5">
-                      {MAIN_LINKS.map(({ key, href, match }) => (
+                      {MAIN_LINKS.map(({ key, href, match }, i) => (
                         <DropdownMenu.Item asChild key={key}>
                           <Link
                             href={href}
-                            className={`flex h-11 cursor-pointer items-center rounded-lg px-2.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5] ${
+                            style={{ animationDelay: `${i * 35}ms` }}
+                            className={`nav-menu-item flex h-11 cursor-pointer items-center rounded-lg px-2.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5] ${
                               isActive(href, match) ? "font-[590]" : ""
                             }`}
                           >
@@ -108,11 +129,12 @@ export function Navbar() {
                       <div className="h-px bg-[#EBEBEB]" aria-hidden />
                     </div>
                   ) : null}
-                  {quickLinks.map(({ key, href, icon: Icon }) => (
+                  {quickLinks.map(({ key, href, icon: Icon }, i) => (
                     <DropdownMenu.Item asChild key={key}>
                       <Link
                         href={href}
-                        className="flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
+                        style={{ animationDelay: `${(mainCount + i) * 35}ms` }}
+                        className="nav-menu-item flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
                       >
                         <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center">
                           <Icon
@@ -125,7 +147,12 @@ export function Navbar() {
                     </DropdownMenu.Item>
                   ))}
                   <DropdownMenu.Sub>
-                    <DropdownMenu.SubTrigger className="flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]">
+                    <DropdownMenu.SubTrigger
+                      style={{
+                        animationDelay: `${(mainCount + quickLinks.length) * 35}ms`,
+                      }}
+                      className="nav-menu-item flex h-11 cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-base text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
+                    >
                       <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center">
                         <Globe className="h-4 w-4" strokeWidth={1.5} />
                       </span>
@@ -179,7 +206,7 @@ export function Navbar() {
               <Link
                 key={key}
                 href={href}
-                className="group flex flex-col items-center gap-2.5 whitespace-nowrap text-base text-ink"
+                className="group flex flex-col items-center gap-2.5 whitespace-nowrap text-[16px] leading-[19px] text-ink"
               >
                 <span>{t(key)}</span>
                 <span
@@ -196,7 +223,7 @@ export function Navbar() {
           {/* Log In 2596:12241 — 16px, weight 590 */}
           <Link
             href="/login"
-            className="whitespace-nowrap text-base font-[590] text-ink transition-colors hover:text-classz-400"
+            className="flex h-[30px] items-start whitespace-nowrap text-[16px] leading-[19px] font-[590] text-ink transition-colors hover:text-classz-400"
           >
             {t("nav.login")}
           </Link>

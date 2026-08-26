@@ -102,7 +102,7 @@ export function LandingPage({
   const { t } = useLanguage();
 
   return (
-    <main className="flex min-h-screen flex-col bg-white text-ink md:gap-[32px]">
+    <main className="flex min-h-screen flex-col bg-white text-ink md:gap-[32px] lg:mx-auto lg:max-w-[1440px]">
       <Navbar />
 
       {/* node 2346:21398 — Moments + Intro wrapper, no pad, frame gap 34 */}
@@ -181,7 +181,7 @@ export function LandingPage({
             <Link
               href="/workshops"
               aria-label={t("landing.seeAllWorkshops")}
-              className="text-[14px] font-normal text-[#5E5E5E] underline-offset-4 hover:underline"
+              className="text-[14px] font-normal text-[#5E5E5E] underline underline-offset-4"
             >
               {t("landing.seeMore")}
             </Link>
@@ -277,9 +277,12 @@ export function LandingPage({
             {/* node 3963:36134 — visual column: 625 fixed, gap 10 */}
             <div className="flex w-full flex-col gap-[10px] md:w-[625px] md:shrink-0">
               {/* nodes 3963:36123/37 — photo collage 625×288.33, absolute
-                    rects. Flipped nodes (3963:36126, 3963:36130) are
-                    scaleX(-1) per relativeTransform [[-1,0,tx],…] — rendered
-                    left = tx − w. Rects are % of the 625×288.33 frame with
+                    rects. Nodes 3963:36126 ("21 2") & 3963:36130 ("4 69") carry
+                    flip=H in the capture (relativeTransform [[-1,0,tx],…] ⇒
+                    rendered left = tx − w), but per user 2026-08-26 those two
+                    photos must NOT be mirrored — the scaleX(-1) is deliberately
+                    omitted, keeping each at its tx − w position. Rects are % of
+                    the 625×288.33 frame with
                     the container aspect locked: the collage scales fluidly
                     at any width — at md (625px) % resolves to the exact
                     capture px, and below md every photo stays fully inside
@@ -302,7 +305,7 @@ export function LandingPage({
                   src="/landing/zpassport-card-3.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[59.55%] top-[59.459%] h-[31.379%] w-[21.877%] -scale-x-100 object-cover"
+                  className="absolute left-[59.55%] top-[59.459%] h-[31.379%] w-[21.877%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-4.png"
@@ -326,7 +329,7 @@ export function LandingPage({
                   src="/landing/zpassport-card-7.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[62.578%] top-[11.317%] h-[52.436%] w-[21.678%] -scale-x-100 object-cover"
+                  className="absolute left-[62.578%] top-[11.317%] h-[52.436%] w-[21.678%] object-cover"
                 />
               </div>
               {/* node 3963:36135 — tagline: Outfit 700, 25/38, #0ABAB5,
@@ -353,7 +356,7 @@ export function LandingPage({
             <Link
               href="/programs"
               aria-label={t("landing.seeAllPrograms")}
-              className="text-[14px] font-normal text-[#5E5E5E] underline-offset-4 hover:underline"
+              className="text-[14px] font-normal text-[#5E5E5E] underline underline-offset-4"
             >
               {t("landing.seeMore")}
             </Link>
