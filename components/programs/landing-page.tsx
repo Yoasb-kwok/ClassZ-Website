@@ -91,9 +91,13 @@ function MobileBannerCollage() {
 export function LandingPage({
   programs,
   workshops,
+  prices,
 }: {
   programs: PublicCourse[];
   workshops: PublicCourse[];
+  /** Per-course real prices (detail-endpoint fetch in app/page.tsx —
+   *  the /api/courses list omits `price`); keyed by course id. */
+  prices?: Record<number, number>;
 }) {
   const { t } = useLanguage();
 
@@ -164,7 +168,8 @@ export function LandingPage({
           cards (0/440/880 in the 1280 content → 40px gaps). Arrows
           #2346:21503: bare 35×35 icon buttons (no chrome), right-aligned,
           gap 10, 32px below cards; left icon #B0B0B0, right icon #222222.
-          Star rating on the strip is data-blocked (no rating API field). */}
+          Star + "4.91" on the strip is a D2 design-copy placeholder
+          (no public rating API field — ProgramCard renders it). */}
       {workshops.length > 0 ? (
         <section className="flex flex-col gap-8 px-6 py-8 md:px-[80px] md:py-[32px] md:gap-[32px]">
           {/* node 2346:21451 — header: space-between, ca=max, gap 10.
@@ -185,7 +190,11 @@ export function LandingPage({
             <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3 xl:gap-10">
               {workshops.slice(0, 3).map((c) => (
                 <li key={c.id} className="w-full">
-                  <ProgramCard course={c} variant="similar" />
+                  <ProgramCard
+                    course={c}
+                    variant="similar"
+                    price={prices?.[c.id]}
+                  />
                 </li>
               ))}
             </ul>
@@ -211,11 +220,12 @@ export function LandingPage({
 
       {/* node 3963:36089 — ZPassport card section (2408 redesign).
           Section pad-x 50 → card 1340 wide (1440−2×50). Card (node
-          2346:21416): r30, #FFFFFF, no shadow/stroke in capture. Inner
-          (node 3963:36088) pad-x 60 → content 1220. Row (node 2346:21417):
-          pad-y 50, gap 40, h 565 fixed, centered both axes. */}
+          2346:21416): r30, #FFFFFF; capture had no shadow, but the LIVE
+          frame (MCP re-diff 2026-08-25) adds 0 4px 25px rgba(0,0,0,0.25).
+          Inner (node 3963:36088) pad-x 60 → content 1220. Row (node
+          2346:21417): pad-y 50, gap 40, h 565 fixed, centered both axes. */}
       <section className="px-6 py-8 md:p-0 md:px-[50px]" aria-label="ZPassport">
-        <div className="rounded-[30px] bg-white md:px-[60px]">
+        <div className="rounded-[30px] bg-white shadow-[0_4px_25px_rgba(0,0,0,0.25)] md:px-[60px]">
           <div className="flex flex-col gap-10 py-[50px] md:h-[565px] md:flex-row md:items-center md:gap-[40px]">
             {/* node 2346:21420 — text column: grow (555 @1440), gap 32 */}
             <div className="flex min-w-0 flex-1 flex-col gap-[32px]">
@@ -352,7 +362,11 @@ export function LandingPage({
             <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3 xl:gap-10">
               {programs.slice(0, 3).map((c) => (
                 <li key={c.id} className="w-full">
-                  <ProgramCard course={c} variant="similar" />
+                  <ProgramCard
+                    course={c}
+                    variant="similar"
+                    price={prices?.[c.id]}
+                  />
                 </li>
               ))}
             </ul>
