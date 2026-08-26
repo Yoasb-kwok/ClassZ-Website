@@ -343,26 +343,6 @@ export function ProgramDetail({
                   </li>
                 ))}
               </ul>
-
-              {/* node 2834:18875 — pagination: 2 × 35×35 r100, gap 10,
-                right-aligned (visual chrome — no paging data yet) */}
-              <div
-                aria-hidden
-                className="hidden justify-end gap-[10px] lg:flex"
-              >
-                <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#EBEBEB]">
-                  <ChevronLeft
-                    className="h-[16px] w-[16px] text-[#5E5E5E]"
-                    strokeWidth={1.6}
-                  />
-                </span>
-                <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#EBEBEB]">
-                  <ChevronRight
-                    className="h-[16px] w-[16px] text-[#5E5E5E]"
-                    strokeWidth={1.6}
-                  />
-                </span>
-              </div>
             </div>
           </section>
         ) : null}

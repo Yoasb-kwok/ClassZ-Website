@@ -40,27 +40,6 @@ function Divider() {
   );
 }
 
-/** Strip pagination — #2839:19259 &c.: 2×35 r100 #EBEBEB, gap 10,
- *  right-aligned chrome (no paging data; mirrors program-detail). */
-function PaginationArrows() {
-  return (
-    <div aria-hidden className="hidden justify-end gap-[10px] lg:flex">
-      <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#EBEBEB]">
-        <ChevronLeft
-          className="h-[16px] w-[16px] text-[#5E5E5E]"
-          strokeWidth={1.6}
-        />
-      </span>
-      <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#EBEBEB]">
-        <ChevronRight
-          className="h-[16px] w-[16px] text-[#5E5E5E]"
-          strokeWidth={1.6}
-        />
-      </span>
-    </div>
-  );
-}
-
 /**
  * Centre view from Figma #2471:14635 (capture: Centre_View.figmacapture,
  * W6 2026-08-24). Root w1440 h4958.37 ver gap 32: navbar 64 → content
@@ -467,7 +446,6 @@ export function CentreView({
                     ))}
                   </ul>
                 ))}
-                <PaginationArrows />
               </div>
             </section>
           ) : null}
@@ -506,7 +484,6 @@ export function CentreView({
                     </li>
                   ))}
                 </ul>
-                <PaginationArrows />
               </div>
             </section>
           ) : null}
@@ -540,7 +517,6 @@ export function CentreView({
                     </li>
                   ))}
                 </ul>
-                <PaginationArrows />
               </div>
             </section>
           ) : null}

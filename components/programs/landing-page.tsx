@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Outfit } from "next/font/google";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
@@ -198,22 +197,6 @@ export function LandingPage({
                 </li>
               ))}
             </ul>
-            <div className="flex justify-end gap-[10px]">
-              <button
-                type="button"
-                aria-label={t("landing.previous")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#B0B0B0]"
-              >
-                <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-              <button
-                type="button"
-                aria-label={t("landing.next")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#222222]"
-              >
-                <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-            </div>
           </div>
         </section>
       ) : null}
@@ -225,7 +208,7 @@ export function LandingPage({
           Inner (node 3963:36088) pad-x 60 → content 1220. Row (node
           2346:21417): pad-y 50, gap 40, h 565 fixed, centered both axes. */}
       <section className="px-6 py-8 md:p-0 md:px-[50px]" aria-label="ZPassport">
-        <div className="rounded-[30px] bg-white shadow-[0_4px_25px_rgba(0,0,0,0.25)] md:px-[60px]">
+        <div className="rounded-[30px] bg-white px-6 shadow-[0_4px_25px_rgba(0,0,0,0.25)] md:px-[60px]">
           <div className="flex flex-col gap-10 py-[50px] md:h-[565px] md:flex-row md:items-center md:gap-[40px]">
             {/* node 2346:21420 — text column: grow (555 @1440), gap 32 */}
             <div className="flex min-w-0 flex-1 flex-col gap-[32px]">
@@ -242,12 +225,12 @@ export function LandingPage({
                   src="/landing/zpassport-icon.svg"
                   alt=""
                   aria-hidden
-                  className="h-[30.29px] w-auto"
+                  className="h-[24px] w-auto md:h-[30.29px]"
                 />
                 <img
                   src="/landing/zpassport-wordmark.svg"
                   alt="ZPassport"
-                  className="h-[46.93px] w-auto"
+                  className="h-[37px] w-auto md:h-[46.93px]"
                 />
               </div>
               {/* node 2346:21429 — body 18/27, 9 lines (243 = 9×27). The
@@ -373,22 +356,6 @@ export function LandingPage({
                 </li>
               ))}
             </ul>
-            <div className="flex justify-end gap-[10px]">
-              <button
-                type="button"
-                aria-label={t("landing.previous")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#B0B0B0]"
-              >
-                <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-              <button
-                type="button"
-                aria-label={t("landing.next")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#222222]"
-              >
-                <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-            </div>
           </div>
         </section>
       ) : null}
