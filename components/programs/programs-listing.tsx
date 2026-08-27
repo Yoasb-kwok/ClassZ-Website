@@ -176,6 +176,8 @@ interface Row {
     end: number | null;
     dur: number | null;
   }[];
+  /** union of service-tag codes across the course's sessions */
+  tags: Set<string>;
 }
 
 const DAY_MS = 86_400_000;
@@ -210,6 +212,27 @@ const parseAgeRange = (v: string): { min: number; max: number } | null => {
   const max = /\+/.test(v) ? Infinity : Math.max(...nums.map(Number));
   return { min, max };
 };
+/** star tier = round(rating) clamped 1–5; null when no usable rating. */
+const starTier = (rating: number | null | undefined): number | null => {
+  const r = Number(rating);
+  if (rating == null || Number.isNaN(r) || r <= 0) return null;
+  return Math.min(5, Math.max(1, Math.round(r)));
+};
+/** collect tag codes from a class tag_values object (string values, and
+ *  string items of array values — covers {type: code} and {type: [codes]}). */
+const tagCodesFrom = (
+  tv: Record<string, unknown> | null | undefined,
+): string[] => {
+  if (!tv) return [];
+  const codes: string[] = [];
+  for (const v of Object.values(tv)) {
+    if (typeof v === "string") codes.push(v);
+    else if (Array.isArray(v)) {
+      for (const x of v) if (typeof x === "string") codes.push(x);
+    }
+  }
+  return codes;
+};
 
 export function ProgramsListing({
   courses,
@@ -234,11 +257,12 @@ export function ProgramsListing({
   const [timeTo, setTimeTo] = useState("");
   const [durFrom, setDurFrom] = useState("");
   const [durTo, setDurTo] = useState("");
-  /* Filter window — inert star-exclusion + service tags (no public API
-   * fields for rating or class tag_values yet). Age is its own segment
-   * next to Date Range (youngest→oldest age_tag range). */
+  /* Filter window — star-exclusion (course.rating) + service tags
+   * (class tag_values). Age is its own segment next to Date Range. */
   const [ageFrom, setAgeFrom] = useState("");
   const [ageTo, setAgeTo] = useState("");
+  const [excludedStars, setExcludedStars] = useState<Set<number>>(new Set());
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   /** which popover is open — only one at a time (demo behavior) */
   const [openPop, setOpenPop] = useState<
     "category" | "location" | "date" | "age" | "filter" | null
@@ -293,6 +317,10 @@ export function ProgramsListing({
             start != null && end != null && end > start ? end - start : null;
           return { day, start, end, dur };
         });
+        const tags = new Set<string>();
+        for (const s of sessions) {
+          for (const code of tagCodesFrom(s.tag_values)) tags.add(code);
+        }
         return {
           course,
           price:
@@ -305,6 +333,7 @@ export function ProgramsListing({
           toLabel,
           capacity: capacities.length > 0 ? Math.max(...capacities) : null,
           slots,
+          tags,
         };
       });
   }, [courses, classes, prices]);
@@ -337,6 +366,15 @@ export function ProgramsListing({
         if (r == null) return false;
         if (aFrom != null && r.max < aFrom) return false;
         if (aTo != null && r.min > aTo) return false;
+      }
+      if (excludedStars.size > 0) {
+        const tier = starTier(row.course.rating);
+        if (tier == null || excludedStars.has(tier)) return false;
+      }
+      if (selectedTags.size > 0) {
+        for (const tag of selectedTags) {
+          if (!row.tags.has(tag)) return false;
+        }
       }
       if (fromDay != null || toDay != null) {
         /* overlap semantics (demo): course runs during the selected period */
@@ -419,6 +457,8 @@ export function ProgramsListing({
     durTo,
     ageFrom,
     ageTo,
+    excludedStars,
+    selectedTags,
     activeSort,
     budgetDir,
     sizeDir,
@@ -429,6 +469,21 @@ export function ProgramsListing({
       const next = new Set(prev);
       if (next.has(slug)) next.delete(slug);
       else next.add(slug);
+      return next;
+    });
+
+  const toggleStar = (n: number) =>
+    setExcludedStars((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+  const toggleTag = (k: string) =>
+    setSelectedTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
       return next;
     });
 
@@ -444,6 +499,8 @@ export function ProgramsListing({
     setDurTo("");
     setAgeFrom("");
     setAgeTo("");
+    setExcludedStars(new Set());
+    setSelectedTags(new Set());
     setActiveSort(null);
     setBudgetDir("asc");
     setSizeDir("desc");
@@ -463,9 +520,10 @@ export function ProgramsListing({
     (weekdays.size > 0 ? 1 : 0) +
     (timeFrom || timeTo ? 1 : 0) +
     (durFrom || durTo ? 1 : 0);
+  const filterCount = excludedStars.size + selectedTags.size;
   const segWrap = "relative flex min-w-0 flex-1";
   const segBtn =
-    "flex w-full items-center justify-start gap-[6px] px-5 text-left text-[15px] leading-none text-ink transition-colors hover:bg-black/[0.03] aria-expanded:bg-[rgba(10,186,181,0.06)]";
+    "flex w-full items-center justify-start gap-[6px] px-5 text-left text-[15px] leading-none text-ink transition-colors hover:bg-black/[0.03] aria-expanded:bg-[rgba(10,186,181,0.06)] max-md:py-3.5";
 
   return (
     <main className="min-h-screen bg-white text-ink">
@@ -509,7 +567,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "category" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[200px]">
+                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[200px]">
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.category")}
                   </h4>
@@ -566,7 +624,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "location" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[380px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[420px]">
+                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[380px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[420px]">
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.locationFilter")}
                   </h4>
@@ -625,7 +683,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "date" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[480px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[480px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
                   {/* date-to-date — course span overlap */}
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.dateRange")}
@@ -734,7 +792,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "age" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[320px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[320px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.age")}
                   </h4>
@@ -790,9 +848,18 @@ export function ProgramsListing({
                 onClick={() =>
                   setOpenPop(openPop === "filter" ? null : "filter")
                 }
-                className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
+                className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
+                  filterCount > 0
+                    ? "border-ink text-classz-500"
+                    : "border-[#B0B0B0] text-ink"
+                }`}
               >
                 {t("programs.filter")}
+                {filterCount > 0 ? (
+                  <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[rgba(10,186,181,0.3)] px-[5px] text-[11px] font-[weight:590] leading-none">
+                    {filterCount}
+                  </span>
+                ) : null}
                 <ChevronDown
                   aria-hidden
                   className={`h-4 w-4 text-[#5E5E5E] transition-transform ${
@@ -802,35 +869,47 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "filter" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[420px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
-                  {/* Inert until the public API exposes rating + class tag_values */}
+                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[420px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
                   <h4 className="text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.excludeStarTiers")}
                   </h4>
-                  <fieldset
-                    disabled
-                    className="mt-3 flex flex-col gap-4"
-                    title={t("programs.comingSoon")}
-                  >
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {STAR_TIERS.map((n) => (
-                      <CheckRow key={n} label={`${n}★`} />
+                      <button
+                        key={n}
+                        type="button"
+                        aria-pressed={excludedStars.has(n)}
+                        onClick={() => toggleStar(n)}
+                        className={`flex h-[25px] items-center rounded-[4px] px-2 py-1 text-[12px] leading-[14px] text-ink transition-colors ${
+                          excludedStars.has(n)
+                            ? "bg-[rgba(10,186,181,0.3)] font-[weight:590]"
+                            : "bg-[rgba(34,34,34,0.1)] font-normal hover:bg-[rgba(34,34,34,0.16)]"
+                        }`}
+                      >
+                        {`${n}★`}
+                      </button>
                     ))}
-                  </fieldset>
+                  </div>
                   <h4 className="mt-5 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.serviceTagsTitle")}
                   </h4>
-                  <fieldset
-                    disabled
-                    className="mt-3 flex flex-col gap-4"
-                    title={t("programs.comingSoon")}
-                  >
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {SERVICE_TAG_KEYS.map((k) => (
-                      <CheckRow
+                      <button
                         key={k}
-                        label={t(`programs.serviceTags.${k}`)}
-                      />
+                        type="button"
+                        aria-pressed={selectedTags.has(k)}
+                        onClick={() => toggleTag(k)}
+                        className={`flex h-[25px] items-center rounded-[4px] px-2 py-1 text-[12px] leading-[14px] text-ink transition-colors ${
+                          selectedTags.has(k)
+                            ? "bg-[rgba(10,186,181,0.3)] font-[weight:590]"
+                            : "bg-[rgba(34,34,34,0.1)] font-normal hover:bg-[rgba(34,34,34,0.16)]"
+                        }`}
+                      >
+                        {t(`programs.serviceTags.${k}`)}
+                      </button>
                     ))}
-                  </fieldset>
+                  </div>
                 </div>
               ) : null}
             </div>

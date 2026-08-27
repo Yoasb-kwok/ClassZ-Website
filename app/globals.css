@@ -310,10 +310,43 @@
     }
 }
 
+/* Programs filter/date popovers — expand like the navbar dropdown: the
+   panel fades/slides in, direct children cascade in (2026-08-27). */
+.popover-in {
+    transform-origin: top;
+    animation: nav-dropdown-in 0.2s ease both;
+}
+.popover-in > * {
+    animation: nav-menu-item-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.popover-in > *:nth-child(2) {
+    animation-delay: 45ms;
+}
+.popover-in > *:nth-child(3) {
+    animation-delay: 90ms;
+}
+.popover-in > *:nth-child(4) {
+    animation-delay: 135ms;
+}
+.popover-in > *:nth-child(5) {
+    animation-delay: 180ms;
+}
+.popover-in > *:nth-child(6) {
+    animation-delay: 225ms;
+}
+.popover-in > *:nth-child(7) {
+    animation-delay: 270ms;
+}
+.popover-in > *:nth-child(8) {
+    animation-delay: 315ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .nav-dropdown,
     .nav-dropdown[data-state="closed"],
-    .nav-menu-item {
+    .nav-menu-item,
+    .popover-in,
+    .popover-in > * {
         animation: none;
     }
 }
