@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Heart, MapPin, Search, Star } from "lucide-react";
+import { ChevronDown, Heart, MapPin, Search } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { useLanguage } from "@/components/language-provider";
@@ -37,39 +37,82 @@ import { formatTemplate } from "./format";
  *
  * Data honesty (Block B):
  * - Location: REAL (district pills, lib/locations)
- * - Date Range: REAL (PublicClass.start_time → per-course min/max day)
+ * - Date window (2026-08-27): REAL — date-to-date span overlap, weekday
+ *   chips, time window, duration; all from session start/end times
+ * - Filter window (2026-08-27): INERT — exclude-star tiers + service tags
+ *   (no public API rating / class tag_values fields yet)
+ * - Age (2026-08-27): REAL age_tag facet, own segment next to Date Range
  * - Budget/Class Size sorts: REAL (detail-endpoint prices passed in;
  *   class capacity from classes)
- * - Category / star-exclusion / service tags: inert "coming soon" chrome
- *   (same policy as filter-sidebar.tsx — no API fields)
- * - Card star+rating row + service tag pills: OMITTED (no public API
+ * - Category: inert "coming soon" chrome (no API category field)
+ * - Card star+rating row and service tag pills: OMITTED (no public API
  *   fields; WorkshopCard precedent) — see INDEX.md.
  * - Card links carry ?dates=1 → detail opens with lesson dates expanded.
  */
 
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
-/** demo CSS pbox.date — sidebar price box #1973:20101 chrome (105×57 r8) */
+/** inert star-exclusion tiers + service tags — the public API has no rating
+ *  or class tag_values fields yet, so these render as "coming soon" chrome. */
+const STAR_TIERS = [1, 2, 3, 4] as const;
+const SERVICE_TAG_KEYS = [
+  "sen",
+  "smallClass",
+  "examPathway",
+  "performance",
+] as const;
+
+/** demo CSS pbox.date — sidebar price box #1973:20101 chrome (105×57 r8).
+ *  Generalized 2026-08-27: also carries the date-window's time (type=time)
+ *  and duration (type=number, hours) inputs on the same chrome.
+ *  2026-08-27 tweak: compact white bar (h-10), time rendered as 24h HH:MM
+ *  text (no AM/PM), number input rejects illegal (negative/NaN) values. */
 function DateBox({
   labelKey,
   value,
   onChange,
+  type = "date",
+  step,
+  placeholder,
 }: {
   labelKey: string;
   value: string;
   onChange: (v: string) => void;
+  type?: "date" | "time" | "number";
+  step?: string;
+  placeholder?: string;
 }) {
   const { t } = useLanguage();
+  const isTime = type === "time";
   return (
-    <label className="flex h-[57px] w-[150px] flex-col justify-center gap-[4px] rounded-[8px] border border-[#B0B0B0] bg-white px-[12px] py-[6px]">
+    <label className="flex h-10 w-[150px] flex-col justify-center gap-[2px] rounded-[8px] border border-[#B0B0B0] bg-white px-3">
       <span className="text-[10px] font-normal leading-[12px] text-[#717171]">
         {t(labelKey)}
       </span>
       <input
-        type="date"
+        type={isTime ? "text" : type}
+        inputMode={type === "number" ? "decimal" : undefined}
+        min={type === "number" ? "0" : undefined}
+        step={step}
+        maxLength={isTime ? 5 : undefined}
+        placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-transparent text-[14px] leading-[17px] text-ink focus:outline-none"
+        onChange={(e) => {
+          const v = e.target.value;
+          if (isTime) {
+            onChange(v.replace(/[^\d:]/g, "").slice(0, 5));
+            return;
+          }
+          if (type === "number") {
+            if (v === "") return onChange("");
+            const n = Number(v);
+            if (!Number.isFinite(n) || n < 0) return; // exclude illegal input
+            onChange(v);
+            return;
+          }
+          onChange(v);
+        }}
+        className="w-full bg-transparent text-[14px] leading-[17px] text-ink placeholder:text-[#B0B0B0] focus:outline-none"
       />
     </label>
   );
@@ -125,6 +168,14 @@ interface Row {
   toLabel: string | null;
   /** max class capacity across the course's sessions */
   capacity: number | null;
+  /** per-session facts for the date window (weekday / time / duration):
+   *  day = getDay(), start/end = minutes since midnight, dur = minutes. */
+  slots: {
+    day: number | null;
+    start: number | null;
+    end: number | null;
+    dur: number | null;
+  }[];
 }
 
 const DAY_MS = 86_400_000;
@@ -139,6 +190,25 @@ const parseDatePicker = (v: string): number | null => {
   const [y, m, d] = v.split("-").map(Number);
   if (!y || !m || !d) return null;
   return dayNum(new Date(y, m - 1, d));
+};
+/** "HH:MM" → minutes since midnight */
+const parseHM = (v: string): number | null => {
+  const m = v.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  if (h > 23 || min > 59) return null;
+  return h * 60 + min;
+};
+/** age_tag like "3-6", "5-8", "6-12", "10+" → { min, max }; "+" ⇒ max
+ *  Infinity. Returns null when the string carries no numeric age. */
+const parseAgeRange = (v: string): { min: number; max: number } | null => {
+  if (!v) return null;
+  const nums = v.match(/\d+/g);
+  if (!nums || nums.length === 0) return null;
+  const min = Math.min(...nums.map(Number));
+  const max = /\+/.test(v) ? Infinity : Math.max(...nums.map(Number));
+  return { min, max };
 };
 
 export function ProgramsListing({
@@ -157,9 +227,21 @@ export function ProgramsListing({
   const [districts, setDistricts] = useState<Set<string>>(new Set());
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  /* date window 2026-08-27 — weekday chips (0=Sun), time window, duration
+   * (hours). All REAL: derived from session start_time/end_time. */
+  const [weekdays, setWeekdays] = useState<Set<number>>(new Set());
+  const [timeFrom, setTimeFrom] = useState("");
+  const [timeTo, setTimeTo] = useState("");
+  const [durFrom, setDurFrom] = useState("");
+  const [durTo, setDurTo] = useState("");
+  /* Filter window — inert star-exclusion + service tags (no public API
+   * fields for rating or class tag_values yet). Age is its own segment
+   * next to Date Range (youngest→oldest age_tag range). */
+  const [ageFrom, setAgeFrom] = useState("");
+  const [ageTo, setAgeTo] = useState("");
   /** which popover is open — only one at a time (demo behavior) */
   const [openPop, setOpenPop] = useState<
-    "category" | "location" | "date" | "filter" | null
+    "category" | "location" | "date" | "age" | "filter" | null
   >(null);
   const [activeSort, setActiveSort] = useState<"budget" | "size" | null>(null);
   const [budgetDir, setBudgetDir] = useState<"asc" | "desc">("asc");
@@ -198,6 +280,19 @@ export function ProgramsListing({
           toLabel = fmtDM(dates[mins.indexOf(maxDay)]);
         }
         const capacities = sessions.map((s) => s.capacity).filter((c) => c > 0);
+        /* per-session weekday/time/duration facts (date window) */
+        const slots = sessions.map((s) => {
+          const st = new Date(s.start_time);
+          const en = new Date(s.end_time);
+          const badSt = Number.isNaN(st.getTime());
+          const badEn = Number.isNaN(en.getTime());
+          const start = badSt ? null : st.getHours() * 60 + st.getMinutes();
+          const end = badEn ? null : en.getHours() * 60 + en.getMinutes();
+          const day = badSt ? null : st.getDay();
+          const dur =
+            start != null && end != null && end > start ? end - start : null;
+          return { day, start, end, dur };
+        });
         return {
           course,
           price:
@@ -209,6 +304,7 @@ export function ProgramsListing({
           fromLabel,
           toLabel,
           capacity: capacities.length > 0 ? Math.max(...capacities) : null,
+          slots,
         };
       });
   }, [courses, classes, prices]);
@@ -217,16 +313,66 @@ export function ProgramsListing({
     const q = query.trim().toLowerCase();
     const fromDay = parseDatePicker(dateFrom);
     const toDay = parseDatePicker(dateTo);
+    /* date-window session-level constraints */
+    const wdActive = weekdays.size > 0;
+    const tFrom = parseHM(timeFrom);
+    const tTo = parseHM(timeTo);
+    const timeActive = timeFrom !== "" || timeTo !== "";
+    const dFromH =
+      durFrom !== "" && !Number.isNaN(Number(durFrom)) ? Number(durFrom) : null;
+    const dToH =
+      durTo !== "" && !Number.isNaN(Number(durTo)) ? Number(durTo) : null;
+    const durActive = dFromH != null || dToH != null;
+    const aFrom =
+      ageFrom !== "" && !Number.isNaN(Number(ageFrom)) ? Number(ageFrom) : null;
+    const aTo =
+      ageTo !== "" && !Number.isNaN(Number(ageTo)) ? Number(ageTo) : null;
     const out = rows.filter((row) => {
       if (districts.size > 0) {
         const district = findDistrict(row.course.location);
         if (!district || !districts.has(district.slug)) return false;
+      }
+      if (aFrom != null || aTo != null) {
+        const r = parseAgeRange(row.course.age_tag ?? "");
+        if (r == null) return false;
+        if (aFrom != null && r.max < aFrom) return false;
+        if (aTo != null && r.min > aTo) return false;
       }
       if (fromDay != null || toDay != null) {
         /* overlap semantics (demo): course runs during the selected period */
         if (row.minDay == null || row.maxDay == null) return false;
         if (fromDay != null && row.maxDay < fromDay) return false;
         if (toDay != null && row.minDay > toDay) return false;
+      }
+      if (wdActive || timeActive || durActive) {
+        /* ANY session satisfying all active constraints (weekday falls back
+         * to course.weekday when the course has no sessions — but only if
+         * time/duration are unset, which need session data). */
+        const dayOk = (d: number | null) => d != null && weekdays.has(d);
+        const slotOk = (slot: (typeof row.slots)[number]) => {
+          if (wdActive && !dayOk(slot.day)) return false;
+          if (tFrom != null && (slot.start == null || slot.start < tFrom))
+            return false;
+          if (tTo != null && (slot.end == null || slot.end > tTo)) return false;
+          if (dFromH != null && (slot.dur == null || slot.dur < dFromH * 60))
+            return false;
+          if (dToH != null && (slot.dur == null || slot.dur > dToH * 60))
+            return false;
+          return true;
+        };
+        if (row.slots.some(slotOk)) {
+          /* session-level constraints satisfied */
+        } else if (
+          !timeActive &&
+          !durActive &&
+          wdActive &&
+          row.slots.length === 0 &&
+          dayOk(row.course.weekday)
+        ) {
+          /* weekday-only, no sessions: course.weekday fallback */
+        } else {
+          return false;
+        }
       }
       if (q) {
         const haystack = [
@@ -266,6 +412,13 @@ export function ProgramsListing({
     districts,
     dateFrom,
     dateTo,
+    weekdays,
+    timeFrom,
+    timeTo,
+    durFrom,
+    durTo,
+    ageFrom,
+    ageTo,
     activeSort,
     budgetDir,
     sizeDir,
@@ -284,13 +437,32 @@ export function ProgramsListing({
     setDistricts(new Set());
     setDateFrom("");
     setDateTo("");
+    setWeekdays(new Set());
+    setTimeFrom("");
+    setTimeTo("");
+    setDurFrom("");
+    setDurTo("");
+    setAgeFrom("");
+    setAgeTo("");
     setActiveSort(null);
     setBudgetDir("asc");
     setSizeDir("desc");
   };
 
-  const dateCount = dateFrom || dateTo ? 1 : 0;
+  const toggleWeekday = (d: number) =>
+    setWeekdays((prev) => {
+      const next = new Set(prev);
+      if (next.has(d)) next.delete(d);
+      else next.add(d);
+      return next;
+    });
 
+  /* badge = number of active constraint groups in the date window */
+  const dateCount =
+    (dateFrom || dateTo ? 1 : 0) +
+    (weekdays.size > 0 ? 1 : 0) +
+    (timeFrom || timeTo ? 1 : 0) +
+    (durFrom || durTo ? 1 : 0);
   const segWrap = "relative flex min-w-0 flex-1";
   const segBtn =
     "flex w-full items-center justify-start gap-[6px] px-5 text-left text-[15px] leading-none text-ink transition-colors hover:bg-black/[0.03] aria-expanded:bg-[rgba(10,186,181,0.06)]";
@@ -304,7 +476,7 @@ export function ProgramsListing({
           <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
             {t("programs.title")}
           </h1>
-          <p className="max-w-[884px] text-[18px] leading-[27px] text-ink">
+          <p className="max-w-[884px] text-[20px] leading-[30px] text-ink">
             {t("programs.subtitle")}
           </p>
         </section>
@@ -453,7 +625,8 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "date" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[480px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                  {/* date-to-date — course span overlap */}
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.dateRange")}
                   </h4>
@@ -467,6 +640,120 @@ export function ProgramsListing({
                       labelKey="programs.to"
                       value={dateTo}
                       onChange={setDateTo}
+                    />
+                  </div>
+                  {/* weekday chips — any session on the chosen days */}
+                  <h4 className="mb-3 mt-5 text-[16px] font-[weight:590] leading-[19px]">
+                    {t("programs.daysOfWeek")}
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {WEEKDAY_KEYS.map((key, d) => (
+                      <button
+                        key={key}
+                        type="button"
+                        aria-pressed={weekdays.has(d)}
+                        onClick={() => toggleWeekday(d)}
+                        className={`flex h-[25px] items-center rounded-[4px] px-2 py-1 text-[12px] leading-[14px] text-ink transition-colors ${
+                          weekdays.has(d)
+                            ? "bg-[rgba(10,186,181,0.3)] font-[weight:590]"
+                            : "bg-[rgba(34,34,34,0.1)] font-normal hover:bg-[rgba(34,34,34,0.16)]"
+                        }`}
+                      >
+                        {t(`programs.weekday.${key}`)}
+                      </button>
+                    ))}
+                  </div>
+                  {/* time window — session fits inside */}
+                  <h4 className="mb-3 mt-5 text-[16px] font-[weight:590] leading-[19px]">
+                    {t("programs.time")}
+                  </h4>
+                  <div className="flex gap-4">
+                    <DateBox
+                      labelKey="programs.from"
+                      type="time"
+                      placeholder="00:00"
+                      value={timeFrom}
+                      onChange={setTimeFrom}
+                    />
+                    <DateBox
+                      labelKey="programs.to"
+                      type="time"
+                      placeholder="00:00"
+                      value={timeTo}
+                      onChange={setTimeTo}
+                    />
+                  </div>
+                  {/* duration (hours) — session length within range */}
+                  <h4 className="mb-3 mt-5 text-[16px] font-[weight:590] leading-[19px]">
+                    {t("programs.durationHours")}
+                  </h4>
+                  <div className="flex gap-4">
+                    <DateBox
+                      labelKey="programs.from"
+                      type="number"
+                      step="0.5"
+                      placeholder="0"
+                      value={durFrom}
+                      onChange={setDurFrom}
+                    />
+                    <DateBox
+                      labelKey="programs.to"
+                      type="number"
+                      step="0.5"
+                      placeholder="0"
+                      value={durTo}
+                      onChange={setDurTo}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {/* Age — REAL youngest→oldest range from age_tag (next to Date) */}
+            <div className={segWrap}>
+              <button
+                type="button"
+                aria-expanded={openPop === "age"}
+                onClick={() => setOpenPop(openPop === "age" ? null : "age")}
+                className={`${segBtn} ${
+                  ageFrom !== "" || ageTo !== "" ? "text-classz-500" : ""
+                }`}
+              >
+                {t("programs.age")}
+                {ageFrom !== "" || ageTo !== "" ? (
+                  <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[rgba(10,186,181,0.3)] px-[5px] text-[11px] font-[weight:590] leading-none">
+                    1
+                  </span>
+                ) : null}
+                <ChevronDown
+                  aria-hidden
+                  className={`h-4 w-4 shrink-0 text-[#5E5E5E] transition-transform ${
+                    openPop === "age" ? "rotate-180" : ""
+                  }`}
+                  strokeWidth={1.16}
+                />
+              </button>
+              {openPop === "age" ? (
+                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[320px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                  <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
+                    {t("programs.age")}
+                  </h4>
+                  <div className="flex gap-4">
+                    <DateBox
+                      labelKey="programs.from"
+                      type="number"
+                      step="1"
+                      placeholder="3"
+                      value={ageFrom}
+                      onChange={setAgeFrom}
+                    />
+                    <DateBox
+                      labelKey="programs.to"
+                      type="number"
+                      step="1"
+                      placeholder="12"
+                      value={ageTo}
+                      onChange={setAgeTo}
                     />
                   </div>
                 </div>
@@ -503,7 +790,6 @@ export function ProgramsListing({
                 onClick={() =>
                   setOpenPop(openPop === "filter" ? null : "filter")
                 }
-                title={t("programs.comingSoon")}
                 className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
               >
                 {t("programs.filter")}
@@ -516,115 +802,101 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "filter" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
+                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[420px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
+                  {/* Inert until the public API exposes rating + class tag_values */}
                   <h4 className="text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.rating")}
+                    {t("programs.excludeStarTiers")}
                   </h4>
                   <fieldset
                     disabled
-                    className="mt-4 flex flex-col gap-4"
+                    className="mt-3 flex flex-col gap-4"
                     title={t("programs.comingSoon")}
                   >
-                    {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="flex items-center gap-5">
-                        <span
-                          aria-hidden
-                          className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-[#B0B0B0] bg-white"
-                        />
-                        <span className="flex items-center gap-1 text-sm leading-[21px] text-ink">
-                          <Star
-                            aria-hidden
-                            className="h-3 w-3 text-ink"
-                            strokeWidth={0}
-                            fill="#222222"
-                          />
-                          {formatTemplate(t, "programs.excludeStars", { n })}
-                        </span>
-                      </div>
+                    {STAR_TIERS.map((n) => (
+                      <CheckRow key={n} label={`${n}★`} />
                     ))}
                   </fieldset>
                   <h4 className="mt-5 text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.service")}
+                    {t("programs.serviceTagsTitle")}
                   </h4>
                   <fieldset
                     disabled
-                    className="mt-3 flex max-w-[240px] flex-wrap gap-2"
+                    className="mt-3 flex flex-col gap-4"
                     title={t("programs.comingSoon")}
                   >
-                    {(
-                      [
-                        "sen",
-                        "smallClass",
-                        "examPathway",
-                        "performance",
-                      ] as const
-                    ).map((key) => (
-                      <span
-                        key={key}
-                        className="flex h-[25px] items-center rounded-[4px] bg-[rgba(34,34,34,0.1)] px-2 py-1 text-[12px] font-normal leading-[14px] text-ink opacity-80"
-                      >
-                        {t(`programs.serviceTags.${key}`)}
-                      </span>
+                    {SERVICE_TAG_KEYS.map((k) => (
+                      <CheckRow
+                        key={k}
+                        label={t(`programs.serviceTags.${k}`)}
+                      />
                     ))}
                   </fieldset>
                 </div>
               ) : null}
             </div>
 
-            {/* Budget — REAL price sort (asc ⇄ desc; null prices sink) */}
+            {/* Budget — REAL price sort (default → asc → desc → default) */}
             <button
               type="button"
               onClick={() => {
                 if (activeSort !== "budget") {
                   setActiveSort("budget");
                   setBudgetDir("asc");
+                } else if (budgetDir === "asc") {
+                  setBudgetDir("desc");
                 } else {
-                  setBudgetDir((d) => (d === "asc" ? "desc" : "asc"));
+                  setActiveSort(null);
                 }
               }}
               aria-pressed={activeSort === "budget"}
-              className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
-                activeSort === "budget"
-                  ? "border-classz-500 font-[weight:590] text-ink"
-                  : "border-[#B0B0B0] text-ink"
-              }`}
+              className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
             >
               {t("programs.budget")}
-              <span className="text-[12px] font-normal text-[#5E5E5E]">
-                {t(
-                  budgetDir === "asc"
-                    ? "programs.lowToHigh"
-                    : "programs.highToLow",
-                )}
-              </span>
+              {activeSort === "budget" ? (
+                <span className="text-[12px] font-normal text-[#5E5E5E]">
+                  {t(
+                    budgetDir === "asc"
+                      ? "programs.lowToHigh"
+                      : "programs.highToLow",
+                  )}
+                </span>
+              ) : (
+                <span className="text-[12px] font-normal text-[#5E5E5E]">
+                  {t("programs.default")}
+                </span>
+              )}
             </button>
 
-            {/* Class Size — REAL capacity sort (desc ⇄ asc; null sinks) */}
+            {/* Class Size — REAL capacity sort (default → desc → asc → default) */}
             <button
               type="button"
               onClick={() => {
                 if (activeSort !== "size") {
                   setActiveSort("size");
                   setSizeDir("desc");
+                } else if (sizeDir === "desc") {
+                  setSizeDir("asc");
                 } else {
-                  setSizeDir((d) => (d === "desc" ? "asc" : "desc"));
+                  setActiveSort(null);
                 }
               }}
               aria-pressed={activeSort === "size"}
-              className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
-                activeSort === "size"
-                  ? "border-classz-500 font-[weight:590] text-ink"
-                  : "border-[#B0B0B0] text-ink"
-              }`}
+              className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
             >
               {t("programs.classSize")}
-              <span className="text-[12px] font-normal text-[#5E5E5E]">
-                {t(
-                  sizeDir === "desc"
-                    ? "programs.largeToSmall"
-                    : "programs.smallToLarge",
-                )}
-              </span>
+              {activeSort === "size" ? (
+                <span className="text-[12px] font-normal text-[#5E5E5E]">
+                  {t(
+                    sizeDir === "desc"
+                      ? "programs.largeToSmall"
+                      : "programs.smallToLarge",
+                  )}
+                </span>
+              ) : (
+                <span className="text-[12px] font-normal text-[#5E5E5E]">
+                  {t("programs.default")}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -650,7 +922,7 @@ export function ProgramsListing({
             </div>
           ) : (
             <ul
-              className="flex flex-col gap-8 rounded-[12px] bg-[#F7F7F7] p-6 max-md:gap-6 max-md:p-4"
+              className="grid grid-cols-1 gap-8 rounded-[12px] bg-[#F7F7F7] p-6 max-md:gap-6 max-md:p-4 sm:grid-cols-2 lg:grid-cols-3"
               data-testid="programs-list-panel"
             >
               {filtered.map((row) => (
@@ -718,10 +990,11 @@ function LocationRegion({
   );
 }
 
-/** Wide listing card — workshop-capture chrome (#3863:17550 family) with
- *  demo deltas (r9.14 + shadow): image flexes (643 @974 card), panel fixed
- *  331 pad 14. Rows: title+heart / price / date span · Every X / Age · Max
- *  N per class / location. Star+rating and tag pills OMITTED (no API). */
+/** Listing card — workshop-capture chrome (#3863:17550 family) with demo
+ *  deltas (r9.14 + shadow). Vertical (image top, panel below) for the
+ *  3-across grid (2026-08-27). Rows: title+heart / price / date span ·
+ *  Every X / Age · Max N per class / location. Star+rating and tag pills
+ *  OMITTED (no API). */
 function ListingCard({ row }: { row: Row }) {
   const { t, locale } = useLanguage();
   const { course } = row;
@@ -742,10 +1015,10 @@ function ListingCard({ row }: { row: Row }) {
     <Link
       href={`/programs/${course.id}?dates=1`}
       data-testid="program-listing-card"
-      className="group flex w-full flex-col overflow-hidden rounded-[9.14px] bg-white shadow-[0_4.571px_12.189px_0_rgba(0,0,0,0.12)] transition-shadow duration-200 hover:shadow-[0_6px_16px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400 lg:h-[253px] lg:flex-row"
+      className="group flex w-full flex-col overflow-hidden rounded-[9.14px] bg-white shadow-[0_4.571px_12.189px_0_rgba(0,0,0,0.12)] transition-shadow duration-200 hover:shadow-[0_6px_16px_rgba(0,0,0,0.16)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400"
     >
       {/* image panel — flexes (643 wide at the 974 card) */}
-      <div className="relative aspect-[643/253] w-full overflow-hidden bg-classz-50 lg:aspect-auto lg:h-[253px] lg:w-auto lg:flex-1 lg:shrink">
+      <div className="relative aspect-[643/253] w-full overflow-hidden bg-classz-50">
         <img
           src={programImage(course.id)}
           alt={course.name}
@@ -754,12 +1027,12 @@ function ListingCard({ row }: { row: Row }) {
       </div>
 
       {/* white panel #3863:17554 — 331 fixed, pad 14 */}
-      <div className="w-full shrink-0 bg-white p-[14px] lg:w-[331px]">
+      <div className="w-full shrink-0 bg-white p-[14px]">
         <div className="flex h-full flex-col justify-between gap-2.5">
           {/* top: title + heart (demo heart 27.23 box, 22.69×20.23 #BDBDBD/2.26) */}
           <div className="flex items-start justify-between gap-[40.63px]">
             <div className="flex min-w-0 flex-col gap-[7.62px]">
-              <h3 className="line-clamp-2 w-full text-[22px] font-[weight:590] leading-[26px] text-ink lg:w-[239px]">
+              <h3 className="line-clamp-2 w-full text-[22px] font-[weight:590] leading-[26px] text-ink">
                 {course.name}
               </h3>
               {row.price != null ? (

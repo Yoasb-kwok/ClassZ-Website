@@ -7,9 +7,6 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   Menu,
   Calendar,
-  Bell,
-  MessageSquare,
-  Fingerprint,
   Globe,
   FileText,
   HelpCircle,
@@ -67,9 +64,6 @@ export function Navbar() {
 
   const quickLinks = [
     { key: "nav.schedule", href: "/schedule", icon: Calendar },
-    { key: "nav.notifications", href: "/notifications", icon: Bell },
-    { key: "nav.inbox", href: "/inbox", icon: MessageSquare },
-    { key: "nav.changePassword", href: "/change-password", icon: Fingerprint },
     { key: "nav.terms", href: "/terms", icon: FileText },
     { key: "nav.helpCentre", href: "/faqs", icon: HelpCircle },
   ];
@@ -81,7 +75,7 @@ export function Navbar() {
   return (
     <nav
       aria-label="Main"
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-300 lg:mx-auto lg:max-w-[1440px] ${
         scrolled
           ? "bg-white shadow-[0_4px_25px_rgba(0,0,0,0.12)]"
           : "bg-[linear-gradient(180deg,#FFFFFF_0%,rgba(255,255,255,0)_91%)]"

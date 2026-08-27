@@ -85,7 +85,11 @@ export function DiscoveryListing({
   const hasNoWorkshops = isWorkshops && variantCourses.length === 0;
   // Centre intro (#3872:18635): title "Recommended Program", subtitle is the
   // same copy as the workshops listing (#3872:18638 = programs.workshopsSubtitle)
-  const titleKey = isCentre ? "centres.recommendedProgram" : "programs.title";
+  const titleKey = isCentre
+    ? "centres.recommendedProgram"
+    : variant === "workshops"
+      ? "programs.workshopsTitle"
+      : "programs.title";
   const subtitleKey =
     variant === "programs" ? "programs.subtitle" : "programs.workshopsSubtitle";
 

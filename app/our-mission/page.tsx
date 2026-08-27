@@ -1,50 +1,100 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { ArrowRight, Check } from "lucide-react"
-import { useLanguage } from "@/components/language-provider"
+import Link from "next/link";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+import { ArrowRight, Check } from "lucide-react";
+import { useLanguage } from "@/components/language-provider";
 
 export default function OurMissionPage() {
-  const { t } = useLanguage()
+  const { t } = useLanguage();
 
   return (
     <main className="min-h-screen bg-white font-sans text-slate-900 selection:bg-teal-100">
       <Navbar />
 
-      {/* Hero Header */}
-      <section className="relative w-full h-[600px] md:h-[720px] overflow-hidden bg-black">
-        {/* Background Image - full width, accepts slight vertical crop */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/headerOurMission.png')" }}
-        />
-
-        {/* Dark Overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-black/55 md:bg-black/45" />
-
-        {/* Content overlay */}
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 md:mb-6 drop-shadow-lg">
-              {t("mission.hero.title1")}
-              <br />
-              {t("mission.hero.title2")}
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/95 mb-8 md:mb-10 max-w-3xl mx-auto drop-shadow-md">
-              {t("mission.hero.subtitle")}
-            </p>
-            <Link
-              href="/our-features"
-              className="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-[#0ABAB5] hover:bg-[#00b3a3] text-white font-semibold text-base md:text-lg rounded-full transition-colors shadow-lg"
-            >
-              {t("exploreMore")}
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+      {/* Hero — collage + intro, matching the landing top (no black bg or
+          overlay). Collage is decorative; title/subtitle sit below. */}
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col md:gap-[34px]">
+        <section className="py-8 lg:py-0" aria-hidden>
+          {/* mobile collage */}
+          <div className="flex aspect-[1440/454] w-full gap-[5px] overflow-hidden rounded-xl lg:hidden">
+            <img
+              src="/landing/collage-left.jpg?v=2408b"
+              alt=""
+              className="w-[20.8%] object-cover"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+              <div className="flex min-h-0 h-[calc(50%-2.5px)] gap-[5px]">
+                <img
+                  src="/landing/collage-tl.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+                <img
+                  src="/landing/collage-tr.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+              </div>
+              <img
+                src="/landing/collage-wide.jpg?v=2408b"
+                alt=""
+                className="h-[calc(50%-2.5px)] w-full object-cover"
+              />
+            </div>
+            <img
+              src="/landing/collage-right.jpg?v=2408b"
+              alt=""
+              className="w-[20.8%] object-cover"
+            />
           </div>
-        </div>
-      </section>
+          {/* desktop collage */}
+          <div className="hidden h-[454px] gap-5 overflow-hidden rounded-xl lg:flex">
+            <img
+              src="/landing/collage-left.jpg?v=2408b"
+              alt=""
+              className="hidden w-[300px] object-cover lg:block"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-5">
+              <div className="flex min-h-0 flex-1 gap-5">
+                <img
+                  src="/landing/collage-tl.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+                <img
+                  src="/landing/collage-tr.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+              </div>
+              <img
+                src="/landing/collage-wide.jpg?v=2408b"
+                alt=""
+                className="h-[217px] w-full object-cover"
+              />
+            </div>
+            <img
+              src="/landing/collage-right.jpg?v=2408b"
+              alt=""
+              className="hidden w-[300px] object-cover lg:block"
+            />
+          </div>
+        </section>
+
+        {/* intro — title 40/590 + subtitle 20/30 (same as landing intro) */}
+        <section className="flex flex-col items-center gap-4 px-6 py-8 text-center md:px-[120px] md:py-[32px] md:gap-[16px]">
+          <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
+            {t("mission.hero.title1")}
+            <br />
+            {t("mission.hero.title2")}
+          </h1>
+          <p className="max-w-[884px] text-[20px] font-normal leading-[30px] text-ink">
+            {t("mission.hero.subtitle")}
+          </p>
+        </section>
+      </div>
 
       {/* Logo Cloud Section */}
       <section className="bg-white py-10 md:py-14 overflow-x-hidden">
@@ -55,24 +105,71 @@ export default function OurMissionPage() {
               <div className="flex items-center gap-3 sm:gap-6 md:gap-10 lg:gap-12 flex-shrink-0 z-10 bg-white pr-3 sm:pr-6 md:pr-10 lg:pr-12">
                 {/* <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.fundedBy")}</span>
                 <img src="/Cyberport_Logo_Master-01-2.png" alt="Funded by Cyberport" className="h-10 sm:h-14 md:h-16 lg:h-20 w-auto flex-shrink-0" /> */}
-                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">{t("mission.marquee.trustedBy")}</span>
+                <span className="text-xs sm:text-base md:text-lg font-semibold text-gray-300 whitespace-nowrap">
+                  {t("mission.marquee.trustedBy")}
+                </span>
               </div>
-              
+
               {/* Moving center logos section - takes remaining space */}
               <div className="flex-1 overflow-hidden min-w-0">
                 <div className="logo-marquee flex items-center gap-4 sm:gap-6 md:gap-10 lg:gap-12">
-                  <img src="/logo2.png" alt="Trusted partner 1" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo3.png" alt="Trusted partner 2" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo4.png" alt="Trusted partner 3" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo5.png" alt="Trusted partner 4" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
-                  <img src="/logo6.png" alt="Trusted partner 5" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" />
+                  <img
+                    src="/logo2.png"
+                    alt="Trusted partner 1"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                  />
+                  <img
+                    src="/logo3.png"
+                    alt="Trusted partner 2"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                  />
+                  <img
+                    src="/logo4.png"
+                    alt="Trusted partner 3"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                  />
+                  <img
+                    src="/logo5.png"
+                    alt="Trusted partner 4"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                  />
+                  <img
+                    src="/logo6.png"
+                    alt="Trusted partner 5"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                  />
 
                   {/* duplicate sequence for seamless marquee */}
-                  <img src="/logo2.png" alt="Trusted partner 1 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo3.png" alt="Trusted partner 2 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo4.png" alt="Trusted partner 3 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo5.png" alt="Trusted partner 4 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
-                  <img src="/logo6.png" alt="Trusted partner 5 duplicate" className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0" aria-hidden="true" />
+                  <img
+                    src="/logo2.png"
+                    alt="Trusted partner 1 duplicate"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <img
+                    src="/logo3.png"
+                    alt="Trusted partner 2 duplicate"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <img
+                    src="/logo4.png"
+                    alt="Trusted partner 3 duplicate"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <img
+                    src="/logo5.png"
+                    alt="Trusted partner 4 duplicate"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <img
+                    src="/logo6.png"
+                    alt="Trusted partner 5 duplicate"
+                    className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto flex-shrink-0"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             </div>
@@ -96,8 +193,12 @@ export default function OurMissionPage() {
             {/* Center Content */}
             <div className="text-center space-y-6 flex-shrink-0 px-4 w-full md:w-auto md:max-w-sm lg:max-w-md">
               <div className="space-y-3">
-                <p className="text-2xl md:text-3xl font-semibold text-[#485A69]">{t("mission.collage.from")}</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">{t("mission.collage.title")}</h2>
+                <p className="text-2xl md:text-3xl font-semibold text-[#485A69]">
+                  {t("mission.collage.from")}
+                </p>
+                <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">
+                  {t("mission.collage.title")}
+                </h2>
               </div>
               <div className="flex items-center justify-center gap-3 md:gap-4">
                 <a
@@ -259,7 +360,9 @@ export default function OurMissionPage() {
               {t("mission.steps.badge")}
             </span>
             <div className="space-y-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">{t("mission.steps.title")}</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#111929]">
+                {t("mission.steps.title")}
+              </h2>
               <p className="text-base md:text-lg text-[#485A69]">
                 {t("mission.steps.description")}
               </p>
@@ -268,15 +371,27 @@ export default function OurMissionPage() {
 
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             <div className="bg-[#F7FCFB] rounded-[28px] overflow-hidden">
-              <img src="/m6.png" alt="Browse classes preview" className="w-full h-full object-cover" />
+              <img
+                src="/m6.png"
+                alt="Browse classes preview"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             <div className="bg-[#F7FCFB] rounded-[28px] overflow-hidden">
-              <img src="/m7.png" alt="Book class preview" className="w-full h-full object-cover" />
+              <img
+                src="/m7.png"
+                alt="Book class preview"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             <div className="bg-[#F7FCFB] rounded-[28px] overflow-hidden">
-              <img src="/m8.png" alt="Track progress preview" className="w-full h-full object-cover" />
+              <img
+                src="/m8.png"
+                alt="Track progress preview"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>
@@ -286,8 +401,12 @@ export default function OurMissionPage() {
       <section className="bg-white py-14 md:py-20">
         <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 space-y-10 md:space-y-14">
           <div className="text-center space-y-3">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#2F2F2F]">{t("mission.why.title")}</h2>
-            <p className="text-base md:text-lg text-[#4B4B4B]">{t("mission.why.subtitle")}</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#2F2F2F]">
+              {t("mission.why.title")}
+            </h2>
+            <p className="text-base md:text-lg text-[#4B4B4B]">
+              {t("mission.why.subtitle")}
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 md:gap-10 text-center text-[#2F2F2F]">
@@ -295,7 +414,9 @@ export default function OurMissionPage() {
               <h3 className="text-4xl md:text-5xl font-medium">01</h3>
               <div className="h-[1px] bg-[#E0E0E0] w-full" />
               <div className="space-y-2">
-                <p className="text-2xl font-semibold">{t("mission.why.item1.title")}</p>
+                <p className="text-2xl font-semibold">
+                  {t("mission.why.item1.title")}
+                </p>
                 <p className="text-sm md:text-base text-[#4B4B4B]">
                   {t("mission.why.item1.description")}
                 </p>
@@ -306,7 +427,9 @@ export default function OurMissionPage() {
               <h3 className="text-4xl md:text-5xl font-medium">02</h3>
               <div className="h-[1px] bg-[#E0E0E0] w-full" />
               <div className="space-y-2">
-                <p className="text-2xl font-semibold">{t("mission.why.item2.title")}</p>
+                <p className="text-2xl font-semibold">
+                  {t("mission.why.item2.title")}
+                </p>
                 <p className="text-sm md:text-base text-[#4B4B4B]">
                   {t("mission.why.item2.description")}
                 </p>
@@ -318,8 +441,12 @@ export default function OurMissionPage() {
               <div className="h-[1px] bg-[#E0E0E0] w-full" />
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <p className="text-2xl font-semibold">{t("mission.why.item3.title")}</p>
-                  <span className="inline-block bg-[#0ABAB5] text-white text-xs font-semibold px-3 py-1 rounded-full">Beta</span>
+                  <p className="text-2xl font-semibold">
+                    {t("mission.why.item3.title")}
+                  </p>
+                  <span className="inline-block bg-[#0ABAB5] text-white text-xs font-semibold px-3 py-1 rounded-full">
+                    Beta
+                  </span>
                 </div>
                 <p className="text-sm md:text-base text-[#4B4B4B]">
                   {t("mission.why.item3.description")}
@@ -348,7 +475,9 @@ export default function OurMissionPage() {
             {t("mission.cta.badge")}
           </div>
           <div className="space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#1E1E1E]">{t("mission.cta.title")}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1E1E1E]">
+              {t("mission.cta.title")}
+            </h2>
             <p className="text-base md:text-lg text-[#3F4A53]">
               {t("mission.cta.description")}
             </p>
@@ -390,6 +519,5 @@ export default function OurMissionPage() {
 
       <Footer />
     </main>
-  )
+  );
 }
-
