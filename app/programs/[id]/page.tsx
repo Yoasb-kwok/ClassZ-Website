@@ -9,7 +9,11 @@ import {
 } from "@/lib/public-courses";
 import { ProgramDetail } from "@/components/programs/program-detail";
 
-type Params = { params: Promise<{ id: string }> };
+type Params = {
+  params: Promise<{ id: string }>;
+  /** ?dates=1 — the /programs listing links here with lesson dates expanded */
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 async function loadCourse(id: string): Promise<PublicCourse | null> {
   if (!/^\d+$/.test(id)) return null;
@@ -27,8 +31,13 @@ export async function generateMetadata({ params }: Params) {
   });
 }
 
-export default async function ProgramDetailPage({ params }: Params) {
+export default async function ProgramDetailPage({
+  params,
+  searchParams,
+}: Params) {
   const { id } = await params;
+  const sp = await searchParams;
+  const expandLessonDates = sp.dates === "1";
   const course = await loadCourse(id);
   if (!course) notFound();
 
@@ -59,6 +68,7 @@ export default async function ProgramDetailPage({ params }: Params) {
       classes={sessions}
       similar={similar}
       prices={prices}
+      expandLessonDates={expandLessonDates}
     />
   );
 }

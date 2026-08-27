@@ -55,6 +55,7 @@ export function ProgramDetail({
   classes,
   similar,
   prices,
+  expandLessonDates = false,
   variant = "program",
 }: {
   course: PublicCourse;
@@ -63,6 +64,9 @@ export function ProgramDetail({
   /** Real per-course prices (detail-endpoint fetch in the route) — the
    *  list API omits `price`; keyed by course id. */
   prices?: Record<number, number>;
+  /** /programs listing cards link with ?dates=1 — class option cards start
+   *  in the W3 expanded state. */
+  expandLessonDates?: boolean;
   /** "workshop" = #1988:7824 mirror — only the location row differs (12px) */
   variant?: "program" | "workshop";
 }) {
@@ -288,7 +292,12 @@ export function ProgramDetail({
                   data-testid="detail-options"
                 >
                   {classes.map((cls) => (
-                    <ClassOptionCard key={cls.id} cls={cls} price={price} />
+                    <ClassOptionCard
+                      key={cls.id}
+                      cls={cls}
+                      price={price}
+                      defaultExpanded={expandLessonDates}
+                    />
                   ))}
                 </div>
               </section>

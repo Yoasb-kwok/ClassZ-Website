@@ -35,12 +35,16 @@ import type { PublicClass } from "@/lib/public-courses";
 export function ClassOptionCard({
   cls,
   price,
+  defaultExpanded = false,
 }: {
   cls: PublicClass;
   price: number | null;
+  /** Programs-listing flow: the wide listing card links with ?dates=1 so
+   *  the W3 expanded state (capture 3879:19020) opens on arrival. */
+  defaultExpanded?: boolean;
 }) {
   const { t, locale } = useLanguage();
-  const [showDates, setShowDates] = useState(false);
+  const [showDates, setShowDates] = useState(defaultExpanded);
 
   const intlLocale = locale === "zh-TW" ? "zh-Hant-HK" : "en-HK";
   const fmtDay = new Intl.DateTimeFormat(intlLocale, {

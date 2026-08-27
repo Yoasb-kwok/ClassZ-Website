@@ -20,11 +20,14 @@ import { useLanguage } from "@/components/language-provider";
 const MAIN_LINKS: { key: string; href: string; match?: string[] }[] = [
   { key: "nav.home", href: "/" },
   { key: "nav.aboutUs", href: "/our-mission" },
-  // Programs enters the flow via the centre list — /centres renders the
-  // redesigned Programs frame 1582:16181 (user flow decision). Nav capture
-  // 2596:12227 lists 4 items; "Centres" merged into this link, not separate.
-  { key: "nav.programs", href: "/centres", match: ["/programs"] },
+  // Two separate discovery flows since 2026-08-27 (reverses the 08-25
+  // merge): Centre /centres → /centres/[id], Programs /programs →
+  // /programs/[id]. Centres placed between Workshops and Programmes per
+  // user instruction — NOT the nav capture 2596:12227 4-item order;
+  // spec-silent, user-directed placement.
   { key: "nav.workshops", href: "/workshops" },
+  { key: "nav.centres", href: "/centres" },
+  { key: "nav.programs", href: "/programs" },
   // ZPassport — not in the nav capture either (user-directed, spec-silent);
   // placeholder destination /login until the ZPassport product page exists.
   { key: "nav.zPassport", href: "/login" },
@@ -199,7 +202,7 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Selection 2596:12226 — gap 48; menu 2596:12227 gap 39.9; items: 16px/400 + 1px underline (active only — landing capture 2596:12491 visible, rest hidden). Inline menu is lg+ only: 5 links ≈ 530px + logo + Log In don't fit below 1024 (user pick A, 2026-08-25 — main links join the hamburger menu below lg, see dropdown). */}
+        {/* Selection 2596:12226 — gap 48; menu 2596:12227 gap 39.9; items: 16px/400 + 1px underline (active only — landing capture 2596:12491 visible, rest hidden). Inline menu is lg+ only: 6 links (flow split 2026-08-27 added Centres back) ≈ 580px + logo + Log In don't fit below 1024 (user pick A, 2026-08-25 — main links join the hamburger menu below lg, see dropdown). */}
         <div className="flex items-center gap-12">
           <div className="hidden items-center lg:flex lg:gap-[39.9px]">
             {MAIN_LINKS.map(({ key, href, match }) => (
