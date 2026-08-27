@@ -320,7 +320,7 @@ export function CentersManager() {
 
       <AdminCard>
         <AdminTableShell>
-          <AdminTable className="min-w-[74rem]">
+          <AdminTable className="min-w-[74rem] [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap">
             <thead className="bg-classz-100">
               <tr>
                 <th className="px-3 py-3 text-left">ID</th>
@@ -359,34 +359,34 @@ export function CentersManager() {
                       <AdminStatusChip tone={statusTone(c.status)}>{c.status}</AdminStatusChip>
                     </td>
                     <td className="px-3 py-2">
-                      <div className="flex min-w-[18rem] flex-wrap justify-end gap-1.5">
-                      <Link href={centerCrmFlowPath(c.id, "programs")}>
-                        <AdminGhostButton type="button" className="inline-flex text-sm py-1 px-2" title={zh ? "管理 CRM" : "Open CRM"}>
-                          <ExternalLink className="h-4 w-4" />
+                      <div className="flex flex-nowrap items-center justify-end gap-1">
+                      <Link href={centerCrmFlowPath(c.id, "programs")} className="shrink-0">
+                        <AdminGhostButton type="button" size="sm" title={zh ? "管理 CRM" : "Open CRM"}>
+                          <ExternalLink className="h-3.5 w-3.5" />
                           CRM
                         </AdminGhostButton>
                       </Link>
-                      <AdminGhostButton type="button" className="inline-flex text-sm py-1 px-2" onClick={() => openEdit(c)}>
-                        <Edit className="h-4 w-4" />
+                      <AdminGhostButton type="button" size="sm" onClick={() => openEdit(c)}>
+                        <Edit className="h-3.5 w-3.5" />
                       </AdminGhostButton>
                       {c.status === "pending_approval" ? (
-                        <AdminPrimaryButton type="button" className="inline-flex text-sm py-1 px-2" onClick={() => approve(c.id)}>
-                          <CheckCircle className="h-4 w-4" />
+                        <AdminPrimaryButton type="button" size="sm" onClick={() => approve(c.id)}>
+                          <CheckCircle className="h-3.5 w-3.5" />
                           {zh ? "批准" : "Approve"}
                         </AdminPrimaryButton>
                       ) : null}
                       {c.status !== "suspended" ? (
-                        <AdminGhostButton type="button" className="inline-flex text-sm py-1 px-2" onClick={() => setStatus(c.id, "suspended")}>
-                          <XCircle className="h-4 w-4" />
+                        <AdminGhostButton type="button" size="sm" onClick={() => setStatus(c.id, "suspended")}>
+                          <XCircle className="h-3.5 w-3.5" />
                           {zh ? "停用" : "Suspend"}
                         </AdminGhostButton>
                       ) : (
-                        <AdminGhostButton type="button" className="inline-flex text-sm py-1 px-2" onClick={() => setStatus(c.id, "active")}>
+                        <AdminGhostButton type="button" size="sm" onClick={() => setStatus(c.id, "active")}>
                           {zh ? "啟用" : "Activate"}
                         </AdminGhostButton>
                       )}
-                      <AdminDangerButton type="button" className="inline-flex text-sm py-1 px-2" onClick={() => removeCenter(c)}>
-                        <Trash2 className="h-4 w-4" />
+                      <AdminDangerButton type="button" size="sm" onClick={() => removeCenter(c)}>
+                        <Trash2 className="h-3.5 w-3.5" />
                       </AdminDangerButton>
                       </div>
                     </td>

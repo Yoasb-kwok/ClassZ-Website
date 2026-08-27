@@ -82,15 +82,23 @@ export function AdminToolbar({ children }: { children: React.ReactNode }) {
   return <div className="mb-4 flex flex-wrap items-start gap-3">{children}</div>
 }
 
+type AdminButtonSize = "sm" | "md"
+
+const ADMIN_BTN_SIZE: Record<AdminButtonSize, string> = {
+  sm: "gap-1 px-2 py-1 text-xs whitespace-nowrap",
+  md: "gap-2 px-4 py-2.5 text-sm",
+}
+
 export function AdminGhostButton({
   children,
   className = "",
+  size = "md",
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: AdminButtonSize }) {
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-4 py-2.5 border border-classz-200 rounded-lg text-sm font-medium text-classz-700 hover:bg-classz-50 transition-colors ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center border border-classz-200 rounded-lg font-medium text-classz-700 hover:bg-classz-50 transition-colors ${ADMIN_BTN_SIZE[size]} ${className}`.trim()}
       {...props}
     >
       {children}
@@ -101,12 +109,13 @@ export function AdminGhostButton({
 export function AdminPrimaryButton({
   children,
   className = "",
+  size = "md",
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: AdminButtonSize }) {
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-brand-teal hover:brightness-110 disabled:opacity-50 transition-colors ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center rounded-xl font-medium text-white bg-brand-teal hover:brightness-110 disabled:opacity-50 transition-colors ${ADMIN_BTN_SIZE[size]} ${className}`.trim()}
       {...props}
     >
       {children}
@@ -117,12 +126,13 @@ export function AdminPrimaryButton({
 export function AdminDangerButton({
   children,
   className = "",
+  size = "md",
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: AdminButtonSize }) {
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-crm-coral hover:brightness-95 border border-crm-coral disabled:opacity-50 transition-colors ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center rounded-lg font-medium text-white bg-crm-coral hover:brightness-95 border border-crm-coral disabled:opacity-50 transition-colors ${ADMIN_BTN_SIZE[size]} ${className}`.trim()}
       {...props}
     >
       {children}
@@ -171,7 +181,7 @@ export function AdminStatusChip({
 }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${TONE_CHIP[tone]} ${className}`.trim()}
+      className={`inline-flex items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${TONE_CHIP[tone]} ${className}`.trim()}
     >
       {children}
     </span>
