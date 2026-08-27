@@ -10,6 +10,9 @@
   "english": "英文",
   "chinese": "繁體中文",
   "exploreMore": "瞭解更多",
+  "supportedBy": {
+    "label": "支持機構"
+  },
   "classzLogin": {
     "title": "登入 ClassZ",
     "subtitle": "中心或導師工作台 — 與 The Yard 管理後台相同的版面與流程。",

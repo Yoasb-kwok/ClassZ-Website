@@ -10,6 +10,9 @@
   "english": "English",
   "chinese": "繁體中文",
   "exploreMore": "Explore More",
+  "supportedBy": {
+    "label": "Supported by"
+  },
   "classzLogin": {
     "title": "Sign in to ClassZ",
     "subtitle": "Center or coach workspace — same tools as the Yard admin view.",
