@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { generateMetadata as genMeta } from "@/lib/metadata";
-import { getPublicCourses } from "@/lib/public-courses";
+import { getPublicCourses, getPublicCourse } from "@/lib/public-courses";
 import { CENTRES, getCentre } from "@/lib/centre-data";
 import { CentreView } from "@/components/centres/centre-view";
 import { DiscoveryPage } from "@/components/programs/discovery-page";
@@ -54,12 +54,25 @@ export default async function CentreDetailPage({
   const others = CENTRES.filter((c) => c.id !== centre.id);
   const suggested = others.length >= 3 ? others : CENTRES;
 
+  // The list API omits `price` (detail-only). Fetch details for the
+  // displayed program cards so the similar-variant strip can show a real
+  // price; the card hides the price row when it is null.
+  const featured = [...offering, ...recommended].filter((c) => c.price == null);
+  const details = await Promise.all(featured.map((c) => getPublicCourse(c.id)));
+  const prices: Record<number, number> = {};
+  for (const d of details) {
+    if (d?.price != null && !Number.isNaN(Number(d.price))) {
+      prices[d.id] = Number(d.price);
+    }
+  }
+
   return (
     <CentreView
       centre={centre}
       offering={offering}
       recommended={recommended}
       suggested={suggested}
+      prices={prices}
     />
   );
 }

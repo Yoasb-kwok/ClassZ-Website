@@ -2,18 +2,14 @@
 
 import Link from "next/link";
 import {
-  BarChart3,
   ChevronLeft,
   ChevronRight,
   Heart,
   MapPin,
   Maximize2,
-  Medal,
   MessageCircle,
-  NotebookPen,
   Share2,
   Star,
-  Users,
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
@@ -24,13 +20,13 @@ import { CentreCard } from "@/components/centres/centre-card";
 import type { Centre, CentreFeatureKey } from "@/lib/centre-data";
 import type { PublicCourse } from "@/lib/public-courses";
 
-/** Feature icon/label order per #2507:19246 (note-2, profile-2user,
- *  medal-star, ranking — vuesax linear, stroke #1B1A1F/1.16, 40px box). */
-const FEATURE_ICONS: Record<CentreFeatureKey, typeof NotebookPen> = {
-  sen: NotebookPen,
-  smallClass: Users,
-  examPathway: Medal,
-  performance: BarChart3,
+/** Feature icon/label order per #2507:19246 — vuesax linear icons
+ *  exported as assets (public/centres/*.svg, 40×40, stroke #1B1A1F). */
+const FEATURE_ICONS: Record<CentreFeatureKey, string> = {
+  sen: "/centres/note-2.svg",
+  smallClass: "/centres/profile-2user.svg",
+  examPathway: "/centres/medal-star.svg",
+  performance: "/centres/ranking.svg",
 };
 
 /** Section divider — #2511:19377 &c.: 1px #EBEBEB; sections sit 32px apart
@@ -40,27 +36,6 @@ function Divider() {
   return (
     <div aria-hidden className="flex h-[32px] items-center">
       <div className="h-px w-full bg-[#EBEBEB]" />
-    </div>
-  );
-}
-
-/** Strip pagination — #2839:19259 &c.: 2×35 r100 #EBEBEB, gap 10,
- *  right-aligned chrome (no paging data; mirrors program-detail). */
-function PaginationArrows() {
-  return (
-    <div aria-hidden className="hidden justify-end gap-[10px] lg:flex">
-      <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#EBEBEB]">
-        <ChevronLeft
-          className="h-[16px] w-[16px] text-[#5E5E5E]"
-          strokeWidth={1.6}
-        />
-      </span>
-      <span className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-[#EBEBEB]">
-        <ChevronRight
-          className="h-[16px] w-[16px] text-[#5E5E5E]"
-          strokeWidth={1.6}
-        />
-      </span>
     </div>
   );
 }
@@ -81,11 +56,15 @@ export function CentreView({
   offering,
   recommended,
   suggested,
+  prices,
 }: {
   centre: Centre;
   offering: PublicCourse[];
   recommended: PublicCourse[];
   suggested: Centre[];
+  /** Real per-course prices (detail-endpoint fetch in the route) — the
+   *  list API omits `price`; keyed by course id. */
+  prices?: Record<number, number>;
 }) {
   const { t } = useLanguage();
 
@@ -201,7 +180,7 @@ export function CentreView({
               <span className="text-[14px] font-normal leading-[17px] text-[#222222]">
                 -
               </span>
-              <span className="text-[14px] font-normal leading-[17px] text-[#222222]">
+              <span className="text-[14px] font-normal leading-[17px] text-[#222222] underline">
                 {formatTemplate(t, "centres.reviewCount", {
                   count: centre.reviewCount,
                 })}
@@ -274,13 +253,14 @@ export function CentreView({
                 {centre.features
                   .slice(col * 2, col * 2 + 2)
                   .map((key: CentreFeatureKey) => {
-                    const Icon = FEATURE_ICONS[key];
+                    const icon = FEATURE_ICONS[key];
                     return (
                       <div key={key} className="flex items-center gap-[20px]">
-                        <Icon
+                        <img
+                          src={icon}
+                          alt=""
                           aria-hidden
-                          className="h-[40px] w-[40px] shrink-0 text-[#1B1A1F]"
-                          strokeWidth={1.16}
+                          className="h-[40px] w-[40px] shrink-0"
                         />
                         <div className="flex min-w-0 flex-col gap-[5px]">
                           <h3 className="text-[14px] font-bold leading-[17px] text-black">
@@ -310,7 +290,7 @@ export function CentreView({
               <h2 className="text-[16px] font-[weight:590] leading-[19px] text-black">
                 {t("centres.reviews")}
               </h2>
-              <span className="text-[12px] font-normal leading-[14px] text-[#5E5E5E]">
+              <span className="text-[12px] font-normal leading-[14px] text-[#5E5E5E] underline">
                 {t("programs.seeMore")}
               </span>
             </div>
@@ -444,22 +424,28 @@ export function CentreView({
                 </h2>
                 <Link
                   href={`/centres/${centre.id}?tab=programs`}
-                  className="text-[14px] font-normal leading-none text-[#5E5E5E] underline-offset-4 hover:underline"
+                  className="text-[14px] font-normal leading-none text-[#5E5E5E] underline"
                 >
                   {t("programs.seeMore")}
                 </Link>
               </div>
               <div className="flex flex-col gap-[32px]">
                 {offeringRows.map((row, i) => (
-                  <ul key={i} className="flex gap-[40px] overflow-x-auto">
+                  <ul
+                    key={i}
+                    className="flex gap-[40px] overflow-x-auto pb-[25px]"
+                  >
                     {row.map((c) => (
                       <li key={c.id} className="shrink-0">
-                        <ProgramCard course={c} variant="similar" />
+                        <ProgramCard
+                          course={c}
+                          variant="similar"
+                          price={prices?.[c.id]}
+                        />
                       </li>
                     ))}
                   </ul>
                 ))}
-                <PaginationArrows />
               </div>
             </section>
           ) : null}
@@ -478,23 +464,26 @@ export function CentreView({
                 </h2>
                 <Link
                   href="/programs"
-                  className="text-[14px] font-normal leading-none text-[#5E5E5E] underline-offset-4 hover:underline"
+                  className="text-[14px] font-normal leading-none text-[#5E5E5E] underline"
                 >
                   {t("programs.seeMore")}
                 </Link>
               </div>
               <div className="flex flex-col gap-[32px]">
                 <ul
-                  className="flex gap-[40px] overflow-x-auto"
+                  className="flex gap-[40px] overflow-x-auto pb-[25px]"
                   data-testid="centre-recommended"
                 >
                   {recommended.map((c) => (
                     <li key={c.id} className="shrink-0">
-                      <ProgramCard course={c} variant="similar" />
+                      <ProgramCard
+                        course={c}
+                        variant="similar"
+                        price={prices?.[c.id]}
+                      />
                     </li>
                   ))}
                 </ul>
-                <PaginationArrows />
               </div>
             </section>
           ) : null}
@@ -512,14 +501,14 @@ export function CentreView({
                 </h2>
                 <Link
                   href="/centres"
-                  className="text-[14px] font-normal leading-none text-[#5E5E5E] underline-offset-4 hover:underline"
+                  className="text-[14px] font-normal leading-none text-[#5E5E5E] underline"
                 >
                   {t("programs.seeMore")}
                 </Link>
               </div>
               <div className="flex flex-col gap-[32px]">
                 <ul
-                  className="flex gap-[40px] overflow-x-auto"
+                  className="flex gap-[40px] overflow-x-auto pb-[25px]"
                   data-testid="centre-suggested"
                 >
                   {suggested.map((c) => (
@@ -528,7 +517,6 @@ export function CentreView({
                     </li>
                   ))}
                 </ul>
-                <PaginationArrows />
               </div>
             </section>
           ) : null}

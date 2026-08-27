@@ -229,13 +229,13 @@
     main {
         width: 100%;
         max-width: 100vw;
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 
     section {
         width: 100%;
         max-width: 100%;
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 
     img {
@@ -262,6 +262,58 @@
 
 @media (prefers-reduced-motion: reduce) {
     .logo-marquee {
+        animation: none;
+    }
+}
+
+/* Navbar dropdown — entrance/exit + staggered item list (user-directed
+   2026-08-26: "scrolling animation of item list" on hamburger open) */
+.nav-dropdown {
+    transform-origin: top;
+    animation: nav-dropdown-in 0.2s ease both;
+}
+.nav-dropdown[data-state="closed"] {
+    animation: nav-dropdown-out 0.15s ease both;
+}
+@keyframes nav-dropdown-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+@keyframes nav-dropdown-out {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+}
+
+.nav-menu-item {
+    animation: nav-menu-item-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes nav-menu-item-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-dropdown,
+    .nav-dropdown[data-state="closed"],
+    .nav-menu-item {
         animation: none;
     }
 }

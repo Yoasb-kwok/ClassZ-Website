@@ -219,8 +219,11 @@ export function FilterSidebar({
           </fieldset>
         </section>
 
-        {/* node #1973:20021 Filter by — w225, gap 16; title 18/590 #000 lh21 */}
-        <section className="flex w-full flex-col gap-4 lg:w-[225px]">
+        {/* node #1973:20021 Filter by — w226 (widened from 225: the Price
+            subsection #1973:20101 is 105×2 + 16 gap = 226, so 225 was 1px
+            too narrow and clipped the HKD 900 box's right border — fixed
+            2026-08-26); gap 16; title 18/590 #000 lh21 */}
+        <section className="flex w-full flex-col gap-4 lg:w-[226px]">
           <h2 className="text-[18px] font-[weight:590] leading-[21px] text-black">
             {t("programs.filterBy")}
           </h2>

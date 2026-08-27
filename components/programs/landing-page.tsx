@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Outfit } from "next/font/google";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
@@ -11,68 +9,6 @@ import type { PublicCourse } from "@/lib/public-courses";
 import { ProgramCard } from "@/components/programs/program-card";
 
 const outfit = Outfit({ weight: "700", subsets: ["latin"] });
-
-/** Mobile-only banner rotation (spec-silent — no mobile frame yet; user
- *  pick 2026-08-25): the 5-slot collage can't fit 375px, so below md the
- *  photos rotate one at a time (left → tl → tr → wide → right, loop).
- *  Sources are mixed-aspect (600×907 portraits, 780×434 landscapes,
- *  1600×434 panorama), so the frame is fixed-height + object-contain —
- *  every photo shows COMPLETELY (the point of the change; a uniform
- *  cover frame would crop portraits to ~37%). Tradeoff: air around
- *  landscape shots on the white page. Crossfade 700ms, 4s per slide;
- *  auto-advance stops for prefers-reduced-motion (first photo stays,
- *  still fully visible). Dots: 6px, active #222 / rest #DDDDDD — ink
- *  (not the gallery's white) because object-contain often leaves the
- *  bottom strip white; non-interactive — the section is aria-hidden
- *  decorative, same as the desktop collage. */
-const MOBILE_BANNER_SRC = [
-  "/landing/collage-left.jpg?v=2408b",
-  "/landing/collage-tl.jpg?v=2408b",
-  "/landing/collage-tr.jpg?v=2408b",
-  "/landing/collage-wide.jpg?v=2408b",
-  "/landing/collage-right.jpg?v=2408b",
-];
-
-function MobileBannerCollage() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-    const id = setInterval(
-      () => setIndex((v) => (v + 1) % MOBILE_BANNER_SRC.length),
-      4000,
-    );
-    return () => clearInterval(id);
-  }, []);
-
-  return (
-    <div className="relative h-[420px] w-full overflow-hidden rounded-xl lg:hidden">
-      {MOBILE_BANNER_SRC.map((src, n) => (
-        <img
-          key={src}
-          src={src}
-          alt=""
-          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-700 ${
-            n === index ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
-      <div className="absolute bottom-[10px] left-1/2 flex -translate-x-1/2 items-center gap-[6px]">
-        {MOBILE_BANNER_SRC.map((src, n) => (
-          <span
-            key={src}
-            aria-hidden
-            className={`h-[6px] w-[6px] rounded-full ${
-              n === index ? "bg-[#222222]" : "bg-[#DDDDDD]"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /**
  * Landing from Figma #2346:21370 (2408 capture, 2026-08-24).
@@ -91,14 +27,18 @@ function MobileBannerCollage() {
 export function LandingPage({
   programs,
   workshops,
+  prices,
 }: {
   programs: PublicCourse[];
   workshops: PublicCourse[];
+  /** Per-course real prices (detail-endpoint fetch in app/page.tsx —
+   *  the /api/courses list omits `price`); keyed by course id. */
+  prices?: Record<number, number>;
 }) {
   const { t } = useLanguage();
 
   return (
-    <main className="flex min-h-screen flex-col bg-white text-ink md:gap-[32px]">
+    <main className="flex min-h-screen flex-col bg-white text-ink md:gap-[32px] lg:mx-auto lg:max-w-[1440px]">
       <Navbar />
 
       {/* node 2346:21398 — Moments + Intro wrapper, no pad, frame gap 34 */}
@@ -113,7 +53,43 @@ export function LandingPage({
             cache-busts the filename-stable swap — image hashes verified
             identical to the live Figma fills). */}
         <section className="py-8 lg:py-0" aria-hidden>
-          <MobileBannerCollage />
+          {/* Mobile banner (user pick 2026-08-27): the FULL 5-slot collage
+              scaled down to fit — no rotation. Mirrors the desktop grid
+              proportionally (1440×454 → aspect box; sides 300/1440 = 20.8%;
+              middle = tl/tr row + wide at ~half height); fluid % sizing so
+              it scales to any phone width. Same slot aspect as desktop, so
+              object-cover crops identically. */}
+          <div className="flex aspect-[1440/454] w-full gap-[5px] overflow-hidden rounded-xl lg:hidden">
+            <img
+              src="/landing/collage-left.jpg?v=2408b"
+              alt=""
+              className="w-[20.8%] object-cover"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+              <div className="flex min-h-0 h-[calc(50%-2.5px)] gap-[5px]">
+                <img
+                  src="/landing/collage-tl.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+                <img
+                  src="/landing/collage-tr.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+              </div>
+              <img
+                src="/landing/collage-wide.jpg?v=2408b"
+                alt=""
+                className="h-[calc(50%-2.5px)] w-full object-cover"
+              />
+            </div>
+            <img
+              src="/landing/collage-right.jpg?v=2408b"
+              alt=""
+              className="w-[20.8%] object-cover"
+            />
+          </div>
           <div className="hidden h-[454px] gap-5 overflow-hidden rounded-xl lg:flex">
             <img
               src="/landing/collage-left.jpg?v=2408b"
@@ -164,7 +140,8 @@ export function LandingPage({
           cards (0/440/880 in the 1280 content → 40px gaps). Arrows
           #2346:21503: bare 35×35 icon buttons (no chrome), right-aligned,
           gap 10, 32px below cards; left icon #B0B0B0, right icon #222222.
-          Star rating on the strip is data-blocked (no rating API field). */}
+          Star + "4.91" on the strip is a D2 design-copy placeholder
+          (no public rating API field — ProgramCard renders it). */}
       {workshops.length > 0 ? (
         <section className="flex flex-col gap-8 px-6 py-8 md:px-[80px] md:py-[32px] md:gap-[32px]">
           {/* node 2346:21451 — header: space-between, ca=max, gap 10.
@@ -176,7 +153,7 @@ export function LandingPage({
             <Link
               href="/workshops"
               aria-label={t("landing.seeAllWorkshops")}
-              className="text-[14px] font-normal text-[#5E5E5E] underline-offset-4 hover:underline"
+              className="text-[14px] font-normal text-[#5E5E5E] underline underline-offset-4"
             >
               {t("landing.seeMore")}
             </Link>
@@ -185,37 +162,26 @@ export function LandingPage({
             <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3 xl:gap-10">
               {workshops.slice(0, 3).map((c) => (
                 <li key={c.id} className="w-full">
-                  <ProgramCard course={c} variant="similar" />
+                  <ProgramCard
+                    course={c}
+                    variant="similar"
+                    price={prices?.[c.id]}
+                  />
                 </li>
               ))}
             </ul>
-            <div className="flex justify-end gap-[10px]">
-              <button
-                type="button"
-                aria-label={t("landing.previous")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#B0B0B0]"
-              >
-                <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-              <button
-                type="button"
-                aria-label={t("landing.next")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#222222]"
-              >
-                <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-            </div>
           </div>
         </section>
       ) : null}
 
       {/* node 3963:36089 — ZPassport card section (2408 redesign).
           Section pad-x 50 → card 1340 wide (1440−2×50). Card (node
-          2346:21416): r30, #FFFFFF, no shadow/stroke in capture. Inner
-          (node 3963:36088) pad-x 60 → content 1220. Row (node 2346:21417):
-          pad-y 50, gap 40, h 565 fixed, centered both axes. */}
+          2346:21416): r30, #FFFFFF; capture had no shadow, but the LIVE
+          frame (MCP re-diff 2026-08-25) adds 0 4px 25px rgba(0,0,0,0.25).
+          Inner (node 3963:36088) pad-x 60 → content 1220. Row (node
+          2346:21417): pad-y 50, gap 40, h 565 fixed, centered both axes. */}
       <section className="px-6 py-8 md:p-0 md:px-[50px]" aria-label="ZPassport">
-        <div className="rounded-[30px] bg-white md:px-[60px]">
+        <div className="rounded-[30px] bg-white px-6 shadow-[0_4px_25px_rgba(0,0,0,0.25)] md:px-[60px]">
           <div className="flex flex-col gap-10 py-[50px] md:h-[565px] md:flex-row md:items-center md:gap-[40px]">
             {/* node 2346:21420 — text column: grow (555 @1440), gap 32 */}
             <div className="flex min-w-0 flex-1 flex-col gap-[32px]">
@@ -232,12 +198,12 @@ export function LandingPage({
                   src="/landing/zpassport-icon.svg"
                   alt=""
                   aria-hidden
-                  className="h-[30.29px] w-auto"
+                  className="h-[24px] w-auto md:h-[30.29px]"
                 />
                 <img
                   src="/landing/zpassport-wordmark.svg"
                   alt="ZPassport"
-                  className="h-[46.93px] w-auto"
+                  className="h-[37px] w-auto md:h-[46.93px]"
                 />
               </div>
               {/* node 2346:21429 — body 18/27, 9 lines (243 = 9×27). The
@@ -267,9 +233,12 @@ export function LandingPage({
             {/* node 3963:36134 — visual column: 625 fixed, gap 10 */}
             <div className="flex w-full flex-col gap-[10px] md:w-[625px] md:shrink-0">
               {/* nodes 3963:36123/37 — photo collage 625×288.33, absolute
-                    rects. Flipped nodes (3963:36126, 3963:36130) are
-                    scaleX(-1) per relativeTransform [[-1,0,tx],…] — rendered
-                    left = tx − w. Rects are % of the 625×288.33 frame with
+                    rects. Nodes 3963:36126 ("21 2") & 3963:36130 ("4 69") carry
+                    flip=H in the capture (relativeTransform [[-1,0,tx],…] ⇒
+                    rendered left = tx − w), but per user 2026-08-26 those two
+                    photos must NOT be mirrored — the scaleX(-1) is deliberately
+                    omitted, keeping each at its tx − w position. Rects are % of
+                    the 625×288.33 frame with
                     the container aspect locked: the collage scales fluidly
                     at any width — at md (625px) % resolves to the exact
                     capture px, and below md every photo stays fully inside
@@ -292,7 +261,7 @@ export function LandingPage({
                   src="/landing/zpassport-card-3.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[59.55%] top-[59.459%] h-[31.379%] w-[21.877%] -scale-x-100 object-cover"
+                  className="absolute left-[59.55%] top-[59.459%] h-[31.379%] w-[21.877%] object-cover"
                 />
                 <img
                   src="/landing/zpassport-card-4.png"
@@ -316,7 +285,7 @@ export function LandingPage({
                   src="/landing/zpassport-card-7.png"
                   alt=""
                   aria-hidden
-                  className="absolute left-[62.578%] top-[11.317%] h-[52.436%] w-[21.678%] -scale-x-100 object-cover"
+                  className="absolute left-[62.578%] top-[11.317%] h-[52.436%] w-[21.678%] object-cover"
                 />
               </div>
               {/* node 3963:36135 — tagline: Outfit 700, 25/38, #0ABAB5,
@@ -343,7 +312,7 @@ export function LandingPage({
             <Link
               href="/programs"
               aria-label={t("landing.seeAllPrograms")}
-              className="text-[14px] font-normal text-[#5E5E5E] underline-offset-4 hover:underline"
+              className="text-[14px] font-normal text-[#5E5E5E] underline underline-offset-4"
             >
               {t("landing.seeMore")}
             </Link>
@@ -352,26 +321,14 @@ export function LandingPage({
             <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3 xl:gap-10">
               {programs.slice(0, 3).map((c) => (
                 <li key={c.id} className="w-full">
-                  <ProgramCard course={c} variant="similar" />
+                  <ProgramCard
+                    course={c}
+                    variant="similar"
+                    price={prices?.[c.id]}
+                  />
                 </li>
               ))}
             </ul>
-            <div className="flex justify-end gap-[10px]">
-              <button
-                type="button"
-                aria-label={t("landing.previous")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#B0B0B0]"
-              >
-                <ArrowLeft aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-              <button
-                type="button"
-                aria-label={t("landing.next")}
-                className="flex h-[35px] w-[35px] items-center justify-center text-[#222222]"
-              >
-                <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-            </div>
           </div>
         </section>
       ) : null}
