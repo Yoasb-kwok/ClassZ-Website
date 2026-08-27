@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Outfit } from "next/font/google";
 import { useLanguage } from "@/components/language-provider";
@@ -10,68 +9,6 @@ import type { PublicCourse } from "@/lib/public-courses";
 import { ProgramCard } from "@/components/programs/program-card";
 
 const outfit = Outfit({ weight: "700", subsets: ["latin"] });
-
-/** Mobile-only banner rotation (spec-silent — no mobile frame yet; user
- *  pick 2026-08-25): the 5-slot collage can't fit 375px, so below md the
- *  photos rotate one at a time (left → tl → tr → wide → right, loop).
- *  Sources are mixed-aspect (600×907 portraits, 780×434 landscapes,
- *  1600×434 panorama), so the frame is fixed-height + object-contain —
- *  every photo shows COMPLETELY (the point of the change; a uniform
- *  cover frame would crop portraits to ~37%). Tradeoff: air around
- *  landscape shots on the white page. Crossfade 700ms, 4s per slide;
- *  auto-advance stops for prefers-reduced-motion (first photo stays,
- *  still fully visible). Dots: 6px, active #222 / rest #DDDDDD — ink
- *  (not the gallery's white) because object-contain often leaves the
- *  bottom strip white; non-interactive — the section is aria-hidden
- *  decorative, same as the desktop collage. */
-const MOBILE_BANNER_SRC = [
-  "/landing/collage-left.jpg?v=2408b",
-  "/landing/collage-tl.jpg?v=2408b",
-  "/landing/collage-tr.jpg?v=2408b",
-  "/landing/collage-wide.jpg?v=2408b",
-  "/landing/collage-right.jpg?v=2408b",
-];
-
-function MobileBannerCollage() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return;
-    }
-    const id = setInterval(
-      () => setIndex((v) => (v + 1) % MOBILE_BANNER_SRC.length),
-      4000,
-    );
-    return () => clearInterval(id);
-  }, []);
-
-  return (
-    <div className="relative h-[420px] w-full overflow-hidden rounded-xl lg:hidden">
-      {MOBILE_BANNER_SRC.map((src, n) => (
-        <img
-          key={src}
-          src={src}
-          alt=""
-          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-700 ${
-            n === index ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      ))}
-      <div className="absolute bottom-[10px] left-1/2 flex -translate-x-1/2 items-center gap-[6px]">
-        {MOBILE_BANNER_SRC.map((src, n) => (
-          <span
-            key={src}
-            aria-hidden
-            className={`h-[6px] w-[6px] rounded-full ${
-              n === index ? "bg-[#222222]" : "bg-[#DDDDDD]"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /**
  * Landing from Figma #2346:21370 (2408 capture, 2026-08-24).
@@ -116,7 +53,43 @@ export function LandingPage({
             cache-busts the filename-stable swap — image hashes verified
             identical to the live Figma fills). */}
         <section className="py-8 lg:py-0" aria-hidden>
-          <MobileBannerCollage />
+          {/* Mobile banner (user pick 2026-08-27): the FULL 5-slot collage
+              scaled down to fit — no rotation. Mirrors the desktop grid
+              proportionally (1440×454 → aspect box; sides 300/1440 = 20.8%;
+              middle = tl/tr row + wide at ~half height); fluid % sizing so
+              it scales to any phone width. Same slot aspect as desktop, so
+              object-cover crops identically. */}
+          <div className="flex aspect-[1440/454] w-full gap-[5px] overflow-hidden rounded-xl lg:hidden">
+            <img
+              src="/landing/collage-left.jpg?v=2408b"
+              alt=""
+              className="w-[20.8%] object-cover"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
+              <div className="flex min-h-0 h-[calc(50%-2.5px)] gap-[5px]">
+                <img
+                  src="/landing/collage-tl.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+                <img
+                  src="/landing/collage-tr.jpg?v=2408b"
+                  alt=""
+                  className="min-w-0 flex-1 object-cover"
+                />
+              </div>
+              <img
+                src="/landing/collage-wide.jpg?v=2408b"
+                alt=""
+                className="h-[calc(50%-2.5px)] w-full object-cover"
+              />
+            </div>
+            <img
+              src="/landing/collage-right.jpg?v=2408b"
+              alt=""
+              className="w-[20.8%] object-cover"
+            />
+          </div>
           <div className="hidden h-[454px] gap-5 overflow-hidden rounded-xl lg:flex">
             <img
               src="/landing/collage-left.jpg?v=2408b"
