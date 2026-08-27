@@ -567,7 +567,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "category" ? (
-                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[200px]">
+                <div className="popover-in absolute left-0 top-full z-30 w-full rounded-b-[12px] rounded-tr-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[200px]">
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.category")}
                   </h4>
@@ -624,7 +624,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "location" ? (
-                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[380px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[420px]">
+                <div className="popover-in absolute left-0 top-full z-30 max-h-[380px] w-full overflow-auto rounded-b-[12px] rounded-tr-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[420px]">
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.locationFilter")}
                   </h4>
@@ -683,7 +683,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "date" ? (
-                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[480px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                <div className="popover-in absolute left-0 top-full z-30 max-h-[480px] w-full overflow-auto rounded-b-[12px] rounded-tr-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
                   {/* date-to-date — course span overlap */}
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.dateRange")}
@@ -792,7 +792,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "age" ? (
-                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[320px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
+                <div className="popover-in absolute left-0 top-full z-30 max-h-[320px] w-full overflow-auto rounded-b-[12px] rounded-tr-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.age")}
                   </h4>
@@ -869,7 +869,7 @@ export function ProgramsListing({
                 />
               </button>
               {openPop === "filter" ? (
-                <div className="popover-in absolute left-0 top-[calc(100%+8px)] z-30 max-h-[420px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
+                <div className="popover-in absolute left-0 top-[calc(100%-5px)] z-30 max-h-[420px] w-full overflow-auto rounded-b-[12px] rounded-tr-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
                   <h4 className="text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.excludeStarTiers")}
                   </h4>
