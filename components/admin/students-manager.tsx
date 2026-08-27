@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react"
-import { ChevronDown, ChevronRight, Search, Users } from "lucide-react"
+import { ChevronDown, ChevronRight, Plus, Search, Users } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
@@ -10,6 +10,7 @@ import {
   AdminGhostButton,
   AdminInput,
   AdminLabel,
+  AdminModal,
   AdminPageFrame,
   AdminPageHeader,
   AdminPrimaryButton,
@@ -28,8 +29,28 @@ type StudentProfile = {
   gender?: string | null
   school?: string | null
   status?: string | null
+  last_activity_at?: string | null
   level?: string | null
   created_at?: string | null
+}
+
+type KidEdit = {
+  id: string | number
+  full_name: string
+  date_of_birth: string
+  gender: string
+  school: string
+}
+
+const EMPTY_CREATE = {
+  parents_name: "",
+  email: "",
+  mobile: "",
+  password: "",
+  student_full_name: "",
+  date_of_birth: "",
+  gender: "",
+  school: "",
 }
 
 type ParentAccount = {
@@ -73,11 +94,29 @@ function genderLabel(p: StudentProfile, zh: boolean) {
   return "—"
 }
 
-function statusLabel(p: StudentProfile, zh: boolean) {
-  const raw = String(p.status || p.level || "active").toLowerCase()
-  if (raw === "active" || raw === "活躍") return zh ? "活躍" : "Active"
-  if (raw === "inactive" || raw === "停用") return zh ? "停用" : "Inactive"
-  return p.status || p.level || (zh ? "活躍" : "Active")
+function StatusChip({ status, zh }: { status?: string | null; zh: boolean }) {
+  const raw = String(status || "").trim().toLowerCase()
+  if (raw === "inactive" || raw === "停用") {
+    return (
+      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-classz-100 text-classz-500">
+        {zh ? "停用" : "Inactive"}
+      </span>
+    )
+  }
+  if (raw === "active" || raw === "活躍") {
+    return (
+      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-700">
+        {zh ? "活躍" : "Active"}
+      </span>
+    )
+  }
+  return <span className="text-classz-400">—</span>
+}
+
+function kidGenderValue(p: StudentProfile) {
+  if (p.gender === "male" || p.sex === true || p.sex === 1) return "male"
+  if (p.gender === "female" || p.sex === false || p.sex === 0) return "female"
+  return ""
 }
 
 function parentDisplayName(u: ParentAccount) {
@@ -105,6 +144,12 @@ export function StudentsManager() {
   const [toClass, setToClass] = useState("")
   const [editName, setEditName] = useState("")
   const [editMobile, setEditMobile] = useState("")
+  const [editKids, setEditKids] = useState<KidEdit[]>([])
+  const [newKid, setNewKid] = useState({ full_name: "", date_of_birth: "", gender: "", school: "" })
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createForm, setCreateForm] = useState(EMPTY_CREATE)
+  const [saving, setSaving] = useState(false)
+  const [createdPassword, setCreatedPassword] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (demo) {
@@ -169,6 +214,16 @@ export function StudentsManager() {
     setTab("edit")
     setEditName(parentDisplayName(u) === "—" ? "" : parentDisplayName(u))
     setEditMobile(u.mobile || "")
+    setEditKids(
+      (u.student_profiles || u.profiles || []).map((k) => ({
+        id: k.id,
+        full_name: k.full_name || "",
+        date_of_birth: String(k.date_of_birth || "").slice(0, 10),
+        gender: kidGenderValue(k),
+        school: k.school || "",
+      })),
+    )
+    setNewKid({ full_name: "", date_of_birth: "", gender: "", school: "" })
     setMedical("")
     if (demo) return
     try {
@@ -192,11 +247,78 @@ export function StudentsManager() {
   async function saveEdit() {
     if (!selected || demo) return
     try {
-      await apiPatch(`/users/${selected.id}`, { full_name: editName, mobile: editMobile, parents_name: editName })
+      setSaving(true)
+      await apiPatch(`/users/${selected.id}`, {
+        full_name: editName,
+        mobile: editMobile,
+        parents_name: editName,
+        student_profiles: editKids.map((k) => ({
+          id: k.id,
+          full_name: k.full_name.trim(),
+          date_of_birth: k.date_of_birth || null,
+          sex: k.gender || null,
+          school: k.school.trim() || null,
+        })),
+      })
       await load()
       alert(zh ? "已儲存" : "Saved")
     } catch (e) {
       alert(e instanceof Error ? e.message : "Save failed")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function addKid() {
+    if (!selected || demo || !newKid.full_name.trim()) return
+    try {
+      setSaving(true)
+      await apiPost(`/users/${selected.id}/student-profiles`, {
+        full_name: newKid.full_name.trim(),
+        date_of_birth: newKid.date_of_birth || null,
+        sex: newKid.gender || null,
+        school: newKid.school.trim() || null,
+        parents_name: editName || parentDisplayName(selected),
+        contact_number: editMobile || selected.mobile,
+      })
+      setNewKid({ full_name: "", date_of_birth: "", gender: "", school: "" })
+      await load()
+      const data = await apiGet<ParentAccount[]>("/users")
+      const next = (Array.isArray(data) ? data : []).find((r) => String(r.id) === String(selected.id))
+      if (next) openDetail(next)
+      alert(zh ? "已新增學員" : "Student added")
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function createStudent() {
+    if (demo) return
+    if (!createForm.parents_name.trim() || !createForm.email.trim() || !createForm.student_full_name.trim()) {
+      alert(zh ? "請填寫家長姓名、電郵及學員姓名" : "Parent name, email and student name are required")
+      return
+    }
+    try {
+      setSaving(true)
+      const created = await apiPost<ParentAccount & { temp_password?: string }>("/users", {
+        parents_name: createForm.parents_name.trim(),
+        email: createForm.email.trim(),
+        mobile: createForm.mobile.trim() || null,
+        password: createForm.password.trim() || undefined,
+        student_full_name: createForm.student_full_name.trim(),
+        date_of_birth: createForm.date_of_birth || null,
+        sex: createForm.gender || null,
+        school: createForm.school.trim() || null,
+      })
+      setCreatedPassword(created?.temp_password || null)
+      setCreateForm(EMPTY_CREATE)
+      await load()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Create failed")
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -253,6 +375,7 @@ export function StudentsManager() {
               <th className="px-3 py-2 text-left font-medium">{zh ? "性別" : "Gender"}</th>
               <th className="px-3 py-2 text-left font-medium">{zh ? "就讀學校" : "School"}</th>
               <th className="px-3 py-2 text-left font-medium">{zh ? "狀態" : "Status"}</th>
+              <th className="px-3 py-2 text-left font-medium">{zh ? "最後報名課堂" : "Last class"}</th>
               <th className="px-3 py-2 text-left font-medium">{zh ? "加入時間" : "Joined"}</th>
             </tr>
           </thead>
@@ -263,7 +386,8 @@ export function StudentsManager() {
                 <td className="px-3 py-2">{formatDate(kid.date_of_birth)}</td>
                 <td className="px-3 py-2">{genderLabel(kid, zh)}</td>
                 <td className="px-3 py-2">{kid.school || "—"}</td>
-                <td className="px-3 py-2">{statusLabel(kid, zh)}</td>
+                <td className="px-3 py-2"><StatusChip status={kid.status} zh={zh} /></td>
+                <td className="px-3 py-2">{formatDate(kid.last_activity_at, true)}</td>
                 <td className="px-3 py-2">{formatDate(kid.created_at, true)}</td>
               </tr>
             ))}
@@ -374,8 +498,8 @@ export function StudentsManager() {
         Icon={Users}
         description={
           zh
-            ? `家長主／副帳戶一覽 · ${rows.length} 個帳戶 · ${totalStudents} 名學員（點擊列展開）`
-            : `${rows.length} parent accounts · ${totalStudents} students (expand a row)`
+            ? `家長主／副帳戶一覽 · ${rows.length} 個帳戶 · ${totalStudents} 名學員 · 超過 180 日未報名本中心課堂則為停用（不可刪除）`
+            : `${rows.length} parent accounts · ${totalStudents} students · Inactive after 180 days without enrolment (no delete)`
         }
       />
       <AdminToolbar>
@@ -392,6 +516,19 @@ export function StudentsManager() {
         <AdminGhostButton type="button" onClick={() => load()} className="w-full sm:w-auto justify-center">
           {zh ? "搜尋" : "Search"}
         </AdminGhostButton>
+        <AdminPrimaryButton
+          type="button"
+          className="w-full sm:w-auto justify-center lg:ml-auto"
+          onClick={() => {
+            setCreatedPassword(null)
+            setCreateForm(EMPTY_CREATE)
+            setCreateOpen(true)
+          }}
+          disabled={demo}
+        >
+          <Plus className="h-4 w-4" />
+          {zh ? "新增學員" : "Add student"}
+        </AdminPrimaryButton>
       </AdminToolbar>
 
       <AdminCard className="overflow-hidden">
@@ -471,7 +608,8 @@ export function StudentsManager() {
             </div>
 
             {tab === "edit" ? (
-              <div className="space-y-3 max-w-md">
+              <div className="space-y-5">
+                <div className="space-y-3 max-w-md">
                 <div>
                   <AdminLabel>{zh ? "家長姓名" : "Parent name"}</AdminLabel>
                   <AdminInput value={editName} onChange={(e) => setEditName(e.target.value)} />
@@ -484,8 +622,95 @@ export function StudentsManager() {
                   <AdminLabel>{zh ? "醫療備註" : "Medical notes"}</AdminLabel>
                   <AdminTextarea className="min-h-[80px]" value={medical} onChange={(e) => setMedical(e.target.value)} />
                 </div>
-                <AdminPrimaryButton type="button" onClick={saveEdit}>
-                  {zh ? "儲存" : "Save"}
+                </div>
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-classz-700">{zh ? "學員資料" : "Students"}</p>
+                  {editKids.map((kid, idx) => (
+                    <div key={String(kid.id)} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded-md border border-classz-100 p-3">
+                      <div>
+                        <AdminLabel>{zh ? "學生姓名" : "Name"}</AdminLabel>
+                        <AdminInput
+                          value={kid.full_name}
+                          onChange={(e) =>
+                            setEditKids((rows) => rows.map((r, i) => (i === idx ? { ...r, full_name: e.target.value } : r)))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <AdminLabel>{zh ? "出生日期" : "DOB"}</AdminLabel>
+                        <AdminInput
+                          type="date"
+                          value={kid.date_of_birth}
+                          onChange={(e) =>
+                            setEditKids((rows) => rows.map((r, i) => (i === idx ? { ...r, date_of_birth: e.target.value } : r)))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <AdminLabel>{zh ? "性別" : "Gender"}</AdminLabel>
+                        <AdminSelect
+                          value={kid.gender}
+                          onChange={(e) =>
+                            setEditKids((rows) => rows.map((r, i) => (i === idx ? { ...r, gender: e.target.value } : r)))
+                          }
+                        >
+                          <option value="">—</option>
+                          <option value="male">{zh ? "男" : "Male"}</option>
+                          <option value="female">{zh ? "女" : "Female"}</option>
+                        </AdminSelect>
+                      </div>
+                      <div>
+                        <AdminLabel>{zh ? "就讀學校" : "School"}</AdminLabel>
+                        <AdminInput
+                          value={kid.school}
+                          onChange={(e) =>
+                            setEditKids((rows) => rows.map((r, i) => (i === idx ? { ...r, school: e.target.value } : r)))
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded-md border border-dashed border-classz-200 p-3">
+                    <div>
+                      <AdminLabel>{zh ? "新增學員姓名" : "New student name"}</AdminLabel>
+                      <AdminInput
+                        value={newKid.full_name}
+                        onChange={(e) => setNewKid((k) => ({ ...k, full_name: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <AdminLabel>{zh ? "出生日期" : "DOB"}</AdminLabel>
+                      <AdminInput
+                        type="date"
+                        value={newKid.date_of_birth}
+                        onChange={(e) => setNewKid((k) => ({ ...k, date_of_birth: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <AdminLabel>{zh ? "性別" : "Gender"}</AdminLabel>
+                      <AdminSelect value={newKid.gender} onChange={(e) => setNewKid((k) => ({ ...k, gender: e.target.value }))}>
+                        <option value="">—</option>
+                        <option value="male">{zh ? "男" : "Male"}</option>
+                        <option value="female">{zh ? "女" : "Female"}</option>
+                      </AdminSelect>
+                    </div>
+                    <div>
+                      <AdminLabel>{zh ? "就讀學校" : "School"}</AdminLabel>
+                      <AdminInput
+                        value={newKid.school}
+                        onChange={(e) => setNewKid((k) => ({ ...k, school: e.target.value }))}
+                      />
+                    </div>
+                    <div className="sm:col-span-2 lg:col-span-4">
+                      <AdminGhostButton type="button" disabled={saving || !newKid.full_name.trim()} onClick={() => void addKid()}>
+                        <Plus className="h-4 w-4" />
+                        {zh ? "加入學員" : "Add student"}
+                      </AdminGhostButton>
+                    </div>
+                  </div>
+                </div>
+                <AdminPrimaryButton type="button" disabled={saving} onClick={saveEdit}>
+                  {saving ? (zh ? "儲存中…" : "Saving…") : zh ? "儲存" : "Save"}
                 </AdminPrimaryButton>
               </div>
             ) : null}
@@ -577,6 +802,111 @@ export function StudentsManager() {
           </div>
         </AdminCard>
       ) : null}
+
+      <AdminModal
+        open={createOpen}
+        title={zh ? "新增學員" : "Add student"}
+        onClose={() => {
+          setCreateOpen(false)
+          setCreatedPassword(null)
+        }}
+        footer={
+          createdPassword ? (
+            <AdminPrimaryButton type="button" onClick={() => { setCreateOpen(false); setCreatedPassword(null) }}>
+              {zh ? "完成" : "Done"}
+            </AdminPrimaryButton>
+          ) : (
+            <>
+              <AdminGhostButton type="button" onClick={() => setCreateOpen(false)}>
+                {zh ? "取消" : "Cancel"}
+              </AdminGhostButton>
+              <AdminPrimaryButton type="button" disabled={saving} onClick={() => void createStudent()}>
+                {saving ? (zh ? "建立中…" : "Creating…") : zh ? "建立" : "Create"}
+              </AdminPrimaryButton>
+            </>
+          )
+        }
+      >
+        {createdPassword ? (
+          <div className="space-y-2">
+            <p className="text-sm text-classz-700">
+              {zh ? "學員帳戶已建立。請把臨時密碼交給家長，登入後可自行更改。" : "Account created. Share this temporary password with the parent."}
+            </p>
+            <p className="font-mono text-base bg-classz-50 border border-classz-100 rounded-md px-3 py-2 select-all">
+              {createdPassword}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-xs text-classz-500">
+              {zh ? "學員不可刪除。超過 180 日未報名本中心課堂會自動轉為停用。" : "Students cannot be deleted. Status becomes inactive after 180 days without enrolment."}
+            </p>
+            <div>
+              <AdminLabel>{zh ? "家長姓名" : "Parent name"}</AdminLabel>
+              <AdminInput
+                value={createForm.parents_name}
+                onChange={(e) => setCreateForm((f) => ({ ...f, parents_name: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "電郵" : "Email"}</AdminLabel>
+              <AdminInput
+                type="email"
+                value={createForm.email}
+                onChange={(e) => setCreateForm((f) => ({ ...f, email: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "電話" : "Mobile"}</AdminLabel>
+              <AdminInput
+                value={createForm.mobile}
+                onChange={(e) => setCreateForm((f) => ({ ...f, mobile: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "登入密碼（可留空自動產生）" : "Password (leave blank to auto-generate)"}</AdminLabel>
+              <AdminInput
+                type="text"
+                value={createForm.password}
+                onChange={(e) => setCreateForm((f) => ({ ...f, password: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "學員姓名" : "Student name"}</AdminLabel>
+              <AdminInput
+                value={createForm.student_full_name}
+                onChange={(e) => setCreateForm((f) => ({ ...f, student_full_name: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "出生日期" : "Date of birth"}</AdminLabel>
+              <AdminInput
+                type="date"
+                value={createForm.date_of_birth}
+                onChange={(e) => setCreateForm((f) => ({ ...f, date_of_birth: e.target.value }))}
+              />
+            </div>
+            <div>
+              <AdminLabel>{zh ? "性別" : "Gender"}</AdminLabel>
+              <AdminSelect
+                value={createForm.gender}
+                onChange={(e) => setCreateForm((f) => ({ ...f, gender: e.target.value }))}
+              >
+                <option value="">—</option>
+                <option value="male">{zh ? "男" : "Male"}</option>
+                <option value="female">{zh ? "女" : "Female"}</option>
+              </AdminSelect>
+            </div>
+            <div>
+              <AdminLabel>{zh ? "就讀學校" : "School"}</AdminLabel>
+              <AdminInput
+                value={createForm.school}
+                onChange={(e) => setCreateForm((f) => ({ ...f, school: e.target.value }))}
+              />
+            </div>
+          </div>
+        )}
+      </AdminModal>
     </AdminPageFrame>
   )
 }

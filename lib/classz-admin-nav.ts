@@ -23,6 +23,7 @@ export type AdminNavItem = {
   labelZh: string
   labelEn: string
   icon: LucideIcon
+  moduleKey?: string
 }
 
 export type AdminNavGroup = {

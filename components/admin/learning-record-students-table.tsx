@@ -29,6 +29,7 @@ import {
 } from "@/lib/activity-learning-record"
 import type { LearningCompanionReport } from "@/lib/learning-companion-report"
 import { exportLearningCompanionPdf } from "@/lib/learning-companion-pdf"
+import { exportLearningRecordInputFormPdf } from "@/lib/learning-record-input-form-pdf"
 import { LearningCompanionReportView } from "@/components/admin/learning-companion-report-view"
 import {
   AdminCard,
@@ -1513,22 +1514,31 @@ export function LearningRecordStudentsTable({
                                           {progressLevelLabel(rec.progress_level)}
                                         </span>
                                       ) : null}
-                                      <div className="ml-auto inline-flex items-center gap-1">
+                                      <div className="ml-auto inline-flex items-center gap-1.5">
                                         <Link
-                                          href={`/admin/teacher-students/${r.profile_id}`}
-                                          className="p-1 rounded-md text-brand-slate hover:bg-classz-50"
-                                          title={zh ? "編輯" : "Edit"}
+                                          href={`/admin/teacher-students/${r.profile_id}?recordId=${rec.id}`}
+                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-classz-200 text-xs text-brand-slate hover:bg-classz-50"
+                                          title={zh ? "編輯這份紀錄" : "Edit this record"}
+                                          onClick={(e) => e.stopPropagation()}
                                         >
                                           <Pencil className="h-3.5 w-3.5" />
+                                          {zh ? "編輯" : "Edit"}
                                         </Link>
                                         <button
                                           type="button"
-                                          className="p-1 rounded-md text-brand-coral hover:bg-brand-coral/10 disabled:opacity-40"
+                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-brand-coral/30 text-xs text-brand-coral hover:bg-brand-coral/10 disabled:opacity-40"
                                           disabled={demo || deletingRecordId === rec.id}
                                           title={zh ? "刪除這份紀錄" : "Delete this record"}
                                           onClick={(e) => deleteSingleLearningRecord(r.profile_id, rec.id, e)}
                                         >
                                           <Trash2 className="h-3.5 w-3.5" />
+                                          {deletingRecordId === rec.id
+                                            ? zh
+                                              ? "刪除中…"
+                                              : "Deleting…"
+                                            : zh
+                                              ? "刪除"
+                                              : "Delete"}
                                         </button>
                                       </div>
                                     </div>
@@ -1569,7 +1579,7 @@ export function LearningRecordStudentsTable({
           <AdminGhostButton
             type="button"
             onClick={() => {
-              window.open("/forms/learning-record-coach-form.html", "_blank", "noopener,noreferrer")
+              exportLearningRecordInputFormPdf({ copies: 1 })
             }}
             className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5"
             title={zh ? "開啟紙本 Learning Record 表單（可列印／儲存 PDF）" : "Open printable Learning Record form"}

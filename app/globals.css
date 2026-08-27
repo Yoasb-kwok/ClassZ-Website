@@ -297,13 +297,12 @@ input[type="checkbox"]:checked::after {
     font-weight: bold;
 }
 
-/* Centre / platform admin — slate ink + teal surfaces */
+/* Centre / platform admin — slate ink + teal surfaces; sidebar stays black/white */
 .classz-admin-theme {
     color: var(--admin-ink);
     background-color: var(--admin-bg);
 }
 
-/* Status accents — map Tailwind defaults onto the 5-tone system */
 .crm-theme {
     --crm-stage-new: var(--brand-magenta);
     --crm-stage-contacted: var(--brand-orange);
@@ -313,7 +312,6 @@ input[type="checkbox"]:checked::after {
     --crm-stage-lost: var(--brand-coral);
 }
 
-/* Alerts / warnings → coral + orange; success → teal */
 .classz-admin-theme [role="alert"],
 .classz-admin-theme .admin-alert,
 .classz-admin-theme .text-amber-700,

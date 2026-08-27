@@ -47,7 +47,7 @@ const COURSE_COLORS = [
   { bar: "#BF07D0", bg: "#F9E8FB", border: "#E4A0ED", text: "#8A0596" },
   { bar: "#FF8400", bg: "#FFF3E6", border: "#FFC280", text: "#B85E00" },
   { bar: "#DB5461", bg: "#FCECEE", border: "#F0A8AF", text: "#A83A46" },
-  { bar: "#4C5B5C", bg: "#EEF1F1", border: "#A8B2B3", text: "#343F40" },
+  { bar: "#525252", bg: "#F5F5F5", border: "#D4D4D4", text: "#292929" },
   { bar: "#089591", bg: "#E0F4F3", border: "#6CD6D3", text: "#044A48" },
   { bar: "#9B2DB0", bg: "#F5E6F8", border: "#D49BE0", text: "#6E1F7D" },
   { bar: "#E67A00", bg: "#FFF0DB", border: "#FFB84D", text: "#9A5200" },

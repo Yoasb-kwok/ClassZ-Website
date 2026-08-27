@@ -63,7 +63,7 @@ const REPORTS: Array<{
 
 const TONE_ICON: Record<BrandTone, string> = {
   teal: "bg-[color-mix(in_srgb,var(--brand-teal)_14%,white)] text-brand-teal",
-  slate: "bg-[color-mix(in_srgb,var(--brand-slate)_10%,white)] text-brand-slate",
+  slate: "bg-[#F5F5F5] text-[#525252]",
   magenta: "bg-[color-mix(in_srgb,var(--brand-magenta)_12%,white)] text-brand-magenta",
   orange: "bg-[color-mix(in_srgb,var(--brand-orange)_14%,white)] text-brand-orange",
   coral: "bg-[color-mix(in_srgb,var(--brand-coral)_12%,white)] text-brand-coral",
@@ -71,7 +71,7 @@ const TONE_ICON: Record<BrandTone, string> = {
 
 const TONE_BORDER: Record<BrandTone, string> = {
   teal: "hover:border-brand-teal/40",
-  slate: "hover:border-brand-slate/35",
+  slate: "hover:border-[#525252]/30",
   magenta: "hover:border-brand-magenta/40",
   orange: "hover:border-brand-orange/40",
   coral: "hover:border-brand-coral/40",

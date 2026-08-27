@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight, Edit, Plus, Search, Trash2, Users } from "lu
 import { useLanguage } from "@/components/language-provider"
 import { getClasszSession } from "@/lib/classz-auth"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
+import { PLAN_OPTIONS, normalizePlanId } from "@/lib/subscription-plans"
 import {
   AdminCard,
   AdminDangerButton,
@@ -31,6 +32,9 @@ type CenterAccount = {
   center_id: number | null
   center_name: string | null
   center_status: string | null
+  plan_tier?: string | null
+  effective_plan?: string | null
+  plan_expires_at?: string | null
   email: string
   username: string | null
   full_name: string | null
@@ -39,6 +43,8 @@ type CenterAccount = {
   sub_accounts?: CenterAccount[]
   sub_accounts_count?: number
 }
+
+type PlanOption = { id: string; labelEn: string; labelZh: string }
 
 type FormState = {
   account_kind: "primary" | "sub"
@@ -50,6 +56,8 @@ type FormState = {
   username: string
   password: string
   is_active: boolean
+  plan_tier: string
+  plan_expires_at: string
 }
 
 const emptyForm = (): FormState => ({
@@ -62,6 +70,8 @@ const emptyForm = (): FormState => ({
   username: "",
   password: "",
   is_active: true,
+  plan_tier: "free",
+  plan_expires_at: "",
 })
 
 export function CenterAccountsManager() {
@@ -81,6 +91,16 @@ export function CenterAccountsManager() {
   const [editing, setEditing] = useState<CenterAccount | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
   const [saving, setSaving] = useState(false)
+  const [planOptions, setPlanOptions] = useState<PlanOption[]>(
+    PLAN_OPTIONS.map((p) => ({ id: p.id, labelEn: p.labelEn, labelZh: p.labelZh })),
+  )
+
+  function planLabel(slug: string | null | undefined) {
+    const id = normalizePlanId(slug)
+    const found = planOptions.find((p) => p.id === id)
+    if (found) return zh ? found.labelZh : found.labelEn
+    return id || "—"
+  }
 
   useEffect(() => {
     if (session && session.user.role !== "platform_admin") {
@@ -97,12 +117,18 @@ export function CenterAccountsManager() {
       if (search.trim()) qs.set("search", search.trim())
       qs.set("include_inactive", "1")
       const path = `/center-accounts${qs.toString() ? `?${qs}` : ""}`
-      const [accounts, centerRows] = await Promise.all([
+      const [accounts, centerRows, planData] = await Promise.all([
         apiGet<CenterAccount[]>(path, "platform_admin"),
         apiGet<CenterOption[]>("/centers", "platform_admin"),
+        apiGet<{
+          tiers?: Array<{ slug: string; labelEn: string; labelZh: string }>
+        }>("/permissions/plans", "platform_admin").catch(() => null),
       ])
       setRows(Array.isArray(accounts) ? accounts : [])
       setCenters(Array.isArray(centerRows) ? centerRows : [])
+      if (planData?.tiers?.length) {
+        setPlanOptions(planData.tiers.map((t) => ({ id: t.slug, labelEn: t.labelEn, labelZh: t.labelZh })))
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Load failed")
     } finally {
@@ -151,6 +177,8 @@ export function CenterAccountsManager() {
       username: account.username || "",
       password: "",
       is_active: account.is_active,
+      plan_tier: normalizePlanId(account.plan_tier),
+      plan_expires_at: account.plan_expires_at ? String(account.plan_expires_at).slice(0, 10) : "",
     })
     setModal("edit")
   }
@@ -186,6 +214,10 @@ export function CenterAccountsManager() {
           is_active: form.is_active,
         }
         if (newPassword) body.password = newPassword
+        if (editing.account_type === "primary") {
+          body.plan_tier = form.plan_tier
+          body.plan_expires_at = form.plan_tier === "free" ? null : form.plan_expires_at.trim() || null
+        }
         await apiPatch(`/center-accounts/${editing.id}`, body, "platform_admin")
       }
       setModal(null)
@@ -238,6 +270,20 @@ export function CenterAccountsManager() {
           </span>
         </td>
         <td className="px-3 py-2 font-medium">{account.center_name || "—"}</td>
+        <td className="px-3 py-2 text-sm">
+          {account.account_type === "primary" ? (
+            <span>
+              {planLabel(account.effective_plan || account.plan_tier)}
+              {account.plan_expires_at ? (
+                <span className="block text-xs text-classz-500">
+                  {zh ? "到期" : "Expires"} {account.plan_expires_at}
+                </span>
+              ) : null}
+            </span>
+          ) : (
+            "—"
+          )}
+        </td>
         <td className="px-3 py-2">{account.full_name || "—"}</td>
         <td className="px-3 py-2 text-sm">{account.email}</td>
         <td className="px-3 py-2 text-sm">{account.mobile || "—"}</td>
@@ -292,8 +338,8 @@ export function CenterAccountsManager() {
         title={zh ? "中心帳戶管理" : "Centre account management"}
         description={
           zh
-            ? "管理平台各中心的主帳戶與副帳戶（登入 CRM 用）。主帳戶每中心一個；副帳戶掛在主帳戶下。"
-            : "Manage primary and sub login accounts for each centre CRM. One primary per centre; sub accounts belong to a primary."
+            ? "管理平台各中心的主帳戶與副帳戶（登入 CRM 用）。主帳戶每中心一個；副帳戶掛在主帳戶下。可在主帳戶直接指定該中心的訂閱方案與到期日。"
+            : "Manage primary and sub login accounts for each centre CRM. One primary per centre; sub accounts belong to a primary. Set that centre’s plan and expiry on the primary account."
         }
         Icon={Users}
       />
@@ -337,6 +383,7 @@ export function CenterAccountsManager() {
                 <th className="px-3 py-3 text-left">ID</th>
                 <th className="px-3 py-3 text-left">{zh ? "類型" : "Type"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "中心" : "Centre"}</th>
+                <th className="px-3 py-3 text-left">{zh ? "方案" : "Plan"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "姓名" : "Name"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "電郵" : "Email"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "電話" : "Mobile"}</th>
@@ -347,7 +394,7 @@ export function CenterAccountsManager() {
             <tbody className="divide-y divide-classz-100">
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-3 py-8 text-center text-classz-500">
+                  <td colSpan={10} className="px-3 py-8 text-center text-classz-500">
                     {zh ? "暫無帳戶" : "No accounts"}
                   </td>
                 </tr>
@@ -473,6 +520,43 @@ export function CenterAccountsManager() {
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               />
             </div>
+            {modal === "edit" && editing?.account_type === "primary" ? (
+              <>
+                <div>
+                  <AdminLabel>{zh ? "訂閱方案" : "Subscription plan"}</AdminLabel>
+                  <AdminSelect
+                    value={form.plan_tier}
+                    onChange={(e) => {
+                      const plan = e.target.value
+                      setForm((f) => ({
+                        ...f,
+                        plan_tier: plan,
+                        plan_expires_at: plan === "free" ? "" : f.plan_expires_at,
+                      }))
+                    }}
+                  >
+                    {planOptions.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {zh ? p.labelZh : p.labelEn}
+                        {p.id === "free" ? (zh ? "（基礎方案）" : " (Basic)") : ""}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                </div>
+                <div>
+                  <AdminLabel>{zh ? "方案到期日" : "Plan expiry"}</AdminLabel>
+                  <AdminInput
+                    type="date"
+                    disabled={form.plan_tier === "free"}
+                    value={form.plan_expires_at}
+                    onChange={(e) => setForm((f) => ({ ...f, plan_expires_at: e.target.value }))}
+                  />
+                  <p className="mt-1 text-xs text-classz-500">
+                    {zh ? "基礎方案無到期日。付費方案留空＝不限期。" : "Basic has no expiry. Leave blank on a paid plan for no end date."}
+                  </p>
+                </div>
+              </>
+            ) : null}
             {modal === "edit" ? (
               <label className="flex items-center gap-2 text-sm text-classz-700">
                 <input

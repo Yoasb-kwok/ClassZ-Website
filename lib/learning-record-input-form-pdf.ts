@@ -4,12 +4,19 @@
  */
 
 import {
-  CLASS_FOCUS_OPTIONS,
-  LEARNING_AREA_OPTIONS,
-  LEARNING_TRAIT_OPTIONS,
-  OBSERVED_OPTIONS,
-  PROGRESS_LEVELS,
-} from "@/lib/activity-learning-record"
+  AVAILABILITY_OPTIONS,
+  INSUFFICIENT_REASONS,
+  LEARNING_APPROACH_OPTIONS,
+  OBSERVATION_CONTEXT_OPTIONS,
+  OBSERVATION_DOMAIN_OPTIONS,
+  OBSERVATION_TYPE_OPTIONS,
+  OUTCOME_OPTIONS,
+  PROGRESS_LEVEL_OPTIONS,
+  QUESTIONS,
+  RESPONSE_TO_SUPPORT_OPTIONS,
+  SUPPORT_GIVEN_OPTIONS,
+  type BilingualOption,
+} from "@/lib/version2-learning-record"
 
 function escapeHtml(s: string) {
   return s
@@ -19,12 +26,12 @@ function escapeHtml(s: string) {
     .replace(/"/g, "&quot;")
 }
 
-function checkboxItem(label: string) {
-  return `<label class="opt"><span class="box"></span><span class="opt-text">${escapeHtml(label)}</span></label>`
+function bilingualItem(opt: BilingualOption) {
+  return `<label class="opt"><span class="box"></span><span class="opt-text">${escapeHtml(opt.en)} <span class="muted">${escapeHtml(opt.zh)}</span></span></label>`
 }
 
-function checkboxGrid(options: readonly string[], columns = 2) {
-  return `<div class="grid cols-${columns}">${options.map((o) => checkboxItem(o)).join("")}</div>`
+function bilingualGrid(options: readonly BilingualOption[], columns = 2) {
+  return `<div class="grid cols-${columns}">${options.map((o) => bilingualItem(o)).join("")}</div>`
 }
 
 function sectionTitle(en: string, zh: string, hint?: string) {
@@ -38,13 +45,13 @@ function sectionTitle(en: string, zh: string, hint?: string) {
 export function buildLearningRecordInputFormHtml(opts?: { copies?: number }) {
   const copies = Math.max(1, Math.min(opts?.copies ?? 1, 10))
 
-  const progressBlock = PROGRESS_LEVELS.map(
+  const progressBlock = PROGRESS_LEVEL_OPTIONS.map(
     (p) =>
       `<label class="progress-opt">
         <span class="box lg"></span>
         <span>
-          <strong>${escapeHtml(p.tier)}</strong>
-          <span class="muted"> — ${escapeHtml(p.description)}</span>
+          <strong>${escapeHtml(p.en)}</strong>
+          <span class="muted"> — ${escapeHtml(p.zh)}</span>
         </span>
       </label>`,
   ).join("")
@@ -54,15 +61,14 @@ export function buildLearningRecordInputFormHtml(opts?: { copies?: number }) {
     <header class="top">
       <div class="brand">
         <div class="logo">ClassZ</div>
-        <div class="subtitle">Academic Learning Record · 學業學習紀錄</div>
+        <div class="subtitle">Learning Record · 學習紀錄</div>
       </div>
       <div class="badge">Coach paper form · 導師紙本填寫</div>
     </header>
 
     <p class="intro">
-      Tick options to match the online Learning Record. Circle / tick <strong>1–2</strong> where noted.
-      After class, enter the same choices in the ClassZ admin form.
-      <span class="zh-inline">請勾選與線上表單相同的選項；標示 1–2 的項目請只選一至兩項，課後再輸入系統。</span>
+      Fill this to match the online Learning Record. Tick <strong>1–2</strong> where noted. Write what the child actually did or said.
+      <span class="zh-inline">請按線上表單相同欄位填寫；標示 1–2 的項目只選一至兩項。請寫孩子實際做過或講過嘅內容。</span>
     </p>
 
     <section class="meta">
@@ -77,39 +83,49 @@ export function buildLearningRecordInputFormHtml(opts?: { copies?: number }) {
     </section>
 
     <section>
-      ${sectionTitle("Class focus", "課堂焦點", "Select one · 選一項")}
-      ${checkboxGrid(CLASS_FOCUS_OPTIONS, 4)}
+      ${sectionTitle(QUESTIONS.lesson_focus.en, QUESTIONS.lesson_focus.zh, "Write the lesson focus · 請用文字寫低")}
+      <div class="write-lines short">
+        <div class="write-line"></div>
+        <div class="write-line"></div>
+      </div>
     </section>
 
     <section>
-      ${sectionTitle("Progress level", "進度等級", "Select one · 選一項")}
+      ${sectionTitle(QUESTIONS.availability.en, QUESTIONS.availability.zh, "Select one · 選一項")}
+      ${bilingualGrid(AVAILABILITY_OPTIONS, 1)}
+    </section>
+
+    <section>
+      ${sectionTitle(QUESTIONS.insufficient_reason.en, QUESTIONS.insufficient_reason.zh, "Only if there was not enough opportunity · 只喺未能有效觀察時填")}
+      ${bilingualGrid(INSUFFICIENT_REASONS, 2)}
+      <div class="write-lines short">
+        <div class="write-line"></div>
+      </div>
+    </section>
+
+    <section>
+      ${sectionTitle(QUESTIONS.progress_level.en, QUESTIONS.progress_level.zh, "Select one · 選一項")}
       <div class="progress-list">${progressBlock}</div>
     </section>
 
     <div class="two-col">
       <section>
-        ${sectionTitle("What was observed?", "觀察到的表現", "Tick 1–2 · 勾選 1–2 項")}
-        ${checkboxGrid(OBSERVED_OPTIONS, 1)}
+        ${sectionTitle(QUESTIONS.observation_type.en, QUESTIONS.observation_type.zh, "Select one · 選一項")}
+        ${bilingualGrid(OBSERVATION_TYPE_OPTIONS, 1)}
       </section>
       <section>
-        ${sectionTitle("Strongest area today", "今日優勢", "Tick 1–2 · 勾選 1–2 項")}
-        ${checkboxGrid(LEARNING_AREA_OPTIONS, 1)}
-      </section>
-    </div>
-
-    <div class="two-col">
-      <section>
-        ${sectionTitle("Needs more attention", "需關注範疇", "Tick 1–2 · 勾選 1–2 項")}
-        ${checkboxGrid(LEARNING_AREA_OPTIONS, 1)}
-      </section>
-      <section>
-        ${sectionTitle("Learning traits", "學習特質", "Tick 1–2 · 勾選 1–2 項")}
-        ${checkboxGrid(LEARNING_TRAIT_OPTIONS, 1)}
+        ${sectionTitle(QUESTIONS.observation_context.en, QUESTIONS.observation_context.zh, "Select one · 選一項")}
+        ${bilingualGrid(OBSERVATION_CONTEXT_OPTIONS, 1)}
       </section>
     </div>
 
     <section>
-      ${sectionTitle("Student should work on", "建議學生繼續練習", "Required · 必填")}
+      ${sectionTitle(QUESTIONS.observation_domain.en, QUESTIONS.observation_domain.zh, "Select one · 選一項")}
+      ${bilingualGrid(OBSERVATION_DOMAIN_OPTIONS, 2)}
+    </section>
+
+    <section>
+      ${sectionTitle(QUESTIONS.factual_evidence.en, QUESTIONS.factual_evidence.zh, "At least 10 characters · 最少 10 個字")}
       <div class="write-lines">
         <div class="write-line"></div>
         <div class="write-line"></div>
@@ -118,15 +134,48 @@ export function buildLearningRecordInputFormHtml(opts?: { copies?: number }) {
     </section>
 
     <section>
-      ${sectionTitle("Additional comment", "附加備註", "Optional · ≤100 words · 選填")}
+      ${sectionTitle(QUESTIONS.outcome.en, QUESTIONS.outcome.zh, "Select one · 選一項")}
+      ${bilingualGrid(OUTCOME_OPTIONS, 2)}
+    </section>
+
+    <div class="two-col">
+      <section>
+        ${sectionTitle(QUESTIONS.support_provided.en, QUESTIONS.support_provided.zh, "Tick 1–2 if support was needed · 需要支援時勾選 1–2 項")}
+        ${bilingualGrid(SUPPORT_GIVEN_OPTIONS, 1)}
+      </section>
+      <section>
+        ${sectionTitle(QUESTIONS.response_to_support.en, QUESTIONS.response_to_support.zh, "Select one if support was given · 有提供支援時選一項")}
+        ${bilingualGrid(RESPONSE_TO_SUPPORT_OPTIONS, 1)}
+      </section>
+    </div>
+
+    <section>
+      ${sectionTitle(QUESTIONS.learning_approach.en, QUESTIONS.learning_approach.zh, "Tick 1–2 · 勾選 1–2 項")}
+      ${bilingualGrid(LEARNING_APPROACH_OPTIONS, 2)}
+    </section>
+
+    <section>
+      ${sectionTitle(QUESTIONS.next_step.en, QUESTIONS.next_step.zh, QUESTIONS.next_step_helper.en)}
       <div class="write-lines short">
         <div class="write-line"></div>
         <div class="write-line"></div>
       </div>
     </section>
 
+    <section>
+      ${sectionTitle(QUESTIONS.additional_note.en, QUESTIONS.additional_note.zh, "Optional · ≤100 words · 選填")}
+      <div class="write-lines short">
+        <div class="write-line"></div>
+        <div class="write-line"></div>
+      </div>
+    </section>
+
+    <section>
+      <label class="opt"><span class="box lg"></span><span class="opt-text">${escapeHtml(QUESTIONS.confirmation.en)} <span class="muted">${escapeHtml(QUESTIONS.confirmation.zh)}</span></span></label>
+    </section>
+
     <footer class="foot">
-      ClassZ Learning Companion input · keep with class notes · 請於課後輸入線上系統
+      ClassZ Learning Companion input · enter the same fields online after class · 請於課後輸入線上系統
     </footer>
   </article>`
 

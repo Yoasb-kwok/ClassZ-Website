@@ -2,17 +2,18 @@ import type { ClasszPortalRole } from "@/lib/classz-auth"
 import { getClasszSession } from "@/lib/classz-auth"
 import { getAdminNavGroups as allGroups, type AdminNavGroup } from "@/lib/classz-admin-nav"
 import { getCenterAdminNavGroups, getCoachNavGroups } from "@/lib/center-admin-nav"
-import { Building2, CheckCircle, LayoutDashboard, Users } from "lucide-react"
+import { Building2, CheckCircle, LayoutDashboard, Shield, Users } from "lucide-react"
 
 const PLATFORM_ONLY: AdminNavGroup[] = [
   {
     titleZh: "平台管理",
     titleEn: "Platform",
     items: [
-      { path: "/admin/centers", labelZh: "中心審核", labelEn: "Centres", icon: Building2 },
-      { path: "/admin/center-accounts", labelZh: "中心帳戶", labelEn: "Centre accounts", icon: Users },
-      { path: "/admin/center-crm", labelZh: "中心 CRM", labelEn: "Centre CRM", icon: LayoutDashboard },
-      { path: "/admin/course-approvals", labelZh: "課程上架審批", labelEn: "Course approvals", icon: CheckCircle },
+      { path: "/admin/centers", labelZh: "中心審核", labelEn: "Centres", icon: Building2, moduleKey: "centers" },
+      { path: "/admin/center-accounts", labelZh: "中心帳戶", labelEn: "Centre accounts", icon: Users, moduleKey: "center_accounts" },
+      { path: "/admin/center-crm", labelZh: "中心 CRM", labelEn: "Centre CRM", icon: LayoutDashboard, moduleKey: "center_crm" },
+      { path: "/admin/course-approvals", labelZh: "課程上架審批", labelEn: "Course approvals", icon: CheckCircle, moduleKey: "course_approvals" },
+      { path: "/admin/permissions", labelZh: "權限管理", labelEn: "Permissions", icon: Shield, moduleKey: "permissions" },
     ],
   },
 ]
@@ -29,6 +30,22 @@ export function getAdminNavGroupsForRole(role: ClasszPortalRole): AdminNavGroup[
     return [...PLATFORM_ONLY, ...getCenterAdminNavGroups()]
   }
   return allGroups()
+}
+
+export function filterNavByModules(groups: AdminNavGroup[], enabled: Set<string>): AdminNavGroup[] {
+  return groups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((item) => {
+        const key = item.moduleKey
+        if (!key) return true
+        if (key.startsWith("reports_") && key !== "reports") {
+          return enabled.has("reports") && enabled.has(key)
+        }
+        return enabled.has(key)
+      }),
+    }))
+    .filter((g) => g.items.length > 0)
 }
 
 export function isDemoSession(): boolean {

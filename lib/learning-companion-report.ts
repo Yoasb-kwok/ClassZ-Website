@@ -1,16 +1,13 @@
-/** Learning Companion report types — aligned with Train.ipynb / API. */
+/** Learning Companion report types — aligned with version2.ipynb More Insight. */
 
 export const SECTIONS = [
-  "current_learning_portrait",
-  "how_they_approach_something_new",
-  "how_they_respond_to_challenge",
-  "how_they_learn_with_other_people",
-  "how_they_respond_to_guidance_and_feedback",
-  "conditions_that_bring_out_their_best",
-  "what_parents_may_notice_at_home",
-  "personalised_strategies",
-  "what_classz_will_continue_observing",
-  "evidence_and_confidence",
+  "your_child_at_a_glance",
+  "how_they_approach_learning",
+  "how_they_respond_along_the_way",
+  "how_you_can_support_them",
+  "why_this_companion_fits",
+  "also_reflected_in_their_learning",
+  "a_note_for_parents",
 ] as const
 
 export type LearningCompanionReport = {

@@ -2,38 +2,44 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Camera } from "lucide-react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { ArrowLeft, Camera, Pencil } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
-import { apiGet, apiPost } from "@/lib/classz-api-client"
+import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 import {
-  CLASS_FOCUS_OPTIONS,
   countWords,
-  emptyActivityLearningRecordForm,
-  LEARNING_AREA_OPTIONS,
-  LEARNING_TRAIT_OPTIONS,
-  OBSERVED_OPTIONS,
-  PROGRESS_LEVELS,
-  sanitizeActivityLearningRecordForm,
-  toggleMultiSelect,
-  validateActivityLearningRecordForm,
-  type ActivityLearningRecordForm,
+  progressLevelLabel,
   type ActivityLearningRecordRow,
 } from "@/lib/activity-learning-record"
+import {
+  applyPreviousNextFocus,
+  assignNextFocus,
+  buildVersion2ApiBody,
+  clearLearningRecordDraft,
+  emptyVersion2Form,
+  formFromRecordRow,
+  isMeaningfulLearningRecordDraft,
+  latestNextFocus,
+  learningRecordDraftKey,
+  loadLearningRecordDraft,
+  QUESTIONS,
+  saveLearningRecordDraft,
+  validateVersion2Form,
+  type Version2LearningRecordForm,
+} from "@/lib/version2-learning-record"
+import { Version2LearningRecordFields } from "@/components/admin/version2-learning-record-form"
 import type { LearningRecordStudent } from "@/components/admin/learning-record-students-table"
 import {
   AdminCard,
   AdminGhostButton,
-  AdminInput,
   AdminLabel,
   AdminPageFrame,
   AdminPageHeader,
   AdminPrimaryButton,
   AdminSelect,
   AdminStatusChip,
-  AdminTextarea,
 } from "@/components/classz-admin-ui"
 
 const MIN_RECORDS_FOR_REPORT = 3
@@ -41,7 +47,9 @@ const MIN_RECORDS_FOR_REPORT = 3
 export function TeacherFillLearningRecord() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const profileId = String(params?.profileId || "")
+  const recordIdParam = Number(searchParams?.get("recordId") || 0)
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
   const demo = isDemoSession()
@@ -49,41 +57,80 @@ export function TeacherFillLearningRecord() {
 
   const [student, setStudent] = useState<LearningRecordStudent | null>(null)
   const [history, setHistory] = useState<ActivityLearningRecordRow[]>([])
-  const [form, setForm] = useState<ActivityLearningRecordForm>(emptyActivityLearningRecordForm())
+  const [form, setForm] = useState<Version2LearningRecordForm>(emptyVersion2Form())
+  const [editingRecordId, setEditingRecordId] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [formReady, setFormReady] = useState(false)
+  const draftKey = learningRecordDraftKey(["teacher", profileId, recordIdParam || "new"])
 
   const load = useCallback(async () => {
     if (demo || !profileId) return
+    setFormReady(false)
     try {
       const list = await apiGet<LearningRecordStudent[]>("/learning-record-students")
       const row = (Array.isArray(list) ? list : []).find((s) => String(s.profile_id) === profileId)
       if (!row) {
-        setLoadError(zh ? "找不到該學生" : "Student not found")
+        setLoadError("Student not found")
         return
       }
       setStudent(row)
-      const enrollment = row.enrollments[0]
-      setForm(
-        sanitizeActivityLearningRecordForm({
-          ...emptyActivityLearningRecordForm(),
-          class_id: enrollment ? String(enrollment.class_id) : "",
-          enrollment_id: enrollment ? String(enrollment.enrollment_id) : "",
-          student_name: row.child_name,
-        }),
-      )
       const recs = await apiGet<ActivityLearningRecordRow[]>(
         `/activity-learning-records?profile_id=${encodeURIComponent(profileId)}`,
       )
-      setHistory(Array.isArray(recs) ? recs : [])
+      const historyRows = Array.isArray(recs) ? recs : []
+      setHistory(historyRows)
+
+      const editTarget =
+        Number.isInteger(recordIdParam) && recordIdParam > 0
+          ? historyRows.find((h) => h.id === recordIdParam) || null
+          : null
+
+      const draft = loadLearningRecordDraft(
+        learningRecordDraftKey(["teacher", profileId, recordIdParam || "new"]),
+      )
+
+      if (editTarget) {
+        setEditingRecordId(editTarget.id)
+        setForm(
+          draft ||
+            formFromRecordRow(editTarget, {
+              student_name: editTarget.student_name || row.child_name,
+            }),
+        )
+      } else {
+        setEditingRecordId(null)
+        const enrollment = row.enrollments[0]
+        setForm(
+          draft ||
+            applyPreviousNextFocus(
+              {
+                ...emptyVersion2Form(),
+                class_id: enrollment ? String(enrollment.class_id) : "",
+                enrollment_id: enrollment ? String(enrollment.enrollment_id) : "",
+                student_name: row.child_name,
+              },
+              latestNextFocus(historyRows),
+            ),
+        )
+      }
+      setFormReady(true)
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "Load failed")
     }
-  }, [demo, profileId, zh])
+  }, [demo, profileId, recordIdParam])
 
   useEffect(() => {
     load()
   }, [load])
+
+  useEffect(() => {
+    if (!formReady) return
+    const timer = window.setTimeout(() => {
+      if (isMeaningfulLearningRecordDraft(form)) saveLearningRecordDraft(draftKey, form)
+    }, 200)
+    return () => window.clearTimeout(timer)
+  }, [form, formReady, draftKey])
 
   async function uploadPhoto(file: File) {
     const reader = new FileReader()
@@ -116,29 +163,23 @@ export function TeacherFillLearningRecord() {
       alert(zh ? "附加備註不可超過 100 字" : "Comment max 100 words")
       return
     }
-    const err = validateActivityLearningRecordForm(form)
+    const ready = assignNextFocus(form, history.filter((h) => h.id !== editingRecordId))
+    const err = validateVersion2Form(ready, { confirm })
     if (err) {
       alert(err)
       return
     }
     setSaving(true)
     try {
-      await apiPost("/activity-learning-records", {
-        class_id: Number(form.class_id),
-        enrollment_id: form.enrollment_id ? Number(form.enrollment_id) : null,
-        student_name: form.student_name || student?.child_name || null,
-        photo_url: form.photo_url || null,
-        class_focus: form.class_focus.trim(),
-        progress_level: form.progress_level,
-        observed: form.observed,
-        strongest_areas: form.strongest_areas,
-        attention_areas: form.attention_areas,
-        student_work_on: form.student_work_on.trim(),
-        learning_traits: form.learning_traits,
-        additional_comment: form.additional_comment.trim() || null,
-        confirm,
-      })
-      alert(zh ? "已儲存 Learning Record" : "Learning record saved")
+      const payload = buildVersion2ApiBody(ready, { confirm, force: true })
+      if (editingRecordId) {
+        await apiPatch(`/activity-learning-records/${editingRecordId}?force=1`, payload)
+        alert(zh ? "已更新 Learning Record" : "Learning record updated")
+      } else {
+        await apiPost("/activity-learning-records", payload)
+        alert(zh ? "已儲存 Learning Record" : "Learning record saved")
+      }
+      clearLearningRecordDraft(draftKey)
       router.push("/admin/teacher-students")
     } catch (e) {
       alert(e instanceof Error ? e.message : "Save failed")
@@ -180,8 +221,20 @@ export function TeacherFillLearningRecord() {
         </Link>
       </div>
       <AdminPageHeader
-        title={zh ? `填寫 Learning Record — ${student.child_name}` : `Fill Learning Record — ${student.child_name}`}
-        description={zh ? "填寫此學生的 STEM / Academic Learning Record。" : "Fill this student's STEM / Academic Learning Record."}
+        title={
+          editingRecordId
+            ? zh
+              ? `編輯 Learning Record #${editingRecordId} — ${student.child_name}`
+              : `Edit Learning Record #${editingRecordId} — ${student.child_name}`
+            : zh
+              ? `填寫 Learning Record — ${student.child_name}`
+              : `Fill Learning Record — ${student.child_name}`
+        }
+        description={
+          zh
+            ? "請記錄今堂實際觀察到嘅表現。確認提交即代表呢份紀錄係根據你對呢位小朋友嘅直接觀察。"
+            : "Record what you actually observed today. Confirming this form means the record is based on your direct observation of this child."
+        }
       />
 
       <AdminCard className="mb-3">
@@ -200,115 +253,38 @@ export function TeacherFillLearningRecord() {
       </AdminCard>
 
       <AdminCard>
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <AdminLabel>{zh ? "課堂" : "Class session"}</AdminLabel>
-              <AdminSelect
-                value={form.class_id}
-                onChange={(e) => {
-                  const classId = e.target.value
-                  const en = student.enrollments.find((x) => String(x.class_id) === classId)
-                  setForm((f) => ({
-                    ...f,
-                    class_id: classId,
-                    enrollment_id: en ? String(en.enrollment_id) : "",
-                  }))
-                }}
-              >
-                {student.enrollments.map((e) => (
-                  <option key={e.enrollment_id} value={String(e.class_id)}>
-                    {e.class_name}
-                  </option>
-                ))}
-              </AdminSelect>
-            </div>
-            <div>
-              <AdminLabel>{zh ? "進度等級" : "Progress level"}</AdminLabel>
-              <AdminSelect
-                value={form.progress_level}
-                onChange={(e) => setForm((f) => ({ ...f, progress_level: e.target.value }))}
-              >
-                <option value="">{zh ? "請選擇" : "Select"}</option>
-                {PROGRESS_LEVELS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.tier} — {p.description}
-                  </option>
-                ))}
-              </AdminSelect>
-            </div>
-          </div>
-
+        <div className="space-y-4">
           <div>
-            <AdminLabel>{zh ? "課堂焦點" : "Class focus"}</AdminLabel>
+            <AdminLabel>{zh ? "課堂" : "Class session"}</AdminLabel>
             <AdminSelect
-              value={form.class_focus}
-              onChange={(e) => setForm((f) => ({ ...f, class_focus: e.target.value }))}
+              value={form.class_id}
+              disabled={Boolean(editingRecordId)}
+              onChange={(e) => {
+                const classId = e.target.value
+                const en = student.enrollments.find((x) => String(x.class_id) === classId)
+                setForm((f) => ({
+                  ...f,
+                  class_id: classId,
+                  enrollment_id: en ? String(en.enrollment_id) : "",
+                }))
+              }}
             >
-              <option value="">{zh ? "請選擇課堂焦點" : "Select class focus"}</option>
-              {CLASS_FOCUS_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
+              {student.enrollments.map((e) => (
+                <option key={e.enrollment_id} value={String(e.class_id)}>
+                  {e.class_name}
                 </option>
               ))}
+              {editingRecordId &&
+              form.class_id &&
+              !student.enrollments.some((e) => String(e.class_id) === form.class_id) ? (
+                <option value={form.class_id}>
+                  {history.find((h) => h.id === editingRecordId)?.class_name || `class ${form.class_id}`}
+                </option>
+              ) : null}
             </AdminSelect>
           </div>
 
-          {(
-            [
-              ["observed", zh ? "觀察到的表現 (1–2)" : "Observed (1–2)", OBSERVED_OPTIONS],
-              ["strongest_areas", zh ? "優勢 (1–2)" : "Strengths (1–2)", LEARNING_AREA_OPTIONS],
-              ["attention_areas", zh ? "需關注 (1–2)" : "Focus areas (1–2)", LEARNING_AREA_OPTIONS],
-              ["learning_traits", zh ? "學習特質 (1–2)" : "Learning traits (1–2)", LEARNING_TRAIT_OPTIONS],
-            ] as const
-          ).map(([key, label, options]) => (
-            <div key={key}>
-              <AdminLabel>{label}</AdminLabel>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {options.map((opt) => {
-                  const selected = form[key].includes(opt)
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() =>
-                        setForm((f) => ({
-                          ...f,
-                          [key]: toggleMultiSelect(f[key], opt, 2),
-                        }))
-                      }
-                      className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                        selected
-                          ? "bg-brand-teal/15 border-brand-teal text-brand-teal"
-                          : "bg-white border-classz-200 text-brand-slate/80 hover:border-classz-300"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
-
-          <div>
-            <AdminLabel>{zh ? "建議學生繼續練習" : "Student should work on"}</AdminLabel>
-            <AdminTextarea
-              className="min-h-[4rem]"
-              value={form.student_work_on}
-              onChange={(e) => setForm((f) => ({ ...f, student_work_on: e.target.value }))}
-            />
-          </div>
-
-          <div>
-            <AdminLabel>{zh ? "附加備註（≤100 字）" : "Additional comment (≤100 words)"}</AdminLabel>
-            <AdminTextarea
-              className="min-h-[4rem]"
-              value={form.additional_comment}
-              onChange={(e) => setForm((f) => ({ ...f, additional_comment: e.target.value }))}
-            />
-            <p className="text-xs text-brand-slate/50 mt-1">{countWords(form.additional_comment)} words</p>
-          </div>
+          <Version2LearningRecordFields form={form} onChange={setForm} />
 
           <div>
             <AdminLabel>{zh ? "照片（選填）" : "Photo (optional)"}</AdminLabel>
@@ -329,12 +305,32 @@ export function TeacherFillLearningRecord() {
             </div>
           </div>
 
+          <p className="text-xs text-brand-slate/60">
+            {zh ? QUESTIONS.confirmation.zh : QUESTIONS.confirmation.en}
+          </p>
+
           <div className="flex flex-wrap gap-2 pt-2">
             <AdminGhostButton type="button" disabled={saving} onClick={() => submit(false)}>
-              {zh ? "儲存草稿" : "Save draft"}
+              {editingRecordId
+                ? zh
+                  ? "更新為草稿"
+                  : "Update as draft"
+                : zh
+                  ? "儲存草稿"
+                  : "Save draft"}
             </AdminGhostButton>
             <AdminPrimaryButton type="button" disabled={saving} onClick={() => submit(true)}>
-              {saving ? (zh ? "儲存中…" : "Saving…") : zh ? "確認並儲存" : "Confirm & save"}
+              {saving
+                ? zh
+                  ? "儲存中…"
+                  : "Saving…"
+                : editingRecordId
+                  ? zh
+                    ? "確認並更新"
+                    : "Confirm & update"
+                  : zh
+                    ? "確認並儲存"
+                    : "Confirm & save"}
             </AdminPrimaryButton>
           </div>
         </div>
@@ -347,13 +343,31 @@ export function TeacherFillLearningRecord() {
           </h3>
           <ul className="space-y-1 text-sm text-brand-slate/80">
             {history.map((h) => (
-              <li key={h.id} className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between border-b border-classz-50 py-1.5">
+              <li
+                key={h.id}
+                className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-classz-50 py-1.5"
+              >
                 <span className="min-w-0">
                   #{h.id} · {h.class_focus || h.class_name || "—"} · {progressLevelLabel(h.progress_level || "")}
+                  {h.next_focus ? ` · next ${h.next_focus}` : ""}
+                  {editingRecordId === h.id ? (
+                    <span className="ml-2 text-xs text-brand-teal">{zh ? "（編輯中）" : "(editing)"}</span>
+                  ) : null}
                 </span>
-                <span className="text-xs text-brand-slate/50 shrink-0">
-                  {h.created_at ? new Date(h.created_at).toLocaleDateString(zh ? "zh-HK" : "en-HK") : ""}
-                </span>
+                <div className="inline-flex items-center gap-2 shrink-0">
+                  <span className="text-xs text-brand-slate/50">
+                    {h.created_at ? new Date(h.created_at).toLocaleDateString(zh ? "zh-HK" : "en-HK") : ""}
+                  </span>
+                  {editingRecordId === h.id ? null : (
+                    <Link
+                      href={`/admin/teacher-students/${profileId}?recordId=${h.id}`}
+                      className="inline-flex items-center gap-1 text-xs text-brand-teal hover:underline"
+                    >
+                      <Pencil className="h-3 w-3" />
+                      {zh ? "編輯" : "Edit"}
+                    </Link>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -361,9 +375,4 @@ export function TeacherFillLearningRecord() {
       ) : null}
     </AdminPageFrame>
   )
-}
-
-function progressLevelLabel(value: string) {
-  const row = PROGRESS_LEVELS.find((p) => p.value === value)
-  return row ? row.tier : value
 }

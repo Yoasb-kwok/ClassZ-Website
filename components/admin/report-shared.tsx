@@ -58,7 +58,7 @@ export function ReportMonthPicker({
   const years = useMemo(() => Array.from({ length: 6 }, (_, i) => nowY - i), [nowY])
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-classz-100 bg-white px-3 py-2 shadow-[0_1px_2px_rgba(10,186,181,0.05)]">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#E5E5E5] bg-white px-3 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
       <span className="text-sm font-medium text-classz-700">{zh ? "查詢月份" : "Period"}</span>
       <AdminSelect
         className="!w-auto min-w-[5.5rem] !min-h-[2.25rem] !py-1.5"

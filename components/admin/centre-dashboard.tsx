@@ -56,7 +56,7 @@ const ACCENT = "#0ABAB5"
 const ACCENT_MAGENTA = "#BF07D0"
 const ACCENT_ORANGE = "#FF8400"
 const ACCENT_CORAL = "#DB5461"
-const MUTED = "#4C5B5C"
+const MUTED = "#717171"
 
 const MONTH_COUNT = 12
 const YEAR_LOOKBACK = 4
@@ -354,7 +354,7 @@ export function CentreDashboard() {
               href="/admin/students"
               changePct={k?.activeStudentsChangePct}
               zh={zh}
-              accent={ACCENT_MAGENTA}
+              accent={ACCENT}
             />
             <MetricCard
               label={zh ? "本月出席" : "Attendance"}
@@ -378,7 +378,7 @@ export function CentreDashboard() {
               href="/admin/crm"
               changePct={k?.newLeadsChangePct}
               zh={zh}
-              accent={ACCENT_CORAL}
+              accent={ACCENT_MAGENTA}
             />
           </div>
 

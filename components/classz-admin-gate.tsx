@@ -19,13 +19,17 @@ export function ClasszAdminGate({ children }: { children: React.ReactNode }) {
       router.replace(`/login?next=${encodeURIComponent(pathname || "/admin")}`)
       return
     }
-    const platformPaths = ["/admin/centers", "/admin/center-accounts", "/admin/center-crm", "/admin/course-approvals"]
+    const platformPaths = ["/admin/centers", "/admin/center-accounts", "/admin/center-crm", "/admin/course-approvals", "/admin/permissions"]
     const needsRealToken =
       s.user.role === "platform_admin" &&
       platformPaths.some((p) => pathname === p || pathname?.startsWith(`${p}/`))
     if (needsRealToken && isDemoTokenSession()) {
       clearClasszSession()
       router.replace(`/login?next=${encodeURIComponent(pathname || "/admin")}`)
+      return
+    }
+    if (s.user.role !== "platform_admin" && pathname?.startsWith("/admin/permissions")) {
+      router.replace("/admin")
       return
     }
     if (s.user.role === "coach") {

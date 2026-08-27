@@ -4,6 +4,7 @@ import { LanguageProvider } from '@/components/language-provider'
 import { ViewportHeightFix } from '@/components/viewport-height-fix'
 
 import { generateMetadata as genMeta, generateStructuredData } from '@/lib/metadata'
+import { AuthModalProvider } from '@/components/auth-modal'
 
 export const metadata = genMeta({
   title: 'ClassZ - Discover, Book & Track Extracurricular Classes for Kids',
@@ -56,7 +57,9 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <ViewportHeightFix />
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <AuthModalProvider>{children}</AuthModalProvider>
+        </LanguageProvider>
         <Analytics />
       </body>
     </html>

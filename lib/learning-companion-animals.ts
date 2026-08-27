@@ -237,7 +237,7 @@ const ZH_TITLE_TO_KEY: Record<string, CompanionAnimalKey> = {
 }
 
 export const PARENT_REMINDER_ZH =
-  "這並非診斷或固定的性格標籤——這是根據 ClassZ 紀錄所得出的近期概況，隨著孩子參與更多課程並獲得更多回饋，結果也可能有所改變。"
+  "呢個唔係診斷，亦唔係固定嘅性格標籤——只係根據 ClassZ 紀錄整理出嚟嘅近期快照；之後上多啲堂、收到多啲回饋，結果都可能有轉變。"
 
 export function resolveCompanionAnimal(
   value?: string | null,

@@ -3,10 +3,10 @@
  */
 
 export const PROGRESS_LEVELS = [
-  { value: "supported", tier: "Supported", description: "Needs close support." },
-  { value: "guided", tier: "Guided", description: "Can attempt with demonstration or reminders." },
-  { value: "developing", tier: "Developing", description: "Can complete familiar parts with light support." },
-  { value: "independent", tier: "Independent", description: "Can complete independently." },
+  { value: "supported", tier: "Supported", description: "Needed substantial support" },
+  { value: "guided", tier: "Guided", description: "Completed with demonstration or prompts" },
+  { value: "developing", tier: "Developing", description: "Completed with light support" },
+  { value: "independent", tier: "Independent", description: "Completed mostly independently" },
 ] as const
 
 export const CLASS_FOCUS_OPTIONS = [
@@ -157,7 +157,7 @@ export type ActivityLearningRecordRow = {
   id: number
   class_id: number
   class_name?: string | null
-  enrollment_id?: number | null
+  enrollment_id?: number | string | null
   student_name?: string | null
   photo_url?: string | null
   class_focus?: string | null
@@ -169,19 +169,24 @@ export type ActivityLearningRecordRow = {
   learning_traits: string[]
   additional_comment?: string | null
   is_confirmed: boolean
+  observation_payload?: Record<string, unknown> | null
+  next_focus?: string | null
+  schema_version?: string | null
   created_at: string
 }
 
 export function formatRecordSummary(row: ActivityLearningRecordRow): string {
+  const payload = row.observation_payload
+  const availability = payload && typeof payload === "object" ? String(payload.availability || "") : ""
   const lines = [
     row.student_name ? `Student: ${row.student_name}` : null,
-    row.class_focus ? `Focus: ${row.class_focus}` : null,
+    availability === "insufficient_opportunity" ? "Availability: not enough opportunity to observe" : null,
+    row.class_focus ? `Lesson focus: ${row.class_focus}` : null,
     row.progress_level ? `Progress: ${progressLevelLabel(row.progress_level)}` : null,
     row.observed?.length ? `Observed: ${row.observed.join("; ")}` : null,
-    row.strongest_areas?.length ? `Strengths: ${row.strongest_areas.join("; ")}` : null,
-    row.attention_areas?.length ? `Attention: ${row.attention_areas.join("; ")}` : null,
-    row.student_work_on ? `Work on: ${row.student_work_on}` : null,
-    row.learning_traits?.length ? `Traits: ${row.learning_traits.join("; ")}` : null,
+    row.learning_traits?.length ? `Learning approach: ${row.learning_traits.join("; ")}` : null,
+    row.student_work_on ? `Next step: ${row.student_work_on}` : null,
+    row.next_focus ? `Next lesson focus: ${row.next_focus}` : null,
     row.additional_comment ? `Comment: ${row.additional_comment}` : null,
   ].filter(Boolean)
   return lines.join("\n")

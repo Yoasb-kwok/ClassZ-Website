@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { useAuthModal } from "@/components/auth-modal";
 
 const MAIN_LINKS: { key: string; href: string; match?: string[] }[] = [
   { key: "nav.home", href: "/" },
@@ -33,6 +34,7 @@ const MAIN_LINKS: { key: string; href: string; match?: string[] }[] = [
 export function Navbar() {
   const pathname = usePathname();
   const { setLocale, t } = useLanguage();
+  const { openAuth } = useAuthModal();
 
   // lg+ → inline menu visible; main links are conditionally excluded from
   // the dropdown (display:none items would still register in Radix's
@@ -194,12 +196,13 @@ export function Navbar() {
             ))}
           </div>
           {/* Log In 2596:12241 — 16px, weight 590 */}
-          <Link
-            href="/login"
+          <button
+            type="button"
+            onClick={() => openAuth("login")}
             className="whitespace-nowrap text-base font-[590] text-ink transition-colors hover:text-classz-400"
           >
             {t("nav.login")}
-          </Link>
+          </button>
         </div>
       </div>
     </nav>

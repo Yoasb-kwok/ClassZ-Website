@@ -13,7 +13,27 @@ import {
 } from "@/lib/learning-companion-animals"
 import { SECTIONS, type LearningCompanionReport } from "@/lib/learning-companion-report"
 
+const LEGACY_SECTIONS = [
+  "current_learning_portrait",
+  "how_they_approach_something_new",
+  "how_they_respond_to_challenge",
+  "how_they_learn_with_other_people",
+  "how_they_respond_to_guidance_and_feedback",
+  "conditions_that_bring_out_their_best",
+  "what_parents_may_notice_at_home",
+  "personalised_strategies",
+  "what_classz_will_continue_observing",
+  "evidence_and_confidence",
+] as const
+
 const SECTION_LABELS_EN: Record<string, string> = {
+  your_child_at_a_glance: "Your child at a glance",
+  how_they_approach_learning: "How they approach learning",
+  how_they_respond_along_the_way: "How they respond along the way",
+  how_you_can_support_them: "How you can support them",
+  why_this_companion_fits: "Why this companion fits",
+  also_reflected_in_their_learning: "Also reflected in their learning",
+  a_note_for_parents: "A note for parents",
   current_learning_portrait: "Your child's current learning portrait",
   how_they_approach_something_new: "How they approach something new",
   how_they_respond_to_challenge: "How they respond to challenge",
@@ -26,18 +46,24 @@ const SECTION_LABELS_EN: Record<string, string> = {
   evidence_and_confidence: "Evidence and confidence",
 }
 
-/** Train_CN.ipynb SECTION_TITLES */
 const SECTION_LABELS_ZH: Record<string, string> = {
-  current_learning_portrait: "孩子目前的學習樣貌",
-  how_they_approach_something_new: "他們如何面對新事物",
-  how_they_respond_to_challenge: "他們如何面對挑戰",
-  how_they_learn_with_other_people: "他們如何與他人一起學習",
-  how_they_respond_to_guidance_and_feedback: "他們如何回應指導與回饋",
-  conditions_that_bring_out_their_best: "能激發他們最佳表現的條件",
-  what_parents_may_notice_at_home: "家長在家中可能觀察到的情況",
+  your_child_at_a_glance: "小朋友一覽",
+  how_they_approach_learning: "佢點樣投入學習",
+  how_they_respond_along_the_way: "過程入面點樣應對",
+  how_you_can_support_them: "你可以點樣支援",
+  why_this_companion_fits: "點解呢個學習夥伴合適",
+  also_reflected_in_their_learning: "學習入面亦見到嘅其他面向",
+  a_note_for_parents: "給家長嘅一則備註",
+  current_learning_portrait: "小朋友而家嘅學習面貌",
+  how_they_approach_something_new: "佢點樣面對新事物",
+  how_they_respond_to_challenge: "佢點樣面對挑戰",
+  how_they_learn_with_other_people: "佢點樣同其他人一齊學習",
+  how_they_respond_to_guidance_and_feedback: "佢點樣回應指導同回饋",
+  conditions_that_bring_out_their_best: "最能發揮嘅條件",
+  what_parents_may_notice_at_home: "家長喺屋企可能見到嘅情況",
   personalised_strategies: "個人化策略",
-  what_classz_will_continue_observing: "ClassZ 將持續觀察的項目",
-  evidence_and_confidence: "證據與信心程度",
+  what_classz_will_continue_observing: "ClassZ 會繼續觀察嘅項目",
+  evidence_and_confidence: "證據同信心程度",
 }
 
 function escapeHtml(s: string) {
@@ -52,10 +78,36 @@ function sectionPlain(value: unknown): string {
   if (value == null) return ""
   if (typeof value === "string") return value
   if (Array.isArray(value)) return value.map((v) => String(v)).join("\n")
-  if (typeof value === "object" && value && "text" in value) {
-    return String((value as { text?: string }).text || "")
+  if (typeof value === "object" && value) {
+    const obj = value as { text?: string; intro?: string; action_points?: unknown[] }
+    if ("intro" in obj || "action_points" in obj) {
+      const parts = [obj.intro || ""]
+      if (Array.isArray(obj.action_points)) parts.push(...obj.action_points.map((p) => String(p)))
+      return parts.filter(Boolean).join("\n")
+    }
+    if ("text" in obj) return String(obj.text || "")
   }
   return String(value)
+}
+
+function isSupportSection(value: unknown): value is { intro?: string; action_points?: unknown[] } {
+  return Boolean(value && typeof value === "object" && ("intro" in value || "action_points" in value))
+}
+
+function sectionHtml(raw: unknown, title: string) {
+  if (isSupportSection(raw)) {
+    const intro = raw.intro ? `<p>${escapeHtml(raw.intro)}</p>` : ""
+    const list = Array.isArray(raw.action_points)
+      ? `<ul>${raw.action_points.map((item) => `<li>${escapeHtml(String(item))}</li>`).join("")}</ul>`
+      : ""
+    return `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3>${intro}${list}</div>`
+  }
+  if (Array.isArray(raw)) {
+    return `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><ul>${raw
+      .map((item) => `<li>${escapeHtml(String(item))}</li>`)
+      .join("")}</ul></div>`
+  }
+  return `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><p>${escapeHtml(sectionPlain(raw))}</p></div>`
 }
 
 function absoluteAssetUrl(path: string) {
@@ -101,18 +153,18 @@ function chipsHtml(items: string[], accent: string) {
 }
 
 const ANIMAL_LABEL_ZH: Record<string, string> = {
-  "Rabbit Active Explorer": "兔子－積極探索型",
-  "Owl Thoughtful Learner": "貓頭鷹－沉思學習型",
-  "Dolphin Social Collaborator": "海豚－社群協作型",
-  "Turtle Steady Builder": "烏龜－穩健建構型",
-  "Fox Creative Problem Solver": "狐狸－靈活解題型",
-  "Bee Focused Worker": "蜜蜂－專注勤敏型",
-  Rabbit: "兔子－積極探索型",
-  Owl: "貓頭鷹－沉思學習型",
-  Dolphin: "海豚－社群協作型",
-  Turtle: "烏龜－穩健建構型",
-  Fox: "狐狸－靈活解題型",
-  Bee: "蜜蜂－專注勤敏型",
+  "Rabbit Active Explorer": "兔子・主動探索者",
+  "Owl Thoughtful Learner": "貓頭鷹・深思學習者",
+  "Dolphin Social Collaborator": "海豚・互動協作者",
+  "Turtle Steady Builder": "烏龜・穩健建構者",
+  "Fox Creative Problem Solver": "狐狸・創意解題者",
+  "Bee Focused Worker": "蜜蜂・專注實踐者",
+  Rabbit: "兔子・主動探索者",
+  Owl: "貓頭鷹・深思學習者",
+  Dolphin: "海豚・互動協作者",
+  Turtle: "烏龜・穩健建構者",
+  Fox: "狐狸・創意解題者",
+  Bee: "蜜蜂・專注實踐者",
 }
 
 function localizeAnimalTitle(label: string | undefined | null, isZh: boolean) {
@@ -154,7 +206,7 @@ export function buildLearningCompanionPdfHtml(
   const heroLine =
     companion?.hero_line ||
     (isZh
-      ? `在近期的 ClassZ 紀錄中，您的孩子經常展現出${(companion?.often_observed_as || companion?.Often_observed_as || []).slice(0, 4).join("、") || "多項正向學習表現"}。`
+      ? `喺近期嘅 ClassZ 紀錄入面，你嘅小朋友經常表現出${(companion?.often_observed_as || companion?.Often_observed_as || []).slice(0, 4).join("、") || "多項正向學習表現"}。`
       : `Across recent ClassZ records, your child was often observed as ${(companion?.often_observed_as || companion?.Often_observed_as || animal.oftenObservedAs)
           .slice(0, 4)
           .join(", ")
@@ -172,7 +224,7 @@ export function buildLearningCompanionPdfHtml(
   const reminder = companion?.parent_reminder || (isZh ? PARENT_REMINDER_ZH : PARENT_REMINDER)
   const sectionLabels = isZh ? SECTION_LABELS_ZH : SECTION_LABELS_EN
   const brandLine = isZh ? "ClassZ · 學習夥伴報告" : "ClassZ · Learning Companion Report"
-  const interpHeading = isZh ? "個人化解讀" : "Personalised interpretation"
+  const interpHeading = isZh ? "更多解讀" : "More Insight"
 
   const sectionTitle = (key: string) => {
     if (isZh && apiSectionTitles?.[key]) return apiSectionTitles[key]
@@ -190,8 +242,12 @@ export function buildLearningCompanionPdfHtml(
   const poseInterp = poseForSlot(animal, "personalised_interpretation")
   const poseNext = poseForSlot(animal, "strategies_and_next")
 
-  const earlySectionKeys = SECTIONS.slice(0, 5)
-  const laterSectionKeys = SECTIONS.slice(5)
+  const hasNewSections = SECTIONS.some((key) => sectionPlain(sections[key]))
+  const visibleKeys = hasNewSections
+    ? [...SECTIONS]
+    : LEGACY_SECTIONS.filter((key) => sectionPlain(sections[key]))
+  const earlySectionKeys = visibleKeys.slice(0, Math.min(3, visibleKeys.length))
+  const laterSectionKeys = visibleKeys.slice(earlySectionKeys.length)
 
   let body = `
     <header class="cover" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
@@ -215,8 +271,8 @@ export function buildLearningCompanionPdfHtml(
           <p class="meta">${escapeHtml(confidence)}</p>
           <p>${escapeHtml(meaning1)}</p>
           <p>${escapeHtml(meaning2)}</p>
-          <p class="disclaimer">${isZh ? `這不代表 ${name} 一定只會以這種方式學習；這是根據近期重複觀察整理出的階段性學習快照。` : `This does not mean ${name} always learns this way. It is a recent snapshot based on repeated coach and tutor observations.`}</p>
-          <h3 class="plain">${isZh ? "經常被觀察到的表現" : "Often observed as"}</h3>
+          <p class="disclaimer">${isZh ? `呢個唔代表 ${name} 一定只會用呢種方式學習；呢個係根據近期重複觀察整理出嚟嘅階段性學習快照。` : `This does not mean ${name} always learns this way. It is a recent snapshot based on repeated coach and tutor observations.`}</p>
+          <h3 class="plain">${isZh ? "經常見到嘅表現" : "Often observed as"}</h3>
           <div class="chips">${chipsHtml(observed, animal.accent)}</div>
         </div>
         <div class="section-art">
@@ -228,7 +284,7 @@ export function buildLearningCompanionPdfHtml(
     <section class="pose-section" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split reverse">
         <div class="section-copy">
-          <h2>${isZh ? "可能有幫助的做法" : "What may help"}</h2>
+          <h2>${isZh ? "可能有幫助嘅做法" : "What may help"}</h2>
           <ul class="help-list">
             ${help.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
           </ul>
@@ -245,10 +301,10 @@ export function buildLearningCompanionPdfHtml(
     <section class="pose-section theory-block" style="--accent:${escapeHtml(animal.accent)};--accent-soft:${escapeHtml(animal.accentSoft)}">
       <div class="section-split">
         <div class="section-copy">
-          <h2>${isZh ? "同時可見的其他學習型態" : "Also reflected in learning"}</h2>
+          <h2>${isZh ? "學習入面亦見到嘅其他面向" : "Also reflected in learning"}</h2>
           <p class="meta">${
             isZh
-              ? "根據近期紀錄演算法，除主要學習夥伴外，也可能同時出現以下次要型態（非替代結果）。"
+              ? "根據近期紀錄，除主要學習夥伴外，亦可能同時見到以下次要型態（唔係替代結果）。"
               : "Based on recent records, supporting companion patterns may also appear alongside the primary result."
           }</p>
   `
@@ -283,7 +339,7 @@ export function buildLearningCompanionPdfHtml(
   } else {
     body += `<p>${
       isZh
-        ? "目前紀錄尚未達到次要學習型態的門檻；主要型態證據已足夠，其他型態會隨更多課堂紀錄再評估。"
+        ? "而家嘅紀錄未達到次要學習型態嘅門檻；主要型態證據已經足夠，其他型態會隨住更多課堂紀錄再評估。"
         : "No supporting companion met the evidence threshold yet. The primary pattern is clear; other patterns will be reassessed as more records accumulate."
     }</p>`
   }
@@ -305,16 +361,8 @@ export function buildLearningCompanionPdfHtml(
   `
   for (const key of earlySectionKeys) {
     const raw = sections[key]
-    const text = sectionPlain(raw)
-    if (!text) continue
-    const title = sectionTitle(key)
-    if (Array.isArray(raw)) {
-      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><ul>${raw
-        .map((item) => `<li>${escapeHtml(String(item))}</li>`)
-        .join("")}</ul></div>`
-    } else {
-      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
-    }
+    if (!sectionPlain(raw)) continue
+    body += sectionHtml(raw, sectionTitle(key))
   }
   body += `
         </div>
@@ -330,16 +378,8 @@ export function buildLearningCompanionPdfHtml(
   `
   for (const key of laterSectionKeys) {
     const raw = sections[key]
-    const text = sectionPlain(raw)
-    if (!text) continue
-    const title = sectionTitle(key)
-    if (Array.isArray(raw)) {
-      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><ul>${raw
-        .map((item) => `<li>${escapeHtml(String(item))}</li>`)
-        .join("")}</ul></div>`
-    } else {
-      body += `<div class="section-card"><h3 class="plain">${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`
-    }
+    if (!sectionPlain(raw)) continue
+    body += sectionHtml(raw, sectionTitle(key))
   }
   body += `
         </div>
@@ -541,23 +581,31 @@ export function buildSampleCompanionReport(
         text: `In recent STEM sessions, a complementary ${COMPANION_ANIMALS[k].shortName.toLowerCase()} pattern appeared alongside the primary ${animal.shortName.toLowerCase()} style. This adds another useful dimension to how your child approaches learning.`,
       })),
       sections: {
-        current_learning_portrait: `Across recent STEM sessions, your child has shown a clear ${animal.shortName.toLowerCase()} learning pattern. Similar learning patterns have appeared repeatedly across the recent records, giving a stable snapshot of how they currently approach class activities.`,
-        how_they_approach_something_new: `When something new appears, your child tends to lean on the strengths associated with the ${animal.label}. This helps them settle into unfamiliar tasks with a recognisable style.`,
-        how_they_respond_to_challenge: `When challenged, they often return to the habits coaches have seen repeatedly — especially ${animal.oftenObservedAs[0].toLowerCase()} and ${animal.oftenObservedAs[1].toLowerCase()}.`,
-        how_they_learn_with_other_people:
-          "There is growing evidence about how they work with others, though more collaborative sessions will make this clearer.",
-        how_they_respond_to_guidance_and_feedback:
-          "Your child generally makes good use of guidance, adjusting their approach after clear feedback from coaches.",
-        conditions_that_bring_out_their_best: animal.whatMayHelp.slice(0, 2).join(" "),
-        what_parents_may_notice_at_home: `At home, you may notice behaviours that match this ${animal.shortName.toLowerCase()} snapshot — especially when tasks feel new, structured, or interesting.`,
-        personalised_strategies: animal.whatMayHelp.slice(0, 4),
-        what_classz_will_continue_observing: [
-          "Whether the same pattern appears across more subjects and class formats.",
-          "How supporting companions grow or fade with more records.",
-          "How guidance and collaboration develop over time.",
-        ],
-        evidence_and_confidence:
-          "This portrait is based on 6 valid records. The pattern is useful for coaching and home support, and may evolve as more classes are completed.",
+        your_child_at_a_glance: {
+          text: `Across recent ClassZ sessions, your child has shown a clear ${animal.shortName.toLowerCase()} learning pattern. Similar learning patterns have appeared repeatedly, giving a warm snapshot of how they currently approach class activities.`,
+        },
+        how_they_approach_learning: {
+          text: `When something new appears, your child tends to lean on the strengths associated with the ${animal.label}. This helps them settle into unfamiliar tasks with a recognisable style.`,
+        },
+        how_they_respond_along_the_way: {
+          text: `When a task develops or becomes tricky, they often return to the habits coaches have seen repeatedly — especially ${animal.oftenObservedAs[0].toLowerCase()} and ${animal.oftenObservedAs[1].toLowerCase()}.`,
+        },
+        how_you_can_support_them: {
+          intro: "At home, small, practical supports that match this pattern tend to work best.",
+          action_points: animal.whatMayHelp.slice(0, 3),
+        },
+        why_this_companion_fits: {
+          text: `The ${animal.label} companion fits because recent records repeatedly show ${animal.oftenObservedAs
+            .slice(0, 2)
+            .join(" and ")
+            .toLowerCase()}. This is a lens on observed patterns, not a label for who your child is.`,
+        },
+        also_reflected_in_their_learning: {
+          text: `In recent sessions, a complementary ${COMPANION_ANIMALS[supportKeys[0]].shortName.toLowerCase()} pattern also appeared alongside the primary ${animal.shortName.toLowerCase()} style. This adds another useful dimension to how your child approaches learning.`,
+        },
+        a_note_for_parents: {
+          text: "How a child approaches learning can vary depending on the task, how familiar it feels and the environment. These insights reflect patterns ClassZ has observed rather than a fixed description of who the child is.",
+        },
       },
     },
   } as LearningCompanionReport

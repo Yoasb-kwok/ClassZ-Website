@@ -28,14 +28,15 @@ test.describe('Block A — foundations & shell', () => {
       await expect(nav.getByRole('link', { name: 'About Us' })).toHaveAttribute('href', '/our-mission')
       await expect(nav.getByRole('link', { name: 'Programs' })).toHaveAttribute('href', '/programs')
       await expect(nav.getByRole('link', { name: 'Workshops' })).toHaveAttribute('href', '/workshops')
-      await expect(nav.getByRole('link', { name: 'Log In' })).toHaveAttribute('href', '/login')
+      await expect(nav.getByRole('button', { name: 'Log In' })).toBeVisible()
     })
   }
 
   test('navbar links navigate to live targets', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Log In' }).click()
-    await expect(page).toHaveURL(/\/login/)
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('button', { name: 'Log In' }).click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible()
   })
 
   test('hamburger opens quick menu panel with member links', async ({ page }) => {

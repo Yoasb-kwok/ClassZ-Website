@@ -6,12 +6,7 @@ import { Building2, CheckCircle, Edit, ExternalLink, Plus, Search, Trash2, XCirc
 import { useLanguage } from "@/components/language-provider"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { centerCrmFlowPath } from "@/lib/center-crm-scope"
-import {
-  PLAN_OPTIONS,
-  defaultsForPlan,
-  normalizePlanId,
-  type PlanId,
-} from "@/lib/subscription-plans"
+import { PLAN_OPTIONS, defaultsForPlan, normalizePlanId } from "@/lib/subscription-plans"
 import {
   AdminCard,
   AdminDangerButton,
@@ -60,6 +55,7 @@ type CenterRow = {
   category: string
   status: string
   plan_tier?: string | null
+  plan_expires_at?: string | null
   max_teachers?: number | null
   max_students?: number | null
   admin_email?: string | null
@@ -73,6 +69,7 @@ type FormState = {
   category: string
   status: string
   plan_tier: string
+  plan_expires_at: string
   max_teachers: string
   max_students: string
 }
@@ -85,6 +82,7 @@ const emptyForm = (): FormState => {
     category: "dance",
     status: "pending_approval",
     plan_tier: d.plan_tier,
+    plan_expires_at: "",
     max_teachers: d.max_teachers != null ? String(d.max_teachers) : "",
     max_students: d.max_students != null ? String(d.max_students) : "",
   }
@@ -95,9 +93,17 @@ function formatCap(n: number | null | undefined) {
   return String(n)
 }
 
-function planLabel(planTier: string | null | undefined, zh: boolean) {
+type PlanOption = {
+  id: string
+  labelEn: string
+  labelZh: string
+  max_teachers: number | null
+  max_students: number | null
+}
+
+function planLabel(planTier: string | null | undefined, zh: boolean, options: PlanOption[]) {
   const id = normalizePlanId(planTier)
-  const plan = PLAN_OPTIONS.find((p) => p.id === id)
+  const plan = options.find((p) => p.id === id)
   return plan ? (zh ? plan.labelZh : plan.labelEn) : id
 }
 
@@ -120,6 +126,7 @@ export function CentersManager() {
   const [editing, setEditing] = useState<CenterRow | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
   const [saving, setSaving] = useState(false)
+  const [planOptions, setPlanOptions] = useState<PlanOption[]>(PLAN_OPTIONS)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -138,9 +145,37 @@ export function CentersManager() {
     }
   }, [search, statusFilter])
 
+  const loadPlans = useCallback(async () => {
+    try {
+      const data = await apiGet<{
+        tiers?: Array<{
+          slug: string
+          labelEn: string
+          labelZh: string
+          max_teachers: number | null
+          max_students: number | null
+        }>
+      }>("/permissions/plans", "platform_admin")
+      if (data?.tiers?.length) {
+        setPlanOptions(
+          data.tiers.map((t) => ({
+            id: t.slug,
+            labelEn: t.labelEn,
+            labelZh: t.labelZh,
+            max_teachers: t.max_teachers,
+            max_students: t.max_students,
+          })),
+        )
+      }
+    } catch {
+      /* keep built-in plans */
+    }
+  }, [])
+
   useEffect(() => {
     load()
-  }, [load])
+    loadPlans()
+  }, [load, loadPlans])
 
   function openCreate() {
     setEditing(null)
@@ -156,6 +191,7 @@ export function CentersManager() {
       category: c.category,
       status: c.status,
       plan_tier: normalizePlanId(c.plan_tier),
+      plan_expires_at: c.plan_expires_at ? String(c.plan_expires_at).slice(0, 10) : "",
       max_teachers: c.max_teachers != null ? String(c.max_teachers) : "",
       max_students: c.max_students != null ? String(c.max_students) : "",
     })
@@ -163,15 +199,17 @@ export function CentersManager() {
   }
 
   function onPlanChange(planId: string) {
-    const plan = normalizePlanId(planId) as PlanId
-    const d = defaultsForPlan(plan)
+    const plan = normalizePlanId(planId)
+    const option = planOptions.find((p) => p.id === plan)
+    const d = option
+      ? { max_teachers: option.max_teachers, max_students: option.max_students }
+      : defaultsForPlan(plan)
     setForm((f) => ({
       ...f,
       plan_tier: plan,
-      max_teachers:
-        plan === "enterprise" ? "" : d.max_teachers != null ? String(d.max_teachers) : "",
-      max_students:
-        plan === "enterprise" ? "" : d.max_students != null ? String(d.max_students) : "",
+      plan_expires_at: plan === "free" ? "" : f.plan_expires_at,
+      max_teachers: d.max_teachers != null ? String(d.max_teachers) : "",
+      max_students: d.max_students != null ? String(d.max_students) : "",
     }))
   }
 
@@ -188,6 +226,7 @@ export function CentersManager() {
         category: form.category.trim(),
         status: form.status,
         plan_tier: form.plan_tier,
+        plan_expires_at: form.plan_tier === "free" ? null : form.plan_expires_at.trim() || null,
         max_teachers: parseCapInput(form.max_teachers),
         max_students: parseCapInput(form.max_students),
       }
@@ -289,6 +328,7 @@ export function CentersManager() {
                 <th className="px-3 py-3 text-left">{zh ? "地區" : "District"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "類別" : "Category"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "方案" : "Plan"}</th>
+                <th className="px-3 py-3 text-left">{zh ? "到期日" : "Expires"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "導師上限" : "Teachers max"}</th>
                 <th className="px-3 py-3 text-left">{zh ? "學員上限" : "Students max"}</th>
                 <th className="px-3 py-3 text-left">Admin</th>
@@ -299,7 +339,7 @@ export function CentersManager() {
             <tbody className="divide-y divide-classz-100">
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-3 py-8 text-center text-classz-500">
+                  <td colSpan={11} className="px-3 py-8 text-center text-classz-500">
                     {zh ? "暫無中心" : "No centres"}
                   </td>
                 </tr>
@@ -310,7 +350,8 @@ export function CentersManager() {
                     <td className="px-3 py-2 font-medium min-w-[12rem]">{c.center_name}</td>
                     <td className="px-3 py-2 text-sm min-w-[9rem]">{c.district}</td>
                     <td className="px-3 py-2 text-sm">{c.category}</td>
-                    <td className="px-3 py-2 text-sm">{planLabel(c.plan_tier, zh)}</td>
+                    <td className="px-3 py-2 text-sm">{planLabel(c.plan_tier, zh, planOptions)}</td>
+                    <td className="px-3 py-2 text-sm whitespace-nowrap">{c.plan_expires_at || "—"}</td>
                     <td className="px-3 py-2 text-sm">{formatCap(c.max_teachers)}</td>
                     <td className="px-3 py-2 text-sm">{formatCap(c.max_students)}</td>
                     <td className="px-3 py-2 text-sm min-w-[12rem]">{c.admin_email || c.admin_name || "—"}</td>
@@ -405,12 +446,24 @@ export function CentersManager() {
           <div>
             <AdminLabel>{zh ? "訂閱方案" : "Subscription plan"}</AdminLabel>
             <AdminSelect value={form.plan_tier} onChange={(e) => onPlanChange(e.target.value)}>
-              {PLAN_OPTIONS.map((p) => (
+              {planOptions.map((p) => (
                 <option key={p.id} value={p.id}>
                   {zh ? p.labelZh : p.labelEn}
                 </option>
               ))}
             </AdminSelect>
+          </div>
+          <div>
+            <AdminLabel>{zh ? "方案到期日" : "Plan expiry"}</AdminLabel>
+            <AdminInput
+              type="date"
+              disabled={form.plan_tier === "free"}
+              value={form.plan_expires_at}
+              onChange={(e) => setForm((f) => ({ ...f, plan_expires_at: e.target.value }))}
+            />
+            <p className="mt-1 text-xs text-classz-500">
+              {zh ? "基礎方案無到期日。付費方案留空＝不限期。" : "Basic has no expiry. Leave blank on a paid plan for no end date."}
+            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>

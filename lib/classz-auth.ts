@@ -49,13 +49,18 @@ export function clearClasszSession() {
 
 function mapJwtRole(payload: {
   role?: string
+  portal?: string
   is_admin?: number
 }): ClasszPortalRole {
   if (Number(payload.is_admin) === 1) return "platform_admin"
+  const p = String(payload.portal || "").toLowerCase()
+  if (p === "platform_admin") return "platform_admin"
+  if (p === "coach") return "coach"
+  if (p === "center_admin") return "center_admin"
   const r = String(payload.role || "").toLowerCase()
-  if (r === "center_admin") return "center_admin"
+  if (r === "admin" || r === "platform_admin") return "platform_admin"
   if (r === "coach") return "coach"
-  if (r === "admin") return "platform_admin"
+  if (r === "center_admin") return "center_admin"
   return "center_admin"
 }
 
@@ -97,6 +102,8 @@ export async function classzSignIn(loginIdentifier: string, password: string): P
       const data = await loginViaProxy(loginIdentifier, password)
       const payload = jwtDecode<{
         role?: string
+        portal?: string
+        role_label?: string
         is_admin?: number
         email?: string
         name?: string
@@ -115,7 +122,7 @@ export async function classzSignIn(loginIdentifier: string, password: string): P
           email,
           name,
           role,
-          roleLabel: roleLabelFor(role),
+          roleLabel: payload.role_label || roleLabelFor(role),
           center_id: payload.center_id ?? null,
         },
       })
@@ -151,7 +158,7 @@ export async function classzRegisterCenterAndSignIn(body: {
   email: string
   password: string
   full_name: string
-  mobile?: string
+  mobile: string
 }): Promise<void> {
   const res = await fetch("/api/public/centers/register", {
     method: "POST",

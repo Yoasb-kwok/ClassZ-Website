@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useId, useRef, useState } from "react"
-import { GraduationCap, KeyRound, Pencil, Plus, Trash2, Upload } from "lucide-react"
+import { GraduationCap, KeyRound, Pencil, Plus, Settings, Trash2, Upload } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/classz-api-client"
@@ -37,6 +37,8 @@ type Instructor = {
   background_image?: string | null
   years_dancing?: number
   teaching_experience?: number
+  status?: string | null
+  last_activity_at?: string | null
 }
 
 type Slot = { weekday: number; start_time: string; end_time: string }
@@ -105,6 +107,25 @@ function awardsPreview(awards?: string[] | string | null, zh?: boolean) {
   if (!parts.length) return "—"
   if (parts.length <= 2) return parts.join(zh ? "、" : ", ")
   return `${parts.slice(0, 2).join(zh ? "、" : ", ")}…`
+}
+
+function TeachingStatusChip({ status, zh }: { status?: string | null; zh: boolean }) {
+  const raw = String(status || "").trim().toLowerCase()
+  if (raw === "inactive") {
+    return (
+      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-classz-100 text-classz-500">
+        {zh ? "停用" : "Inactive"}
+      </span>
+    )
+  }
+  if (raw === "active") {
+    return (
+      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-700">
+        {zh ? "活躍" : "Active"}
+      </span>
+    )
+  }
+  return <span className="text-classz-400">—</span>
 }
 
 function introForLocale(i: Instructor, zh: boolean) {
@@ -713,7 +734,11 @@ export function TeachersManager() {
       <AdminPageHeader
         title={zh ? "導師" : "Teachers"}
         Icon={GraduationCap}
-        description={zh ? "頭像、簡介、資歷、院校與背景圖" : "Avatar, bio, credentials, school, background"}
+        description={
+          zh
+            ? "頭像、簡介、資歷、院校與背景圖 · 超過 180 日未任教本中心課堂則為停用"
+            : "Avatar, bio, credentials, school, background · Inactive after 180 days without teaching"
+        }
       />
 
       <AdminCard>
@@ -751,6 +776,7 @@ export function TeachersManager() {
               <tr>
                 <th className="px-3 py-2 text-left">{zh ? "頭像" : "Avatar"}</th>
                 <th className="px-3 py-2 text-left">{zh ? "姓名" : "Name"}</th>
+                <th className="px-3 py-2 text-left">{zh ? "狀態" : "Status"}</th>
                 <th className="px-3 py-2 text-left min-w-[10rem]">{zh ? "老師簡介" : "Intro"}</th>
                 <th className="px-3 py-2 text-left">{zh ? "資歷" : "Credentials"}</th>
                 <th className="px-3 py-2 text-left">{zh ? "畢業/就讀院校" : "School"}</th>
@@ -762,7 +788,7 @@ export function TeachersManager() {
             <tbody className="divide-y divide-classz-100">
               {loadError ? (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-center text-brand-coral">
+                  <td colSpan={9} className="px-3 py-8 text-center text-brand-coral">
                     {loadError}
                   </td>
                 </tr>
@@ -777,6 +803,16 @@ export function TeachersManager() {
                     <Thumb src={i.profile_image_url || i.avatar_url} alt={i.name} className="h-12 w-12 rounded-full" />
                   </td>
                   <td className="px-3 py-2 font-medium text-classz-800 whitespace-nowrap">{i.name}</td>
+                  <td className="px-3 py-2">
+                    <div className="space-y-0.5">
+                      <TeachingStatusChip status={i.status} zh={zh} />
+                      {i.last_activity_at ? (
+                        <div className="text-[11px] text-classz-400 whitespace-nowrap">
+                          {new Date(i.last_activity_at).toLocaleDateString()}
+                        </div>
+                      ) : null}
+                    </div>
+                  </td>
                   <td className="px-3 py-2 text-sm text-classz-600 min-w-[14rem] max-w-[16rem]">{clip(introForLocale(i, zh))}</td>
                   <td className="px-3 py-2 text-sm text-classz-600 min-w-[10rem] max-w-[12rem]">{awardsPreview(i.awards, zh)}</td>
                   <td className="px-3 py-2 text-sm min-w-[10rem]">{i.dance_school || "—"}</td>
@@ -796,22 +832,40 @@ export function TeachersManager() {
                     )}
                   </td>
                   <td className="px-3 py-2">
-                    <div className="flex flex-wrap justify-end gap-1.5 min-w-[15rem]">
-                    <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openLogin(i)} disabled={demo}>
-                      <KeyRound className="h-3.5 w-3.5" />
-                      {coach ? (zh ? "帳號" : "Login") : zh ? "建立登入" : "Create login"}
-                    </AdminGhostButton>
-                    <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openEdit(i)}>
-                      <Pencil className="h-3.5 w-3.5" />
-                      {zh ? "編輯" : "Edit"}
-                    </AdminGhostButton>
-                    <AdminGhostButton type="button" className="text-sm py-1 px-2" onClick={() => openManage(i)}>
-                      {zh ? "管理" : "Manage"}
-                    </AdminGhostButton>
+                    <div className="flex justify-end items-center gap-1">
                     <button
                       type="button"
-                      className="inline-flex items-center p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded"
+                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded border border-classz-200 disabled:opacity-40"
+                      onClick={() => openLogin(i)}
+                      disabled={demo}
+                      title={coach ? (zh ? "登入帳號" : "Login") : zh ? "建立登入" : "Create login"}
+                      aria-label={coach ? (zh ? "登入帳號" : "Login") : zh ? "建立登入" : "Create login"}
+                    >
+                      <KeyRound className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded border border-classz-200"
+                      onClick={() => openEdit(i)}
+                      title={zh ? "編輯" : "Edit"}
+                      aria-label={zh ? "編輯" : "Edit"}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded border border-classz-200"
+                      onClick={() => openManage(i)}
+                      title={zh ? "管理" : "Manage"}
+                      aria-label={zh ? "管理" : "Manage"}
+                    >
+                      <Settings className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center p-1.5 text-brand-coral hover:bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] rounded"
                       onClick={() => openDelete(i)}
+                      title={zh ? "刪除" : "Delete"}
                       aria-label={zh ? "刪除" : "Delete"}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -822,7 +876,7 @@ export function TeachersManager() {
               )})}
               {!loadError && !filtered.length ? (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-center text-classz-500">
+                  <td colSpan={9} className="px-3 py-8 text-center text-classz-500">
                     {demo ? (zh ? "請用中心帳號登入" : "Sign in with centre account") : zh ? "暫無導師" : "No teachers"}
                   </td>
                 </tr>

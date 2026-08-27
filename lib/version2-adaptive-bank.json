@@ -1,0 +1,628 @@
+{
+  "adaptive_bank": {
+    "starting_initiative": {
+      "code": "A1",
+      "question": "When facing a new activity, question or step today, how did the child begin?",
+      "question_zh": "面對新活動、新題目或新步驟時，孩子點樣開始？",
+      "options": [
+        {
+          "id": "started_independently",
+          "en": "Started independently straight away",
+          "zh": "立即自行開始",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "observed_then_started",
+          "en": "Observed or thought first, then started independently",
+          "zh": "先觀察或思考，再自行開始",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "asked_question_before_starting",
+          "en": "Asked a relevant question before starting",
+          "zh": "主動提問後開始",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "waited_for_demonstration",
+          "en": "Waited for a demonstration",
+          "zh": "等候示範後開始",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "started_after_one_prompt",
+          "en": "Started after one prompt",
+          "zh": "一次提示後開始",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "needed_repeated_prompts_to_start",
+          "en": "Needed repeated prompts to start",
+          "zh": "需要多次提示先開始",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "challenge_persistence": {
+      "code": "A2",
+      "question": "When the child faced difficulty or an unsuccessful first attempt, what did they do?",
+      "question_zh": "遇到困難或第一次未成功時，孩子點樣反應？",
+      "options": [
+        {
+          "id": "tried_same_method_again",
+          "en": "Tried the same method again",
+          "zh": "用原本方法再試",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "changed_method",
+          "en": "Changed to a different method",
+          "zh": "改用另一種方法",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "paused_then_tried_again",
+          "en": "Paused and then tried again independently",
+          "zh": "停一停後自行再試",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "asked_for_help",
+          "en": "Asked for help",
+          "zh": "主動尋求協助",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "continued_after_one_encouragement",
+          "en": "Continued after one encouragement",
+          "zh": "一次鼓勵後再試",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "needed_repeated_support_to_continue",
+          "en": "Needed repeated support to continue",
+          "zh": "需要多次協助先繼續",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "stopped_or_refused",
+          "en": "Stopped or refused to continue",
+          "zh": "停止或拒絕繼續",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "feedback_adaptation": {
+      "code": "A3",
+      "question": "After receiving guidance, correction or feedback, how did the child respond?",
+      "question_zh": "收到提示、修正或意見後，孩子點樣反應？",
+      "options": [
+        {
+          "id": "adjusted_immediately",
+          "en": "Adjusted immediately",
+          "zh": "即時作出調整",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "thought_then_adjusted",
+          "en": "Thought first, then adjusted independently",
+          "zh": "思考後自行調整",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "asked_for_clarification",
+          "en": "Asked for clarification",
+          "zh": "先提出問題或確認原因",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "adjusted_after_one_reminder",
+          "en": "Adjusted after one reminder",
+          "zh": "一次提醒後作出調整",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "needed_repeated_reminders",
+          "en": "Needed repeated reminders",
+          "zh": "需要重複提醒",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "continued_using_original_method",
+          "en": "Continued using the original method",
+          "zh": "繼續使用原本方法",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "reduced_participation_after_correction",
+          "en": "Reduced participation after being corrected",
+          "zh": "因被修正而減少參與",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "attention_engagement": {
+      "code": "A4",
+      "question": "How did the child maintain participation and complete the task today?",
+      "question_zh": "孩子今堂維持參與及完成任務嘅情況係點？",
+      "options": [
+        {
+          "id": "remained_engaged_completed",
+          "en": "Remained engaged and completed the task",
+          "zh": "大部分時間保持投入並完成",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "briefly_distracted_returned_independently",
+          "en": "Was briefly distracted but returned independently",
+          "zh": "短暫分心後自行返回",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        },
+        {
+          "id": "returned_after_one_prompt",
+          "en": "Returned after one prompt",
+          "zh": "一次提示後返回任務",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "needed_repeated_prompts",
+          "en": "Needed repeated prompts",
+          "zh": "需要多次提示先繼續",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "completed_only_part",
+          "en": "Completed only part of the task",
+          "zh": "只完成部分",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "stopped_before_completion",
+          "en": "Stopped participating before completion",
+          "zh": "中途停止參與",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "communication_help_seeking": {
+      "code": "A5",
+      "question": "When the child did not understand or needed help, what did they do?",
+      "question_zh": "遇到唔明白或需要協助時，孩子點樣表達或求助？",
+      "options": [
+        {
+          "id": "asked_clear_relevant_question",
+          "en": "Asked a clear and relevant question",
+          "zh": "主動提出清楚問題",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "explained_which_step_difficult",
+          "en": "Explained which step was difficult",
+          "zh": "能講出自己邊一步有困難",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "said_did_not_know_could_not_explain",
+          "en": "Said they did not know but could not explain the difficulty",
+          "zh": "只表示「唔識」，但未能說明困難",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "waited_for_adult_to_offer_help",
+          "en": "Waited for the adult to offer help",
+          "zh": "靜候成人主動協助",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "observed_others_approach_first",
+          "en": "Observed another person's approach first",
+          "zh": "先觀察其他人嘅做法",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        },
+        {
+          "id": "continued_trying_without_asking",
+          "en": "Continued trying without asking for help",
+          "zh": "繼續嘗試，但未有求助",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        },
+        {
+          "id": "stopped_participating",
+          "en": "Stopped participating",
+          "zh": "停止參與",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "peer_interaction": {
+      "code": "A6",
+      "question": "When learning with other children today, how did the child interact or cooperate?",
+      "question_zh": "與其他小朋友一同上課時，孩子點樣互動或配合？",
+      "options": [
+        {
+          "id": "initiated_communication_or_shared_ideas",
+          "en": "Initiated communication or shared ideas",
+          "zh": "主動交流或分享想法",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "responded_to_other_children",
+          "en": "Responded to other children",
+          "zh": "願意回應其他小朋友",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "took_turns_or_shared_materials",
+          "en": "Took turns or shared materials",
+          "zh": "能輪流或分享材料",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "worked_together_on_shared_task",
+          "en": "Worked together on a shared task",
+          "zh": "能共同完成任務",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "observed_others_before_joining",
+          "en": "Observed others before joining",
+          "zh": "先觀察其他小朋友再參與",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        },
+        {
+          "id": "mainly_own_work_little_interaction",
+          "en": "Mainly focused on their own work with little interaction",
+          "zh": "主要專注自己活動，互動較少",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        },
+        {
+          "id": "needed_prompts_to_take_turns",
+          "en": "Needed prompts to take turns or cooperate",
+          "zh": "需要提示先輪流或配合",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "distracted_by_other_children",
+          "en": "Was distracted by other children",
+          "zh": "容易因其他小朋友而分心",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "had_disagreement_or_conflict",
+          "en": "Had a disagreement or conflict",
+          "zh": "出現不同意見或衝突",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "accuracy_self_checking": {
+      "code": "A7",
+      "question": "After completing a step, piece of work or answer, how did the child check it?",
+      "question_zh": "完成一個步驟、作品或答案後，孩子點樣檢查自己？",
+      "options": [
+        {
+          "id": "checked_independently",
+          "en": "Checked independently",
+          "zh": "主動自行檢查",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "found_and_corrected_independently",
+          "en": "Found and corrected a problem independently",
+          "zh": "發現問題並自行修正",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "checked_after_prompt",
+          "en": "Checked after a prompt",
+          "zh": "提示後檢查",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "found_problem_could_not_correct",
+          "en": "Found a problem but could not correct it independently",
+          "zh": "發現有問題，但未能自行修正",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "did_not_check_after_completion",
+          "en": "Did not check after completion",
+          "zh": "完成後沒有檢查",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    },
+    "problem_solving_flexibility": {
+      "code": "A8",
+      "question": "When the original approach did not work, what did the child do?",
+      "question_zh": "原本方法未成功時，孩子點樣處理？",
+      "options": [
+        {
+          "id": "analysed_cause_independently",
+          "en": "Analysed the possible cause independently",
+          "zh": "自行分析可能原因",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "changed_to_another_approach",
+          "en": "Changed to another approach",
+          "zh": "改用另一種方法",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "tested_different_approaches_step_by_step",
+          "en": "Tested different approaches step by step",
+          "zh": "逐步測試不同做法",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "suggested_possible_reason",
+          "en": "Suggested a possible reason for the problem",
+          "zh": "主動提出可能原因",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "positive"
+        },
+        {
+          "id": "asked_for_help_after_trying",
+          "en": "Asked for help after trying independently",
+          "zh": "自行嘗試後主動求助",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "waited_for_adult_to_provide_answer",
+          "en": "Waited for the adult to provide the answer",
+          "zh": "等候成人直接提供答案",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "repeated_same_method_no_adjustment",
+          "en": "Repeated the same method without adjustment",
+          "zh": "重複原本方法而未有調整",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "stopped_trying",
+          "en": "Stopped trying",
+          "zh": "停止嘗試",
+          "behavioural_evidence": true,
+          "requires_support_block": true,
+          "evidence_interpretation": "support_need"
+        },
+        {
+          "id": "unable_to_determine",
+          "en": "Unable to determine",
+          "zh": "未能確定",
+          "behavioural_evidence": false,
+          "requires_support_block": false,
+          "evidence_interpretation": "no_evidence"
+        },
+        {
+          "id": "other",
+          "en": "Other",
+          "zh": "其他",
+          "behavioural_evidence": true,
+          "requires_support_block": false,
+          "evidence_interpretation": "neutral"
+        }
+      ]
+    }
+  }
+}
