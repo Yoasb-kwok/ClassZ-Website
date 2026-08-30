@@ -24,6 +24,7 @@ import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import {
   formatRecordSummary,
+  learningRecordFillPath,
   progressLevelLabel,
   type ActivityLearningRecordRow,
 } from "@/lib/activity-learning-record"
@@ -286,7 +287,7 @@ function isCompanionAnimalDemoStudent(row: LearningRecordStudent) {
 export function LearningRecordStudentsTable({
   mode,
 }: {
-  /** teacher = read + fill button; admin = expand history + add student */
+  /** teacher = read + fill; admin = fill + expand history + add student */
   mode: "teacher" | "admin"
 }) {
   const { locale } = useLanguage()
@@ -1317,7 +1318,7 @@ export function LearningRecordStudentsTable({
                         ) : null}
                         {mode === "teacher" ? (
                           <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                            <Link href={`/admin/teacher-students/${r.profile_id}`}>
+                            <Link href={learningRecordFillPath(r.profile_id, { mode })}>
                               <AdminPrimaryButton type="button" className="text-sm py-1.5 px-3 inline-flex">
                                 <Plus className="h-3.5 w-3.5" />
                                 {zh ? "填寫紀錄" : "Fill record"}
@@ -1458,12 +1459,14 @@ export function LearningRecordStudentsTable({
                                   <Pencil className="h-3.5 w-3.5" />
                                 </button>
                                 <Link
-                                  href={`/admin/teacher-students/${r.profile_id}`}
-                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200"
+                                  href={learningRecordFillPath(r.profile_id, { mode })}
                                   title={zh ? "填寫 Learning Record" : "Fill learning record"}
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  <ClipboardList className="h-3.5 w-3.5" />
+                                  <AdminPrimaryButton type="button" className="text-xs py-1 px-2.5 inline-flex">
+                                    <Plus className="h-3.5 w-3.5" />
+                                    {zh ? "填寫紀錄" : "Fill record"}
+                                  </AdminPrimaryButton>
                                 </Link>
                                 <button
                                   type="button"
@@ -1516,7 +1519,7 @@ export function LearningRecordStudentsTable({
                                       ) : null}
                                       <div className="ml-auto inline-flex items-center gap-1.5">
                                         <Link
-                                          href={`/admin/teacher-students/${r.profile_id}?recordId=${rec.id}`}
+                                          href={learningRecordFillPath(r.profile_id, { mode, recordId: rec.id })}
                                           className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-classz-200 text-xs text-brand-slate hover:bg-classz-50"
                                           title={zh ? "編輯這份紀錄" : "Edit this record"}
                                           onClick={(e) => e.stopPropagation()}
@@ -1570,8 +1573,8 @@ export function LearningRecordStudentsTable({
                 ? "已登記學員（唯讀）— 點擊填寫該學生的 Academic Learning Record"
                 : "Enrolled students (read-only) — fill Academic Learning Record per student"
               : zh
-                ? "已登記學生及家長資料；點擊列展開過往 Learning Record。正式上線後會同步就讀課程學員；目前可手動新增以支援資訊日／體驗日測試。"
-                : "Registered students & parents — expand a row for past records. Production will sync enrolled students; for now you can add manually for Open Day testing."
+                ? "已登記學生及家長資料。可直接幫學生填寫 Learning Record，或點擊列展開過往紀錄。正式上線後會同步就讀課程學員；目前可手動新增以支援資訊日／體驗日測試。"
+                : "Registered students & parents — fill Learning Records for any student, or expand a row for past records. Production will sync enrolled students; for now you can add manually for Open Day testing."
           }
           Icon={ClipboardList}
         />
@@ -1856,11 +1859,7 @@ export function LearningRecordStudentsTable({
                       </span>
                     </th>
                   ) : null}
-                  {mode === "teacher" ? (
-                    <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
-                  ) : (
-                    <th className="px-3 py-2 text-right">{zh ? "報告" : "Report"}</th>
-                  )}
+                  <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-classz-100">
@@ -1909,11 +1908,7 @@ export function LearningRecordStudentsTable({
                       {mode === "admin" ? (
                         <SortableTh label={zh ? "Companion導師" : "Companion coach"} column="coach" />
                       ) : null}
-                      {mode === "teacher" ? (
-                        <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
-                      ) : (
-                        <th className="px-3 py-2 text-right">{zh ? "報告" : "Report"}</th>
-                      )}
+                      <th className="px-3 py-2 text-right">{zh ? "操作" : "Action"}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-classz-100">{renderStudentRows(demoRows)}</tbody>
@@ -1943,8 +1938,8 @@ export function LearningRecordStudentsTable({
         >
           <p className="text-xs text-brand-slate/60 mb-3 leading-relaxed">
             {zh
-              ? "會建立家長／學員資料並登記到所選課堂，之後導師即可填寫 Learning Record。正式營運時學員會由就讀課程自動同步。"
-              : "Creates parent/child records and enrols them into the selected session so teachers can fill Learning Records. In production, enrolled course students will sync automatically."}
+              ? "會建立家長／學員資料並登記到所選課堂，之後中心或導師都可幫學生填寫 Learning Record。正式營運時學員會由就讀課程自動同步。"
+              : "Creates parent/child records and enrols them into the selected session so centre staff or teachers can fill Learning Records. In production, enrolled course students will sync automatically."}
           </p>
           {addError ? (
             <p role="alert" className="text-sm text-brand-coral mb-3">

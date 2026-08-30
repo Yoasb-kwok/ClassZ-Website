@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Camera, Pencil } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
+import { getClasszSession } from "@/lib/classz-auth"
 import {
   countWords,
+  learningRecordFillPath,
   progressLevelLabel,
   type ActivityLearningRecordRow,
 } from "@/lib/activity-learning-record"
@@ -54,6 +56,11 @@ export function TeacherFillLearningRecord() {
   const zh = locale === "zh-TW"
   const demo = isDemoSession()
   const fileRef = useRef<HTMLInputElement>(null)
+  const pathname = usePathname()
+  const fromTeacherPortal = Boolean(pathname?.startsWith("/admin/teacher-students"))
+  const listPath = fromTeacherPortal ? "/admin/teacher-students" : "/admin/learning-records"
+  const fillPath = (recordId?: number | null) =>
+    learningRecordFillPath(profileId, { mode: fromTeacherPortal ? "teacher" : "admin", recordId })
 
   const [student, setStudent] = useState<LearningRecordStudent | null>(null)
   const [history, setHistory] = useState<ActivityLearningRecordRow[]>([])
@@ -125,6 +132,14 @@ export function TeacherFillLearningRecord() {
   }, [load])
 
   useEffect(() => {
+    if (!profileId || !fromTeacherPortal) return
+    const role = getClasszSession()?.user.role
+    if (role === "coach") return
+    const qs = searchParams?.toString()
+    router.replace(`/admin/learning-records/${profileId}${qs ? `?${qs}` : ""}`)
+  }, [profileId, fromTeacherPortal, router, searchParams])
+
+  useEffect(() => {
     if (!formReady) return
     const timer = window.setTimeout(() => {
       if (isMeaningfulLearningRecordDraft(form)) saveLearningRecordDraft(draftKey, form)
@@ -156,7 +171,7 @@ export function TeacherFillLearningRecord() {
 
   async function submit(confirm: boolean) {
     if (demo) {
-      alert(zh ? "請用導師帳號登入" : "Sign in as a teacher")
+      alert(zh ? "請用中心或導師帳號登入" : "Sign in with a centre or teacher account")
       return
     }
     if (countWords(form.additional_comment) > 100) {
@@ -180,7 +195,7 @@ export function TeacherFillLearningRecord() {
         alert(zh ? "已儲存 Learning Record" : "Learning record saved")
       }
       clearLearningRecordDraft(draftKey)
-      router.push("/admin/teacher-students")
+      router.push(listPath)
     } catch (e) {
       alert(e instanceof Error ? e.message : "Save failed")
     } finally {
@@ -192,7 +207,7 @@ export function TeacherFillLearningRecord() {
     return (
       <AdminPageFrame>
         <p className="text-brand-coral">{loadError}</p>
-        <Link href="/admin/teacher-students" className="text-brand-teal text-sm mt-2 inline-block">
+        <Link href={listPath} className="text-brand-teal text-sm mt-2 inline-block">
           ← {zh ? "返回學員列表" : "Back to students"}
         </Link>
       </AdminPageFrame>
@@ -213,7 +228,7 @@ export function TeacherFillLearningRecord() {
     <AdminPageFrame>
       <div className="flex items-center gap-2 mb-1">
         <Link
-          href="/admin/teacher-students"
+          href={listPath}
           className="inline-flex items-center gap-1 text-sm text-brand-slate/70 hover:text-brand-teal"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -360,7 +375,7 @@ export function TeacherFillLearningRecord() {
                   </span>
                   {editingRecordId === h.id ? null : (
                     <Link
-                      href={`/admin/teacher-students/${profileId}?recordId=${h.id}`}
+                      href={fillPath(h.id)}
                       className="inline-flex items-center gap-1 text-xs text-brand-teal hover:underline"
                     >
                       <Pencil className="h-3 w-3" />

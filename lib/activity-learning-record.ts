@@ -175,6 +175,26 @@ export type ActivityLearningRecordRow = {
   created_at: string
 }
 
+/** Coach fills from /admin/teacher-students; centre / platform from /admin/learning-records. */
+export function learningRecordListPath(role?: string | null): string {
+  return role === "coach" ? "/admin/teacher-students" : "/admin/learning-records"
+}
+
+export function learningRecordFillPath(
+  profileId: string | number,
+  opts?: { recordId?: number | string | null; role?: string | null; mode?: "teacher" | "admin" },
+): string {
+  const isTeacher = opts?.mode === "teacher" || opts?.role === "coach"
+  const base = isTeacher
+    ? `/admin/teacher-students/${profileId}`
+    : `/admin/learning-records/${profileId}`
+  const recordId = Number(opts?.recordId || 0)
+  if (Number.isInteger(recordId) && recordId > 0) {
+    return `${base}?recordId=${recordId}`
+  }
+  return base
+}
+
 export function formatRecordSummary(row: ActivityLearningRecordRow): string {
   const payload = row.observation_payload
   const availability = payload && typeof payload === "object" ? String(payload.availability || "") : ""
