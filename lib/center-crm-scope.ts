@@ -8,8 +8,9 @@ export function setCenterCrmScope(centerId: number) {
 export function getCenterCrmScope(): number | null {
   if (typeof window === "undefined") return null
 
-  // Scope only while on /admin/center-crm/:id/* — never leak to platform pages.
-  const fromUrl = window.location.pathname.match(/\/admin\/center-crm\/(\d+)(?:\/|$)/)
+  const fromUrl =
+    window.location.pathname.match(/\/admin\/center-crm\/(\d+)(?:\/|$)/) ||
+    window.location.pathname.match(/\/admin\/center-profiles\/(\d+)(?:\/|$)/)
   if (fromUrl) {
     const n = Number(fromUrl[1])
     if (Number.isFinite(n) && n >= 1) return n
@@ -30,6 +31,22 @@ export function centerCrmBasePath(centerId: number): string {
   return `/admin/center-crm/${centerId}`
 }
 
-export function centerCrmFlowPath(centerId: number, flow: "programs" | "schedule" | "attendance" | "feedback"): string {
+export type CenterCrmFlow = "programs" | "schedule" | "attendance"
+
+export function centerCrmFlowPath(centerId: number, flow: CenterCrmFlow): string {
   return `${centerCrmBasePath(centerId)}/${flow}`
+}
+
+/** Schedule 點名 etc. Stay inside /admin/center-crm/:id when opened from CRM. */
+export function adminFlowHref(
+  pathname: string,
+  flow: CenterCrmFlow,
+  query?: Record<string, string>,
+): string {
+  const qs = query
+    ? `?${new URLSearchParams(query).toString()}`
+    : ""
+  const crm = pathname.match(/\/admin\/center-crm\/(\d+)/)
+  if (crm) return `${centerCrmFlowPath(Number(crm[1]), flow)}${qs}`
+  return `/admin/${flow}${qs}`
 }

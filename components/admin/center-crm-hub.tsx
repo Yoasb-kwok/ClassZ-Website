@@ -75,8 +75,8 @@ export function CenterCrmHub() {
         title={zh ? "中心 CRM" : "Centre CRM"}
         description={
           zh
-            ? "選擇中心進入其 CRM（課程、排程、點名、回饋），以平台管理員身份代管。"
-            : "Pick a centre to open its CRM (programs, schedule, attendance, feedback) as platform admin."
+            ? "選擇中心進入其 CRM（課程、排程、點名），以平台管理員身份代管。"
+            : "Pick a centre to open its CRM (programs, schedule, attendance) as platform admin."
         }
         Icon={Building2}
       />

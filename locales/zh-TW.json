@@ -1093,7 +1093,8 @@
       "sen": "提供 SEN 共融設施與教學，照顧不同學習需要的兒童。",
       "smallClass": "小班分組教學，讓孩子獲得更專注的照顧與互動。",
       "examPathway": "支援認可考試、分級考試或證書課程準備。",
-      "performance": "提供表演、展示、比賽或發表作品的機會。"
+      "performance": "提供表演、展示、比賽或發表作品的機會。",
+      "learningCompanion": "提供 Learning Companion，跟進學習進度並給予個人化支援。"
     }
   },
   "programs": {
@@ -1105,6 +1106,9 @@
     "emptyBody": "請調整搜尋字詞或篩選條件，查看更多課程。",
     "workshopsEmpty": "暫時沒有工作坊，請稍後再來！",
     "workshopsSubtitle": "探索你附近的課程、教練和學習中心——幫助孩子發掘新的嗜好、興趣和才能。",
+    "trialsTitle": "先試堂，再報名",
+    "trialsSubtitle": "先預約一堂試堂，確認適合才報讀正式課程。",
+    "trialsEmpty": "暫時沒有試堂，請稍後再來！",
     "perCourse": "課程",
     "schedules": "{count} 個課堂",
     "schedulesMany": "10+ 個課堂",
@@ -1155,7 +1159,8 @@
       "sen": "SEN 共融",
       "smallClass": "小班教學",
       "examPathway": "考試／證書路徑",
-      "performance": "表演機會"
+      "performance": "表演機會",
+      "learningCompanion": "Learning Companion"
     },
     "place": "地區",
     "hkIsland": "香港島",
@@ -1192,6 +1197,7 @@
     "aboutUs": "關於我們",
     "programs": "課程",
     "workshops": "工作坊",
+    "trials": "試堂",
     "centres": "中心",
     "zPassport": "ZPassport",
     "schedule": "時間表",

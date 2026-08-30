@@ -38,7 +38,7 @@ export function CenterCrmLayout({ children }: { children: React.ReactNode }) {
   }
 
   const flows = CENTER_FLOW_NAV.map((item) => {
-    const slug = item.path.replace("/admin/", "") as "programs" | "schedule" | "attendance" | "feedback"
+    const slug = item.path.replace("/admin/", "") as "programs" | "schedule" | "attendance"
     return {
       ...item,
       href: centerCrmFlowPath(centerId, slug),

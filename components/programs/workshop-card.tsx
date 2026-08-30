@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Heart, MapPin } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { programImage } from "@/lib/program-images"
+import { districtLabel } from "@/lib/locations"
 import type { PublicCourse } from "@/lib/public-courses"
 
 /**
@@ -33,26 +34,34 @@ import type { PublicCourse } from "@/lib/public-courses"
 export function WorkshopCard({
   course,
   scheduleCount,
+  href,
 }: {
   course: PublicCourse
   scheduleCount: number
+  href?: string
 }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const price = course.price != null ? Number(course.price) : null
+  const place = course.venue || districtLabel(course.location, locale) || course.location
 
   return (
     <Link
-      href={`/workshops/${course.id}`}
+      href={href || `/workshops/${course.id}`}
       data-testid="workshop-card"
       className="group flex w-full flex-col overflow-hidden bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-classz-400 lg:h-[253px] lg:flex-row"
     >
       {/* Image panel #3863:17551 — IMAGE fill, full-bleed */}
       <div className="relative aspect-[643/253] w-full overflow-hidden bg-classz-50 lg:aspect-auto lg:h-[253px] lg:w-auto lg:flex-1 lg:shrink">
         <img
-          src={programImage(course.id)}
+          src={programImage(course.id, course.image_url)}
           alt={course.name}
           className="absolute inset-0 h-full w-full object-cover"
         />
+        {course.boosted ? (
+          <span className="absolute left-3 top-3 rounded-full bg-classz-500 px-2 py-0.5 text-[11px] font-semibold text-white">
+            {locale === "zh-TW" ? "置頂" : "Pinned"}
+          </span>
+        ) : null}
       </div>
 
       {/* White panel #3863:17554 — w331 pad 14 */}
@@ -91,7 +100,7 @@ export function WorkshopCard({
                 {t("programs.ageLabel").replace("{age}", course.age_tag)}
               </p>
             ) : null}
-            {course.location ? (
+            {place ? (
               <div className="flex items-center gap-1">
                 <MapPin
                   aria-hidden
@@ -99,7 +108,7 @@ export function WorkshopCard({
                   strokeWidth={1.5}
                 />
                 <p className="truncate text-[14px] leading-[17px] text-[#5E5E5E]">
-                  {course.location}
+                  {place}
                 </p>
               </div>
             ) : null}

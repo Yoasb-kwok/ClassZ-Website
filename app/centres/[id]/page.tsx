@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { generateMetadata as genMeta } from "@/lib/metadata";
 import { getPublicCourses, getPublicCourse } from "@/lib/public-courses";
-import { CENTRES, getCentre } from "@/lib/centre-data";
+import { getPublicCentre, getPublicCentres } from "@/lib/public-centres";
 import { CentreView } from "@/components/centres/centre-view";
 import { DiscoveryPage } from "@/components/programs/discovery-page";
 
@@ -21,7 +21,7 @@ type Params = {
 
 export async function generateMetadata({ params }: Params) {
   const { id } = await params;
-  const centre = getCentre(id);
+  const centre = await getPublicCentre(id);
   if (!centre) return genMeta({ title: "Centre not found", noIndex: true });
   return genMeta({
     title: centre.name,
@@ -35,24 +35,22 @@ export default async function CentreDetailPage({
   searchParams,
 }: Params) {
   const { id } = await params;
-  const centre = getCentre(id);
+  const centre = await getPublicCentre(id);
   if (!centre) notFound();
 
-  const courses = await getPublicCourses();
+  const [courses, allCentres] = await Promise.all([getPublicCourses(), getPublicCentres()]);
+  const mine = courses.filter((c) => Number(c.center_id) === centre.id);
 
   // W7 — programs state on the same route (D1: ?tab=programs, noted in INDEX)
   const { tab } = await searchParams;
   if (tab === "programs") {
-    return <DiscoveryPage courses={courses} variant="centre" />;
+    return <DiscoveryPage courses={mine.length ? mine : courses} variant="centre" />;
   }
 
-  // Placeholder strip content (D2): first 9 courses fill "Programs
-  // Offering"'s 3×3 grid; the next 3 fill "Recommended Programs".
-  const offering = courses.slice(0, 9);
-  const recommended =
-    courses.length > 9 ? courses.slice(9, 12) : courses.slice(0, 3);
-  const others = CENTRES.filter((c) => c.id !== centre.id);
-  const suggested = others.length >= 3 ? others : CENTRES;
+  const offering = (mine.length ? mine : courses).slice(0, 9);
+  const recommended = mine.length > 9 ? mine.slice(9, 12) : (mine.length ? mine : courses).slice(0, 3);
+  const others = allCentres.filter((c) => c.id !== centre.id);
+  const suggested = others.length ? others.slice(0, 3) : allCentres;
 
   // The list API omits `price` (detail-only). Fetch details for the
   // displayed program cards so the similar-variant strip can show a real

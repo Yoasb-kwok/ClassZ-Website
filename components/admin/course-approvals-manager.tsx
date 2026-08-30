@@ -64,7 +64,7 @@ export function CourseApprovalsManager() {
 
   return (
     <AdminPageFrame>
-      <AdminPageHeader title={zh ? "課程上架審批" : "Course approvals"} Icon={LibraryBig} />
+      <AdminPageHeader title={zh ? "上架審批" : "Listing approvals"} Icon={LibraryBig} />
       <AdminCard>
         <AdminTableShell>
           <AdminTable>
@@ -81,7 +81,7 @@ export function CourseApprovalsManager() {
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-3 py-8 text-center text-classz-600">
-                    {zh ? "暫無待審批課程" : "No courses pending approval"}
+                    {zh ? "暫無待審批上架" : "No listings pending approval"}
                   </td>
                 </tr>
               ) : (

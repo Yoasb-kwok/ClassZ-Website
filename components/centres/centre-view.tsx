@@ -19,6 +19,7 @@ import { ProgramCard } from "@/components/programs/program-card";
 import { CentreCard } from "@/components/centres/centre-card";
 import type { Centre, CentreFeatureKey } from "@/lib/centre-data";
 import type { PublicCourse } from "@/lib/public-courses";
+import { CENTRE_CATEGORIES } from "@/lib/register-center-validation";
 
 /** Feature icon/label order per #2507:19246 — vuesax linear icons
  *  exported as assets (public/centres/*.svg, 40×40, stroke #1B1A1F). */
@@ -27,6 +28,7 @@ const FEATURE_ICONS: Record<CentreFeatureKey, string> = {
   smallClass: "/centres/profile-2user.svg",
   examPathway: "/centres/medal-star.svg",
   performance: "/centres/ranking.svg",
+  learningCompanion: "/centres/learning-companion.svg",
 };
 
 /** Section divider — #2511:19377 &c.: 1px #EBEBEB; sections sit 32px apart
@@ -66,12 +68,18 @@ export function CentreView({
    *  list API omits `price`; keyed by course id. */
   prices?: Record<number, number>;
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const offeringRows: PublicCourse[][] = [];
   for (let i = 0; i < offering.length; i += 3) {
     offeringRows.push(offering.slice(i, i + 3));
   }
+  const categoryMeta = CENTRE_CATEGORIES.find((c) => c.value === centre.category);
+  const categoryLabel = categoryMeta
+    ? locale === "zh-TW"
+      ? categoryMeta.zh
+      : categoryMeta.en
+    : centre.category || "";
 
   return (
     <main className="min-h-screen bg-white text-ink">
@@ -189,6 +197,7 @@ export function CentreView({
 
             {/* node 2471:15574 — meta 2 (icon→text gap 4): location 16 #222
                 + address 14/590 #222 */}
+            {centre.address ? (
             <p className="flex items-center gap-[4px]">
               <MapPin
                 aria-hidden
@@ -199,13 +208,24 @@ export function CentreView({
                 {centre.address}
               </span>
             </p>
+            ) : null}
+
+            {categoryLabel ? (
+              <p className="text-[14px] font-normal leading-[17px] text-[#5E5E5E]">
+                {t("programs.category")}: {categoryLabel}
+              </p>
+            ) : null}
 
             {/* node 2471:15195 — welcome 14/400 lh21 #5E5E5E (2 lines) */}
+            {centre.welcome ? (
             <p className="text-[14px] font-normal leading-[21px] text-[#5E5E5E]">
               {centre.welcome}
             </p>
+            ) : null}
           </div>
 
+          {centre.staff.length > 0 ? (
+          <>
           <Divider />
 
           {/* node 2507:19224 — members: gap 16; cards 168 wide gap 16:
@@ -218,9 +238,9 @@ export function CentreView({
             <h2 className="text-[16px] font-[weight:590] leading-[19px] text-black">
               {t("centres.members")}
             </h2>
-            <div className="flex gap-[16px]">
+            <div className="flex gap-[16px] overflow-x-auto">
               {centre.staff.map((member) => (
-                <div key={member.name} className="w-[168px] shrink-0">
+                <div key={`${member.name}-${member.role}`} className="w-[168px] shrink-0">
                   <div className="h-[159px] w-full overflow-hidden rounded-[12px] bg-classz-50">
                     <img
                       src={member.photo}
@@ -238,45 +258,45 @@ export function CentreView({
               ))}
             </div>
           </section>
+          </>
+          ) : null}
 
+          {centre.features.length > 0 ? (
+          <>
           <Divider />
 
           {/* node 2507:19246 — features: pad 32/0, 2 cols gap 48 (576 each),
               rows gap 64 (40+64+40 = 144 ✓); row: icon 40 + gap 20 + text
               (title 14/700 h17, gap 5, desc 14/400 lh16 #5E5E5E) */}
-          <div className="flex gap-[48px] py-[32px] max-md:flex-col max-md:gap-[32px]">
-            {[0, 1].map((col) => (
-              <div
-                key={col}
-                className="flex flex-1 flex-col gap-[64px] max-md:gap-[32px]"
-              >
-                {centre.features
-                  .slice(col * 2, col * 2 + 2)
-                  .map((key: CentreFeatureKey) => {
-                    const icon = FEATURE_ICONS[key];
-                    return (
-                      <div key={key} className="flex items-center gap-[20px]">
-                        <img
-                          src={icon}
-                          alt=""
-                          aria-hidden
-                          className="h-[40px] w-[40px] shrink-0"
-                        />
-                        <div className="flex min-w-0 flex-col gap-[5px]">
-                          <h3 className="text-[14px] font-bold leading-[17px] text-black">
-                            {t(`programs.serviceTags.${key}`)}
-                          </h3>
-                          <p className="text-[14px] font-normal leading-[16px] text-[#5E5E5E]">
-                            {t(`centres.featureDesc.${key}`)}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            ))}
+          <div className="grid grid-cols-1 gap-x-[48px] gap-y-[64px] py-[32px] md:grid-cols-2">
+            {centre.features.map((key: CentreFeatureKey) => {
+              const icon = FEATURE_ICONS[key];
+              if (!icon) return null;
+              return (
+                <div key={key} className="flex items-center gap-[20px]">
+                  <img
+                    src={icon}
+                    alt=""
+                    aria-hidden
+                    className="h-[40px] w-[40px] shrink-0"
+                  />
+                  <div className="flex min-w-0 flex-col gap-[5px]">
+                    <h3 className="text-[14px] font-bold leading-[17px] text-black">
+                      {t(`programs.serviceTags.${key}`)}
+                    </h3>
+                    <p className="text-[14px] font-normal leading-[16px] text-[#5E5E5E]">
+                      {t(`centres.featureDesc.${key}`)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+          </>
+          ) : null}
 
+          {centre.reviews.length > 0 ? (
+          <>
           <Divider />
 
           {/* node 2507:19502 — reviews (gap 16): header h19 (title 16/590 +
@@ -357,6 +377,8 @@ export function CentreView({
               </ul>
             </div>
           </section>
+          </>
+          ) : null}
 
           <Divider />
 

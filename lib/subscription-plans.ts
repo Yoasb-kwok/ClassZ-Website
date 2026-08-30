@@ -57,14 +57,14 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     featuresEn: [
       "Coach / teacher login portals",
       "Learning Companion AI reports + PDF",
-      "Tasks, class feedback & CRM lite",
+      "Tasks & CRM lite",
       "Coupons & basic reports",
       "CSV student import (Open Day)",
     ],
     featuresZh: [
       "導師登入 portal",
       "Learning Companion AI 報告 + PDF",
-      "任務、課堂回饋、CRM 基礎",
+      "任務、CRM 基礎",
       "優惠券與基礎報表",
       "學員 CSV 匯入（資訊日）",
     ],

@@ -1,6 +1,7 @@
 import { jwtDecode } from "jwt-decode"
 
 export const CLASSZ_SESSION_KEY = "classz_session"
+const CLASSZ_MODULES_KEY = "classz_enabled_modules"
 
 export type ClasszPortalRole = "platform_admin" | "center_admin" | "coach"
 
@@ -45,6 +46,47 @@ export function setClasszSession(session: ClasszSession) {
 
 export function clearClasszSession() {
   localStorage.removeItem(CLASSZ_SESSION_KEY)
+  try {
+    sessionStorage.removeItem(CLASSZ_MODULES_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readCachedModules(token: string): string[] | null {
+  if (typeof window === "undefined" || !token) return null
+  try {
+    const raw = sessionStorage.getItem(CLASSZ_MODULES_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { token?: string; modules?: string[] }
+    if (parsed.token !== token || !Array.isArray(parsed.modules)) return null
+    return parsed.modules
+  } catch {
+    return null
+  }
+}
+
+export function writeCachedModules(token: string, modules: string[]) {
+  if (typeof window === "undefined" || !token) return
+  try {
+    sessionStorage.setItem(CLASSZ_MODULES_KEY, JSON.stringify({ token, modules }))
+  } catch {
+    /* ignore */
+  }
+}
+
+async function prefetchEnabledModules(token: string, role: ClasszPortalRole) {
+  const prefix = role === "platform_admin" ? "/admin" : "/center"
+  try {
+    const res = await fetch(`/api${prefix}/me/modules`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const body = (await res.json().catch(() => ({}))) as { success?: boolean; data?: { modules?: string[] } }
+    const modules = body?.success && Array.isArray(body.data?.modules) ? body.data.modules : []
+    writeCachedModules(token, modules)
+  } catch {
+    writeCachedModules(token, [])
+  }
 }
 
 function mapJwtRole(payload: {
@@ -126,6 +168,7 @@ export async function classzSignIn(loginIdentifier: string, password: string): P
           center_id: payload.center_id ?? null,
         },
       })
+      await prefetchEnabledModules(data.token!, role)
       return
     } catch (e) {
       const status = (e as Error & { status?: number }).status
@@ -186,4 +229,5 @@ export async function classzRegisterCenterAndSignIn(body: {
       center_id: data.user?.center_id ?? payload.center_id ?? null,
     },
   })
+  await prefetchEnabledModules(data.token, "center_admin")
 }

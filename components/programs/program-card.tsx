@@ -77,10 +77,19 @@ export function ProgramCard({
         }`}
       >
         <img
-          src={programImage(course.id)}
+          src={programImage(course.id, course.image_url)}
           alt={course.name}
           className="absolute inset-0 h-full w-full object-cover"
         />
+        {course.boosted ? (
+          <span
+            className={`absolute rounded-full bg-classz-500 px-2 py-0.5 font-semibold text-white ${
+              similar ? "left-[18.16px] top-[18.16px] text-[12px]" : "left-[14px] top-[14px] text-[11px]"
+            }`}
+          >
+            {locale === "zh-TW" ? "置頂" : "Pinned"}
+          </span>
+        ) : null}
         <Heart
           aria-hidden
           strokeWidth={similar ? 2.27 : 1.5}

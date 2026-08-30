@@ -1,4 +1,5 @@
 import { generateMetadata } from "@/lib/metadata";
+import { isRegularCourseType, isWorkshopCourseType } from "@/lib/course-types";
 import { getPublicCourses, getPublicCourse } from "@/lib/public-courses";
 import { LandingPage } from "@/components/programs/landing-page";
 
@@ -11,10 +12,8 @@ export const metadata = generateMetadata({
 
 export default async function Page() {
   const courses = await getPublicCourses();
-  const isWorkshop = (c: { course_type: string | null }) =>
-    c.course_type === "short_term" || c.course_type === "summer";
-  const programs = courses.filter((c) => !isWorkshop(c));
-  const workshops = courses.filter(isWorkshop);
+  const programs = courses.filter((c) => isRegularCourseType(c.course_type));
+  const workshops = courses.filter((c) => isWorkshopCourseType(c.course_type));
 
   // /api/courses omits `price` (it only exists on the detail endpoint).
   // Fetch details for just the 6 featured cards so the strips can show

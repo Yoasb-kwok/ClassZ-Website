@@ -13,7 +13,23 @@
 
 /** Feature keys reuse the programs.serviceTags locale strings (14/700 titles). */
 export type CentreFeatureKey =
-  "sen" | "smallClass" | "examPathway" | "performance";
+  | "sen"
+  | "smallClass"
+  | "examPathway"
+  | "performance"
+  | "learningCompanion";
+
+export const ALL_CENTRE_FEATURES: CentreFeatureKey[] = [
+  "sen",
+  "smallClass",
+  "examPathway",
+  "performance",
+  "learningCompanion",
+];
+
+export function isCentreFeatureKey(value: string): value is CentreFeatureKey {
+  return (ALL_CENTRE_FEATURES as string[]).includes(value);
+}
 
 export type CentreStaff = {
   name: string;
@@ -38,6 +54,8 @@ export type Centre = {
    *  and drives the locale-aware district display. */
   districtSlug: string;
   address: string;
+  /** Teaching category slug (music, art, …) — shown on the public centre page. */
+  category?: string | null;
   /** Listing-card "Age {age}" row — D2 placeholder (live-frame mock says
    *  "Age 3-6"; centres have no age data — swap for real fields or drop
    *  when the API lands). */
@@ -71,12 +89,7 @@ const DESIGN_REVIEWS: CentreReview[] = [0, 1, 2].map(() => ({
   text: DESIGN_REVIEW_TEXT,
 }));
 
-const ALL_FEATURES: CentreFeatureKey[] = [
-  "sen",
-  "smallClass",
-  "examPathway",
-  "performance",
-];
+const ALL_FEATURES: CentreFeatureKey[] = ALL_CENTRE_FEATURES;
 
 export const CENTRES: Centre[] = [
   {

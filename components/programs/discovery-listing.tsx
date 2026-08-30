@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useLanguage } from "@/components/language-provider";
 import { findDistrict } from "@/lib/locations";
+import { isRegularCourseType, isTrialCourseType, isWorkshopCourseType } from "@/lib/course-types";
 import type { PublicCourse } from "@/lib/public-courses";
 import { SearchInput } from "./search-input";
 import { FilterSidebar } from "./filter-sidebar";
@@ -24,7 +25,7 @@ export function DiscoveryListing({
   scheduleCounts,
 }: {
   courses: PublicCourse[];
-  variant: "programs" | "workshops" | "centre";
+  variant: "programs" | "workshops" | "trials" | "centre";
   /** courseId → active class count (2408 card "N schedules" row) */
   scheduleCounts?: Record<number, number>;
 }) {
@@ -36,10 +37,12 @@ export function DiscoveryListing({
     () =>
       courses.filter((c) =>
         variant === "programs"
-          ? c.course_type !== "short_term" && c.course_type !== "summer"
+          ? isRegularCourseType(c.course_type)
           : variant === "workshops"
-            ? c.course_type === "short_term" || c.course_type === "summer"
-            : true,
+            ? isWorkshopCourseType(c.course_type)
+            : variant === "trials"
+              ? isTrialCourseType(c.course_type)
+              : true,
       ),
     [courses, variant],
   );
@@ -57,6 +60,8 @@ export function DiscoveryListing({
           course.intro,
           course.instructor,
           course.program_code,
+          course.venue,
+          course.location,
         ]
           .filter(Boolean)
           .join(" ")
@@ -81,13 +86,22 @@ export function DiscoveryListing({
   };
 
   const isWorkshops = variant === "workshops";
+  const isTrials = variant === "trials";
+  const isWideCards = isWorkshops || isTrials;
   const isCentre = variant === "centre";
   const hasNoWorkshops = isWorkshops && variantCourses.length === 0;
-  // Centre intro (#3872:18635): title "Recommended Program", subtitle is the
-  // same copy as the workshops listing (#3872:18638 = programs.workshopsSubtitle)
-  const titleKey = isCentre ? "centres.recommendedProgram" : "programs.title";
+  const hasNoTrials = isTrials && variantCourses.length === 0;
+  const titleKey = isCentre
+    ? "centres.recommendedProgram"
+    : isTrials
+      ? "programs.trialsTitle"
+      : "programs.title";
   const subtitleKey =
-    variant === "programs" ? "programs.subtitle" : "programs.workshopsSubtitle";
+    variant === "programs"
+      ? "programs.subtitle"
+      : isTrials
+        ? "programs.trialsSubtitle"
+        : "programs.workshopsSubtitle";
 
   return (
     // Listing content capped at the 1440 design width & centered on wider
@@ -116,10 +130,10 @@ export function DiscoveryListing({
         </div>
       )}
 
-      {hasNoWorkshops ? (
+      {hasNoWorkshops || hasNoTrials ? (
         <div className="flex flex-col items-center gap-4 px-6 py-24 text-center">
           <p className="text-lg text-shade-500">
-            {t("programs.workshopsEmpty")}
+            {t(hasNoTrials ? "programs.trialsEmpty" : "programs.workshopsEmpty")}
           </p>
         </div>
       ) : (
@@ -157,17 +171,14 @@ export function DiscoveryListing({
                   {t("programs.clearFilters")}
                 </button>
               </div>
-            ) : isWorkshops ? (
-              /* 2408 #3810:20081 — rows of one wide card each: pad 32/0/32/0
-                 on the listing, per-row pad 0/80/0/48, gap 32. Card w =
-                 1102 − 48 − 80 = 974 at 1440; below lg the card stacks
-                 (spec-silent, see workshop-card.tsx). */
+            ) : isWideCards ? (
               <ul className="flex flex-col gap-8 lg:py-8 lg:pl-12 lg:pr-20">
                 {filtered.map((course) => (
                   <li key={course.id} className="w-full">
                     <WorkshopCard
                       course={course}
                       scheduleCount={scheduleCounts?.[course.id] ?? 0}
+                      href={isTrials ? `/trials/${course.id}` : `/workshops/${course.id}`}
                     />
                   </li>
                 ))}

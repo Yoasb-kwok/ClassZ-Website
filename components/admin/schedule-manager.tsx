@@ -2,12 +2,14 @@
 
 import Link from "next/link"
 import { useMemo, useState } from "react"
+import { usePathname } from "next/navigation"
 import { CalendarCheck, Plus, RefreshCw, Search } from "lucide-react"
 import { format } from "date-fns"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { useCenterApiList } from "@/components/admin/use-center-api-list"
+import { adminFlowHref } from "@/lib/center-crm-scope"
 import {
   CALENDAR_COLOR_OPTIONS,
   ScheduleCalendar,
@@ -25,6 +27,7 @@ import {
   AdminPageFrame,
   AdminPageHeader,
   AdminPrimaryButton,
+  AdminSelect,
   AdminTable,
   AdminTableShell,
   AdminToolbar,
@@ -74,18 +77,123 @@ function mapHoliday(r: Record<string, unknown>): ScheduleHoliday {
   }
 }
 
+type ListTab = "past" | "today" | "upcoming"
+
+function startOfLocalDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+
+function bucketSessions(rows: ClassRow[]) {
+  const today = startOfLocalDay(new Date())
+  const past: ClassRow[] = []
+  const todayRows: ClassRow[] = []
+  const upcoming: ClassRow[] = []
+  for (const c of rows) {
+    const d = parseSessionDate(c.start_time)
+    if (Number.isNaN(d.getTime())) {
+      upcoming.push(c)
+      continue
+    }
+    const day = startOfLocalDay(d)
+    if (day < today) past.push(c)
+    else if (day === today) todayRows.push(c)
+    else upcoming.push(c)
+  }
+  const byStart = (a: ClassRow, b: ClassRow) =>
+    parseSessionDate(a.start_time).getTime() - parseSessionDate(b.start_time).getTime()
+  past.sort((a, b) => byStart(b, a))
+  todayRows.sort(byStart)
+  upcoming.sort(byStart)
+  return { past, today: todayRows, upcoming }
+}
+
+function SessionListWithTabs({
+  rows,
+  zh,
+  onEdit,
+  onRemove,
+  attendanceHref,
+}: {
+  rows: ClassRow[]
+  zh: boolean
+  onEdit: (c: ClassRow) => void
+  onRemove: (id: string) => void
+  attendanceHref: (classId: string) => string
+}) {
+  const [tab, setTab] = useState<ListTab>("today")
+  const buckets = useMemo(() => bucketSessions(rows), [rows])
+  const tabs: Array<{ id: ListTab; label: string; count: number; empty: string }> = [
+    {
+      id: "past",
+      label: zh ? "已過期" : "Past",
+      count: buckets.past.length,
+      empty: zh ? "沒有已過期課堂" : "No past sessions",
+    },
+    {
+      id: "today",
+      label: zh ? "當日舉行" : "Today",
+      count: buckets.today.length,
+      empty: zh ? "今日沒有課堂" : "No sessions today",
+    },
+    {
+      id: "upcoming",
+      label: zh ? "即將到來" : "Upcoming",
+      count: buckets.upcoming.length,
+      empty: zh ? "沒有即將到來的課堂" : "No upcoming sessions",
+    },
+  ]
+  const active = tabs.find((t) => t.id === tab) ?? tabs[1]
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-1.5">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+              tab === t.id
+                ? "border-brand-teal bg-[color-mix(in_srgb,var(--brand-teal)_14%,white)] text-brand-teal"
+                : "border-classz-200 bg-white text-classz-700 hover:bg-classz-50"
+            }`}
+          >
+            {t.label}
+            <span
+              className={`rounded-full px-1.5 text-[11px] font-semibold tabular-nums ${
+                tab === t.id ? "bg-brand-teal/15 text-brand-teal" : "bg-classz-100 text-classz-500"
+              }`}
+            >
+              {t.count}
+            </span>
+          </button>
+        ))}
+      </div>
+      <SessionListTable
+        rows={buckets[tab]}
+        zh={zh}
+        onEdit={onEdit}
+        onRemove={onRemove}
+        emptyLabel={active.empty}
+        attendanceHref={attendanceHref}
+      />
+    </div>
+  )
+}
+
 function SessionListTable({
   rows,
   zh,
   onEdit,
   onRemove,
   emptyLabel,
+  attendanceHref,
 }: {
   rows: ClassRow[]
   zh: boolean
   onEdit: (c: ClassRow) => void
   onRemove: (id: string) => void
   emptyLabel: string
+  attendanceHref: (classId: string) => string
 }) {
   return (
     <AdminTableShell>
@@ -107,7 +215,7 @@ function SessionListTable({
               <td className="px-3 py-2 text-classz-600">{c.instructor || "—"}</td>
               <td className="px-3 py-2 text-classz-600">{c.location || "—"}</td>
               <td className="px-3 py-2 text-right whitespace-nowrap">
-                <Link href={`/admin/attendance?classId=${c.id}`} className="text-sm text-classz-600 hover:underline">
+                <Link href={attendanceHref(c.id)} className="text-sm text-classz-600 hover:underline">
                   {zh ? "點名" : "Attendance"}
                 </Link>
                 <button type="button" className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onEdit(c)}>
@@ -163,9 +271,18 @@ function HolidayListTable({ rows, zh }: { rows: ScheduleHoliday[]; zh: boolean }
 export function ScheduleManager() {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
+  const pathname = usePathname() || ""
+  const attendanceHref = (classId: string) => adminFlowHref(pathname, "attendance", { classId })
   const demo = isDemoSession()
   const { rows, ready, reload, error: listError } = useCenterApiList("/classes", mapClass)
   const { rows: holidays, reload: reloadHolidays } = useCenterApiList("/holidays", mapHoliday)
+  const { rows: catalogCourses } = useCenterApiList("/courses", (r) => ({
+    id: String(r.id),
+    name: String(r.name || ""),
+    program_code: String(r.program_code || "").trim(),
+    instructor: String(r.instructor || ""),
+    location: String(r.location || ""),
+  }))
   const [search, setSearch] = useState("")
   const [displayMode, setDisplayMode] = useState<DisplayMode>("month")
   const [anchorDate, setAnchorDate] = useState(() => new Date())
@@ -446,13 +563,7 @@ export function ScheduleManager() {
       </AdminToolbar>
 
       {displayMode === "list" ? (
-        <SessionListTable
-          rows={filtered}
-          zh={zh}
-          onEdit={openEdit}
-          onRemove={remove}
-          emptyLabel={zh ? "尚無排程" : "No sessions yet"}
-        />
+        <SessionListWithTabs rows={filtered} zh={zh} onEdit={openEdit} onRemove={remove} attendanceHref={attendanceHref} />
       ) : (
         <div className="space-y-6">
           <ScheduleCalendar
@@ -461,6 +572,7 @@ export function ScheduleManager() {
             zh={zh}
             view={displayMode}
             anchorDate={anchorDate}
+            mutePastDays
             onAnchorChange={setAnchorDate}
             onEventClick={openEdit}
             onDayClick={(day) => openCreateAt(day)}
@@ -468,13 +580,7 @@ export function ScheduleManager() {
 
           <section>
             <h3 className="text-base font-semibold text-classz-800 mb-3">{periodListTitle}</h3>
-            <SessionListTable
-              rows={periodSessions}
-              zh={zh}
-              onEdit={openEdit}
-              onRemove={remove}
-              emptyLabel={zh ? "此期間尚無課堂" : "No sessions in this period"}
-            />
+            <SessionListWithTabs rows={periodSessions} zh={zh} onEdit={openEdit} onRemove={remove} attendanceHref={attendanceHref} />
             {periodHolidays.length > 0 && (
               <>
                 <h4 className="text-sm font-semibold text-brand-orange mt-6 mb-2">{zh ? "期內公眾假期" : "Public holidays in this period"}</h4>
@@ -505,13 +611,45 @@ export function ScheduleManager() {
         }
       >
         <div className="space-y-3">
+          {catalogCourses.some((c) => c.program_code) ? (
+            <div>
+              <AdminLabel>{zh ? "連結上架課程" : "Link listed program"}</AdminLabel>
+              <AdminSelect
+                value=""
+                onChange={(e) => {
+                  const id = e.target.value
+                  const course = catalogCourses.find((c) => c.id === id)
+                  if (!course) return
+                  setForm((f) => ({
+                    ...f,
+                    name: f.name.trim() ? f.name : course.name,
+                    class_code: course.program_code,
+                    instructor: f.instructor.trim() ? f.instructor : course.instructor,
+                    location: f.location.trim() ? f.location : course.location,
+                  }))
+                }}
+              >
+                <option value="">{zh ? "選擇課程以帶入代碼…" : "Pick a program to fill the code…"}</option>
+                {catalogCourses
+                  .filter((c) => c.program_code)
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.program_code} · {c.name}
+                    </option>
+                  ))}
+              </AdminSelect>
+              <p className="mt-1 text-xs text-classz-500">
+                {zh ? "班別代碼需與上架課程的課程代碼相同，前台詳情頁才會顯示這些堂次。" : "Class code must match the listed program code so sessions appear on /programs."}
+              </p>
+            </div>
+          ) : null}
           <div>
             <AdminLabel>{zh ? "名稱" : "Name"}</AdminLabel>
             <AdminInput value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <AdminLabel>{zh ? "班別代碼" : "Class code"}</AdminLabel>
+              <AdminLabel>{zh ? "班別代碼（= 上架課程代碼）" : "Class code (= program code)"}</AdminLabel>
               <AdminInput value={form.class_code} onChange={(e) => setForm((f) => ({ ...f, class_code: e.target.value }))} />
             </div>
             <div>

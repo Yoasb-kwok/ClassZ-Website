@@ -1,24 +1,20 @@
 /**
- * Static program imagery sourced from the Figma design captures
- * (public/images/programs/). The public API has no image/avatar fields yet,
- * so courses are assigned the design photos deterministically — swap to
- * API-driven images when they exist (see docs/Figma_Fidelity_Workflow.md
- * deviations policy).
- *
- * Design assets (imageHash → file):
- * - a2e38fec (card photo, 1219×640)   → class.jpg
- * - 34319d6f (gallery photo, portrait) → gallery.jpg
- * - avatars: host.jpg (50px fit) + a1–a4.jpg (25px ovals)
+ * Program cover images. Centre-uploaded `image_url` wins; otherwise a
+ * design placeholder from public/images/programs/.
  */
+
+import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 
 const PROGRAM_IMAGES = [
   "/images/programs/class.jpg",
   "/images/programs/gallery.jpg",
 ] as const
 
-/** Deterministic per-course image (only 2 photos exist in the design). */
-export function programImage(courseId: number): string {
-  return PROGRAM_IMAGES[courseId % PROGRAM_IMAGES.length]
+/** Cover photo: centre upload when present, otherwise a design placeholder. */
+export function programImage(courseId: number, imageUrl?: string | null): string {
+  const custom = resolveUploadUrl(imageUrl)
+  if (custom) return custom
+  return PROGRAM_IMAGES[Math.abs(Number(courseId) || 0) % PROGRAM_IMAGES.length]
 }
 
 /** Option-card classmate avatar stack (Figma ovals 25px, white 1.04 stroke). */

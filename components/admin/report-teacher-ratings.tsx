@@ -73,8 +73,8 @@ export function TeacherRatingsReport() {
       title={zh ? "導師評價排行" : "Teacher ratings"}
       description={
         zh
-          ? `依出席率、班額、堂數與課堂回饋量綜合評分（1–5 星）· ${periodLabel(month, true)}`
-          : `Composite score from attendance, class size, sessions and feedback (1–5) · ${periodLabel(month, false)}`
+          ? `依出席率、班額、堂數與 Learning Record 數量綜合評分（1–5 星）· ${periodLabel(month, true)}`
+          : `Composite score from attendance, class size, sessions and Learning Records (1–5) · ${periodLabel(month, false)}`
       }
       Icon={Star}
       month={month}
@@ -131,7 +131,7 @@ export function TeacherRatingsReport() {
                   <th className="px-3 py-2 text-left">{zh ? "評分" : "Score"}</th>
                   <th className="px-3 py-2 text-left">{zh ? "出席率" : "Attendance"}</th>
                   <th className="px-3 py-2 text-left">{zh ? "堂數" : "Sessions"}</th>
-                  <th className="px-3 py-2 text-left">{zh ? "回饋" : "Feedback"}</th>
+                  <th className="px-3 py-2 text-left">Learning Record</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-classz-100">

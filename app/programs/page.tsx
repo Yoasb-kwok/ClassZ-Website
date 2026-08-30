@@ -4,6 +4,7 @@ import {
   getPublicCourse,
   getPublicCourses,
 } from "@/lib/public-courses";
+import { isRegularCourseType } from "@/lib/course-types";
 import { ProgramsListing } from "@/components/programs/programs-listing";
 
 export const metadata = generateMetadata({
@@ -18,9 +19,7 @@ export default async function ProgramsPage() {
     getPublicCourses(),
     getPublicClasses(),
   ]);
-  const programs = courses.filter(
-    (c) => c.course_type !== "short_term" && c.course_type !== "summer",
-  );
+  const programs = courses.filter((c) => isRegularCourseType(c.course_type));
 
   // /api/courses omits `price` (detail-only) — same landing-page pattern:
   // fetch details for the listed programs so cards + Budget sort are real.

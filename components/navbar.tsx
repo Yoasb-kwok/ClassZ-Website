@@ -27,6 +27,7 @@ const MAIN_LINKS: { key: string; href: string; match?: string[] }[] = [
   // user instruction — NOT the nav capture 2596:12227 4-item order;
   // spec-silent, user-directed placement.
   { key: "nav.workshops", href: "/workshops" },
+  { key: "nav.trials", href: "/trials" },
   { key: "nav.centres", href: "/centres" },
   { key: "nav.programs", href: "/programs" },
   // ZPassport — not in the nav capture either (user-directed, spec-silent);

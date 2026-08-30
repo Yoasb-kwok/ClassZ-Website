@@ -16,6 +16,7 @@ import {
   type ScheduleCalendarView,
   parseSessionDate,
   eventTimeLabel,
+  isPastCalendarDay,
 } from "@/components/admin/schedule-calendar"
 import {
   AdminGhostButton,
@@ -26,7 +27,6 @@ import {
   AdminPrimaryButton,
   AdminTable,
   AdminTableShell,
-  AdminToolbar,
 } from "@/components/classz-admin-ui"
 
 type ClassOption = {
@@ -58,6 +58,8 @@ const STATUSES: AttendanceStatus[] = ["enrolled", "attended", "absent", "persona
 const LEAVE_STATUSES = new Set<AttendanceStatus>(["personal_leave", "sick_leave"])
 const MAX_DOC_BYTES = 5 * 1024 * 1024
 const DOC_ACCEPT = ".pdf,.doc,.docx,image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+const COMPACT_SELECT =
+  "h-8 w-auto max-w-[9rem] rounded-md border border-classz-100 bg-white px-2 text-xs leading-none text-classz-700 focus:outline-none focus:ring-1 focus:ring-classz-200 disabled:opacity-50"
 
 function mapClass(r: Record<string, unknown>): ClassOption {
   return {
@@ -240,6 +242,8 @@ export function AttendanceManager() {
 
   function openCalendar() {
     setDayPick(null)
+    setCalendarAnchor(new Date())
+    setCalendarView("week")
     setCalendarOpen(true)
   }
 
@@ -448,29 +452,38 @@ export function AttendanceManager() {
         </div>
       )}
 
-      {!loading && classId && enrollments.length > 0 ? (
-        <AdminToolbar>
-          <AdminGhostButton type="button" onClick={toggleAll} disabled={saving}>
-            {allSelected ? (zh ? "取消全選" : "Deselect all") : zh ? "全選" : "Select all"}
-            {selected.size > 0 ? ` (${selected.size})` : ""}
-          </AdminGhostButton>
-          <span className="text-sm text-classz-500 self-center">{zh ? "一次過設為：" : "Set selected to:"}</span>
-          {STATUSES.map((s) => (
-            <AdminPrimaryButton
-              key={s}
-              type="button"
-              className="text-sm py-1.5 px-3"
-              disabled={saving || selected.size === 0}
-              onClick={() => bulkApply(s)}
-            >
-              {statusLabel(s)}
-            </AdminPrimaryButton>
-          ))}
-        </AdminToolbar>
-      ) : null}
-
       {!loading && classId && (
-        <AdminTableShell>
+        <div>
+          {enrollments.length > 0 ? (
+            <div className="mb-1.5 flex items-center justify-end gap-1.5">
+              <span className="text-xs text-classz-500">
+                {zh ? "一次過" : "Bulk"}
+                {selected.size > 0 ? ` (${selected.size})` : ""}
+              </span>
+              <select
+                className={COMPACT_SELECT}
+                defaultValue=""
+                disabled={saving || selected.size === 0}
+                aria-label={zh ? "一次過設為" : "Set selected to"}
+                onChange={(e) => {
+                  const next = e.target.value as AttendanceStatus
+                  e.target.value = ""
+                  if (!STATUSES.includes(next)) return
+                  bulkApply(next)
+                }}
+              >
+                <option value="" disabled>
+                  {selected.size === 0 ? (zh ? "先勾選" : "Select first") : zh ? "狀態" : "Status"}
+                </option>
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {statusLabel(s)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+          <AdminTableShell>
           <AdminTable>
             <thead className="bg-classz-100">
               <tr>
@@ -498,9 +511,6 @@ export function AttendanceManager() {
                 <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">
                   {zh ? "證明" : "Proof"}
                 </th>
-                <th className="px-3 py-3 text-right text-base font-semibold text-classz-600 uppercase">
-                  {zh ? "操作" : "Actions"}
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-classz-100">
@@ -519,7 +529,29 @@ export function AttendanceManager() {
                     </td>
                     <td className="px-3 py-2 text-classz-800 font-medium">{e.profile_name || e.user_name}</td>
                     <td className="px-3 py-2 text-classz-600">{e.user_mobile || "—"}</td>
-                    <td className="px-3 py-2 text-classz-600">{statusLabel(e.status)}</td>
+                    <td className="px-3 py-1.5">
+                      <select
+                        className={COMPACT_SELECT}
+                        value={e.status}
+                        disabled={saving}
+                        aria-label={zh ? "狀態" : "Status"}
+                        onChange={(ev) => {
+                          const next = ev.target.value as AttendanceStatus
+                          if (next === e.status) return
+                          if (!STATUSES.includes(next)) return
+                          setStatus(e.id, next)
+                        }}
+                      >
+                        {!STATUSES.includes(e.status as AttendanceStatus) ? (
+                          <option value={e.status}>{statusLabel(e.status)}</option>
+                        ) : null}
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {statusLabel(s)}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="px-3 py-2 text-sm">
                       {doc ? (
                         <a
@@ -535,36 +567,12 @@ export function AttendanceManager() {
                         <span className="text-classz-400">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-right space-x-1">
-                      {STATUSES.map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          disabled={saving || e.status === s}
-                          className={`px-2 py-1 text-xs rounded border ${
-                            e.status === s
-                              ? "bg-classz-100 border-classz-300 text-classz-700"
-                              : "border-classz-200 text-classz-600 hover:bg-classz-50"
-                          }`}
-                          onClick={() => setStatus(e.id, s)}
-                          title={
-                            isLeaveStatus(s)
-                              ? zh
-                                ? "需上載證明文件"
-                                : "Proof document required"
-                              : undefined
-                          }
-                        >
-                          {statusLabel(s)}
-                        </button>
-                      ))}
-                    </td>
                   </tr>
                 )
               })}
               {enrollments.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-classz-500">
+                  <td colSpan={5} className="px-3 py-8 text-center text-classz-500">
                     {zh ? "此課堂暫無學員報名" : "No enrollments for this session"}
                   </td>
                 </tr>
@@ -572,6 +580,7 @@ export function AttendanceManager() {
             </tbody>
           </AdminTable>
         </AdminTableShell>
+        </div>
       )}
 
       {!classId && !loading && (
@@ -618,6 +627,8 @@ export function AttendanceManager() {
             zh={zh}
             view={calendarView}
             anchorDate={calendarAnchor}
+            mutePastDays
+            autoScrollToday
             onAnchorChange={(d) => {
               setCalendarAnchor(d)
               setDayPick(null)
@@ -639,26 +650,31 @@ export function AttendanceManager() {
                 <p className="text-sm text-classz-500">{zh ? "這天沒有課堂" : "No sessions on this day"}</p>
               ) : (
                 <ul className="space-y-2">
-                  {dayPickSessions.map((c) => (
+                  {dayPickSessions.map((c) => {
+                    const past = isPastCalendarDay(parseSessionDate(c.start_time))
+                    return (
                     <li key={c.id}>
                       <button
                         type="button"
                         onClick={() => selectClass(c.id)}
                         className={`w-full text-left rounded-lg border px-3 py-2 transition-colors ${
-                          c.id === classId
+                          past
+                            ? "border-classz-100 bg-classz-50 text-classz-400 opacity-70"
+                            : c.id === classId
                             ? "border-classz-400 bg-classz-100"
                             : "border-classz-200 bg-white hover:border-classz-300 hover:bg-classz-50"
                         }`}
                       >
-                        <p className="font-medium text-classz-800">{c.name}</p>
-                        <p className="text-sm text-classz-500">
+                        <p className={`font-medium ${past ? "text-classz-400" : "text-classz-800"}`}>{c.name}</p>
+                        <p className={`text-sm ${past ? "text-classz-400" : "text-classz-500"}`}>
                           {eventTimeLabel(c.start_time, c.end_time, zh)}
                           {c.instructor ? ` · ${c.instructor}` : ""}
                           {c.location ? ` · ${c.location}` : ""}
                         </p>
                       </button>
                     </li>
-                  ))}
+                    )
+                  })}
                 </ul>
               )}
             </div>

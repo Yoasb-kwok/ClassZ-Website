@@ -73,7 +73,7 @@ export function ProgramDetail({
   const { t, locale } = useLanguage();
 
   const price = course.price != null ? Number(course.price) : null;
-  const district = districtLabel(course.location, locale);
+  const district = course.venue || districtLabel(course.location, locale);
   const instructor = classes[0]?.instructor ?? course.instructor;
   const centre = CENTRES.find((c) => c.id === course.center_id);
   const centreName = centre?.name ?? instructor;
@@ -101,7 +101,7 @@ export function ProgramDetail({
                 Placeholder photo from the design capture until the API
                 serves per-program images. */}
               <img
-                src={programImage(course.id)}
+                src={programImage(course.id, course.image_url)}
                 alt={course.name}
                 className="absolute inset-0 h-full w-full object-cover"
               />

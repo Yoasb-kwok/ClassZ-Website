@@ -46,6 +46,7 @@ export function CentreListing({ centres }: { centres: Centre[] }) {
         const haystack = [
           centre.name,
           centre.address,
+          centre.category,
           findDistrict(centre.districtSlug)?.en,
         ]
           .filter(Boolean)

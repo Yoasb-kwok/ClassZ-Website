@@ -2,7 +2,7 @@ import { generateMetadata } from "@/lib/metadata"
 import {
   getPublicClasses,
   getPublicCourses,
-  classesForCourse,
+  sessionsForWorkshop,
 } from "@/lib/public-courses"
 import { DiscoveryPage } from "@/components/programs/discovery-page"
 
@@ -21,7 +21,7 @@ export default async function WorkshopsPage() {
   // "N schedules" row on the 2408 wide card — active classes per course
   const scheduleCounts: Record<number, number> = {}
   for (const course of courses) {
-    scheduleCounts[course.id] = classesForCourse(classes, course).length
+    scheduleCounts[course.id] = sessionsForWorkshop(classes, course).length
   }
   return (
     <DiscoveryPage

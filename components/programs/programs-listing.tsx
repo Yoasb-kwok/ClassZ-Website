@@ -14,6 +14,7 @@ import {
   findDistrict,
   type District,
 } from "@/lib/locations";
+import { isRegularCourseType } from "@/lib/course-types";
 import { programImage } from "@/lib/program-images";
 import {
   classesForCourse,
@@ -102,16 +103,26 @@ function Pill({
   );
 }
 
-/** disabled checkbox row — sidebar CheckRow chrome (#1979:739x) */
-function CheckRow({ label }: { label: string }) {
+/** category checkbox row */
+function CheckRow({
+  label,
+  selected,
+  onToggle,
+}: {
+  label: string;
+  selected?: boolean;
+  onToggle?: () => void;
+}) {
   return (
-    <div className="flex items-center gap-5">
+    <button type="button" onClick={onToggle} className="flex items-center gap-5 text-left">
       <span
         aria-hidden
-        className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-[#B0B0B0] bg-white"
+        className={`flex h-4 w-4 items-center justify-center rounded-[4px] border ${
+          selected ? "border-[#0ABAB5] bg-[rgba(10,186,181,0.35)]" : "border-[#B0B0B0] bg-white"
+        }`}
       />
       <span className="text-sm leading-[21px] text-ink">{label}</span>
-    </div>
+    </button>
   );
 }
 
@@ -155,6 +166,7 @@ export function ProgramsListing({
 
   const [query, setQuery] = useState("");
   const [districts, setDistricts] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<Set<string>>(new Set());
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   /** which popover is open — only one at a time (demo behavior) */
@@ -179,7 +191,7 @@ export function ProgramsListing({
   const rows: Row[] = useMemo(() => {
     return courses
       .filter(
-        (c) => c.course_type !== "short_term" && c.course_type !== "summer",
+        (c) => isRegularCourseType(c.course_type),
       )
       .map((course) => {
         const sessions = classesForCourse(classes, course);
@@ -218,6 +230,10 @@ export function ProgramsListing({
     const fromDay = parseDatePicker(dateFrom);
     const toDay = parseDatePicker(dateTo);
     const out = rows.filter((row) => {
+      if (categories.size > 0) {
+        const cat = row.course.category;
+        if (!cat || !categories.has(cat)) return false;
+      }
       if (districts.size > 0) {
         const district = findDistrict(row.course.location);
         if (!district || !districts.has(district.slug)) return false;
@@ -243,9 +259,22 @@ export function ProgramsListing({
       return true;
     });
 
-    /* one sort active at a time (demo it.1 fix); null-keyed rows sink */
+    /* pins stay on top (earliest paid first); one sort at a time among the rest */
+    const boostCmp = (a: Row, b: Row) => {
+      const ap = a.course.boosted ? 0 : 1;
+      const bp = b.course.boosted ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      if (a.course.boosted && b.course.boosted) {
+        const ta = a.course.boost_paid_at ? new Date(a.course.boost_paid_at).getTime() : 0;
+        const tb = b.course.boost_paid_at ? new Date(b.course.boost_paid_at).getTime() : 0;
+        return ta - tb;
+      }
+      return 0;
+    };
     if (activeSort === "budget") {
       out.sort((a, b) => {
+        const boost = boostCmp(a, b);
+        if (boost !== 0) return boost;
         if (a.price == null && b.price == null) return 0;
         if (a.price == null) return 1;
         if (b.price == null) return -1;
@@ -253,6 +282,8 @@ export function ProgramsListing({
       });
     } else if (activeSort === "size") {
       out.sort((a, b) => {
+        const boost = boostCmp(a, b);
+        if (boost !== 0) return boost;
         if (a.capacity == null && b.capacity == null) return 0;
         if (a.capacity == null) return 1;
         if (b.capacity == null) return -1;
@@ -264,6 +295,7 @@ export function ProgramsListing({
     rows,
     query,
     districts,
+    categories,
     dateFrom,
     dateTo,
     activeSort,
@@ -282,6 +314,7 @@ export function ProgramsListing({
   const clearFilters = () => {
     setQuery("");
     setDistricts(new Set());
+    setCategories(new Set());
     setDateFrom("");
     setDateTo("");
     setActiveSort(null);
@@ -315,8 +348,7 @@ export function ProgramsListing({
             radius). Mobile stacks the sections (spec-silent, demo media). */}
         <div className="mx-auto w-full max-w-[1102px] px-6 md:pl-12 md:pr-20">
           <div className="flex flex-col divide-y divide-[#B0B0B0] rounded-t-[8px] border border-b-0 border-[#B0B0B0] bg-white md:h-[56px] md:flex-row md:divide-x md:divide-y-0">
-            {/* Category — inert until the API exposes a category field
-                (filter-sidebar.tsx same policy: chrome visible, coming soon) */}
+            {/* Category — filters on course.category from centre listings */}
             <div className={segWrap}>
               <button
                 type="button"
@@ -324,7 +356,6 @@ export function ProgramsListing({
                 onClick={() =>
                   setOpenPop(openPop === "category" ? null : "category")
                 }
-                title={t("programs.comingSoon")}
                 className={segBtn}
               >
                 {t("programs.category")}
@@ -341,11 +372,7 @@ export function ProgramsListing({
                   <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
                     {t("programs.category")}
                   </h4>
-                  <fieldset
-                    disabled
-                    className="flex flex-col gap-4"
-                    title={t("programs.comingSoon")}
-                  >
+                  <div className="flex flex-col gap-4">
                     {(
                       [
                         "academic",
@@ -362,9 +389,18 @@ export function ProgramsListing({
                       <CheckRow
                         key={key}
                         label={t(`programs.categories.${key}`)}
+                        selected={categories.has(key)}
+                        onToggle={() =>
+                          setCategories((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(key)) next.delete(key);
+                            else next.add(key);
+                            return next;
+                          })
+                        }
                       />
                     ))}
-                  </fieldset>
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -747,7 +783,7 @@ function ListingCard({ row }: { row: Row }) {
       {/* image panel — flexes (643 wide at the 974 card) */}
       <div className="relative aspect-[643/253] w-full overflow-hidden bg-classz-50 lg:aspect-auto lg:h-[253px] lg:w-auto lg:flex-1 lg:shrink">
         <img
-          src={programImage(course.id)}
+          src={programImage(course.id, course.image_url)}
           alt={course.name}
           className="absolute inset-0 h-full w-full object-cover"
         />

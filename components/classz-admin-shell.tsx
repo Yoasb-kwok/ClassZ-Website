@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { LogOut, Menu, X, PanelLeft, Search, Bell, Plus } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import { clearClasszSession, getClasszSession } from "@/lib/classz-auth"
+import { clearClasszSession, getClasszSession, readCachedModules, writeCachedModules } from "@/lib/classz-auth"
 import { useLanguage } from "@/components/language-provider"
 import { isAdminNavPathActive } from "@/lib/classz-admin-nav"
 import { filterNavByModules, getAdminNavGroupsForRole } from "@/components/admin/use-admin-api"
@@ -24,27 +24,56 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
   const { locale, setLocale, t } = useLanguage()
   const zh = locale === "zh-TW"
   const session = getClasszSession()
+  const demo = !session?.token || session.token === "demo-classz-token"
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [query, setQuery] = useState("")
-  const [enabledModules, setEnabledModules] = useState<Set<string> | null>(null)
+  const [enabledModules, setEnabledModules] = useState<Set<string> | null>(() => {
+    if (!session?.token || session.token === "demo-classz-token") return null
+    const cached = readCachedModules(session.token)
+    return cached ? new Set(cached) : null
+  })
 
   useEffect(() => {
     if (!session?.token || session.token === "demo-classz-token") return
+    let cancelled = false
     apiGet<{ modules: string[] }>("/me/modules")
-      .then((d) => setEnabledModules(new Set(d.modules || [])))
-      .catch(() => setEnabledModules(null))
+      .then((d) => {
+        if (cancelled) return
+        const modules = d.modules || []
+        writeCachedModules(session.token, modules)
+        setEnabledModules(new Set(modules))
+      })
+      .catch(() => {
+        if (cancelled) return
+        setEnabledModules((prev) => {
+          if (prev) return prev
+          writeCachedModules(session.token, [])
+          return new Set()
+        })
+      })
+    return () => {
+      cancelled = true
+    }
   }, [session?.token])
 
   const groups = useMemo(() => {
     const raw = getAdminNavGroupsForRole(session?.user.role || "center_admin")
-    if (!enabledModules) return raw
+    if (demo) return raw
+    if (!enabledModules) return []
     return filterNavByModules(raw, enabledModules)
-  }, [session?.user.role, enabledModules])
+  }, [session?.user.role, enabledModules, demo])
   const avatar = useMemo(() => initials(session?.user.name), [session?.user.name])
 
   const navBlock = (mobile: boolean) => (
     <nav className={`${mobile ? "px-2 py-2" : "mt-1 px-2"} space-y-0.5`}>
-      {groups.map((g) => (
+      {!demo && !enabledModules ? (
+        <div className="space-y-2 px-2.5 py-2" aria-hidden>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-7 rounded-lg bg-white/10 animate-pulse" />
+          ))}
+        </div>
+      ) : (
+        groups.map((g) => (
         <div key={g.titleEn} className="mb-3 last:mb-0">
           <p className="px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-white/35">
             {zh ? g.titleZh : g.titleEn}
@@ -76,7 +105,8 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
             })}
           </div>
         </div>
-      ))}
+        ))
+      )}
     </nav>
   )
 
@@ -178,7 +208,7 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
               </button>
             </div>
             <Link
-              href="/admin/bookings"
+              href="/admin/trials"
               className="hidden items-center gap-1 rounded-lg bg-brand-teal px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110 md:inline-flex"
             >
               <Plus className="h-3.5 w-3.5" />

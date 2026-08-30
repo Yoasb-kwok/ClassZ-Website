@@ -1,4 +1,4 @@
-/** Shared layout for 課堂回饋 / Feedback (ALR + quick message). */
+/** Shared layout for Learning Record forms and companion panels. */
 export const FEEDBACK_CONTENT = "w-full min-w-0"
 export const FEEDBACK_STACK = "space-y-6"
 export const FEEDBACK_FORM_STACK = "space-y-4 min-w-0"

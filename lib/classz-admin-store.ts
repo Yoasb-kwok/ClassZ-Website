@@ -37,8 +37,24 @@ export interface AdminCourse {
   end_time: string
   capacity: number
   enrolled_count: number
-  status: "draft" | "published"
+  status: "draft" | "published" | "pending_approval" | "rejected"
   location: string
+  program_code?: string
+  intro?: string
+  level?: string
+  age_tag?: string
+  age_min?: number | null
+  age_max?: number | null
+  weekday?: number | null
+  course_type?: string
+  price?: number | null
+  trial_class_name?: string
+  image_url?: string | null
+  category?: string | null
+  starts_at?: string | null
+  ends_at?: string | null
+  venue?: string | null
+  default_instructor_id?: number | null
 }
 
 export interface AdminInstructor {

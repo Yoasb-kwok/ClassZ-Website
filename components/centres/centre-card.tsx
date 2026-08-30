@@ -6,6 +6,7 @@ import { useLanguage } from "@/components/language-provider";
 import { formatTemplate } from "@/components/programs/format";
 import { districtLabel } from "@/lib/locations";
 import type { Centre } from "@/lib/centre-data";
+import { CENTRE_CATEGORIES } from "@/lib/register-center-validation";
 
 /**
  * Centre card in two variants:
@@ -130,7 +131,11 @@ export function CentreCard({
                 placeholder content (no centre API fields). */}
             <div className="flex flex-col gap-2.5">
               <p className="text-[14px] leading-[17px] text-[#5E5E5E]">
-                {t("programs.ageLabel").replace("{age}", centre.ageTag)}
+                {centre.category
+                  ? locale === "zh-TW"
+                    ? (CENTRE_CATEGORIES.find((c) => c.value === centre.category)?.zh || centre.category)
+                    : (CENTRE_CATEGORIES.find((c) => c.value === centre.category)?.en || centre.category)
+                  : t("programs.ageLabel").replace("{age}", centre.ageTag || "—")}
               </p>
               <div className="flex items-center gap-1">
                 <MapPin

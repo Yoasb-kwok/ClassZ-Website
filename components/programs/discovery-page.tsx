@@ -12,7 +12,7 @@ export function DiscoveryPage({
 }: {
   courses: PublicCourse[];
   /** "centre" = W7 /centres/[id]?tab=programs state (#2568:10769) */
-  variant: "programs" | "workshops" | "centre";
+  variant: "programs" | "workshops" | "trials" | "centre";
   scheduleCounts?: Record<number, number>;
 }) {
   return (

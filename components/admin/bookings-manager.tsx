@@ -36,7 +36,7 @@ type WaitlistRow = {
   status: string
 }
 
-export function BookingsManager() {
+export function BookingsManager({ embedded = false }: { embedded?: boolean }) {
   const { locale } = useLanguage()
   const zh = locale === "zh-TW"
   const demo = isDemoSession()
@@ -90,14 +90,8 @@ export function BookingsManager() {
     }
   }
 
-  return (
-    <AdminPageFrame>
-      <AdminPageHeader
-        title={zh ? "預約" : "Bookings"}
-        description={zh ? "報名請求、候補名單" : "Enrollment requests and waitlist"}
-        Icon={CalendarClock}
-      />
-
+  const body = (
+    <>
       <div className="flex flex-wrap gap-2">
         {(
           [
@@ -199,6 +193,19 @@ export function BookingsManager() {
           </ul>
         </AdminCard>
       ) : null}
+    </>
+  )
+
+  if (embedded) return body
+
+  return (
+    <AdminPageFrame>
+      <AdminPageHeader
+        title={zh ? "預約" : "Bookings"}
+        description={zh ? "報名請求、候補名單" : "Enrollment requests and waitlist"}
+        Icon={CalendarClock}
+      />
+      {body}
     </AdminPageFrame>
   )
 }

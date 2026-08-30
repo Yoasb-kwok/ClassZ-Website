@@ -4,11 +4,10 @@ import {
   LayoutDashboard,
   Users,
   GraduationCap,
+  Building2,
   CalendarCheck,
   BookOpen,
-  CalendarClock,
   ClipboardList,
-  MessageSquareText,
   Receipt,
   Tag,
   Undo2,
@@ -21,6 +20,9 @@ import {
   Flame,
   ListTodo,
   NotebookPen,
+  UserCog,
+  Sparkles,
+  UserPlus,
 } from "lucide-react"
 
 export type CenterAdminNavItem = {
@@ -43,7 +45,10 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
     {
       titleZh: "總覽",
       titleEn: "Overview",
-      items: [{ path: "/admin", labelZh: "Dashboard", labelEn: "Dashboard", icon: LayoutDashboard, moduleKey: "dashboard" }],
+      items: [
+        { path: "/admin", labelZh: "Dashboard", labelEn: "Dashboard", icon: LayoutDashboard, moduleKey: "dashboard" },
+        { path: "/admin/centre-profile", labelZh: "中心資料", labelEn: "Centre profile", icon: Building2, moduleKey: "centre_profile" },
+      ],
     },
     {
       titleZh: "人員",
@@ -51,6 +56,7 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
       items: [
         { path: "/admin/students", labelZh: "學員", labelEn: "Students", icon: Users, moduleKey: "students" },
         { path: "/admin/teachers", labelZh: "導師", labelEn: "Teachers", icon: GraduationCap, moduleKey: "teachers" },
+        { path: "/admin/members", labelZh: "人員管理", labelEn: "Members", icon: UserCog, moduleKey: "centre_members" },
       ],
     },
     {
@@ -59,10 +65,10 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
       items: [
         { path: "/admin/schedule", labelZh: "排程", labelEn: "Schedule", icon: CalendarCheck, moduleKey: "schedule" },
         { path: "/admin/programs", labelZh: "課程", labelEn: "Courses", icon: BookOpen, moduleKey: "programs" },
-        { path: "/admin/bookings", labelZh: "預約", labelEn: "Bookings", icon: CalendarClock, moduleKey: "bookings" },
+        { path: "/admin/workshops", labelZh: "工作坊", labelEn: "Workshops", icon: Sparkles, moduleKey: "workshops" },
+        { path: "/admin/trials", labelZh: "試堂", labelEn: "Trial classes", icon: UserPlus, moduleKey: "trials" },
         { path: "/admin/attendance", labelZh: "點名", labelEn: "Attendance", icon: ClipboardList, moduleKey: "attendance" },
         { path: "/admin/tasks", labelZh: "指派任務", labelEn: "Tasks", icon: ListTodo, moduleKey: "tasks" },
-        { path: "/admin/feedback", labelZh: "課堂回饋", labelEn: "Feedback", icon: MessageSquareText, moduleKey: "feedback" },
         {
           path: "/admin/learning-records",
           labelZh: "Learning Record",

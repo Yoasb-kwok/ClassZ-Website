@@ -1098,7 +1098,8 @@
       "sen": "SEN-friendly facilities and teaching for children with different learning needs.",
       "smallClass": "Smaller class groups for more focused attention and interaction.",
       "examPathway": "Supports recognised exams, graded levels, or certificate preparation.",
-      "performance": "Offers chances to perform, showcase, compete, or present work."
+      "performance": "Offers chances to perform, showcase, compete, or present work.",
+      "learningCompanion": "Learning Companion support for progress tracking and personalised follow-up."
     }
   },
   "programs": {
@@ -1110,6 +1111,9 @@
     "emptyBody": "Try adjusting your search or filters to see more programs.",
     "workshopsEmpty": "No workshops available right now. Check back soon!",
     "workshopsSubtitle": "Discover classes, coaches, and study centres near you — and help your child explore new hobbies, interests, and talents.",
+    "trialsTitle": "Try a class first",
+    "trialsSubtitle": "Book a one-off trial session before you enroll — same centres, lower commitment.",
+    "trialsEmpty": "No trial classes available right now. Check back soon!",
     "perCourse": "course",
     "schedules": "{count} schedules",
     "schedulesMany": "10+ schedules",
@@ -1160,7 +1164,8 @@
       "sen": "SEN-inclusive",
       "smallClass": "Small Class Size",
       "examPathway": "Exam / Certificate Pathway",
-      "performance": "Performance Opportunity"
+      "performance": "Performance Opportunity",
+      "learningCompanion": "Learning Companion"
     },
     "place": "Place",
     "hkIsland": "Hong Kong Island",
@@ -1197,6 +1202,7 @@
     "aboutUs": "About Us",
     "programs": "Programs",
     "workshops": "Workshops",
+    "trials": "Trial classes",
     "centres": "Centres",
     "zPassport": "ZPassport",
     "schedule": "Schedule",

@@ -1,5 +1,5 @@
-import { BookingsManager } from "@/components/admin/bookings-manager"
+import { redirect } from "next/navigation"
 
 export default function BookingsPage() {
-  return <BookingsManager />
+  redirect("/admin/trials")
 }

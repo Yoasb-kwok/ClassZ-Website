@@ -99,12 +99,16 @@ const ALL_DISTRICTS: District[] = [
   ...NEW_TERRITORIES_DISTRICTS,
 ]
 
+export { ALL_DISTRICTS }
+
 const slugKey = (slug: string) => slug.trim().toLowerCase().replace(/[\s-]+/g, "")
 
 export function findDistrict(slug: string | null | undefined): District | undefined {
   if (!slug) return undefined
   const key = slugKey(slug)
-  return ALL_DISTRICTS.find((d) => slugKey(d.slug) === key)
+  return ALL_DISTRICTS.find(
+    (d) => slugKey(d.slug) === key || slugKey(d.en) === key || slugKey(d.zh) === key,
+  )
 }
 
 export function districtLabel(slug: string | null | undefined, locale: "en" | "zh-TW"): string {

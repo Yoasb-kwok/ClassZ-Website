@@ -3,8 +3,8 @@ import { generateMetadata as genMeta } from "@/lib/metadata"
 import {
   getPublicCourse,
   getPublicClasses,
-  classesForCourse,
   getPublicCourses,
+  sessionsForWorkshop,
   type PublicCourse,
 } from "@/lib/public-courses"
 import { ProgramDetail } from "@/components/programs/program-detail"
@@ -41,7 +41,7 @@ export default async function WorkshopDetailPage({ params }: Params) {
   if (!course) notFound()
 
   const [classes, allCourses] = await Promise.all([getPublicClasses(), getPublicCourses()])
-  const sessions = classesForCourse(classes, course)
+  const sessions = sessionsForWorkshop(classes, course)
   const similar = allCourses
     .filter((c) => c.id !== course.id && c.center_id === course.center_id)
     .slice(0, 3)

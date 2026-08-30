@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import {
   addMonths,
   addWeeks,
@@ -77,10 +77,6 @@ export function getCourseColor(ev: Pick<ScheduleCalendarEvent, "class_code" | "n
   return COURSE_COLORS[hashCourseKey(key) % COURSE_COLORS.length]
 }
 
-export function courseIdentityKey(ev: Pick<ScheduleCalendarEvent, "class_code" | "name" | "id">) {
-  return (ev.class_code || ev.name || ev.id || "").trim().toLowerCase()
-}
-
 export function getCalendarVisibleRange(anchorDate: Date, view: ScheduleCalendarView) {
   if (view === "month") {
     return {
@@ -111,6 +107,16 @@ function eventTimeLabel(start: string, end: string, zh: boolean) {
   return b ? `${a}–${b}` : a
 }
 
+const PAST_EVENT_COLOR = { bar: "#A3A3A3", bg: "#F5F5F5", border: "#E5E5E5", text: "#737373" } as const
+
+function startOfLocalDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+
+export function isPastCalendarDay(day: Date) {
+  return startOfLocalDay(day) < startOfLocalDay(new Date())
+}
+
 export function ScheduleCalendar({
   events,
   holidays = [],
@@ -120,6 +126,8 @@ export function ScheduleCalendar({
   onAnchorChange,
   onEventClick,
   onDayClick,
+  mutePastDays = false,
+  autoScrollToday = false,
 }: {
   events: ScheduleCalendarEvent[]
   holidays?: ScheduleHoliday[]
@@ -129,8 +137,25 @@ export function ScheduleCalendar({
   onAnchorChange: (date: Date) => void
   onEventClick: (event: ScheduleCalendarEvent) => void
   onDayClick: (day: Date) => void
+  mutePastDays?: boolean
+  autoScrollToday?: boolean
 }) {
   const locale = zh ? zhTW : enUS
+  const todayRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    if (!autoScrollToday) return
+    let inner = 0
+    const outer = window.requestAnimationFrame(() => {
+      inner = window.requestAnimationFrame(() => {
+        todayRef.current?.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" })
+      })
+    })
+    return () => {
+      window.cancelAnimationFrame(outer)
+      window.cancelAnimationFrame(inner)
+    }
+  }, [autoScrollToday, view, anchorDate])
 
   const days = useMemo(() => {
     if (view === "month") {
@@ -174,17 +199,6 @@ export function ScheduleCalendar({
     }
     return map
   }, [holidays])
-
-  const courseLegend = useMemo(() => {
-    const seen = new Map<string, { label: string; color: (typeof COURSE_COLORS)[number] }>()
-    for (const ev of events) {
-      const key = courseIdentityKey(ev)
-      if (!key || seen.has(key)) continue
-      const label = ev.class_code || ev.name || key
-      seen.set(key, { label, color: getCourseColor(ev) })
-    }
-    return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label, zh ? "zh-HK" : "en"))
-  }, [events, zh])
 
   function goPrev() {
     onAnchorChange(view === "month" ? subMonths(anchorDate, 1) : subWeeks(anchorDate, 1))
@@ -242,18 +256,20 @@ export function ScheduleCalendar({
             const dayHolidays = holidaysByDay.get(key) || []
             const inMonth = isSameMonth(day, anchorDate)
             const isToday = isSameDay(day, new Date())
+            const isPast = mutePastDays && isPastCalendarDay(day)
             return (
               <button
                 key={key}
                 type="button"
+                ref={isToday ? (el) => { todayRef.current = el } : undefined}
                 onClick={() => onDayClick(day)}
                 className={`min-h-[6.5rem] border-r border-b border-classz-100 p-1.5 text-left align-top hover:bg-classz-50/80 transition-colors ${
-                  inMonth ? "bg-white" : "bg-classz-50/40"
+                  isPast ? "bg-classz-50/70" : inMonth ? "bg-white" : "bg-classz-50/40"
                 } ${dayHolidays.length ? "ring-1 ring-inset ring-[color-mix(in_srgb,var(--brand-orange)_40%,white)]" : ""}`}
               >
                 <div
                   className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium mb-1 ${
-                    isToday ? "bg-classz-500 text-white" : inMonth ? "text-classz-800" : "text-classz-400"
+                    isToday ? "bg-classz-500 text-white" : isPast ? "text-classz-400" : inMonth ? "text-classz-800" : "text-classz-400"
                   }`}
                 >
                   {format(day, "d")}
@@ -265,7 +281,7 @@ export function ScheduleCalendar({
                 )}
                 <div className="space-y-1">
                   {dayEvents.slice(0, 3).map((ev) => {
-                    const color = getCourseColor(ev)
+                    const color = isPast ? PAST_EVENT_COLOR : getCourseColor(ev)
                     return (
                       <div
                         key={ev.id}
@@ -282,7 +298,7 @@ export function ScheduleCalendar({
                             onEventClick(ev)
                           }
                         }}
-                        className="w-full text-left rounded px-1.5 py-0.5 text-xs border truncate hover:brightness-95 transition-[filter]"
+                        className={`w-full text-left rounded px-1.5 py-0.5 text-xs border truncate hover:brightness-95 transition-[filter] ${isPast ? "opacity-60" : ""}`}
                         style={{
                           backgroundColor: color.bg,
                           borderColor: color.border,
@@ -314,15 +330,17 @@ export function ScheduleCalendar({
             const dayEvents = eventsByDay.get(key) || []
             const dayHolidays = holidaysByDay.get(key) || []
             const isToday = isSameDay(day, new Date())
+            const isPast = mutePastDays && isPastCalendarDay(day)
             return (
-              <div key={key} className={`flex flex-col min-w-0 bg-white ${dayHolidays.length ? "bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)]" : ""}`}>
+              <div key={key} className={`flex flex-col min-w-0 ${isPast ? "bg-classz-50/80" : "bg-white"} ${dayHolidays.length ? "bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)]" : ""}`}>
                 <button
                   type="button"
+                  ref={isToday ? (el) => { todayRef.current = el } : undefined}
                   onClick={() => onDayClick(day)}
-                  className={`shrink-0 py-2 text-center border-b border-classz-100 hover:bg-classz-50 ${isToday ? "bg-classz-50" : ""}`}
+                  className={`shrink-0 py-2 text-center border-b border-classz-100 hover:bg-classz-50 ${isToday ? "bg-classz-50" : ""} ${isPast ? "opacity-60" : ""}`}
                 >
                   <div className="text-xs uppercase text-classz-500">{format(day, "EEE", { locale })}</div>
-                  <div className={`text-lg font-semibold ${isToday ? "text-classz-600" : "text-classz-800"}`}>{format(day, "d")}</div>
+                  <div className={`text-lg font-semibold ${isToday ? "text-classz-600" : isPast ? "text-classz-400" : "text-classz-800"}`}>{format(day, "d")}</div>
                   {dayHolidays.length > 0 && (
                     <p className="text-[10px] text-brand-orange px-1 truncate" title={dayHolidays.map((h) => h.name).join(", ")}>
                       {dayHolidays[0].name}
@@ -334,13 +352,13 @@ export function ScheduleCalendar({
                     <p className="text-xs text-classz-400 text-center pt-4">{zh ? "無課堂" : "No sessions"}</p>
                   ) : (
                     dayEvents.map((ev) => {
-                      const color = getCourseColor(ev)
+                      const color = isPast ? PAST_EVENT_COLOR : getCourseColor(ev)
                       return (
                         <button
                           key={ev.id}
                           type="button"
                           onClick={() => onEventClick(ev)}
-                          className="w-full text-left rounded-lg border p-2 shadow-sm hover:brightness-95 transition-[filter]"
+                          className={`w-full text-left rounded-lg border p-2 shadow-sm hover:brightness-95 transition-[filter] ${isPast ? "opacity-60" : ""}`}
                           style={{
                             backgroundColor: color.bg,
                             borderColor: color.border,
@@ -379,35 +397,6 @@ export function ScheduleCalendar({
       )}
         </div>
       </div>
-
-      {courseLegend.length > 1 ? (
-        <div className="border-t border-classz-100 bg-white px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-slate/60 mb-2">
-            {zh ? "課程顏色" : "Course colors"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {courseLegend.map((item) => (
-              <span
-                key={item.label}
-                className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium max-w-full"
-                style={{
-                  backgroundColor: item.color.bg,
-                  borderColor: item.color.border,
-                  color: item.color.text,
-                }}
-                title={item.label}
-              >
-                <span
-                  className="h-2 w-2 shrink-0 rounded-full"
-                  style={{ backgroundColor: item.color.bar }}
-                  aria-hidden
-                />
-                <span className="truncate">{item.label}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

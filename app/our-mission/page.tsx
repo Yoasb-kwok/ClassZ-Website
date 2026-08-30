@@ -11,40 +11,39 @@ export default function OurMissionPage() {
 
   return (
     <main className="min-h-screen bg-white font-sans text-slate-900 selection:bg-teal-100">
-      <Navbar />
+      {/* Match homepage banner slot: 1440 cap, 32px gap under nav, rounded 454-tall hero */}
+      <div className="flex flex-col md:gap-[32px] lg:mx-auto lg:max-w-[1440px]">
+        <Navbar />
 
-      {/* Hero Header */}
-      <section className="relative w-full h-[600px] md:h-[720px] overflow-hidden bg-black">
-        {/* Background Image - full width, accepts slight vertical crop */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/headerOurMission.png')" }}
-        />
-
-        {/* Dark Overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-black/55 md:bg-black/45" />
-
-        {/* Content overlay */}
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 md:px-10 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 md:mb-6 drop-shadow-lg">
-              {t("mission.hero.title1")}
-              <br />
-              {t("mission.hero.title2")}
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/95 mb-8 md:mb-10 max-w-3xl mx-auto drop-shadow-md">
-              {t("mission.hero.subtitle")}
-            </p>
-            <Link
-              href="/our-features"
-              className="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-[#0ABAB5] hover:bg-[#00b3a3] text-white font-semibold text-base md:text-lg rounded-full transition-colors shadow-lg"
-            >
-              {t("exploreMore")}
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+        <section className="relative w-full overflow-hidden py-8 lg:py-0">
+          <div className="relative aspect-[1440/454] w-full overflow-hidden rounded-xl bg-black lg:aspect-auto lg:h-[454px]">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: "url('/headerOurMission.png')" }}
+            />
+            <div className="pointer-events-none absolute inset-0 bg-black/55 md:bg-black/45" />
+            <div className="relative z-10 flex h-full items-center justify-center">
+              <div className="w-full max-w-[1280px] px-4 text-center sm:px-6 md:px-10">
+                <h1 className="mb-3 text-3xl font-bold text-white drop-shadow-lg sm:text-4xl md:mb-4 md:text-5xl">
+                  {t("mission.hero.title1")}
+                  <br />
+                  {t("mission.hero.title2")}
+                </h1>
+                <p className="mx-auto mb-6 max-w-3xl text-sm text-white/95 drop-shadow-md sm:text-base md:mb-8 md:text-lg lg:text-xl">
+                  {t("mission.hero.subtitle")}
+                </p>
+                <Link
+                  href="/our-features"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0ABAB5] px-6 py-3 text-base font-semibold text-white shadow-lg transition-colors hover:bg-[#00b3a3] md:px-8 md:py-3.5 md:text-lg"
+                >
+                  {t("exploreMore")}
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Logo Cloud Section */}
       <section className="bg-white py-10 md:py-14 overflow-x-hidden">

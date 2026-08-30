@@ -1,5 +1,5 @@
 import { generateMetadata } from "@/lib/metadata"
-import { CENTRES } from "@/lib/centre-data"
+import { getPublicCentres } from "@/lib/public-centres"
 import { CentreListing } from "@/components/centres/centre-listing"
 
 export const metadata = generateMetadata({
@@ -8,6 +8,7 @@ export const metadata = generateMetadata({
   url: "/centres",
 })
 
-export default function CentresPage() {
-  return <CentreListing centres={CENTRES} />
+export default async function CentresPage() {
+  const centres = await getPublicCentres()
+  return <CentreListing centres={centres} />
 }
