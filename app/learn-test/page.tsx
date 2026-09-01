@@ -3,7 +3,7 @@ import { LearnTestStage } from "@/components/learn-test/learn-test-stage"
 
 export const metadata: Metadata = {
   title: "Learning Record demo | ClassZ",
-  description: "Presentation page for ClassZ Learning Record input and companion report.",
+  description: "Presentation page for ClassZ Learning Record adaptive input.",
   robots: { index: false, follow: false },
 }
 

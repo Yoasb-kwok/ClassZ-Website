@@ -24,6 +24,9 @@ export const ADAPTIVE_CODE_TO_DOMAIN: Record<string, string> = Object.fromEntrie
   Object.entries(ADAPTIVE_BANK).map(([domain, meta]) => [meta.code, domain]),
 )
 
+/** First adaptive bank item — used so the opening /learn-test record is already adaptive. */
+export const FIRST_ADAPTIVE_CODE = Object.values(ADAPTIVE_BANK)[0]?.code || "A1"
+
 export const QUESTIONS = {
   lesson_focus: { en: "What was the main lesson focus today?", zh: "今堂主要學習或活動內容係咩？" },
   availability: {
@@ -283,6 +286,16 @@ export function applyPreviousNextFocus(form: Version2LearningRecordForm, nextFoc
     adaptive_q_code: code,
     adaptive_domain: domain,
   }
+}
+
+export function newAdaptiveFormFromHistory(
+  extras: Partial<Version2LearningRecordForm>,
+  historyRows: Array<{ next_focus?: string | null; observation_payload?: Record<string, unknown> | null }> = [],
+): Version2LearningRecordForm {
+  return applyPreviousNextFocus(
+    { ...emptyVersion2Form(), ...extras },
+    latestNextFocus(historyRows) || FIRST_ADAPTIVE_CODE,
+  )
 }
 
 export function adaptiveOption(domain: string, answerId: string): AdaptiveOption | undefined {

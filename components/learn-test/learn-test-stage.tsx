@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { ClipboardList, FileText, Sparkles } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { Pencil, Plus } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
-import { LearningCompanionReportView } from "@/components/admin/learning-companion-report-view"
 import { Version2LearningRecordFields } from "@/components/admin/version2-learning-record-form"
 import {
   AdminCard,
@@ -11,164 +10,194 @@ import {
   AdminPrimaryButton,
   AdminStatusChip,
 } from "@/components/classz-admin-ui"
-import { progressLevelLabel } from "@/lib/activity-learning-record"
-import { COMPANION_ANIMALS } from "@/lib/learning-companion-animals"
-import { buildSampleCompanionReport, exportLearningCompanionPdf } from "@/lib/learning-companion-pdf"
+import { progressLevelLabel, type ActivityLearningRecordRow } from "@/lib/activity-learning-record"
 import {
-  emptyVersion2Form,
+  ADAPTIVE_BANK,
   QUESTIONS,
+  assignNextFocus,
+  buildVersion2ApiBody,
+  emptyObservation,
+  formFromRecordRow,
+  newAdaptiveFormFromHistory,
   validateVersion2Form,
   type Version2LearningRecordForm,
 } from "@/lib/version2-learning-record"
 
-const STORAGE_KEY = "classz_learn_test_records_v1"
-const MIN_RECORDS = 3
-const CLASS_ID = "learn-test-stem"
-const CLASS_NAME = "STEM Lab — Trial"
-const STUDENT_NAME = "Chloe Tam"
-
-type SavedRecord = {
-  id: number
-  created_at: string
-  class_focus: string
-  progress_level: string
-  next_focus: string
-  confirmed: boolean
+type LearnTestContext = {
+  student_name: string
+  profile_id: number
+  class_id: number
+  class_name: string
+  enrollment_id: number
+  records: ActivityLearningRecordRow[]
 }
 
-type Tab = "input" | "report"
-
-function emptyForm(): Version2LearningRecordForm {
-  return {
-    ...emptyVersion2Form(),
-    class_id: CLASS_ID,
-    enrollment_id: "1",
-    student_name: STUDENT_NAME,
-  }
+async function publicJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
+  })
+  const body = (await res.json().catch(() => ({}))) as { success?: boolean; data?: T; msg?: string; message?: string }
+  if (!res.ok) throw new Error(body.msg || body.message || `HTTP ${res.status}`)
+  return body.data as T
 }
 
-function demoForm(): Version2LearningRecordForm {
-  return {
-    ...emptyForm(),
-    class_focus: "TinkerCAD — design a simple spinning top and test balance.",
-    availability: "valid_observation",
-    progress_level: "developing",
-    primary: {
-      observation_type: "strength_progress",
-      domain: "attention_engagement",
-      domain_other: "",
-      context: "independent_work",
-      context_other: "",
-      evidence: "Chloe opened TinkerCAD, built a cone and cylinder, then asked how to make it spin longer.",
-      outcome: "continued_after_one_prompt",
-      outcome_other: "",
-      support_given: ["verbal_prompt"],
-      support_given_other: "",
-      response_to_support: "continued_after_one_support",
-      response_to_support_other: "",
-    },
-    learning_approach_ids: ["tries_independently"],
-    additional_comment: "Stayed on task after a short prompt.",
-    student_work_on: "Practice aligning the axis so the top stays balanced.",
-    next_focus: "Practice aligning the axis so the top stays balanced.",
-  }
+function adaptiveLabel(row: ActivityLearningRecordRow, zh: boolean) {
+  const payload = row.observation_payload || {}
+  const route = String(payload.route_used || "")
+  const code = String(payload.adaptive_q_code || "")
+  const domain = String(payload.adaptive_domain || "")
+  if (route === "adaptive" && code) return domain ? `${code} · ${domain}` : code
+  if (route === "baseline") return zh ? "baseline（首堂通用題）" : "baseline"
+  return "—"
 }
 
-function readRecords(): SavedRecord[] {
-  if (typeof window === "undefined") return []
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    const parsed = raw ? JSON.parse(raw) : []
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
+function easyAdaptiveAnswer(domain: string) {
+  const options = ADAPTIVE_BANK[domain]?.options || []
+  return (
+    options.find((o) => !o.requires_support_block && o.id !== "other" && o.id !== "unable_to_determine")?.id ||
+    options[0]?.id ||
+    ""
+  )
 }
 
 export function LearnTestStage() {
   const { locale, setLocale } = useLanguage()
   const zh = locale === "zh-TW"
-  const [tab, setTab] = useState<Tab>("input")
-  const [form, setForm] = useState<Version2LearningRecordForm>(emptyForm)
-  const [records, setRecords] = useState<SavedRecord[]>([])
+  const [ctx, setCtx] = useState<LearnTestContext | null>(null)
+  const [form, setForm] = useState<Version2LearningRecordForm | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    setRecords(readRecords())
+  const startNew = useCallback((next: LearnTestContext) => {
+    setEditingId(null)
+    setForm(
+      newAdaptiveFormFromHistory(
+        {
+          class_id: String(next.class_id),
+          enrollment_id: String(next.enrollment_id),
+          student_name: next.student_name,
+        },
+        next.records,
+      ),
+    )
   }, [])
 
-  function persist(next: SavedRecord[]) {
-    setRecords(next)
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  const load = useCallback(async (opts?: { keepEditingId?: number | null }) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await publicJson<LearnTestContext>("/learn-test")
+      setCtx(data)
+      const keepId = opts?.keepEditingId
+      if (keepId) {
+        const row = data.records.find((r) => r.id === keepId)
+        if (row) {
+          setEditingId(keepId)
+          setForm(
+            formFromRecordRow(row, {
+              student_name: row.student_name || data.student_name,
+              class_id: String(data.class_id),
+              enrollment_id: String(data.enrollment_id),
+            }),
+          )
+          return
+        }
+      }
+      startNew(data)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Load failed")
+    } finally {
+      setLoading(false)
+    }
+  }, [startNew])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  function fillDemo() {
+    if (!form) return
+    const adaptiveAnswer = form.route_used === "adaptive" ? easyAdaptiveAnswer(form.adaptive_domain) : form.adaptive_answer_id
+    setForm({
+      ...form,
+      class_focus: "TinkerCAD — design a simple spinning top and test balance.",
+      availability: "valid_observation",
+      progress_level: "developing",
+      adaptive_answer_id: adaptiveAnswer,
+      primary: {
+        ...emptyObservation(),
+        observation_type: form.route_used === "adaptive" ? form.primary.observation_type : "strength_progress",
+        domain: form.route_used === "adaptive" ? form.adaptive_domain : "attention_engagement",
+        context: "independent_work",
+        evidence: "Chloe opened TinkerCAD, built a cone and cylinder, then asked how to make it spin longer.",
+        outcome: form.route_used === "adaptive" ? form.primary.outcome : "continued_after_one_prompt",
+      },
+      learning_approach_ids: ["tries_independently"],
+      additional_comment: "Stayed on task after a short prompt.",
+      student_work_on: "Practice aligning the axis so the top stays balanced.",
+    })
   }
 
-  const confirmedCount = records.filter((r) => r.confirmed).length
-  const unlocked = confirmedCount >= MIN_RECORDS
-
-  const report = useMemo(
-    () => buildSampleCompanionReport(COMPANION_ANIMALS.Bee, STUDENT_NAME),
-    [],
-  )
-
-  function save(confirmed: boolean) {
-    const err = validateVersion2Form(form, { confirm: confirmed })
+  async function save(confirmed: boolean) {
+    if (!form || !ctx) return
+    const ready = assignNextFocus(
+      form,
+      ctx.records.filter((row) => row.id !== editingId),
+    )
+    const err = validateVersion2Form(ready, { confirm: confirmed })
     if (err) {
       setMessage(err)
       return
     }
-    const row: SavedRecord = {
-      id: Date.now(),
-      created_at: new Date().toISOString(),
-      class_focus: form.class_focus.trim(),
-      progress_level: form.progress_level,
-      next_focus: (form.student_work_on || form.next_focus).trim(),
-      confirmed,
+    setSaving(true)
+    setMessage(null)
+    try {
+      const payload = buildVersion2ApiBody(ready, { confirm: confirmed, force: true })
+      if (editingId) {
+        await publicJson(`/learn-test/records/${editingId}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        })
+        setMessage(zh ? "已更新到後端" : "Updated on the server")
+      } else {
+        await publicJson("/learn-test/records", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        })
+        setMessage(
+          zh
+            ? "已儲存。下一份紀錄會換成下一題 adaptive QA。"
+            : "Saved. The next record will use a different adaptive question.",
+        )
+      }
+      await load()
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Save failed")
+    } finally {
+      setSaving(false)
     }
-    persist([row, ...records].slice(0, 12))
-    setForm(emptyForm())
-    setMessage(
-      confirmed
-        ? zh
-          ? "已確認並儲存（本機演示，無需登入）"
-          : "Confirmed and saved locally — no login needed"
-        : zh
-          ? "已儲存草稿"
-          : "Draft saved locally",
-    )
-    if (confirmed && confirmedCount + 1 >= MIN_RECORDS) setTab("report")
   }
 
-  function seedThreeRecords() {
-    const samples: SavedRecord[] = [
-      {
-        id: Date.now() - 2,
-        created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-        class_focus: "Lego spinning top",
-        progress_level: "guided",
-        next_focus: "Let her try the first step without a demo.",
-        confirmed: true,
-      },
-      {
-        id: Date.now() - 1,
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        class_focus: "Cospaces AR scene",
-        progress_level: "developing",
-        next_focus: "Ask one question before giving the next hint.",
-        confirmed: true,
-      },
-      {
-        id: Date.now(),
-        created_at: new Date().toISOString(),
-        class_focus: "TinkerCAD spinning top",
-        progress_level: "independent",
-        next_focus: "Balance the axis independently.",
-        confirmed: true,
-      },
-    ]
-    persist(samples)
-    setTab("report")
-    setMessage(zh ? "已載入 3 堂示範紀錄，報告已解鎖" : "Loaded 3 sample records — report unlocked")
+  function editRow(row: ActivityLearningRecordRow) {
+    if (!ctx) return
+    setEditingId(row.id)
+    setForm(
+      formFromRecordRow(row, {
+        student_name: row.student_name || ctx.student_name,
+        class_id: String(ctx.class_id),
+        enrollment_id: String(ctx.enrollment_id),
+      }),
+    )
+    setMessage(null)
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
+
+  const adaptiveMeta =
+    form?.route_used === "adaptive" && form.adaptive_domain ? ADAPTIVE_BANK[form.adaptive_domain] : null
 
   return (
     <div className="classz-admin-theme min-h-screen bg-[#F4FBFA] text-brand-slate">
@@ -203,122 +232,121 @@ export function LearnTestStage() {
         <AdminCard>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold">{STUDENT_NAME}</p>
-              <p className="text-xs text-classz-500">{CLASS_NAME}</p>
+              <p className="text-sm font-semibold">{ctx?.student_name || "—"}</p>
+              <p className="text-xs text-classz-500">{ctx?.class_name || "—"}</p>
             </div>
-            <AdminStatusChip tone={unlocked ? "teal" : "orange"}>
-              {confirmedCount}/{MIN_RECORDS}+ {zh ? "已確認紀錄" : "confirmed records"}
+            <AdminStatusChip tone="teal">
+              {ctx?.records.length || 0} {zh ? "份後端紀錄" : "server records"}
             </AdminStatusChip>
           </div>
           <p className="mt-2 text-xs text-classz-500">
             {zh
-              ? "此頁只供簡報演示。紀錄存在這個瀏覽器，不會寫入正式中心帳號。"
-              : "Presentation only. Records stay in this browser and are not saved to a centre account."}
+              ? "紀錄寫入後端。第一份已是 adaptive；儲存後下一份會轉下一題。"
+              : "Records save to the backend. The first form is already adaptive; after save, the next form uses a different question."}
           </p>
         </AdminCard>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setTab("input")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium ${
-              tab === "input" ? "bg-brand-teal text-white" : "border border-classz-200 bg-white text-classz-700"
-            }`}
-          >
-            <ClipboardList className="h-4 w-4" />
-            {zh ? "填寫紀錄" : "Input"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("report")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium ${
-              tab === "report" ? "bg-brand-teal text-white" : "border border-classz-200 bg-white text-classz-700"
-            }`}
-          >
-            <FileText className="h-4 w-4" />
-            {zh ? "學習報告" : "Report"}
-          </button>
-          <AdminGhostButton type="button" onClick={seedThreeRecords}>
-            <Sparkles className="h-3.5 w-3.5" />
-            {zh ? "一鍵解鎖報告" : "Unlock sample report"}
-          </AdminGhostButton>
-        </div>
-
+        {error ? (
+          <p className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        ) : null}
         {message ? (
           <p className="text-sm text-brand-teal" role="status">
             {message}
           </p>
         ) : null}
 
-        {tab === "input" ? (
-          <div className="space-y-3">
+        {loading || !form || !ctx ? (
+          <AdminCard>
+            <p className="text-sm text-classz-500">{zh ? "載入中…" : "Loading…"}</p>
+          </AdminCard>
+        ) : (
+          <>
             <AdminCard>
-              <div className="mb-4 flex flex-wrap gap-2">
-                <AdminGhostButton type="button" onClick={() => setForm(demoForm())}>
-                  {zh ? "填入示範答案" : "Fill demo answers"}
-                </AdminGhostButton>
-                <AdminGhostButton type="button" onClick={() => setForm(emptyForm())}>
-                  {zh ? "清空表單" : "Clear form"}
-                </AdminGhostButton>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold">
+                    {editingId
+                      ? zh
+                        ? `修改紀錄 #${editingId}`
+                        : `Edit record #${editingId}`
+                      : zh
+                        ? "新增紀錄"
+                        : "New record"}
+                  </p>
+                  {adaptiveMeta ? (
+                    <p className="mt-1 text-xs text-brand-teal">
+                      Adaptive {form.adaptive_q_code} · {form.adaptive_domain}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-xs text-classz-500">
+                      {zh ? "今堂用 baseline 觀察題" : "This session uses the baseline observation questions"}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {editingId ? (
+                    <AdminGhostButton type="button" onClick={() => startNew(ctx)}>
+                      <Plus className="h-3.5 w-3.5" />
+                      {zh ? "新增一份" : "New record"}
+                    </AdminGhostButton>
+                  ) : null}
+                  <AdminGhostButton type="button" onClick={fillDemo}>
+                    {zh ? "填入示範答案" : "Fill demo answers"}
+                  </AdminGhostButton>
+                </div>
               </div>
               <Version2LearningRecordFields form={form} onChange={setForm} />
               <p className="mt-4 text-xs text-classz-500">{zh ? QUESTIONS.confirmation.zh : QUESTIONS.confirmation.en}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <AdminGhostButton type="button" onClick={() => save(false)}>
+                <AdminGhostButton type="button" disabled={saving} onClick={() => save(false)}>
                   {zh ? "儲存草稿" : "Save draft"}
                 </AdminGhostButton>
-                <AdminPrimaryButton type="button" onClick={() => save(true)}>
-                  {zh ? "確認並儲存" : "Confirm & save"}
+                <AdminPrimaryButton type="button" disabled={saving} onClick={() => save(true)}>
+                  {saving ? (zh ? "儲存中…" : "Saving…") : editingId ? (zh ? "更新" : "Update") : zh ? "確認並儲存" : "Confirm & save"}
                 </AdminPrimaryButton>
               </div>
             </AdminCard>
 
-            {records.length ? (
-              <AdminCard>
-                <h2 className="mb-2 text-sm font-semibold">{zh ? "已儲存紀錄" : "Saved records"}</h2>
+            <AdminCard>
+              <h2 className="mb-2 text-sm font-semibold">{zh ? "現有紀錄" : "Existing records"}</h2>
+              {ctx.records.length ? (
                 <ul className="space-y-1.5 text-sm">
-                  {records.map((row) => (
-                    <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-classz-50 py-1.5">
+                  {ctx.records.map((row) => (
+                    <li
+                      key={row.id}
+                      className={`flex flex-wrap items-center justify-between gap-2 border-b border-classz-50 py-2 ${
+                        editingId === row.id ? "bg-brand-teal/5" : ""
+                      }`}
+                    >
                       <span>
-                        {row.class_focus || "—"}
-                        {row.progress_level ? ` · ${progressLevelLabel(row.progress_level)}` : ""}
-                        {!row.confirmed ? (
+                        <span className="font-medium">{row.class_focus || "—"}</span>
+                        <span className="ml-2 text-xs text-brand-teal">{adaptiveLabel(row, zh)}</span>
+                        {row.progress_level ? (
+                          <span className="ml-2 text-xs text-classz-500">{progressLevelLabel(row.progress_level)}</span>
+                        ) : null}
+                        {!row.is_confirmed ? (
                           <span className="ml-2 text-xs text-classz-400">{zh ? "草稿" : "draft"}</span>
                         ) : null}
                       </span>
-                      <span className="text-xs text-classz-400">
-                        {new Date(row.created_at).toLocaleString(zh ? "zh-HK" : "en-HK")}
+                      <span className="flex items-center gap-2">
+                        <span className="text-xs text-classz-400">
+                          {row.created_at ? new Date(row.created_at).toLocaleString(zh ? "zh-HK" : "en-HK") : ""}
+                        </span>
+                        <AdminGhostButton type="button" onClick={() => editRow(row)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                          {zh ? "修改" : "Edit"}
+                        </AdminGhostButton>
                       </span>
                     </li>
                   ))}
                 </ul>
-              </AdminCard>
-            ) : null}
-          </div>
-        ) : (
-          <AdminCard className="p-4 sm:p-6">
-            {unlocked ? (
-              <>
-                <div className="mb-4 flex flex-wrap gap-2">
-                  <AdminPrimaryButton type="button" onClick={() => exportLearningCompanionPdf(report)}>
-                    {zh ? "輸出 PDF" : "Export PDF"}
-                  </AdminPrimaryButton>
-                </div>
-                <LearningCompanionReportView report={report} zh={zh} />
-              </>
-            ) : (
-              <div className="py-10 text-center">
-                <p className="text-sm font-medium text-classz-700">
-                  {zh
-                    ? `再確認 ${MIN_RECORDS - confirmedCount} 份紀錄即可顯示 Learning Companion 報告`
-                    : `Confirm ${MIN_RECORDS - confirmedCount} more record(s) to unlock the Learning Companion report`}
-                </p>
-                <p className="mt-2 text-xs text-classz-500">
-                  {zh ? "或按「一鍵解鎖報告」直接展示 sample。" : "Or tap “Unlock sample report” to show the sample now."}
-                </p>
-              </div>
-            )}
-          </AdminCard>
+              ) : (
+                <p className="text-sm text-classz-500">{zh ? "還沒有紀錄。填完第一份後會出現在這裡。" : "No records yet. Save the first form to see it here."}</p>
+              )}
+            </AdminCard>
+          </>
         )}
       </main>
     </div>
