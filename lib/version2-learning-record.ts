@@ -29,6 +29,10 @@ export const FIRST_ADAPTIVE_CODE = Object.values(ADAPTIVE_BANK)[0]?.code || "A1"
 
 export const QUESTIONS = {
   lesson_focus: { en: "What was the main lesson focus today?", zh: "今堂主要學習或活動內容係咩？" },
+  lesson_focus_helper: {
+    en: "Short answer with 10 words.",
+    zh: "短答，約 10 個字。",
+  },
   availability: {
     en: "Were you able to make a valid observation of this child today?",
     zh: "今堂有冇足夠機會觀察到呢位小朋友嘅實際表現？",

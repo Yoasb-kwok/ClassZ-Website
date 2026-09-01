@@ -280,6 +280,10 @@ export function Version2LearningRecordFields({
     <div className="space-y-4">
       <div>
         <Q k="lesson_focus" zh={false} />
+        <p className="text-xs text-brand-slate/55">
+          {QUESTIONS.lesson_focus_helper.en}
+          <span className="ml-1">{QUESTIONS.lesson_focus_helper.zh}</span>
+        </p>
         <AdminTextarea
           className="mt-1 min-h-[3.5rem]"
           value={form.class_focus}

@@ -83,7 +83,7 @@ export function buildLearningRecordInputFormHtml(opts?: { copies?: number }) {
     </section>
 
     <section>
-      ${sectionTitle(QUESTIONS.lesson_focus.en, QUESTIONS.lesson_focus.zh, "Write the lesson focus · 請用文字寫低")}
+      ${sectionTitle(QUESTIONS.lesson_focus.en, QUESTIONS.lesson_focus.zh, `${QUESTIONS.lesson_focus_helper.en} · ${QUESTIONS.lesson_focus_helper.zh}`)}
       <div class="write-lines short">
         <div class="write-line"></div>
         <div class="write-line"></div>
