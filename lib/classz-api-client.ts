@@ -14,7 +14,9 @@ function apiBase(): string {
 }
 
 export function getApiPrefix(role: ClasszPortalRole): string {
-  return role === "platform_admin" ? "/admin" : "/center"
+  if (role === "platform_admin") return "/admin"
+  if (role === "student") return "/student"
+  return "/center"
 }
 
 function appendQueryParam(path: string, key: string, value: string | number): string {

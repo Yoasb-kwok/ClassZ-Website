@@ -32,6 +32,10 @@ export function ClasszAdminGate({ children }: { children: React.ReactNode }) {
       router.replace("/admin")
       return
     }
+    if (s.user.role === "student") {
+      router.replace("/account")
+      return
+    }
     if (s.user.role === "coach") {
       const allowed =
         pathname === "/admin" ||

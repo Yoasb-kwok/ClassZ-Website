@@ -14,7 +14,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import * as Dialog from "@radix-ui/react-dialog"
 import { Check, X } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
-import { classzRegisterCenterAndSignIn, classzSignIn, getClasszSession } from "@/lib/classz-auth"
+import { classzRegisterCenterAndSignIn, classzSignIn, getClasszSession, homePathForRole } from "@/lib/classz-auth"
 import { checkRegistrationOtp, sendRegistrationOtp } from "@/lib/registration-otp"
 import {
   requestPasswordReset,
@@ -311,14 +311,21 @@ function LoginPanel({
   onSuccess: (path: string) => void
 }) {
   const searchParams = useSearchParams()
-  const nextPath = searchParams.get("next") || "/admin"
+  const nextPath = searchParams.get("next") || ""
   const [loginIdentifier, setLoginIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (getClasszSession()) onSuccess(nextPath.startsWith("/") ? nextPath : "/admin")
+    const existing = getClasszSession()
+    if (existing) {
+      const fallback = homePathForRole(existing.user.role)
+      const dest = nextPath.startsWith("/") && !(existing.user.role === "student" && nextPath.startsWith("/admin"))
+        ? nextPath
+        : fallback
+      onSuccess(dest)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once when the login panel mounts
   }, [])
 
@@ -332,7 +339,13 @@ function LoginPanel({
     setLoading(true)
     try {
       await classzSignIn(loginIdentifier.trim(), password)
-      onSuccess(nextPath.startsWith("/") ? nextPath : "/admin")
+      const session = getClasszSession()
+      const fallback = homePathForRole(session?.user.role)
+      const dest =
+        nextPath.startsWith("/") && !(session?.user.role === "student" && nextPath.startsWith("/admin"))
+          ? nextPath
+          : fallback
+      onSuccess(dest)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : ""
       setError(msg || (zh ? "電郵或密碼不正確" : "Invalid email or password"))

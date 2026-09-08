@@ -9,6 +9,15 @@ export function resolveUploadUrl(url: string | null | undefined): string {
 
   const path = u.startsWith("/") ? u : `/${u}`
 
+  if (
+    path.startsWith("/images/") ||
+    path.startsWith("/assets/") ||
+    path.startsWith("/brand/") ||
+    path.startsWith("/account/")
+  ) {
+    return path
+  }
+
   // Same-origin rewrite: next.config rewrites /uploads/* → backend (see next.config.mjs)
   if (typeof window !== "undefined" && path.startsWith("/uploads/")) {
     return path

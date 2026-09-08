@@ -3,7 +3,11 @@ import { jwtDecode } from "jwt-decode"
 export const CLASSZ_SESSION_KEY = "classz_session"
 const CLASSZ_MODULES_KEY = "classz_enabled_modules"
 
-export type ClasszPortalRole = "platform_admin" | "center_admin" | "coach"
+export type ClasszPortalRole = "platform_admin" | "center_admin" | "coach" | "student"
+
+export function homePathForRole(role: ClasszPortalRole | string | null | undefined): string {
+  return role === "student" ? "/account" : "/admin"
+}
 
 export type ClasszSession = {
   token: string
@@ -26,6 +30,7 @@ const DEMO_USERS: Record<
 export function roleLabelFor(role: ClasszPortalRole): string {
   if (role === "platform_admin") return "平台"
   if (role === "center_admin") return "中心"
+  if (role === "student") return "家長／學員"
   return "導師"
 }
 
@@ -40,8 +45,16 @@ export function getClasszSession(): ClasszSession | null {
   }
 }
 
+export const CLASSZ_SESSION_EVENT = "classz-session-changed"
+
+function notifySessionChanged() {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(new Event(CLASSZ_SESSION_EVENT))
+}
+
 export function setClasszSession(session: ClasszSession) {
   localStorage.setItem(CLASSZ_SESSION_KEY, JSON.stringify(session))
+  notifySessionChanged()
 }
 
 export function clearClasszSession() {
@@ -51,6 +64,7 @@ export function clearClasszSession() {
   } catch {
     /* ignore */
   }
+  notifySessionChanged()
 }
 
 export function readCachedModules(token: string): string[] | null {
@@ -99,10 +113,12 @@ function mapJwtRole(payload: {
   if (p === "platform_admin") return "platform_admin"
   if (p === "coach") return "coach"
   if (p === "center_admin") return "center_admin"
+  if (p === "student") return "student"
   const r = String(payload.role || "").toLowerCase()
   if (r === "admin" || r === "platform_admin") return "platform_admin"
   if (r === "coach") return "coach"
   if (r === "center_admin") return "center_admin"
+  if (r === "student" || r === "parent") return "student"
   return "center_admin"
 }
 
@@ -168,7 +184,7 @@ export async function classzSignIn(loginIdentifier: string, password: string): P
           center_id: payload.center_id ?? null,
         },
       })
-      await prefetchEnabledModules(data.token!, role)
+      if (role !== "student") await prefetchEnabledModules(data.token!, role)
       return
     } catch (e) {
       const status = (e as Error & { status?: number }).status
