@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer"
 import { getClasszSession } from "@/lib/classz-auth"
 import { resolveCompanionAnimal } from "@/lib/learning-companion-animals"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
+import { PersonalInfoCard } from "@/components/account/personal-info-card"
 import {
   fetchStudentPassport,
   formatPassportDate,
@@ -21,6 +22,7 @@ type PassportCtx = {
   loading: boolean
   error: string | null
   setProfileId: (id: number) => void
+  reload: () => void
 }
 
 const Ctx = createContext<PassportCtx>({
@@ -28,6 +30,7 @@ const Ctx = createContext<PassportCtx>({
   loading: true,
   error: null,
   setProfileId: () => {},
+  reload: () => {},
 })
 
 export function useStudentPassport() {
@@ -94,6 +97,7 @@ export function StudentAccountGate({ children }: { children: React.ReactNode }) 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [profileId, setProfileId] = useState<number | null>(null)
+  const [nonce, setNonce] = useState(0)
 
   useEffect(() => {
     const s = getClasszSession()
@@ -128,7 +132,7 @@ export function StudentAccountGate({ children }: { children: React.ReactNode }) 
     return () => {
       cancelled = true
     }
-  }, [ready, profileId])
+  }, [ready, profileId, nonce])
 
   if (!ready) {
     return (
@@ -139,7 +143,7 @@ export function StudentAccountGate({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <Ctx.Provider value={{ data, loading, error, setProfileId }}>
+    <Ctx.Provider value={{ data, loading, error, setProfileId, reload: () => setNonce((n) => n + 1) }}>
       <div className="zpassport-app">
         <Navbar />
         <div className="app-body">
@@ -242,6 +246,7 @@ export function CompanionHome() {
 
   return (
     <>
+      <PersonalInfoCard />
       <section className="learning-card">
         <div className="learning-intro">
           <p className="learning-intro-label">Based on recent ClassZ learning records:</p>

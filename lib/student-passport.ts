@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/classz-api-client"
+import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
 
 export type StudentProfile = {
   id: number
@@ -67,6 +67,7 @@ export type PassportMedia = {
 }
 
 export type StudentPassport = {
+  account: StudentAccount
   profiles: StudentProfile[]
   profile: StudentProfile | null
   companion: PassportCompanion | null
@@ -76,7 +77,16 @@ export type StudentPassport = {
   moments: PassportMedia[]
 }
 
+export type StudentAccount = {
+  name: string
+  full_name: string
+  email: string
+  mobile: string
+  country_code: string
+}
+
 const EMPTY_PASSPORT: StudentPassport = {
+  account: { name: "", full_name: "", email: "", mobile: "", country_code: "" },
   profiles: [],
   profile: null,
   companion: null,
@@ -117,4 +127,50 @@ export function formatPassportDate(value?: string | null) {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return String(value)
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+}
+
+// ---- Personal Information write helpers (ADR-001) ----
+
+export type StudentProfileDetail = StudentProfile & {
+  nick_name?: string
+  date_of_birth?: string | null
+  parents_name?: string
+  contact_number?: string
+  residential_district?: string
+  school?: string
+  medical_notes?: string
+  student_id?: string
+  id_first_four_masked?: string | null
+  id_last_four_masked?: string | null
+}
+
+export type StudentAccountPatch = {
+  name?: string
+  full_name?: string
+  mobile?: string
+  country_code?: string
+}
+
+export type StudentProfilePatch = {
+  full_name?: string
+  nick_name?: string
+  parents_name?: string
+  date_of_birth?: string
+  sex?: number
+  school?: string
+  residential_district?: string
+  contact_number?: string
+  medical_notes?: string
+}
+
+export async function updateStudentAccount(body: StudentAccountPatch) {
+  return apiPatch<{ msg?: string }>("/account", body, "student")
+}
+
+export async function updateStudentProfile(profileId: number, body: StudentProfilePatch) {
+  return apiPatch<StudentProfileDetail>(`/profiles/${profileId}`, body, "student")
+}
+
+export async function uploadStudentPhoto(profileId: number, imageDataUrl: string) {
+  return apiPost<{ url?: string }>("/me/photo", { profile_id: profileId, image: imageDataUrl }, "student")
 }
