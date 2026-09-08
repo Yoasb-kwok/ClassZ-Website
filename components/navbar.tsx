@@ -243,24 +243,16 @@ export function Navbar() {
 
         <div className="flex h-full items-center gap-6 lg:gap-[39.9px]">
           <div className="hidden h-full items-center lg:flex lg:gap-[39.9px]">
-            {links.map((link) =>
-              link.cta ? (
-                <Link
-                  key={`${surface}-${link.key}`}
-                  href={link.href}
-                  className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
-                >
-                  {t(link.key)}
-                </Link>
-              ) : (
+            {links
+              .filter((link) => !link.cta)
+              .map((link) => (
                 <DesktopNavLink
                   key={`${surface}-${link.key}`}
                   href={link.href}
                   label={t(link.key)}
                   active={isActive(link.href, link.match)}
                 />
-              ),
-            )}
+              ))}
           </div>
           <LanguageMenu
             label={t("nav.language")}
@@ -277,7 +269,19 @@ export function Navbar() {
             >
               {t("nav.classz")}
             </Link>
-          ) : null}
+          ) : (
+            links
+              .filter((link) => link.cta)
+              .map((link) => (
+                <Link
+                  key={`${surface}-${link.key}`}
+                  href={link.href}
+                  className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
+                >
+                  {t(link.key)}
+                </Link>
+              ))
+          )}
           {session ? (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>

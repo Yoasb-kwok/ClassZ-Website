@@ -1,4 +1,4 @@
-import { getClasszSession } from "@/lib/classz-auth"
+import { apiGet } from "@/lib/classz-api-client"
 
 export type StudentProfile = {
   id: number
@@ -76,28 +76,40 @@ export type StudentPassport = {
   moments: PassportMedia[]
 }
 
+const EMPTY_PASSPORT: StudentPassport = {
+  profiles: [],
+  profile: null,
+  companion: null,
+  records: [],
+  lessons: [],
+  work_samples: [],
+  moments: [],
+}
+
 export async function fetchStudentPassport(profileId?: number | null): Promise<StudentPassport> {
-  const session = getClasszSession()
   const qs = profileId ? `?profile_id=${profileId}` : ""
-  const res = await fetch(`/api/student/passport${qs}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
-    },
-  })
-  const body = (await res.json().catch(() => ({}))) as { success?: boolean; data?: StudentPassport; msg?: string }
-  if (!res.ok) throw new Error(body.msg || `HTTP ${res.status}`)
-  return (
-    body.data || {
-      profiles: [],
-      profile: null,
-      companion: null,
-      records: [],
-      lessons: [],
-      work_samples: [],
-      moments: [],
-    }
+  const data = await apiGet<StudentPassport>(`/passport${qs}`, "student")
+  return data || EMPTY_PASSPORT
+}
+
+export async function fetchStudentTokens() {
+  return apiGet<Array<{ id: string; remaining_tokens: number; total_tokens: number; expiry_date: string | null }>>(
+    "/tokens",
+    "student",
   )
+}
+
+export async function fetchStudentUpcomingClasses(profileId?: number | null) {
+  const qs = profileId ? `?profileId=${profileId}` : ""
+  return apiGet<unknown[]>(`/upcoming-classes${qs}`, "student")
+}
+
+export async function fetchStudentNotifications() {
+  return apiGet<unknown[]>("/notifications", "student")
+}
+
+export async function fetchStudentClassNotices() {
+  return apiGet<unknown[]>("/class-notices", "student")
 }
 
 export function formatPassportDate(value?: string | null) {

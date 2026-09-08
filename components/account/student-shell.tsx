@@ -74,9 +74,10 @@ function IconPin({ className = "" }: { className?: string }) {
 
 function childPhoto(profile?: { name?: string; photo_url?: string | null } | null) {
   if (profile?.photo_url) return resolveUploadUrl(profile.photo_url)
-  if (profile?.name === "Charlie Wong") return "/images/profile-charlie.jpg"
   return ""
 }
+
+const WAITING_FOR_RECORDS = "This section will fill in as the centre adds learning records."
 
 function isActive(pathname: string, href: string, extra: string[] = []) {
   if (href === "/account") {
@@ -231,13 +232,10 @@ export function CompanionHome() {
   const { data, loading, error } = useStudentPassport()
   const name = firstName(data?.profile?.name) || "your child"
   const companion = data?.companion
-  const animal = resolveCompanionAnimal(companion?.primary_companion) || resolveCompanionAnimal("Rabbit")
+  const animal = resolveCompanionAnimal(companion?.primary_companion)
   const narrative = companion?.narrative_json || {}
   const section = (narrative.learning_companion_section || {}) as Record<string, unknown>
-  const supporting = (companion?.supporting_companions?.length
-    ? companion.supporting_companions
-    : ["Turtle Steady Builder", "Owl Thoughtful Learner"]
-  )
+  const supporting = companion?.supporting_companions || []
 
   if (loading) return <p className="text-sm text-classz-500">Loading learning companion…</p>
   if (error) return <p className="text-sm text-red-600">{error}</p>
@@ -259,8 +257,8 @@ export function CompanionHome() {
             )}
           </div>
           <div className="primary-content">
-            <h1 className="companion-name">{animal?.shortName || "Rabbit"}</h1>
-            <p className="companion-subtitle">{animal ? animal.label.replace(animal.shortName, "").trim() : "Active Explorer"}</p>
+            <h1 className="companion-name">{animal?.shortName || "Learning companion"}</h1>
+            <p className="companion-subtitle">{animal ? animal.label.replace(animal.shortName, "").trim() : ""}</p>
             <p className="companion-description">
               {String(section.meaning_paragraph_1 || animal?.meaning1 || "Your child’s Learning Companion will appear here after the centre confirms enough learning records.")}
             </p>
@@ -319,12 +317,6 @@ export function CompanionHome() {
 
 function firstName(full?: string | null) {
   return String(full || "").trim().split(/\s+/)[0] || "your child"
-}
-
-function pronounSet(sex?: number | null) {
-  if (sex === 0) return { they: "she", them: "her", their: "her", him: "her" }
-  if (sex === 1) return { they: "he", them: "him", their: "his", him: "him" }
-  return { they: "they", them: "them", their: "their", him: "them" }
 }
 
 const POSE_SLOTS: Record<string, { hero: number; approach: number; respond: number; supportHero: number; supportWalk: number; reflected: number }> = {
@@ -395,20 +387,15 @@ function narrativeText(companion: StudentPassport["companion"], keys: string[]) 
 
 export function AnalyticalInsightPage() {
   const { data } = useStudentPassport()
-  const name = firstName(data?.profile?.name)
-  const p = pronounSet(data?.profile?.sex)
   const companion = data?.companion
-  const animal = resolveCompanionAnimal(companion?.primary_companion) || resolveCompanionAnimal("Rabbit")
+  const animal = resolveCompanionAnimal(companion?.primary_companion)
   const poses = companionPoses(animal)
   const glance =
-    narrativeText(companion, ["current_learning_portrait", "your_child_at_a_glance"]) ||
-    `${name} shows a wonderful balance of active participation and careful focus in ${p.their} workshops. In one session, ${p.they} stayed focused on ${p.their} task from start to finish without needing redirection, and ${p.they} ${p.they === "they" ? "have" : "has"} also shown a clear improvement in re-engaging after facing difficulties. When working on familiar tasks, ${name} regularly takes the initiative to begin independently. However, when introduced to new or more challenging steps, ${p.they} ${p.they === "they" ? "tend" : "tends"} to seek reassurance or wait for confirmation before moving forward.`
+    narrativeText(companion, ["current_learning_portrait", "your_child_at_a_glance"]) || WAITING_FOR_RECORDS
   const approach =
-    narrativeText(companion, ["how_they_approach_something_new", "how_they_approach_learning"]) ||
-    `${name} approaches learning with a blend of independent effort and careful attention to detail. ${p.they === "they" ? "They" : p.they === "she" ? "She" : "He"} often starts familiar tasks on ${p.their} own after instructions are given, and works carefully to complete projects. In group settings, ${p.they} ${p.they === "they" ? "tend" : "tends"} to watch peers’ work and contribute actively when prompted by the coach.`
+    narrativeText(companion, ["how_they_approach_something_new", "how_they_approach_learning"]) || WAITING_FOR_RECORDS
   const respond =
-    narrativeText(companion, ["how_they_respond_to_challenge", "how_they_respond_along_the_way"]) ||
-    `When tasks become more challenging or unfamiliar, ${name} sometimes needs extra reassurance or multiple rounds of prompting to keep going. However, ${p.they} ${p.they === "they" ? "respond" : "responds"} very well to targeted support; demonstrating the first step often helps ${p.them} adjust and continue, while a full task demonstration can allow ${p.them} to move forward independently.`
+    narrativeText(companion, ["how_they_respond_to_challenge", "how_they_respond_along_the_way"]) || WAITING_FOR_RECORDS
 
   return (
     <div className="insight-page">
@@ -470,29 +457,21 @@ export function AnalyticalInsightPage() {
 
 export function SupportingLearningPage() {
   const { data } = useStudentPassport()
-  const name = firstName(data?.profile?.name)
-  const p = pronounSet(data?.profile?.sex)
   const companion = data?.companion
-  const animal = resolveCompanionAnimal(companion?.primary_companion) || resolveCompanionAnimal("Rabbit")
+  const animal = resolveCompanionAnimal(companion?.primary_companion)
   const poses = companionPoses(animal)
   const help = companion ? (animal?.whatMayHelp || []).slice(0, 3) : []
   const supportCopy =
     narrativeText(companion, ["personalised_strategies", "what_may_help", "conditions_that_bring_out_their_best"]) ||
-    `To help ${name} build confidence when facing new challenges, you can support ${p.their} transition from familiar steps to unfamiliar ones. Giving ${p.him} enough room to try while providing clear support when needed can help ${p.him} keep moving forward.`
+    WAITING_FOR_RECORDS
   const whyFits =
-    narrativeText(companion, ["why_we_think_this", "evidence_and_confidence"]) ||
-    `The ${animal?.label || "Learning Companion"} companion fits ${name} because ${p.they} regularly participate${p.they === "they" ? "" : "s"} actively in ${p.their} workshops and ${p.they === "they" ? "try" : "tries"} to work independently. ${p.they === "they" ? "They" : p.they === "she" ? "She" : "He"} show${p.they === "they" ? "" : "s"} a strong desire to explore tasks on ${p.their} own, especially when the steps feel familiar. This active, hands-on approach highlights ${p.their} curiosity and growing independence as a learner.`
-  const supporting = (companion?.supporting_companions?.length
-    ? companion.supporting_companions
-    : ["Turtle Steady Builder", "Owl Thoughtful Learner"]
-  )
+    narrativeText(companion, ["why_we_think_this", "evidence_and_confidence"]) || WAITING_FOR_RECORDS
+  const supporting = (companion?.supporting_companions || [])
     .map((label) => resolveCompanionAnimal(label))
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
     .slice(0, 2)
   const reflectedIntro =
-    supporting.length > 1
-      ? `${p.their === "his" ? "His" : p.their === "her" ? "Her" : `${name}’s`} connection to the ${supporting[0].label} is reflected in how carefully ${p.they} work${p.they === "they" ? "" : "s"} and ${p.their} occasional need for gentle encouragement to start new or difficult tasks. Additionally, the ${supporting[1].label} pattern shines through in ${p.their} highly deliberate approach, as ${p.they} consistently work${p.they === "they" ? "" : "s"} carefully and take${p.they === "they" ? "" : "s"} time to ensure the steps are correct before moving forward.`
-      : `Other learning patterns may also appear alongside the ${animal?.label || "primary companion"} as more records are added.`
+    narrativeText(companion, ["also_reflected", "supporting_companions"]) || WAITING_FOR_RECORDS
 
   return (
     <div className="insight-page">
@@ -591,10 +570,8 @@ export function RecordsDashboard({ kind }: { kind: "academic" | "activity" }) {
   const title = isActivity ? "Activity Records" : "Academic Records"
   const pageClass = isActivity ? "activity-page" : "academic-page"
   const cardClass = isActivity ? "activity-summary-card" : "academic-summary-card"
-  const name = data?.profile?.name || "Your child"
   const portrait =
-    narrativeText(data?.companion, ["current_learning_portrait"]) ||
-    `${name} generally approaches activities with good persistence and is increasingly willing to stay with a task when it becomes challenging.`
+    narrativeText(data?.companion, ["current_learning_portrait"]) || WAITING_FOR_RECORDS
 
   const groups = useMemo(() => {
     const map = new Map<string, PassportLesson[]>()
@@ -884,7 +861,9 @@ export function StudentProfilePage() {
       <section className="student-profile-card">
         <div className="student-profile-parent">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/profile-parent.png" alt="" className="student-profile-parent-photo" />
+          <div className="student-profile-parent-photo student-profile-parent-photo--initial">
+            {(session?.user.name || "P").slice(0, 1)}
+          </div>
           <div>
             <p className="student-profile-label">Parent account</p>
             <p className="student-profile-name">{session?.user.name || "Parent"}</p>

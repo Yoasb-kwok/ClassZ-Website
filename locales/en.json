@@ -1110,6 +1110,7 @@
     "emptyTitle": "No programs found",
     "emptyBody": "Try adjusting your search or filters to see more programs.",
     "workshopsEmpty": "No workshops available right now. Check back soon!",
+    "workshopsTitle": "Find the right workshop for your child",
     "workshopsSubtitle": "Discover classes, coaches, and study centres near you — and help your child explore new hobbies, interests, and talents.",
     "trialsTitle": "Try a class first",
     "trialsSubtitle": "Book a one-off trial session before you enroll — same centres, lower commitment.",
@@ -1131,6 +1132,8 @@
     "excludeStars": "Exclude {n}★ programs",
     "maxPerClass": "Max {count} per class",
     "everyWeekday": "Every {day}",
+    "durationMinutes": "{n} min",
+    "durationHours": "{n} hr",
     "weekdayFull": {
       "sun": "Sunday",
       "mon": "Monday",
@@ -1192,7 +1195,7 @@
     "hideFullDates": "Hide full dates",
     "lessonDates": "Lesson dates",
     "enroll": "Enroll",
-    "hostedBy": "Hosted by",
+    "hostedBy": "Course centre",
     "similarPrograms": "Recommended Programs",
     "seeMore": "See more",
     "noSessions": "No upcoming sessions for this program yet."

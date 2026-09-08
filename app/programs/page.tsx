@@ -4,6 +4,7 @@ import {
   getPublicCourse,
   getPublicCourses,
 } from "@/lib/public-courses";
+import { getCentreLocationHints } from "@/lib/public-centres";
 import { isRegularCourseType } from "@/lib/course-types";
 import { ProgramsListing } from "@/components/programs/programs-listing";
 
@@ -15,9 +16,10 @@ export const metadata = generateMetadata({
 });
 
 export default async function ProgramsPage() {
-  const [courses, classes] = await Promise.all([
+  const [courses, classes, centreHints] = await Promise.all([
     getPublicCourses(),
     getPublicClasses(),
+    getCentreLocationHints(),
   ]);
   const programs = courses.filter((c) => isRegularCourseType(c.course_type));
 
@@ -34,6 +36,11 @@ export default async function ProgramsPage() {
   }
 
   return (
-    <ProgramsListing courses={programs} classes={classes} prices={prices} />
+    <ProgramsListing
+      courses={programs}
+      classes={classes}
+      prices={prices}
+      centreHints={centreHints}
+    />
   );
 }

@@ -7,6 +7,7 @@ import {
   getPublicCourses,
   type PublicCourse,
 } from "@/lib/public-courses";
+import { getHostCentre } from "@/lib/public-centres";
 import { ProgramDetail } from "@/components/programs/program-detail";
 
 type Params = {
@@ -41,9 +42,10 @@ export default async function ProgramDetailPage({
   const course = await loadCourse(id);
   if (!course) notFound();
 
-  const [classes, allCourses] = await Promise.all([
+  const [classes, allCourses, hostCentre] = await Promise.all([
     getPublicClasses(),
     getPublicCourses(),
+    getHostCentre(course.center_id),
   ]);
   const sessions = classesForCourse(classes, course);
   const similar = allCourses
@@ -68,6 +70,7 @@ export default async function ProgramDetailPage({
       classes={sessions}
       similar={similar}
       prices={prices}
+      hostCentre={hostCentre}
       expandLessonDates={expandLessonDates}
     />
   );

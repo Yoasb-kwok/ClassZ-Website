@@ -123,3 +123,156 @@ export function districtLabel(slug: string | null | undefined, locale: "en" | "z
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ")
 }
+
+/** Official 18 Hong Kong districts for listing cards. */
+export const HK18_DISTRICTS: District[] = [
+  { slug: "central-and-western", en: "Central and Western", zh: "中西區" },
+  { slug: "wan-chai", en: "Wan Chai", zh: "灣仔區" },
+  { slug: "eastern", en: "Eastern", zh: "東區" },
+  { slug: "southern", en: "Southern", zh: "南區" },
+  { slug: "yau-tsim-mong", en: "Yau Tsim Mong", zh: "油尖旺區" },
+  { slug: "sham-shui-po", en: "Sham Shui Po", zh: "深水埗區" },
+  { slug: "kowloon-city", en: "Kowloon City", zh: "九龍城區" },
+  { slug: "wong-tai-sin", en: "Wong Tai Sin", zh: "黃大仙區" },
+  { slug: "kwun-tong", en: "Kwun Tong", zh: "觀塘區" },
+  { slug: "kwai-tsing", en: "Kwai Tsing", zh: "葵青區" },
+  { slug: "tsuen-wan", en: "Tsuen Wan", zh: "荃灣區" },
+  { slug: "tuen-mun", en: "Tuen Mun", zh: "屯門區" },
+  { slug: "yuen-long", en: "Yuen Long", zh: "元朗區" },
+  { slug: "north", en: "North", zh: "北區" },
+  { slug: "tai-po", en: "Tai Po", zh: "大埔區" },
+  { slug: "sha-tin", en: "Sha Tin", zh: "沙田區" },
+  { slug: "sai-kung", en: "Sai Kung", zh: "西貢區" },
+  { slug: "islands", en: "Islands", zh: "離島區" },
+]
+
+const SLUG_TO_HK18: Record<string, string> = {
+  central: "central-and-western",
+  admiralty: "central-and-western",
+  "sai-ying-pun": "central-and-western",
+  "kennedy-town": "central-and-western",
+  "sheung-wan": "central-and-western",
+  "mid-levels": "central-and-western",
+  causewaybay: "wan-chai",
+  "tin-hau": "wan-chai",
+  "wan-chai": "wan-chai",
+  "tai-koo": "eastern",
+  "north-point": "eastern",
+  "quarry-bay": "eastern",
+  "chai-wan": "eastern",
+  aberdeen: "southern",
+  stanley: "southern",
+  "wong-chuk-hang": "southern",
+  "repulse-bay": "southern",
+  "tsim-sha-tsui": "yau-tsim-mong",
+  "yau-ma-tei": "yau-tsim-mong",
+  jordan: "yau-tsim-mong",
+  "prince-edward": "yau-tsim-mong",
+  "mong-kok": "yau-tsim-mong",
+  olympic: "yau-tsim-mong",
+  "sham-shui-po": "sham-shui-po",
+  "cheung-sha-wan": "sham-shui-po",
+  "lai-chi-kok": "sham-shui-po",
+  "mei-foo": "sham-shui-po",
+  "ho-man-tin": "kowloon-city",
+  "hung-hom": "kowloon-city",
+  "to-kwa-wan": "kowloon-city",
+  "kowloon-tong": "kowloon-city",
+  "kai-tak": "kowloon-city",
+  "wong-tai-sin": "wong-tai-sin",
+  "diamond-hill": "wong-tai-sin",
+  sanpokong: "wong-tai-sin",
+  "kwun-tong": "kwun-tong",
+  "kowloon-bay": "kwun-tong",
+  "lam-tin": "kwun-tong",
+  "ngau-tau-kok": "kwun-tong",
+  "yau-tong": "kwun-tong",
+  "kwai-fong": "kwai-tsing",
+  "kwai-chung": "kwai-tsing",
+  "tsing-yi": "kwai-tsing",
+  "tsuen-wan": "tsuen-wan",
+  "tuen-mun": "tuen-mun",
+  "yuen-long": "yuen-long",
+  "tin-shui-wai": "yuen-long",
+  sheungshui: "north",
+  fanling: "north",
+  "tai-po": "tai-po",
+  "sha-tin": "sha-tin",
+  fotan: "sha-tin",
+  "tai-wai": "sha-tin",
+  "ma-on-shan": "sha-tin",
+  "sai-kung": "sai-kung",
+  "tseung-kwan-o": "sai-kung",
+  "hang-hau": "sai-kung",
+  "po-lam": "sai-kung",
+  "lohas-park": "sai-kung",
+  islands: "islands",
+  "tung-chung": "islands",
+  "mui-wo": "islands",
+  "discovery-bay": "islands",
+}
+
+function districtKey(value: string): string {
+  return slugKey(value)
+    .replace(/district$/i, "")
+    .replace(/區$/u, "")
+}
+
+export function officialDistrict(slug: string | null | undefined): District | undefined {
+  if (!slug) return undefined
+  const found = findDistrict(slug)
+  const mapped = found ? SLUG_TO_HK18[found.slug] : undefined
+  if (mapped) return HK18_DISTRICTS.find((d) => d.slug === mapped)
+
+  const key = districtKey(slug)
+  const exact = HK18_DISTRICTS.find(
+    (d) =>
+      districtKey(d.slug) === key ||
+      districtKey(d.en) === key ||
+      districtKey(d.zh) === key,
+  )
+  if (exact) return exact
+
+  const haystack = slugKey(slug)
+  const neighbourhood = ALL_DISTRICTS.find((d) => {
+    const en = slugKey(d.en)
+    const zh = slugKey(d.zh)
+    return (
+      (en.length >= 4 && haystack.includes(en)) ||
+      (zh.length >= 2 && haystack.includes(zh))
+    )
+  })
+  if (neighbourhood) {
+    const officialSlug = SLUG_TO_HK18[neighbourhood.slug]
+    if (officialSlug) return HK18_DISTRICTS.find((d) => d.slug === officialSlug)
+  }
+  return undefined
+}
+
+export function officialDistrictFrom(
+  ...values: Array<string | null | undefined>
+): District | undefined {
+  for (const value of values) {
+    const district = officialDistrict(value)
+    if (district) return district
+  }
+  return undefined
+}
+
+export function officialDistrictLabel(
+  slug: string | null | undefined,
+  locale: "en" | "zh-TW",
+): string {
+  const district = officialDistrict(slug)
+  if (!district) return ""
+  return locale === "zh-TW" ? district.zh : district.en
+}
+
+export function officialDistrictLabelFrom(
+  locale: "en" | "zh-TW",
+  ...values: Array<string | null | undefined>
+): string {
+  const district = officialDistrictFrom(...values)
+  if (!district) return ""
+  return locale === "zh-TW" ? district.zh : district.en
+}

@@ -7,6 +7,7 @@ import {
   sessionsForWorkshop,
   type PublicCourse,
 } from "@/lib/public-courses"
+import { getHostCentre } from "@/lib/public-centres"
 import { ProgramDetail } from "@/components/programs/program-detail"
 
 type Params = { params: Promise<{ id: string }> }
@@ -32,7 +33,11 @@ export default async function TrialDetailPage({ params }: Params) {
   const course = await loadCourse(id)
   if (!course) notFound()
 
-  const [classes, allCourses] = await Promise.all([getPublicClasses(), getPublicCourses()])
+  const [classes, allCourses, hostCentre] = await Promise.all([
+    getPublicClasses(),
+    getPublicCourses(),
+    getHostCentre(course.center_id),
+  ])
   const sessions = sessionsForWorkshop(classes, course)
   const similar = allCourses
     .filter((c) => c.id !== course.id && c.center_id === course.center_id)
@@ -43,6 +48,7 @@ export default async function TrialDetailPage({ params }: Params) {
       course={course}
       classes={sessions}
       similar={similar}
+      hostCentre={hostCentre}
       variant="workshop"
     />
   )

@@ -5,9 +5,9 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { CENTRES } from "@/lib/centre-data";
+import type { Centre } from "@/lib/centre-data";
 import { districtLabel } from "@/lib/locations";
-import { HOST_AVATAR, programImage } from "@/lib/program-images";
+import { programImage } from "@/lib/program-images";
 import type { PublicCourse, PublicClass } from "@/lib/public-courses";
 import { formatTemplate } from "./format";
 import { ClassOptionCard } from "./class-option-card";
@@ -55,6 +55,7 @@ export function ProgramDetail({
   classes,
   similar,
   prices,
+  hostCentre = null,
   expandLessonDates = false,
   variant = "program",
 }: {
@@ -64,6 +65,8 @@ export function ProgramDetail({
   /** Real per-course prices (detail-endpoint fetch in the route) — the
    *  list API omits `price`; keyed by course id. */
   prices?: Record<number, number>;
+  /** Published course's live centre (Test Centre → ClassZ Test Centre). */
+  hostCentre?: Centre | null;
   /** /programs listing cards link with ?dates=1 — class option cards start
    *  in the W3 expanded state. */
   expandLessonDates?: boolean;
@@ -74,10 +77,8 @@ export function ProgramDetail({
 
   const price = course.price != null ? Number(course.price) : null;
   const district = course.venue || districtLabel(course.location, locale);
-  const instructor = classes[0]?.instructor ?? course.instructor;
-  const centre = CENTRES.find((c) => c.id === course.center_id);
-  const centreName = centre?.name ?? instructor;
-  const centreRating = centre?.rating ?? "4.91";
+  const centreName = hostCentre?.name ?? "";
+  const centreHref = hostCentre ? `/centres/${hostCentre.id}` : null;
 
   return (
     <main className="min-h-screen bg-white text-ink">
@@ -254,30 +255,25 @@ export function ProgramDetail({
                 <h2 className="text-[16px] font-[weight:590] leading-[19px] text-black">
                   {t("programs.hostedBy")}
                 </h2>
-                {/* node 2652:24204 — row w343 gap 20, px-16: avatar 50 r100
-                  (design photo placeholder — no avatar API) + centre name
-                  14/590 #222 (2652:24208, wraps) + star rating */}
                 <div className="flex items-center gap-[20px] px-[16px]">
                   <img
-                    src={HOST_AVATAR}
+                    src="/brand/logo-icon.svg"
                     alt=""
                     aria-hidden
-                    className="h-[50px] w-[50px] shrink-0 rounded-full object-cover"
+                    className="h-[50px] w-[50px] shrink-0 rounded-full bg-white object-contain p-2"
                   />
-                  <p className="min-w-0 flex-1 text-[14px] font-[weight:590] leading-[17px] text-ink">
-                    {centreName}
-                  </p>
-                  <span className="flex shrink-0 items-center gap-[4px]">
-                    <Star
-                      aria-hidden
-                      className="h-[16px] w-[16px] text-[#222222]"
-                      fill="#222222"
-                      strokeWidth={0}
-                    />
-                    <span className="text-[14px] font-normal leading-[17px] text-[#222222]">
-                      {centreRating}
-                    </span>
-                  </span>
+                  {centreHref ? (
+                    <Link
+                      href={centreHref}
+                      className="min-w-0 flex-1 text-[14px] font-[weight:590] leading-[17px] text-ink hover:underline"
+                    >
+                      {centreName}
+                    </Link>
+                  ) : (
+                    <p className="min-w-0 flex-1 text-[14px] font-[weight:590] leading-[17px] text-ink">
+                      {centreName}
+                    </p>
+                  )}
                 </div>
               </section>
             ) : null}
@@ -313,7 +309,7 @@ export function ProgramDetail({
           pad 0/80 (no vertical padding), gap 32 */}
         {similar.length > 0 ? (
           <section
-            className="mt-[32px] flex flex-col gap-[32px] px-0 lg:px-[80px]"
+            className="mt-16 flex flex-col gap-10 px-6 pb-20 md:mt-20 md:pb-28 lg:px-[80px]"
             aria-labelledby="similar-heading"
             data-testid="similar-section"
           >

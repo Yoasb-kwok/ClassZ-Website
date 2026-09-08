@@ -1,14 +1,8 @@
 import { getBackendOrigin } from "@/lib/backend-origin"
-import {
-  demoPublicClasses,
-  demoPublicCourse,
-  demoPublicCourses,
-} from "@/lib/public-program-demo"
 
 /**
  * Server-side fetch helpers for PUBLIC ClassZ endpoints.
- * Live published courses win. Missing DEMO-* codes are filled from the
- * marketplace demo set so /programs still has cards when the API is thin.
+ * Listings show only published API rows — no demo catalog fill.
  */
 
 export interface PublicCourse {
@@ -73,25 +67,15 @@ async function getJson<T>(path: string): Promise<T | null> {
 }
 
 export async function getPublicCourses(): Promise<PublicCourse[]> {
-  const rows = (await getJson<PublicCourse[]>("/api/courses")) ?? []
-  const codes = new Set(rows.map((c) => c.program_code).filter(Boolean))
-  const extras = demoPublicCourses().filter((c) => !codes.has(c.program_code))
-  const merged = [...rows, ...extras]
-  return merged.length ? merged : demoPublicCourses()
+  return (await getJson<PublicCourse[]>("/api/courses")) ?? []
 }
 
 export async function getPublicCourse(id: number): Promise<PublicCourse | null> {
-  const live = await getJson<PublicCourse>(`/api/courses/${id}`)
-  if (live) return live
-  return demoPublicCourse(id)
+  return getJson<PublicCourse>(`/api/courses/${id}`)
 }
 
 export async function getPublicClasses(): Promise<PublicClass[]> {
-  const rows = (await getJson<PublicClass[]>("/api/classes")) ?? []
-  const codes = new Set(rows.map((c) => c.program_code).filter(Boolean))
-  const extras = demoPublicClasses().filter((c) => !codes.has(c.program_code ?? ""))
-  const merged = [...rows, ...extras]
-  return merged.length ? merged : demoPublicClasses()
+  return (await getJson<PublicClass[]>("/api/classes")) ?? []
 }
 
 /** Active, future classes for a course's program_code, soonest first. */

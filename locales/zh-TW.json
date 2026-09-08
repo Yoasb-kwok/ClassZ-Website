@@ -1105,6 +1105,7 @@
     "emptyTitle": "找不到符合的課程",
     "emptyBody": "請調整搜尋字詞或篩選條件，查看更多課程。",
     "workshopsEmpty": "暫時沒有工作坊，請稍後再來！",
+    "workshopsTitle": "為孩子找到合適的工作坊",
     "workshopsSubtitle": "探索你附近的課程、教練和學習中心——幫助孩子發掘新的嗜好、興趣和才能。",
     "trialsTitle": "先試堂，再報名",
     "trialsSubtitle": "先預約一堂試堂，確認適合才報讀正式課程。",
@@ -1125,7 +1126,9 @@
     "filter": "篩選",
     "excludeStars": "排除 {n}★ 課程",
     "maxPerClass": "每班最多 {count} 人",
-    "everyWeekday": "每{day}",
+    "everyWeekday": "逢{day}",
+    "durationMinutes": "{n}分鐘",
+    "durationHours": "{n}小時",
     "weekdayFull": {
       "sun": "星期日",
       "mon": "星期一",
@@ -1187,7 +1190,7 @@
     "hideFullDates": "收起日期",
     "lessonDates": "課堂日期",
     "enroll": "報名",
-    "hostedBy": "授課導師",
+    "hostedBy": "課程中心",
     "similarPrograms": "推薦課程",
     "seeMore": "查看更多",
     "noSessions": "此課程暫未開放課堂。"

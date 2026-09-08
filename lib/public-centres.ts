@@ -79,6 +79,12 @@ async function getJson<T>(path: string): Promise<T | null> {
   }
 }
 
+function displayCentreName(raw: string | null | undefined): string {
+  const name = String(raw || "").trim()
+  if (/^test centre$/i.test(name)) return "ClassZ Test Centre"
+  return name
+}
+
 function mapStaff(members: PublicCentreMember[] | undefined): CentreStaff[] {
   return (members || []).map((m) => ({
     name: m.name,
@@ -98,7 +104,7 @@ export function mapPublicCentre(row: PublicCentre, fallback?: Centre | null): Ce
     resolveUploadUrl(row.avatar_url) || fallback?.avatar || "/images/centres/avatar.jpg"
   return {
     id: Number(row.id),
-    name: row.center_name || fallback?.name || "Centre",
+    name: displayCentreName(row.center_name) || fallback?.name || "Centre",
     districtSlug: districtSlugFromApi(row.district) || fallback?.districtSlug || "central",
     address: row.address || fallback?.address || "",
     category: row.category || fallback?.category || null,
@@ -116,12 +122,32 @@ export function mapPublicCentre(row: PublicCentre, fallback?: Centre | null): Ce
   }
 }
 
+/** Course cards fall back to the centre address / official district. */
+export async function getCentreLocationHints(): Promise<Record<number, string[]>> {
+  const rows = (await getJson<PublicCentre[]>("/api/centers")) ?? []
+  const hints: Record<number, string[]> = {}
+  for (const row of rows) {
+    const values = [row.address, row.district].filter((v): v is string => Boolean(v?.trim()))
+    if (values.length) hints[Number(row.id)] = values
+  }
+  return hints
+}
+
 export async function getPublicCentres(): Promise<Centre[]> {
   const rows = (await getJson<PublicCentre[]>("/api/centers")) ?? []
   if (rows.length) {
     return rows.map((row) => mapPublicCentre(row, CENTRES.find((c) => c.id === Number(row.id)) || null))
   }
   return CENTRES
+}
+
+/** Live catalogue centre for a published course — no mock-id fallback. */
+export async function getHostCentre(centerId: number | null | undefined): Promise<Centre | null> {
+  const num = Number(centerId)
+  if (!Number.isInteger(num) || num < 1) return null
+  const live = await getJson<PublicCentre>(`/api/centers/${num}`)
+  if (!live) return null
+  return mapPublicCentre(live, CENTRES.find((c) => c.id === num) || null)
 }
 
 export async function getPublicCentre(id: string | number): Promise<Centre | null> {

@@ -1,10 +1,12 @@
 import { generateMetadata } from "@/lib/metadata"
 import {
   getPublicClasses,
+  getPublicCourse,
   getPublicCourses,
-  sessionsForWorkshop,
 } from "@/lib/public-courses"
-import { DiscoveryPage } from "@/components/programs/discovery-page"
+import { getCentreLocationHints } from "@/lib/public-centres"
+import { isWorkshopCourseType } from "@/lib/course-types"
+import { ProgramsListing } from "@/components/programs/programs-listing"
 
 export const metadata = generateMetadata({
   title: "Workshops",
@@ -14,20 +16,29 @@ export const metadata = generateMetadata({
 })
 
 export default async function WorkshopsPage() {
-  const [courses, classes] = await Promise.all([
+  const [courses, classes, centreHints] = await Promise.all([
     getPublicCourses(),
     getPublicClasses(),
+    getCentreLocationHints(),
   ])
-  // "N schedules" row on the 2408 wide card — active classes per course
-  const scheduleCounts: Record<number, number> = {}
-  for (const course of courses) {
-    scheduleCounts[course.id] = sessionsForWorkshop(classes, course).length
+  const workshops = courses.filter((c) => isWorkshopCourseType(c.course_type))
+  const details = await Promise.all(
+    workshops.filter((c) => c.price == null).map((c) => getPublicCourse(c.id)),
+  )
+  const prices: Record<number, number> = {}
+  for (const d of details) {
+    if (d?.price != null && !Number.isNaN(Number(d.price))) {
+      prices[d.id] = Number(d.price)
+    }
   }
+
   return (
-    <DiscoveryPage
-      courses={courses}
+    <ProgramsListing
+      courses={workshops}
+      classes={classes}
+      prices={prices}
       variant="workshops"
-      scheduleCounts={scheduleCounts}
+      centreHints={centreHints}
     />
   )
 }
