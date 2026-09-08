@@ -9,7 +9,6 @@ import { Footer } from "@/components/footer"
 import { getClasszSession } from "@/lib/classz-auth"
 import { resolveCompanionAnimal } from "@/lib/learning-companion-animals"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
-import { PersonalInfoCard } from "@/components/account/personal-info-card"
 import {
   fetchStudentPassport,
   formatPassportDate,
@@ -41,7 +40,7 @@ const LESSON_FOCUS_REMINDER =
   "What was the main lesson focus today? (short answer with 10 words)"
 
 const NAV = [
-  { href: "/", label: "Home", Icon: Home },
+  { href: "/account/home", label: "Home", Icon: Home },
   { href: "/account", label: "Learning companion", Icon: Sparkles, match: ["/account/analytical-insight", "/account/supporting-learning"] },
   { href: "/account/academic", label: "Academic dashboard", Icon: BookOpen },
   { href: "/account/activity", label: "Activity dashboard", Icon: Trophy },
@@ -246,7 +245,6 @@ export function CompanionHome() {
 
   return (
     <>
-      <PersonalInfoCard />
       <section className="learning-card">
         <div className="learning-intro">
           <p className="learning-intro-label">Based on recent ClassZ learning records:</p>

@@ -6,7 +6,7 @@ const CLASSZ_MODULES_KEY = "classz_enabled_modules"
 export type ClasszPortalRole = "platform_admin" | "center_admin" | "coach" | "student"
 
 export function homePathForRole(role: ClasszPortalRole | string | null | undefined): string {
-  return role === "student" ? "/account" : "/admin"
+  return role === "student" ? "/account/home" : "/admin"
 }
 
 export type ClasszSession = {
