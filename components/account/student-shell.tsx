@@ -369,7 +369,7 @@ function InsightArt({
   )
 }
 
-function narrativeText(companion: StudentPassport["companion"], keys: string[]) {
+function narrativeText(companion: StudentPassport["companion"] | undefined, keys: string[]) {
   const narrative = companion?.narrative_json || {}
   const sections = (narrative.sections || narrative.ai_sections || {}) as Record<string, unknown>
   for (const key of keys) {
@@ -707,32 +707,87 @@ export function RecordsDashboard({ kind }: { kind: "academic" | "activity" }) {
 export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
   const { data } = useStudentPassport()
   const companion = data?.companion
-  const lessons = (data?.lessons || []).filter((lesson) =>
-    kind === "activity" ? lesson.kind === "activity" : lesson.kind !== "activity",
+  const records = (data?.records || []).filter((r) =>
+    kind === "activity" ? r.kind === "activity" : r.kind !== "activity",
+  )
+  const differences = (data?.differences_across_programs || []).filter((d) =>
+    kind === "activity" ? d.kind === "activity" : d.kind !== "activity",
   )
   const prefix = kind === "activity" ? "/account/activity" : "/account/academic"
+  const portrait =
+    narrativeText(companion, ["current_learning_portrait"]) ||
+    "This section will fill in as the centre adds learning records."
+  const algorithm = companion?.algorithm_json
+  const strengths = algorithm?.repeated_strengths || []
+  const focusAreas = algorithm?.repeated_focus_areas || []
+  const helps = data?.help_across_programs || []
+  const overallStatus = records.length >= 5 ? "Established pattern" : "Early observations"
+
   return (
     <div className="more-info-page">
       <Link href={prefix} className="insight-nav-link">
         ← Back
       </Link>
-      <h1 className="more-info-title">More information</h1>
-      <section className="more-info-card">
-        <h2>Programmes</h2>
-        <div className="more-info-grid">
-          {lessons.map((lesson) => (
-            <article key={lesson.id}>
-              <h3>{lesson.title}</h3>
-              <p>{lesson.location || lesson.center_name}</p>
-              <p>{lesson.record_count} records · {lesson.status}</p>
-            </article>
-          ))}
-          {!lessons.length ? <p>No programmes linked yet.</p> : null}
+
+      <section className="more-summary">
+        <div className="more-summary-head">
+          <h1 className="more-summary-title">Overall Learning Picture</h1>
+          <span className="more-summary-status">{overallStatus}</span>
         </div>
+        <p className="more-summary-portrait">{portrait}</p>
       </section>
-      <section className="more-info-card">
-        <h2>What we are seeing</h2>
-        <p>{narrativeText(companion, ["current_learning_portrait", "how_they_approach_something_new"]) || "More detail unlocks after additional confirmed records."}</p>
+
+      <section className="more-section">
+        <h2 className="more-section-title">Stronger Areas</h2>
+        {strengths.length ? (
+          strengths.map((s) => (
+            <div key={s} className="more-item">
+              <h3>{s}</h3>
+            </div>
+          ))
+        ) : (
+          <p className="more-empty">Add more records to reveal strengths.</p>
+        )}
+      </section>
+
+      <section className="more-section">
+        <h2 className="more-section-title">Areas Needing More Support</h2>
+        {focusAreas.length ? (
+          focusAreas.map((s) => (
+            <div key={s} className="more-item">
+              <h3>{s}</h3>
+            </div>
+          ))
+        ) : (
+          <p className="more-empty">Add more records to reveal support areas.</p>
+        )}
+      </section>
+
+      <section className="more-section">
+        <h2 className="more-section-title">Differences Across Programmes</h2>
+        {differences.length ? (
+          differences.map((d) => (
+            <div key={d.program} className="more-item">
+              <h3>{d.program}</h3>
+              {d.repeated_strength.length ? <p>{d.repeated_strength.join(" · ")}</p> : null}
+            </div>
+          ))
+        ) : (
+          <p className="more-empty">No programmes yet.</p>
+        )}
+      </section>
+
+      <section className="more-section">
+        <h2 className="more-section-title">What Seems to Help Across Programmes</h2>
+        {helps.length ? (
+          helps.map((h) => (
+            <div key={h} className="more-item">
+              <h3>{h}</h3>
+            </div>
+          ))
+        ) : (
+          <p className="more-empty">More records will reveal what helps.</p>
+        )}
       </section>
     </div>
   )

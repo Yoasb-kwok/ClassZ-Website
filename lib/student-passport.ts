@@ -29,6 +29,14 @@ export type PassportRecord = {
   support_need?: string
 }
 
+export type ProgramInsights = {
+  repeated_strength: string[]
+  repeated_support: string[]
+  current_focus: string | null
+  current_progress: string | null
+  what_helps: string[]
+}
+
 export type PassportLesson = {
   id: string
   title: string
@@ -43,6 +51,7 @@ export type PassportLesson = {
   statusType: string
   authors: string
   records: PassportRecord[]
+  insights?: ProgramInsights
 }
 
 export type PassportCompanion = {
@@ -54,6 +63,12 @@ export type PassportCompanion = {
   primary_companion?: string | null
   supporting_companions?: string[]
   narrative_json?: Record<string, unknown> | null
+  algorithm_json?: {
+    repeated_strengths?: string[]
+    repeated_focus_areas?: string[]
+    progress_context?: string
+    [k: string]: unknown
+  } | null
 }
 
 export type PassportMedia = {
@@ -66,6 +81,13 @@ export type PassportMedia = {
   class_id?: number
 }
 
+export type ProgramDifference = {
+  program: string
+  kind?: "academic" | "activity"
+  repeated_strength: string[]
+  repeated_support: string[]
+}
+
 export type StudentPassport = {
   account: StudentAccount
   profiles: StudentProfile[]
@@ -75,6 +97,8 @@ export type StudentPassport = {
   lessons: PassportLesson[]
   work_samples: PassportMedia[]
   moments: PassportMedia[]
+  differences_across_programs: ProgramDifference[]
+  help_across_programs: string[]
 }
 
 export type StudentAccount = {
@@ -94,6 +118,8 @@ const EMPTY_PASSPORT: StudentPassport = {
   lessons: [],
   work_samples: [],
   moments: [],
+  differences_across_programs: [],
+  help_across_programs: [],
 }
 
 export async function fetchStudentPassport(profileId?: number | null): Promise<StudentPassport> {

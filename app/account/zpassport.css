@@ -3284,3 +3284,18 @@
 .pi-error { margin: 8px 0 0; font-size: 13px; color: #d33; }
 .pi-ok { margin: 8px 0 0; font-size: 13px; color: #0a8f7a; }
 .pi-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+
+/* ---- Overall Learning Picture (/more) — ADR-002 items 1-4 ---- */
+.more-info-page { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
+.more-summary { background: #fff; border-radius: 18px; padding: 22px 24px; margin: 16px 0 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.more-summary-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.more-summary-title { margin: 0; font-size: 20px; font-weight: 640; color: #222; }
+.more-summary-status { font-size: 12px; font-weight: 590; color: #0abab5; background: #d7f4f3; padding: 4px 12px; border-radius: 999px; }
+.more-summary-portrait { margin: 0; font-size: 15px; line-height: 1.6; color: #5e5e5e; }
+.more-section { background: #fff; border-radius: 18px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.more-section-title { margin: 0 0 12px; font-size: 15px; font-weight: 640; color: #222; }
+.more-item { padding: 10px 0; border-top: 1px solid #f0f0f0; }
+.more-item:first-of-type { border-top: none; padding-top: 0; }
+.more-item h3 { margin: 0; font-size: 15px; font-weight: 590; color: #222; }
+.more-item p { margin: 4px 0 0; font-size: 14px; color: #5e5e5e; line-height: 1.5; }
+.more-empty { margin: 0; font-size: 14px; color: #9a9a9a; }
