@@ -1897,19 +1897,35 @@
   }
 }
 
+
+/* ==========================================================================
+   Lesson (program)  — node 2210:16658 / content 3920:32925
+   Lesson record     — node 2210:16986 / content 3920:33262
+   ========================================================================== */
+
 .lesson-detail-page {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
+  gap: 48px;
   width: 905px;
   max-width: 100%;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* node 3920:33263 — breadcrumb + hero card, gap 16 */
+.lesson-hero-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: stretch;
+  width: 100%;
+  overflow: hidden;
+}
+
 .lesson-breadcrumb {
   align-self: stretch;
-  margin: 0 0 24px;
   font-size: 12px;
   font-style: normal;
   line-height: normal;
@@ -1939,36 +1955,33 @@
   font-weight: 400;
 }
 
+/* node 3939:32927 / 3920:33265 — hero 905×348 r12 image */
 .lesson-hero {
   height: 348px;
+  width: 100%;
   flex-shrink: 0;
   align-self: stretch;
   border-radius: 12px;
-  background-color: lightgray;
-  background-position: 0 -162.516px;
-  background-size: 100% 173.393%;
+  background-color: #e7f8f7;
+  background-position: 50%;
+  background-size: cover;
   background-repeat: no-repeat;
-  margin-bottom: 48px;
 }
 
+/* ---------- header: node 3920:32928 (22/590) / 3920:33266 (26/590) ---------- */
 .lesson-header {
   display: flex;
   box-sizing: border-box;
-  width: 905px;
-  max-width: 100%;
-  height: 108px;
+  width: 100%;
   flex-direction: column;
   align-items: flex-start;
   gap: 32px;
-  align-self: stretch;
-  margin-bottom: 48px;
 }
 
 .lesson-title {
   margin: 0;
   align-self: stretch;
   color: #000;
-  text-align: center;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 22px;
   font-style: normal;
@@ -1976,32 +1989,51 @@
   line-height: normal;
 }
 
+.lesson-title--record {
+  font-size: 26px;
+}
+
 .lesson-header-details {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 16px;
   width: 100%;
 }
 
+/* node 3920:32932 / 3920:33270 — h17 rows */
 .lesson-header-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
+  min-height: 17px;
+}
+
+.lesson-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lesson-header-meta--grow {
+  flex: 1 1 0;
 }
 
 .lesson-records,
 .lesson-location {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin: 0;
-  color: #222;
+  color: #5e5e5e;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
+  font-style: normal;
   font-weight: 400;
-  line-height: 150%;
+  line-height: normal;
 }
 
 .lesson-inline-icon {
@@ -2010,45 +2042,59 @@
   flex-shrink: 0;
 }
 
+/* node 3920:32940 / 3939:34539 — pad 4/8 r4, 14/590, fill @0.8 */
 .lesson-status-badge {
   flex-shrink: 0;
-  padding: 4px 10px;
+  align-self: flex-start;
+  padding: 4px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  color: #222;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 590;
   line-height: normal;
 }
 
 .lesson-status-badge--early {
-  background: #d7f4f3;
-  color: #222;
-}
-
-.lesson-status-badge--established {
-  background: #ffe8d1;
-  color: #222;
+  background: rgba(215, 244, 243, 0.8);
 }
 
 .lesson-status-badge--emerging {
-  background: #fde8ef;
-  color: #222;
+  background: rgba(253, 232, 239, 0.8);
 }
 
+.lesson-status-badge--established {
+  background: rgba(251, 240, 216, 0.8);
+}
+
+/* node 3939:34595 — Hosted by + chart share one section, gap 0 */
+.lesson-hosted-by-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  gap: 0;
+  width: 100%;
+}
+
+.lesson-hosted-by-section .lesson-hosted-by {
+  align-self: stretch;
+}
+
+/* ---------- Hosted by: node 3939:34596/34598 ---------- */
 .lesson-hosted-by {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
   width: 100%;
-  align-self: stretch;
-  margin-bottom: 48px;
 }
 
 .lesson-hosted-by-label {
   margin: 0;
   align-self: stretch;
   color: #000;
-  text-align: left;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
   font-style: normal;
@@ -2060,40 +2106,25 @@
   display: flex;
   box-sizing: border-box;
   align-items: center;
+  gap: 20px;
   width: 100%;
   height: 50px;
   padding: 0 16px;
-  align-self: stretch;
-}
-
-.lesson-hosted-by-host {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-width: 0;
 }
 
 .lesson-hosted-by-avatar {
   width: 50px;
   height: 50px;
-  aspect-ratio: 1 / 1;
-  border-radius: 100px;
   flex-shrink: 0;
-  background-color: lightgray;
+  border-radius: 100px;
+  background-color: #e7f8f7;
   background-position: 50%;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
 }
 
-.lesson-hosted-by-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-width: 0;
-}
-
 .lesson-hosted-by-name {
-  color: var(--Shade-02, #222);
+  color: #222;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 22px;
   font-style: normal;
@@ -2101,160 +2132,82 @@
   line-height: normal;
 }
 
-.lesson-hosted-by-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  color: var(--Shade-02, #222);
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 22px;
-  font-style: normal;
-  font-weight: 590;
-  line-height: normal;
-}
-
-.lesson-progress-section {
+/* ---------- Progress chart: node 3939:34606 (713.67×521.52 + Lesson label) ---------- */
+.lesson-chart-section {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center;
   align-self: stretch;
   width: 100%;
-  margin-bottom: 48px;
   overflow: visible;
 }
 
-.lesson-progress-chart {
+.lesson-chart {
   position: relative;
   flex-shrink: 0;
+  width: 713.67px;
   max-width: 100%;
-  height: 482px;
-  min-height: 482px;
+  height: 595.56px;
 }
 
-.lesson-progress-frame {
+/* plot frame: left + top border only, white fill */
+.lesson-chart-frame {
   position: absolute;
-  top: 0;
+  left: 107.51px;
+  top: 73.2px;
+  width: 606.16px;
+  height: 448.33px;
   box-sizing: border-box;
+  border-left: 2.287px solid #e7eaee;
+  border-top: 2.287px solid #e7eaee;
+  background: #fff;
 }
 
-.lesson-progress-frame-border {
+.lesson-chart-grid-line {
   position: absolute;
+  left: 0;
+  right: 0;
+  height: 2.287px;
   background: #e7eaee;
-  pointer-events: none;
 }
 
-.lesson-progress-frame-border--left {
-  left: 0;
+.lesson-chart-stem {
+  position: absolute;
   top: 0;
   width: 2.287px;
-  height: 448.328px;
+  height: 443.75px;
+  background: #e7eaee;
 }
 
-.lesson-progress-frame-border--top {
+.lesson-chart-area {
+  position: absolute;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 2.287px;
-}
-
-.lesson-progress-plot {
-  position: absolute;
-  left: var(--border-width);
-  top: var(--border-width);
-  width: 606px;
-  height: calc(var(--frame-height) - var(--border-width));
-}
-
-.lesson-progress-columns {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  width: 606px;
-  height: var(--plot-height);
-}
-
-.lesson-chart-x-ticks {
-  position: absolute;
-  top: var(--plot-height);
-  left: 0;
-  z-index: 3;
-  width: 606px;
-  height: 34.311px;
-  margin-top: 6.862px;
+  width: 606.16px;
+  height: 446.04px;
   pointer-events: none;
 }
 
 .lesson-chart-x-tick {
   position: absolute;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  height: 34.311px;
+  top: 448.33px;
   transform: translateX(-50%);
-  overflow: visible;
-  color: var(--Secondary-Text, #72777b);
-  white-space: nowrap;
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #72777b;
+  font-family: Inter, "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 27.449px;
   font-style: normal;
   font-weight: 400;
-  line-height: normal;
-}
-
-.lesson-progress-column {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6.862px;
-  flex: 0 0 101px;
-  align-self: stretch;
-  width: 101px;
-  height: var(--plot-height);
-  box-sizing: border-box;
-}
-
-.lesson-progress-column-plot {
-  display: flex;
-  flex-direction: column;
-  gap: 6.862px;
-  width: 100%;
-  height: var(--plot-height);
-}
-
-.lesson-progress-grid-row {
-  display: flex;
-  flex: 0 0 var(--row-height);
-  align-items: flex-end;
-  align-self: stretch;
-  min-height: 0;
-}
-
-.lesson-progress-grid-line {
-  width: 100%;
-  height: 0;
-  border-top: 1px solid #e7eaee;
-}
-
-.lesson-progress-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  display: block;
-  width: 606px;
-  height: var(--plot-height);
-  pointer-events: none;
+  line-height: 34.311px;
+  white-space: nowrap;
 }
 
 .lesson-chart-y-tick {
   position: absolute;
-  z-index: 3;
-  color: var(--Secondary-Text, #72777b);
+  left: 0;
+  width: 89.21px;
+  transform: translateY(-50%);
+  color: #72777b;
   text-align: right;
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: Inter, "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 27.449px;
   font-style: normal;
   font-weight: 400;
@@ -2263,8 +2216,7 @@
 
 .lesson-chart-axis-label {
   position: absolute;
-  color: var(--Text, #2d2d2d);
-  text-align: center;
+  color: #2d2d2d;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 22px;
   font-style: normal;
@@ -2274,53 +2226,43 @@
 }
 
 .lesson-chart-axis-label--progress {
-  top: calc(var(--frame-height) / 2);
+  left: -5.3px;
+  top: 297.36px;
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 
 .lesson-chart-axis-label--lesson {
-  left: calc(var(--y-axis-x) + (606px / 2));
-  top: calc(var(--frame-height) + 8px);
-  bottom: auto;
+  left: 410.59px;
+  top: 569.56px;
   transform: translateX(-50%);
 }
 
+/* ---------- info cards: nodes 3939:34648 / 34687 (and record-page sections) ---------- */
 .lesson-info-cards {
   display: flex;
   flex-direction: column;
   gap: 48px;
   width: 100%;
-  margin-bottom: 0;
 }
 
 .lesson-info-card {
   display: flex;
   box-sizing: border-box;
   width: 100%;
-  padding: 32px 64px;
-  justify-content: flex-start;
+  flex-direction: column;
   align-items: flex-start;
+  gap: 20px;
+  padding: 32px 64px;
   border-radius: 24px;
   background: #fff;
   box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.12);
 }
 
-.lesson-info-card--stack {
-  flex-direction: column;
-}
-
-.lesson-info-card-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 770px;
-  max-width: 100%;
-}
-
+/* node 3939:34649 — 777×170 row (body + illustration) */
 .lesson-info-section-row {
   display: flex;
   box-sizing: border-box;
-  width: 770px;
+  width: 777px;
   max-width: 100%;
   height: 170px;
   align-items: center;
@@ -2331,23 +2273,16 @@
   gap: 93px;
 }
 
+/* node 3939:34650 — 514 body, pad 16/0, gap 16 */
 .lesson-info-section-body {
   display: flex;
   flex-direction: column;
-  width: 504px;
-  max-width: 100%;
-  height: 100%;
-  padding: 16px 0;
+  gap: 16px;
   box-sizing: border-box;
+  width: 514px;
+  max-width: 100%;
+  padding: 16px 0;
   flex-shrink: 0;
-}
-
-.lesson-info-section-body .lesson-info-title {
-  margin-bottom: 16px;
-}
-
-.lesson-info-section-body .lesson-info-subtitle {
-  margin-bottom: 8px;
 }
 
 .lesson-info-title {
@@ -2361,6 +2296,7 @@
   line-height: normal;
 }
 
+/* node 3939:34951 — 18/510 */
 .lesson-info-subtitle {
   margin: 0;
   align-self: stretch;
@@ -2374,66 +2310,75 @@
 
 .lesson-info-description {
   margin: 0;
-  width: 504px;
-  max-width: 100%;
   align-self: stretch;
+  width: 100%;
   color: #222;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
+  line-height: 21px;
+}
+
+.lesson-info-empty {
+  margin: 0;
+  align-self: stretch;
+  color: #5e5e5e;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px;
 }
 
 .lesson-info-divider {
-  width: 770px;
+  width: 777px;
   max-width: 100%;
   height: 1px;
   margin: 0;
   border: none;
-  background: var(--border);
+  background: #ebebeb;
   flex-shrink: 0;
 }
 
 .lesson-info-illustration {
+  width: 170px;
+  height: 170px;
   flex-shrink: 0;
+  align-self: center;
+  background-position: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .lesson-info-illustration--chart {
-  height: 139.803px;
-  aspect-ratio: 107 / 88;
+  background-image: url("/images/more-analytics-chart.png");
 }
 
-.lesson-info-illustration--chart img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.lesson-info-illustration--observed {
+  background-image: url("/images/lesson-record-observed.png");
 }
 
+.lesson-info-illustration--coach-note {
+  background-image: url("/images/lesson-record-coach-note.png");
+}
+
+/* node 3939:34704 — coin illustration; awaiting the Figma SVG export */
 .lesson-info-illustration--help {
   width: 168.826px;
   height: 122.75px;
-  flex-shrink: 0;
-  aspect-ratio: 168.83 / 122.75;
+  background-size: contain;
 }
 
-.lesson-info-illustration--help img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.lesson-remarks {
+/* ---------- Recent Records: nodes 3939:34731/34733 ---------- */
+.lesson-records-section {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  margin-top: 48px;
 }
 
-.lesson-remarks-title {
+.lesson-records-title {
   margin: 0;
   color: #000;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -2443,64 +2388,73 @@
   line-height: normal;
 }
 
-.lesson-remarks-list {
+.lesson-records-card {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
   width: 100%;
+  padding: 16px 32px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.12);
 }
 
-.lesson-remark-row {
+/* node 3939:34735 — 841×187 row, radius 8 (stroke invisible in capture) */
+.lesson-record-row {
   display: flex;
   flex-direction: column;
-}
-
-.lesson-remark-divider {
+  box-sizing: border-box;
   width: 100%;
-  height: 1px;
-  margin: 0;
-  border: none;
-  background: var(--border);
-}
-
-.lesson-remark-item {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 20px 0;
+  border-radius: 8px;
   text-decoration: none;
   color: inherit;
   transition: background-color 0.15s;
 }
 
-.lesson-remark-item:hover {
+.lesson-record-row:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-.lesson-remark-main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.lesson-remark-class {
-  margin: 0 0 8px;
-  color: #000;
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 590;
-  line-height: normal;
-}
-
-.lesson-remark-detail,
-.lesson-remark-date-group,
-.lesson-remark-time-group {
+.lesson-record-row-head {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 16px 0 10px;
+}
+
+.lesson-record-row-class {
   margin: 0;
+  color: #222;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 510;
+  line-height: 30px;
+}
+
+.lesson-record-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  padding: 0 0 20px;
+}
+
+.lesson-record-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lesson-record-row-meta-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  min-height: 17px;
   color: #5e5e5e;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
@@ -2509,36 +2463,12 @@
   line-height: normal;
 }
 
-.lesson-remark-detail + .lesson-remark-schedule,
-.lesson-remark-schedule + .lesson-remark-detail {
-  margin-top: 0;
-}
-
-.lesson-remark-schedule {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.lesson-remark-date-group {
-  width: 155px;
-  flex-shrink: 0;
-}
-
-.lesson-remark-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  aspect-ratio: 1 / 1;
-}
-
-.lesson-remark-author {
+.lesson-record-row-author {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
-  flex-shrink: 0;
-  color: var(--Shade-02, #222);
+  color: #222;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
   font-style: normal;
@@ -2546,102 +2476,43 @@
   line-height: normal;
 }
 
-.lesson-remark-avatar {
+.lesson-record-row-avatar {
   width: 24px;
   height: 24px;
-  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
   border-radius: 12px;
-  flex-shrink: 0;
-  background: url('/images/profile-athena-yeung.jpg') lightgray -21.533px -1.545px / 203.591% 143.638% no-repeat;
+  background-color: #e7f8f7;
+  background-position: 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-@media (max-width: 900px) {
-  .lesson-detail-page,
-  .lesson-info-card,
-  .lesson-header {
-    width: 100%;
-  }
-
-  .lesson-header {
-    height: auto;
-  }
-
-  .lesson-info-card {
-    flex-direction: column;
-    padding: 24px 20px;
-  }
-
-  .lesson-info-card-sections,
-  .lesson-info-section-row,
-  .lesson-info-divider,
-  .lesson-info-description {
-    width: 100%;
-  }
-
-  .lesson-info-section-row--with-art {
-    flex-direction: column;
-    height: auto;
-    gap: 24px;
-    align-items: flex-start;
-  }
-
-  .lesson-info-section-body {
-    height: auto;
-    min-height: 170px;
-  }
-
-  .lesson-progress-section {
-    overflow-x: auto;
-  }
-
-  .lesson-progress-chart {
-    min-width: var(--chart-content-width);
-  }
-
-  .lesson-remark-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.lesson-record-row-divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: none;
+  background: #ebebeb;
 }
 
-.lesson-record-page {
-  gap: 48px;
-}
-
-.lesson-record-hero {
-  margin-bottom: 0;
-}
-
-.lesson-record-header {
+/* ---------- Lesson record page ---------- */
+/* node 3920:33266 — title 26/590 + meta */
+.lesson-record-meta-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
+  min-height: 17px;
 }
 
-.lesson-record-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-}
-
-.lesson-record-meta-primary {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 282px;
-  flex-shrink: 0;
-}
-
-.lesson-record-meta-item {
+/* node 3920:33272 — each cell 301.67 (fill, grow 1) */
+.lesson-record-meta-cell {
   display: flex;
   align-items: center;
   gap: 4px;
-  width: 282px;
+  flex: 1 1 0;
+  min-width: 0;
   margin: 0;
   color: #5e5e5e;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -2649,27 +2520,20 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  white-space: nowrap;
 }
 
-.lesson-record-meta-icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  aspect-ratio: 1 / 1;
-}
-
+/* node 3939:34517 — Feedback by */
 .lesson-record-feedback {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
   width: 100%;
-  align-self: stretch;
 }
 
 .lesson-record-feedback-label {
   margin: 0;
-  align-self: stretch;
   color: #000;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 18px;
@@ -2682,27 +2546,21 @@
   display: flex;
   box-sizing: border-box;
   align-items: center;
+  gap: 20px;
   width: 100%;
   min-height: 50px;
   padding: 0 16px;
-  gap: 20px;
 }
 
 .lesson-record-feedback-avatar {
   width: 50px;
   height: 50px;
   flex-shrink: 0;
-  aspect-ratio: 1 / 1;
   border-radius: 100px;
-  background-color: lightgray;
-}
-
-.lesson-record-feedback-avatar--centre {
-  background: url('/images/hosted-by-centre.jpg') lightgray 50% / contain no-repeat;
-}
-
-.lesson-record-feedback-avatar--coach {
-  background: url('/images/profile-athena-yeung.jpg') lightgray -44.86px -3.219px / 203.591% 143.638% no-repeat;
+  background-color: #e7f8f7;
+  background-position: 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .lesson-record-feedback-info {
@@ -2718,9 +2576,8 @@
   gap: 0;
 }
 
-.lesson-record-feedback-name,
-.lesson-record-feedback-rating {
-  color: var(--Shade-02, #222);
+.lesson-record-feedback-name {
+  color: #222;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 22px;
   font-style: normal;
@@ -2728,15 +2585,8 @@
   line-height: normal;
 }
 
-.lesson-record-feedback-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
 .lesson-record-feedback-role {
-  color: var(--Neutral-08, #5e5e5e);
+  color: #5e5e5e;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 22px;
   font-style: normal;
@@ -2744,138 +2594,112 @@
   line-height: normal;
 }
 
+/* node 3939:34533 — Today's Focus card: 32/64, title + badge + description */
 .lesson-record-focus-card {
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 48px 64px;
-  gap: 0;
+  gap: 10px;
 }
 
-.lesson-record-focus-card .lesson-info-title {
-  margin: 0 0 8px;
-}
-
-.lesson-record-focus-card .lesson-status-badge {
-  margin: 0 0 10px;
-}
-
-.lesson-record-focus-card .lesson-info-description {
-  margin: 0;
-}
-
-.lesson-record-section-row {
-  display: flex;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  max-width: 100%;
-}
-
-.lesson-record-section-row--featured {
-  width: 770px;
-  height: 170px;
-  align-items: center;
-}
-
-.lesson-record-section-row--featured.lesson-record-section-row--with-art {
-  gap: 96px;
-}
-
-.lesson-record-section-row--compact {
-  width: 514px;
-  height: 84px;
-  align-items: flex-start;
-}
-
-.lesson-record-section-body {
+.lesson-record-focus-head {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
 }
 
-.lesson-record-section-row--featured .lesson-record-section-body {
-  width: 504px;
-  height: 100%;
-  padding: 16px 0;
-  flex-shrink: 0;
-}
-
-.lesson-record-section-row--featured .lesson-info-title {
-  margin: 0 0 16px;
-}
-
-.lesson-record-section-row--compact .lesson-record-section-body {
-  width: 514px;
-  height: 100%;
-  padding: 0;
-}
-
-.lesson-record-section-row--compact .lesson-info-title {
-  margin: 0 0 8px;
-}
-
-.lesson-record-section-row--compact .lesson-info-description {
-  width: 514px;
-}
-
-.lesson-record-illustration {
-  width: 170px;
-  height: 170px;
-  flex-shrink: 0;
-  aspect-ratio: 1 / 1;
-  background-position: 50%;
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.lesson-record-illustration--observed {
-  background-image: url('/images/record-observed-illustration.png');
-}
-
-.lesson-record-illustration--coach-note {
-  background-image: url('/images/record-coach-note-illustration.png');
-}
-
-.lesson-record-coach-card {
-  padding: 32px 64px;
-}
-
-.lesson-record-work-samples {
+/* node 3920:33391 — Moments */
+.lesson-record-moments {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  align-self: stretch;
 }
 
-.lesson-record-work-sample {
+.lesson-record-moments-title {
+  margin: 0;
+  color: #000;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 590;
+  line-height: normal;
+}
+
+/* node 3920:33394 — 905×212 r12 image */
+.lesson-record-moments-image {
+  width: 100%;
   height: 212px;
-  align-self: stretch;
   border-radius: 12px;
-  background-position: center;
+  background-color: #e7f8f7;
+  background-position: 50%;
   background-size: cover;
   background-repeat: no-repeat;
 }
 
+/* initial-letter fallback while centres/coaches have no photo (no image in capture data) */
+.lesson-avatar--initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e7f8f7;
+  background-image: none;
+  color: #0abab5;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 590;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.lesson-record-row-avatar.lesson-avatar--initial {
+  font-size: 12px;
+}
+
 @media (max-width: 900px) {
-  .lesson-record-meta {
-    flex-direction: column;
-    align-items: flex-start;
+  .lesson-detail-page {
+    width: 100%;
   }
 
-  .lesson-record-section-row--featured,
-  .lesson-record-section-row--compact {
+  .lesson-info-card {
+    padding: 24px 20px;
+  }
+
+  .lesson-info-section-row {
     width: 100%;
     height: auto;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
 
-  .lesson-record-section-row--featured .lesson-record-section-body,
-  .lesson-record-section-row--compact .lesson-record-section-body,
-  .lesson-record-section-row--compact .lesson-info-description {
+  .lesson-info-section-row--with-art {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .lesson-info-section-body {
     width: 100%;
+    padding: 0;
+  }
+
+  .lesson-info-divider,
+  .lesson-info-description,
+  .lesson-info-empty {
+    width: 100%;
+  }
+
+  .lesson-chart-section {
+    overflow-x: auto;
+  }
+
+  .lesson-chart {
+    min-width: 713.67px;
+  }
+
+  .lesson-record-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .lesson-record-meta-cell {
+    white-space: normal;
   }
 }
 

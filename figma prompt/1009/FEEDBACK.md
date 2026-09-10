@@ -31,3 +31,16 @@ Only `generalizes: Y` items graduate to lessons at end of a check session.
   - generalizes: N — product decision specific to this card.
 - **product-intent (new diagnostic)**: `getPassport` now logs `[zpassport] profile=… records=… (>= 5) but AI output not received — report=…` when the record threshold is met but `narrative_json.sections` is empty. Verified live: fired with sections cleared, silent once restored.
   - generalizes: N — feature request.
+
+## 2026-09-10 (round 3) — program + lesson-record pages
+
+> "now do the remaining page"
+
+Built both remaining frames. Findings worth generalizing:
+
+- **data-gap (capture cannot carry vectors)**: the program page's progress-chart area and the coins illustration are Figma vectors whose path data is absent from the `.figmacapture` export; the details fallback SVG is flat (36MB, no node IDs). Charts must therefore be data-driven; illustrations must be re-exported by the user.
+  - generalizes: Y — before promising a vector illustration, check `assets/`; if it is a VECTOR node it will **not** be there.
+- **stale-capture / mock-copy inconsistency**: the same `details expand` frame says "Guitar Program" in the title but "S3 Chinese Class" in the breadcrumb and record rows, and shows an "Early observations" badge for a program the other capture labels "3 Records · Consistent pattern". Mock copy in these frames is not self-consistent; the ADR state machines win.
+  - generalizes: Y — do not reconcile mock copy across frames; reconcile against the data model.
+- **agent-drift (self-caught)**: I first built Hosted-by and the chart as separate 48px-gap siblings; node `3939:34595` has them in one section with gap 0. Caught by re-checking node hierarchy, not by the CSS class names (which suggested the wrong nesting before).
+  - generalizes: Y — verify section grouping from the capture's frame nesting, never from existing CSS class structure.

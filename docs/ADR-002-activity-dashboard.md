@@ -204,3 +204,43 @@ Rationale: `rating` exists only on `courses` (public course listing), not on `ce
 | Coaches report students stuck below 5 records | D2 → lower overall threshold or split gen/display |
 | Per-program insight rules grow unwieldy | D3 → extract `buildProgramInsights()` helper |
 | Centre/coach star-rating becomes required | D4 → add rating columns (migration) |
+
+---
+
+## Amendment: Program + Lesson-record pages implemented (2026-09-10)
+
+Built from captures `2210:16658` (program, content `3920:32925`) and `2210:16986` (record, content `3920:33262`). Both pages reused the repo's existing but unconsumed `.lesson-*` CSS, corrected to capture values (section widths 777/514, `--with-art` gap 93, focus-card padding 32/64, badge `pad 4/8` @ 14/590 with 0.8-alpha fills: early `#d7f4f3`, established `#fbf0d8`).
+
+### Record-page state badge
+
+**Decision:** the badge on *Today's Focus* renders the **parent program's** state (`lesson.status` / `statusType`).
+
+The capture shows "Early observations" on a record whose program capture shows "3 Records · Consistent pattern" — the mock copy is internally inconsistent (the same frame's breadcrumb says "S3 Chinese Class" for a "Guitar Program"). D2 defines only two state machines and "one lesson = one record", so a per-record pattern state has no basis.
+
+- **Review trigger:** if a per-observation confidence badge is wanted, define a third state machine first.
+
+### Progress chart is data-driven
+
+**Decision:** the chart plots each record's `progress_level` (supported 1 / guided 2 / developing 3 / independent 4) on a uniform 4-level scale, with the capture's geometry (606.16 plot, 2.287px `#e7eaee` grid, `#72777b` 27.449px ticks, `#00c7f2` @0.5 area, 22px axis labels) and 0-based x ticks.
+
+The capture's area is a Figma vector whose path data is **not present** in the `.figmacapture` export (fallback SVG is flat), and it is mock data anyway. The capture's irregular y-row heights (3×146.09 + 80.97) are shaped by that mock curve, so a uniform scale replaces them.
+
+- **Declared delta:** gridline spacing differs from the mock; frame geometry, colours, type and tick labels match.
+
+### "What Seems to Help" on the program page is AI-gated
+
+Same rule as the D1 amendment for `/more`: the section renders `narrative.sections.what_helps_across_programmes` prose when present, otherwise `WAITING_FOR_AI` (≥3 records) / `WAITING_FOR_RECORDS`. The deterministic `insights.what_helps` labels are **not** shown.
+
+### Data gaps surfaced (left empty / placeholder rather than invented)
+
+| Gap | Handling |
+|---|---|
+| Centre logo, coach photo | initial-letter avatar (`.lesson-avatar--initial`); no photo columns in the data model |
+| Per-program prose descriptions (Current Progress, Repeated Strength/Support, Current Focus) | label/level only; no per-program narrative exists |
+| Programme-card coin illustration (node `3939:34704`) | vector, not exported by the capture — awaiting a Figma SVG export; empty art slot reserved |
+| Moments (record page) | uses the record's `photo_url`; no per-lesson moment collection exists |
+| Program page breadcrumb | capture has none (hero is the first block); sidebar provides the way back |
+
+### Backend additions
+
+`mapRecord` now also returns `start_time`, `end_time` (class schedule, for the record meta row) and `attention_areas` (repeated-support source; `support_given` maps to "What Helped").

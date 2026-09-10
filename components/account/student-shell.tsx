@@ -11,10 +11,15 @@ import { resolveCompanionAnimal } from "@/lib/learning-companion-animals"
 import { resolveUploadUrl } from "@/lib/resolve-upload-url"
 import {
   fetchStudentPassport,
+  formatLessonDate,
+  formatLessonTimeRange,
   formatPassportDate,
+  lessonOrdinal,
   type PassportLesson,
+  type PassportRecord,
   type StudentPassport,
 } from "@/lib/student-passport"
+import { progressLevelLabel } from "@/lib/activity-learning-record"
 
 type PassportCtx = {
   data: StudentPassport | null
@@ -878,58 +883,260 @@ export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
   )
 }
 
+const PROGRESS_LEVEL_SCALE: Record<string, number> = {
+  supported: 1,
+  guided: 2,
+  developing: 3,
+  independent: 4,
+}
+
+const CHART_PLOT_WIDTH = 606.16
+const CHART_PLOT_HEIGHT = 446.04
+
+/* node 3939:34606 — Progress (level 1-4) over Lesson area chart, 713.67×521.52 */
+function LessonProgressChart({ records }: { records: PassportRecord[] }) {
+  const chronological = [...records].reverse()
+  const levels = chronological.map(
+    (rec) => PROGRESS_LEVEL_SCALE[String(rec.progress_level || "").toLowerCase()] || 0,
+  )
+  const columns = Math.max(chronological.length, 1)
+  const columnWidth = CHART_PLOT_WIDTH / columns
+  const yFor = (level: number) => CHART_PLOT_HEIGHT - (level / 4) * CHART_PLOT_HEIGHT
+
+  const points = levels.map(
+    (level, i) => `${(columnWidth * (i + 0.5)).toFixed(2)},${yFor(level).toFixed(2)}`,
+  )
+  const areaPath = points.length
+    ? `M${(columnWidth * 0.5).toFixed(2)},${CHART_PLOT_HEIGHT} L${points.join(
+        " L",
+      )} L${(columnWidth * (levels.length - 0.5)).toFixed(2)},${CHART_PLOT_HEIGHT} Z`
+    : ""
+
+  return (
+    <section className="lesson-chart-section">
+      <div className="lesson-chart">
+        <div className="lesson-chart-frame">
+          {[1, 2, 3].map((level) => (
+            <div className="lesson-chart-grid-line" key={level} style={{ top: yFor(level) }} />
+          ))}
+          {Array.from({ length: columns }).map((_, i) =>
+            i === 0 ? null : (
+              <div className="lesson-chart-stem" key={i} style={{ left: columnWidth * i }} />
+            ),
+          )}
+          <svg
+            className="lesson-chart-area"
+            viewBox={`0 0 ${CHART_PLOT_WIDTH} ${CHART_PLOT_HEIGHT}`}
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {areaPath ? <path d={areaPath} fill="#00c7f2" fillOpacity="0.5" /> : null}
+          </svg>
+          {levels.map((_, i) => (
+            <span
+              className="lesson-chart-x-tick"
+              key={i}
+              style={{ left: columnWidth * (i + 0.5) }}
+            >
+              {i}
+            </span>
+          ))}
+        </div>
+        {[4, 3, 2, 1].map((level) => (
+          <span
+            className="lesson-chart-y-tick"
+            key={level}
+            style={{ top: `calc(73.2px + ${yFor(level).toFixed(2)}px)` }}
+          >
+            {level}
+          </span>
+        ))}
+        <span className="lesson-chart-axis-label lesson-chart-axis-label--progress">Progress</span>
+        <span className="lesson-chart-axis-label lesson-chart-axis-label--lesson">Lesson</span>
+      </div>
+    </section>
+  )
+}
+
+/** Initial-letter fallback for centres/coaches that have no photo on record yet. */
+function PersonAvatar({
+  name,
+  className,
+}: {
+  name?: string | null
+  className: string
+}) {
+  const label = String(name || "").trim()
+  return (
+    <div className={`${className} lesson-avatar--initial`} aria-hidden="true">
+      {label ? label.slice(0, 1).toUpperCase() : ""}
+    </div>
+  )
+}
+
+/* node 2210:16658 — ZPassport-activity details; content 3920:32925 */
 export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; lessonId: string }) {
   const { data } = useStudentPassport()
   const prefix = kind === "activity" ? "/account/activity" : "/account/academic"
   const lesson = data?.lessons.find((l) => String(l.id) === String(lessonId))
   if (!lesson) return <p className="text-sm text-classz-500">Lesson not found.</p>
+
+  const insights = lesson.insights
+  const records = lesson.records || []
+  const strength = (insights?.repeated_strength || []).join(" · ")
+  const supportNeed = (insights?.repeated_support || []).join(" · ")
+  // ADR-002 D1 amendment: "What Seems to Help" is AI prose only — never the
+  // deterministic what_helps labels. Show the state-appropriate wait copy.
+  const helpWaiting = records.length >= 3 ? WAITING_FOR_AI : WAITING_FOR_RECORDS
+
   return (
     <div className="lesson-detail-page">
-      <nav className="lesson-breadcrumb">
-        <Link href={prefix} className="lesson-breadcrumb-parent">
-          {kind === "activity" ? "Activity dashboard" : "Academic dashboard"}
-        </Link>
-        <span className="lesson-breadcrumb-separator"> &gt; </span>
-        <span className="lesson-breadcrumb-current">{lesson.title}</span>
-      </nav>
       <div
         className="lesson-hero"
         style={
           lesson.photo_url
             ? { backgroundImage: `url('${resolveUploadUrl(lesson.photo_url)}')` }
-            : { background: "#E7F8F7" }
+            : undefined
         }
       />
-      <h1 className="lesson-title">{lesson.title}</h1>
-      <p className="lesson-record-meta-item">{lesson.location || lesson.center_name}</p>
-      <p className="lesson-record-meta-item">{lesson.record_count} records · {lesson.status}</p>
-      <div className="academic-records-list" style={{ marginTop: 24 }}>
-        {lesson.records.map((rec) => (
-          <Link
-            key={rec.id}
-            href={`${prefix}/lessons/${lesson.id}/records/${rec.id}`}
-            className="academic-record-item academic-record-item--link"
-          >
-            <div
-              className="academic-record-thumb"
-              style={
-                rec.photo_url
-                  ? { backgroundImage: `url('${resolveUploadUrl(rec.photo_url)}')` }
-                  : { background: "#F4FBFA" }
-              }
-            />
-            <div className="academic-record-content">
-              <h3 className="academic-record-title">{rec.class_focus || rec.class_name}</h3>
-              <p className="academic-record-meta">{formatPassportDate(rec.created_at)}</p>
-              <p className="academic-record-location">{rec.progress_level || "Observed"}</p>
+
+      <header className="lesson-header">
+        <h1 className="lesson-title">{lesson.title}</h1>
+        <div className="lesson-header-details">
+          <div className="lesson-header-top-row">
+            <p className="lesson-records">
+              <IconFolderRecord className="lesson-inline-icon" />
+              {lesson.record_count} Record{lesson.record_count === 1 ? "" : "s"}
+            </p>
+            <span className={`lesson-status-badge lesson-status-badge--${lesson.statusType || "early"}`}>
+              {lesson.status}
+            </span>
+          </div>
+          <p className="lesson-location">
+            <IconPin className="lesson-inline-icon" />
+            {lesson.center_name || lesson.location || "\u2014"}
+          </p>
+        </div>
+      </header>
+
+      <section className="lesson-hosted-by-section">
+        <div className="lesson-hosted-by">
+          <h2 className="lesson-hosted-by-label">Hosted by</h2>
+          <div className="lesson-hosted-by-row">
+            <PersonAvatar name={lesson.center_name} className="lesson-hosted-by-avatar" />
+            <span className="lesson-hosted-by-name">{lesson.center_name || "\u2014"}</span>
+          </div>
+        </div>
+
+        <LessonProgressChart records={records} />
+      </section>
+
+      <div className="lesson-info-cards">
+        <section className="lesson-info-card">
+          <div className="lesson-info-section-row lesson-info-section-row--with-art">
+            <div className="lesson-info-section-body">
+              <h2 className="lesson-info-title">Current Progress</h2>
+              {insights?.current_progress ? (
+                <p className="lesson-info-description">
+                  {progressLevelLabel(insights.current_progress)}
+                </p>
+              ) : (
+                <p className="lesson-info-empty">{WAITING_FOR_RECORDS}</p>
+              )}
             </div>
-          </Link>
-        ))}
+            <div
+              className="lesson-info-illustration lesson-info-illustration--chart"
+              aria-hidden="true"
+            />
+          </div>
+          <hr className="lesson-info-divider" />
+          <div className="lesson-info-section-body">
+            <h2 className="lesson-info-title">Repeated Strength</h2>
+            {strength ? (
+              <p className="lesson-info-subtitle">{strength}</p>
+            ) : (
+              <p className="lesson-info-empty">{WAITING_FOR_RECORDS}</p>
+            )}
+          </div>
+          <hr className="lesson-info-divider" />
+          <div className="lesson-info-section-body">
+            <h2 className="lesson-info-title">Repeated Support Need</h2>
+            {supportNeed ? (
+              <p className="lesson-info-subtitle">{supportNeed}</p>
+            ) : (
+              <p className="lesson-info-empty">{WAITING_FOR_RECORDS}</p>
+            )}
+          </div>
+        </section>
+
+        <section className="lesson-info-card">
+          <div className="lesson-info-section-row lesson-info-section-row--with-art">
+            <div className="lesson-info-section-body">
+              <h2 className="lesson-info-title">What Seems to Help</h2>
+              <p className="lesson-info-empty">{helpWaiting}</p>
+            </div>
+            <div
+              className="lesson-info-illustration lesson-info-illustration--help"
+              aria-hidden="true"
+            />
+          </div>
+          <hr className="lesson-info-divider" />
+          <div className="lesson-info-section-body">
+            <h2 className="lesson-info-title">Current Focus</h2>
+            {insights?.current_focus ? (
+              <p className="lesson-info-subtitle">{insights.current_focus}</p>
+            ) : (
+              <p className="lesson-info-empty">{WAITING_FOR_RECORDS}</p>
+            )}
+          </div>
+        </section>
       </div>
+
+      <section className="lesson-records-section">
+        <h2 className="lesson-records-title">Recent Records</h2>
+        <div className="lesson-records-card">
+          {records.length ? (
+            records.map((rec, i) => (
+              <div key={rec.id}>
+                {i > 0 ? <hr className="lesson-record-row-divider" /> : null}
+                <Link
+                  href={`${prefix}/lessons/${lesson.id}/records/${rec.id}`}
+                  className="lesson-record-row"
+                >
+                  <div className="lesson-record-row-head">
+                    <h3 className="lesson-record-row-class">{rec.class_name}</h3>
+                  </div>
+                  <div className="lesson-record-row-body">
+                    <div className="lesson-record-row-meta">
+                      <p className="lesson-record-row-meta-line">
+                        {lessonOrdinal(records.length - i)}
+                      </p>
+                      <p className="lesson-record-row-meta-line">
+                        <span>{formatLessonDate(rec.created_at)}</span>
+                        <span>{formatLessonTimeRange(rec.start_time, rec.end_time)}</span>
+                      </p>
+                      <p className="lesson-record-row-meta-line">{rec.center_name || "\u2014"}</p>
+                    </div>
+                    {rec.instructor ? (
+                      <p className="lesson-record-row-author">
+                        <PersonAvatar name={rec.instructor} className="lesson-record-row-avatar" />
+                        By {rec.instructor}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              </div>
+            ))
+          ) : (
+            <p className="lesson-info-empty">No records for this programme yet.</p>
+          )}
+        </div>
+      </section>
     </div>
   )
 }
 
+/* node 2210:16986 — ZPassport-activity details expand; content 3920:33262 */
 export function LessonRecordPage({
   kind,
   lessonId,
@@ -944,47 +1151,146 @@ export function LessonRecordPage({
   const lesson = data?.lessons.find((l) => String(l.id) === String(lessonId))
   const record = lesson?.records.find((r) => String(r.id) === String(recordId))
   if (!lesson || !record) return <p className="text-sm text-classz-500">Record not found.</p>
-  const observed = record.observed?.length ? record.observed.join(" · ") : record.evidence || "—"
+
+  const records = lesson.records || []
+  const index = records.findIndex((r) => String(r.id) === String(record.id))
+  const ordinal = lessonOrdinal(Math.max(records.length - index, 1))
+  const observed = record.evidence || (record.observed || []).join(" · ")
+  const supportNeed = (record.attention_areas || []).join(" · ") || record.support_need
+  const whatHelped = record.support_need
+
   return (
     <div className="lesson-detail-page lesson-record-page">
-      <nav className="lesson-breadcrumb">
-        <Link href={`${prefix}/lessons/${lesson.id}`} className="lesson-breadcrumb-parent">
-          {lesson.title}
-        </Link>
-        <span className="lesson-breadcrumb-separator"> &gt; </span>
-        <span className="lesson-breadcrumb-current">{record.class_focus || "Record"}</span>
-      </nav>
-      <div
-        className="lesson-hero lesson-record-hero"
-        style={
-          record.photo_url
-            ? { backgroundImage: `url('${resolveUploadUrl(record.photo_url)}')` }
-            : { background: "#E7F8F7" }
-        }
-      />
-      <header className="lesson-record-header">
-        <h1 className="lesson-title">{record.class_focus || lesson.title}</h1>
-        <p>{formatPassportDate(record.created_at)}</p>
-        <p>{record.location || lesson.location || lesson.center_name}</p>
+      <div className="lesson-hero-card">
+        <nav className="lesson-breadcrumb" aria-label="Breadcrumb">
+          <Link href={`${prefix}/lessons/${lesson.id}`} className="lesson-breadcrumb-parent">
+            {lesson.title}
+          </Link>
+          <span className="lesson-breadcrumb-separator"> &gt; </span>
+          <span className="lesson-breadcrumb-current">
+            {lesson.title} {ordinal}
+          </span>
+        </nav>
+        <div
+          className="lesson-hero"
+          style={
+            record.photo_url
+              ? { backgroundImage: `url('${resolveUploadUrl(record.photo_url)}')` }
+              : undefined
+          }
+        />
+      </div>
+
+      <header className="lesson-header">
+        <h1 className="lesson-title lesson-title--record">{lesson.title}</h1>
+        <div className="lesson-header-details">
+          <div className="lesson-record-meta-row">
+            <p className="lesson-record-meta-cell">
+              <IconFolderRecord className="lesson-inline-icon" />
+              {ordinal}
+            </p>
+            <p className="lesson-record-meta-cell">
+              <IconFolderRecord className="lesson-inline-icon" />
+              {formatLessonDate(record.created_at)}
+            </p>
+            <p className="lesson-record-meta-cell">
+              <IconFolderRecord className="lesson-inline-icon" />
+              {formatLessonTimeRange(record.start_time, record.end_time) || "\u2014"}
+            </p>
+          </div>
+          <p className="lesson-location">
+            <IconPin className="lesson-inline-icon" />
+            {record.center_name || lesson.center_name || "\u2014"}
+          </p>
+        </div>
       </header>
-      <article className="lesson-info-card">
-        <h2 className="lesson-info-title">Today&apos;s Focus</h2>
-        <p className="lesson-focus-reminder">{LESSON_FOCUS_REMINDER}</p>
-        <p className="lesson-info-description">{record.class_focus || "—"}</p>
-      </article>
-      <article className="lesson-info-card">
-        <h2 className="lesson-info-title">What We Observed</h2>
-        <p className="lesson-info-description">{observed}</p>
-      </article>
-      <article className="lesson-info-card">
-        <h2 className="lesson-info-title">What Helped / Next Step</h2>
-        <p className="lesson-info-description">{record.student_work_on || record.support_need || "—"}</p>
-      </article>
-      {record.additional_comment ? (
-        <article className="lesson-info-card">
-          <h2 className="lesson-info-title">Coach&apos;s Note</h2>
-          <p className="lesson-info-description">{record.additional_comment}</p>
-        </article>
+
+      <section className="lesson-record-feedback">
+        <h2 className="lesson-record-feedback-label">Feedback by</h2>
+        <div className="lesson-record-feedback-row">
+          <PersonAvatar
+            name={record.center_name || lesson.center_name}
+            className="lesson-record-feedback-avatar"
+          />
+          <span className="lesson-record-feedback-name">
+            {record.center_name || lesson.center_name || "\u2014"}
+          </span>
+        </div>
+        {record.instructor ? (
+          <div className="lesson-record-feedback-row">
+            <PersonAvatar
+              name={record.instructor}
+              className="lesson-record-feedback-avatar"
+            />
+            <div className="lesson-record-feedback-info lesson-record-feedback-info--coach">
+              <span className="lesson-record-feedback-name">{record.instructor}</span>
+              <span className="lesson-record-feedback-role">Program Coach</span>
+            </div>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="lesson-info-card lesson-record-focus-card">
+        <div className="lesson-record-focus-head">
+          <h2 className="lesson-info-title">Today&apos;s Focus</h2>
+          <span className={`lesson-status-badge lesson-status-badge--${lesson.statusType || "early"}`}>
+            {lesson.status}
+          </span>
+        </div>
+        <p className="lesson-info-description">{record.class_focus || "\u2014"}</p>
+      </section>
+
+      <section className="lesson-info-card">
+        <div className="lesson-info-section-row lesson-info-section-row--with-art">
+          <div className="lesson-info-section-body">
+            <h2 className="lesson-info-title">What We Observed</h2>
+            <p className="lesson-info-description">{observed || "\u2014"}</p>
+          </div>
+          <div
+            className="lesson-info-illustration lesson-info-illustration--observed"
+            aria-hidden="true"
+          />
+        </div>
+        <hr className="lesson-info-divider" />
+        <div className="lesson-info-section-body">
+          <h2 className="lesson-info-title">Support Need Today</h2>
+          <p className="lesson-info-description">{supportNeed || "\u2014"}</p>
+        </div>
+        <hr className="lesson-info-divider" />
+        <div className="lesson-info-section-body">
+          <h2 className="lesson-info-title">What Helped</h2>
+          <p className="lesson-info-description">{whatHelped || "\u2014"}</p>
+        </div>
+        <hr className="lesson-info-divider" />
+        <div className="lesson-info-section-body">
+          <h2 className="lesson-info-title">Next Step</h2>
+          <p className="lesson-info-description">{record.student_work_on || "\u2014"}</p>
+        </div>
+      </section>
+
+      <section className="lesson-info-card">
+        <div className="lesson-info-section-row lesson-info-section-row--with-art">
+          <div className="lesson-info-section-body">
+            <h2 className="lesson-info-title">Coach&apos;s Note</h2>
+            <p className="lesson-info-description">{record.additional_comment || "\u2014"}</p>
+          </div>
+          <div
+            className="lesson-info-illustration lesson-info-illustration--coach-note"
+            aria-hidden="true"
+          />
+        </div>
+      </section>
+
+      {record.photo_url ? (
+        <section className="lesson-record-moments">
+          <h2 className="lesson-record-moments-title">Moments</h2>
+          <div
+            className="lesson-record-moments-image"
+            style={{ backgroundImage: `url('${resolveUploadUrl(record.photo_url)}')` }}
+            role="img"
+            aria-label={`${lesson.title} moment`}
+          />
+        </section>
       ) : null}
     </div>
   )

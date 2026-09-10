@@ -12,6 +12,9 @@ Batch: `1009` · Captured 2026-09-10 · Tool: runkids/figma-to-prompt 0.2.7
 - `ZPassport-activity (more info)` — **implemented 2026-09-10** (`RecordsMorePage`, capture-exact rebuild). Illustrations: trophy/apple reused from `public/images/activity-summary-trophy.png` / `academic-summary-apple.png`; chart from capture asset (`more-analytics-chart.png`); the two open-box vectors are the user-supplied Figma SVG exports in `1009/icon/` → `public/images/more-differences-box.svg` (`Group(1).svg`, node 3939:34977) and `more-help-box.svg` (`Group.svg`, node 3939:35076).
 - `ZPassport-activity details` / `details expand` — not yet built.
 
+- `ZPassport-activity details` (program, `2210:16658`) — **implemented 2026-09-10** (`LessonPage`). Assets: hero from `lesson.photo_url`; Current Progress art reuses `more-analytics-chart.png` (identical MD5 to this capture's asset `004-3939_34660.png`). Coins art (`3939:34704`) still needs an SVG export.
+- `ZPassport-activity details expand` (record, `2210:16986`) — **implemented 2026-09-10** (`LessonRecordPage`). Assets: `lesson-record-observed.png` (`006-3939_34554.png`) and `lesson-record-coach-note.png` (`007-3939_34593.png`); hero/moments from `record.photo_url`.
+
 ## Notes
 - Dashboard (`/account/activity`) is unchanged per ADR-002 (already complete).
 - Academic dashboard (`/account/academic/*`) reuses the same components/designs; build Activity first, then confirm parity.

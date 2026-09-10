@@ -21,12 +21,18 @@ export type PassportRecord = {
   class_focus: string
   progress_level?: string | null
   observed: string[]
+  strongest_areas?: string[]
+  attention_areas?: string[]
   student_work_on: string
   additional_comment: string
   observation_payload?: Record<string, unknown> | null
+  next_focus?: string | null
   created_at: string
+  start_time?: string | null
+  end_time?: string | null
   evidence?: string
   support_need?: string
+  outcome?: string
 }
 
 export type ProgramInsights = {
@@ -153,6 +159,46 @@ export function formatPassportDate(value?: string | null) {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return String(value)
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+}
+
+/** "12 May (Fri)" — capture 2210:16986 meta row. */
+export function formatLessonDate(value?: string | null) {
+  if (!value) return ""
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return String(value)
+  const day = String(d.getDate()).padStart(2, "0")
+  const month = d.toLocaleDateString("en-GB", { month: "short" })
+  const weekday = d.toLocaleDateString("en-GB", { weekday: "short" })
+  return `${day} ${month} (${weekday})`
+}
+
+function formatClock(value: Date) {
+  const hours24 = value.getHours()
+  const suffix = hours24 >= 12 ? "PM" : "AM"
+  const hours = hours24 % 12 === 0 ? 12 : hours24 % 12
+  return `${hours}:${String(value.getMinutes()).padStart(2, "0")}${suffix}`
+}
+
+/** "4:00PM-5:00PM" from the class start/end times (capture 2210:16986). */
+export function formatLessonTimeRange(
+  start?: string | null,
+  end?: string | null,
+): string {
+  if (!start) return ""
+  const startDate = new Date(start)
+  if (Number.isNaN(startDate.getTime())) return String(start)
+  const from = formatClock(startDate)
+  const endDate = end ? new Date(end) : null
+  if (!endDate || Number.isNaN(endDate.getTime())) return from
+  return `${from}-${formatClock(endDate)}`
+}
+
+/** Lesson ordinal within a program: newest record = highest number ("3rd lesson"). */
+export function lessonOrdinal(index: number) {
+  if (index === 1) return "1st lesson"
+  if (index === 2) return "2nd lesson"
+  if (index === 3) return "3rd lesson"
+  return `${index}th lesson`
 }
 
 // ---- Personal Information write helpers (ADR-001) ----
