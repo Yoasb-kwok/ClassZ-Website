@@ -154,18 +154,30 @@ export async function fetchStudentClassNotices() {
   return apiGet<unknown[]>("/class-notices", "student")
 }
 
+/**
+ * MySQL DATETIME columns arrive as "YYYY-MM-DD HH:MM:SS" (dateStrings), which
+ * ECMAScript does not guarantee `new Date` can parse (Safari returns Invalid
+ * Date). Normalise the separator before parsing.
+ */
+function parseDbDate(value?: string | null) {
+  if (!value) return null
+  const text = String(value).trim()
+  if (!text) return null
+  const isoish = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(text) ? text.replace(" ", "T") : text
+  const parsed = new Date(isoish)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
 export function formatPassportDate(value?: string | null) {
-  if (!value) return ""
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return String(value)
+  const d = parseDbDate(value)
+  if (!d) return value ? String(value) : ""
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
 }
 
 /** "12 May (Fri)" — capture 2210:16986 meta row. */
 export function formatLessonDate(value?: string | null) {
-  if (!value) return ""
-  const d = new Date(value)
-  if (Number.isNaN(d.getTime())) return String(value)
+  const d = parseDbDate(value)
+  if (!d) return value ? String(value) : ""
   const day = String(d.getDate()).padStart(2, "0")
   const month = d.toLocaleDateString("en-GB", { month: "short" })
   const weekday = d.toLocaleDateString("en-GB", { weekday: "short" })
@@ -184,21 +196,29 @@ export function formatLessonTimeRange(
   start?: string | null,
   end?: string | null,
 ): string {
-  if (!start) return ""
-  const startDate = new Date(start)
-  if (Number.isNaN(startDate.getTime())) return String(start)
+  const startDate = parseDbDate(start)
+  if (!startDate) return start ? String(start) : ""
   const from = formatClock(startDate)
-  const endDate = end ? new Date(end) : null
-  if (!endDate || Number.isNaN(endDate.getTime())) return from
+  const endDate = parseDbDate(end)
+  if (!endDate) return from
   return `${from}-${formatClock(endDate)}`
 }
 
 /** Lesson ordinal within a program: newest record = highest number ("3rd lesson"). */
 export function lessonOrdinal(index: number) {
-  if (index === 1) return "1st lesson"
-  if (index === 2) return "2nd lesson"
-  if (index === 3) return "3rd lesson"
-  return `${index}th lesson`
+  const n = Math.max(Math.trunc(index) || 0, 0)
+  const tens = n % 100
+  if (tens >= 11 && tens <= 13) return `${n}th lesson`
+  switch (n % 10) {
+    case 1:
+      return `${n}st lesson`
+    case 2:
+      return `${n}nd lesson`
+    case 3:
+      return `${n}rd lesson`
+    default:
+      return `${n}th lesson`
+  }
 }
 
 // ---- Personal Information write helpers (ADR-001) ----

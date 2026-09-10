@@ -62,19 +62,19 @@ function IconMale() {
   )
 }
 
-function IconFolderRecord({ className = "" }: { className?: string }) {
+function IconFolderRecord({ className = "", stroke = "#222222" }: { className?: string; stroke?: string }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" className={className} aria-hidden>
-      <path d="M14.6673 7.33301V11.333C14.6673 13.9997 14.0007 14.6663 11.334 14.6663H4.66732C2.00065 14.6663 1.33398 13.9997 1.33398 11.333V4.66634C1.33398 1.99967 2.00065 1.33301 4.66732 1.33301H5.66732C6.66732 1.33301 6.88732 1.62634 7.26732 2.13301L8.26732 3.46634C8.52065 3.79967 8.66732 3.99967 9.33398 3.99967H11.334C14.0007 3.99967 14.6673 4.66634 14.6673 7.33301Z" stroke="#222222" strokeWidth="1.16" />
+      <path d="M14.6673 7.33301V11.333C14.6673 13.9997 14.0007 14.6663 11.334 14.6663H4.66732C2.00065 14.6663 1.33398 13.9997 1.33398 11.333V4.66634C1.33398 1.99967 2.00065 1.33301 4.66732 1.33301H5.66732C6.66732 1.33301 6.88732 1.62634 7.26732 2.13301L8.26732 3.46634C8.52065 3.79967 8.66732 3.99967 9.33398 3.99967H11.334C14.0007 3.99967 14.6673 4.66634 14.6673 7.33301Z" stroke={stroke} strokeWidth="1.16" />
     </svg>
   )
 }
 
-function IconPin({ className = "" }: { className?: string }) {
+function IconPin({ className = "", stroke = "#222" }: { className?: string; stroke?: string }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className={className} aria-hidden>
-      <path d="M8 8.7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="#222" strokeWidth="1.16" />
-      <path d="M8 14.7s5-3.7 5-7.3a5 5 0 1 0-10 0c0 3.6 5 7.3 5 7.3Z" stroke="#222" strokeWidth="1.16" />
+      <path d="M8 8.7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke={stroke} strokeWidth="1.16" />
+      <path d="M8 14.7s5-3.7 5-7.3a5 5 0 1 0-10 0c0 3.6 5 7.3 5 7.3Z" stroke={stroke} strokeWidth="1.16" />
     </svg>
   )
 }
@@ -895,22 +895,27 @@ const CHART_PLOT_HEIGHT = 446.04
 
 /* node 3939:34606 — Progress (level 1-4) over Lesson area chart, 713.67×521.52 */
 function LessonProgressChart({ records }: { records: PassportRecord[] }) {
-  const chronological = [...records].reverse()
-  const levels = chronological.map(
-    (rec) => PROGRESS_LEVEL_SCALE[String(rec.progress_level || "").toLowerCase()] || 0,
-  )
-  const columns = Math.max(chronological.length, 1)
+  // Only records with a recognised progress level carry chart data; an unknown
+  // level must not be plotted as 0 (below the axis floor).
+  const charted = [...records]
+    .reverse()
+    .map((rec) => PROGRESS_LEVEL_SCALE[String(rec.progress_level || "").toLowerCase()])
+    .filter((level): level is number => typeof level === "number")
+
+  const columns = Math.max(charted.length, 1)
   const columnWidth = CHART_PLOT_WIDTH / columns
   const yFor = (level: number) => CHART_PLOT_HEIGHT - (level / 4) * CHART_PLOT_HEIGHT
 
-  const points = levels.map(
-    (level, i) => `${(columnWidth * (i + 0.5)).toFixed(2)},${yFor(level).toFixed(2)}`,
-  )
-  const areaPath = points.length
-    ? `M${(columnWidth * 0.5).toFixed(2)},${CHART_PLOT_HEIGHT} L${points.join(
-        " L",
-      )} L${(columnWidth * (levels.length - 0.5)).toFixed(2)},${CHART_PLOT_HEIGHT} Z`
-    : ""
+  const points = charted.map((level, i) => ({
+    x: columnWidth * (i + 0.5),
+    y: yFor(level),
+  }))
+  const areaPath =
+    points.length > 1
+      ? `M${points[0].x.toFixed(2)},${CHART_PLOT_HEIGHT} L${points
+          .map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+          .join(" L")} L${points[points.length - 1].x.toFixed(2)},${CHART_PLOT_HEIGHT} Z`
+      : ""
 
   return (
     <section className="lesson-chart-section">
@@ -931,8 +936,12 @@ function LessonProgressChart({ records }: { records: PassportRecord[] }) {
             aria-hidden="true"
           >
             {areaPath ? <path d={areaPath} fill="#00c7f2" fillOpacity="0.5" /> : null}
+            {/* a lone lesson has no area to fill — mark the point instead */}
+            {points.length === 1 ? (
+              <circle cx={points[0].x} cy={points[0].y} r={7} fill="#00c7f2" fillOpacity="0.5" />
+            ) : null}
           </svg>
-          {levels.map((_, i) => (
+          {charted.map((_, i) => (
             <span
               className="lesson-chart-x-tick"
               key={i}
@@ -986,7 +995,9 @@ export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; 
   const strength = (insights?.repeated_strength || []).join(" · ")
   const supportNeed = (insights?.repeated_support || []).join(" · ")
   // ADR-002 D1 amendment: "What Seems to Help" is AI prose only — never the
-  // deterministic what_helps labels. Show the state-appropriate wait copy.
+  // deterministic what_helps labels. Thresholds follow the D2 per-program
+  // state machine (1 / 2 / >=3); /more uses the overall one (5).
+  const whatHelpsAi = narrativeText(data?.companion, ["what_helps_across_programmes"])
   const helpWaiting = records.length >= 3 ? WAITING_FOR_AI : WAITING_FOR_RECORDS
 
   return (
@@ -1073,7 +1084,11 @@ export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; 
           <div className="lesson-info-section-row lesson-info-section-row--with-art">
             <div className="lesson-info-section-body">
               <h2 className="lesson-info-title">What Seems to Help</h2>
-              <p className="lesson-info-empty">{helpWaiting}</p>
+              {whatHelpsAi ? (
+                <p className="lesson-info-description">{whatHelpsAi}</p>
+              ) : (
+                <p className="lesson-info-empty">{helpWaiting}</p>
+              )}
             </div>
             <div
               className="lesson-info-illustration lesson-info-illustration--help"
@@ -1109,13 +1124,27 @@ export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; 
                   <div className="lesson-record-row-body">
                     <div className="lesson-record-row-meta">
                       <p className="lesson-record-row-meta-line">
-                        {lessonOrdinal(records.length - i)}
+                        <span className="lesson-record-row-meta-item">
+                          <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+                          {lessonOrdinal(records.length - i)}
+                        </span>
                       </p>
                       <p className="lesson-record-row-meta-line">
-                        <span>{formatLessonDate(rec.created_at)}</span>
-                        <span>{formatLessonTimeRange(rec.start_time, rec.end_time)}</span>
+                        <span className="lesson-record-row-meta-item">
+                          <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+                          {formatLessonDate(rec.start_time || rec.created_at)}
+                        </span>
+                        <span className="lesson-record-row-meta-item">
+                          <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+                          {formatLessonTimeRange(rec.start_time, rec.end_time) || "\u2014"}
+                        </span>
                       </p>
-                      <p className="lesson-record-row-meta-line">{rec.center_name || "\u2014"}</p>
+                      <p className="lesson-record-row-meta-line">
+                        <span className="lesson-record-row-meta-item">
+                          <IconPin className="lesson-inline-icon" stroke="#5E5E5E" />
+                          {rec.center_name || "\u2014"}
+                        </span>
+                      </p>
                     </div>
                     {rec.instructor ? (
                       <p className="lesson-record-row-author">
@@ -1154,13 +1183,17 @@ export function LessonRecordPage({
 
   const records = lesson.records || []
   const index = records.findIndex((r) => String(r.id) === String(record.id))
+  // API orders records newest-first, so the newest record carries the highest ordinal.
   const ordinal = lessonOrdinal(Math.max(records.length - index, 1))
   const observed = record.evidence || (record.observed || []).join(" · ")
-  const supportNeed = (record.attention_areas || []).join(" · ") || record.support_need
+  // Capture maps: attention_areas -> Support Need Today, support_given -> What Helped
+  // (ClassZ-api maps support_given ids to labels). Never fall back to the same value twice.
+  const supportNeed = (record.attention_areas || []).join(" · ")
   const whatHelped = record.support_need
+  const lessonDate = formatLessonDate(record.start_time || record.created_at)
 
   return (
-    <div className="lesson-detail-page lesson-record-page">
+    <div className="lesson-detail-page">
       <div className="lesson-hero-card">
         <nav className="lesson-breadcrumb" aria-label="Breadcrumb">
           <Link href={`${prefix}/lessons/${lesson.id}`} className="lesson-breadcrumb-parent">
@@ -1168,7 +1201,7 @@ export function LessonRecordPage({
           </Link>
           <span className="lesson-breadcrumb-separator"> &gt; </span>
           <span className="lesson-breadcrumb-current">
-            {lesson.title} {ordinal}
+            {lesson.title} All Records {ordinal ? "\u203a" : ""} {ordinal}
           </span>
         </nav>
         <div
@@ -1186,20 +1219,20 @@ export function LessonRecordPage({
         <div className="lesson-header-details">
           <div className="lesson-record-meta-row">
             <p className="lesson-record-meta-cell">
-              <IconFolderRecord className="lesson-inline-icon" />
+              <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
               {ordinal}
             </p>
             <p className="lesson-record-meta-cell">
-              <IconFolderRecord className="lesson-inline-icon" />
-              {formatLessonDate(record.created_at)}
+              <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+              {lessonDate}
             </p>
             <p className="lesson-record-meta-cell">
-              <IconFolderRecord className="lesson-inline-icon" />
+              <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
               {formatLessonTimeRange(record.start_time, record.end_time) || "\u2014"}
             </p>
           </div>
           <p className="lesson-location">
-            <IconPin className="lesson-inline-icon" />
+            <IconPin className="lesson-inline-icon" stroke="#5E5E5E" />
             {record.center_name || lesson.center_name || "\u2014"}
           </p>
         </div>

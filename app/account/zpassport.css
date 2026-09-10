@@ -2011,17 +2011,6 @@
   min-height: 17px;
 }
 
-.lesson-header-meta {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-
-.lesson-header-meta--grow {
-  flex: 1 1 0;
-}
-
 .lesson-records,
 .lesson-location {
   display: flex;
@@ -2045,7 +2034,6 @@
 /* node 3920:32940 / 3939:34539 — pad 4/8 r4, 14/590, fill @0.8 */
 .lesson-status-badge {
   flex-shrink: 0;
-  align-self: flex-start;
   padding: 4px 8px;
   border-radius: 4px;
   color: #222;
@@ -2054,6 +2042,11 @@
   font-style: normal;
   font-weight: 590;
   line-height: normal;
+}
+
+/* stacked head (Today's Focus) needs the badge hugging its own width */
+.lesson-record-focus-head .lesson-status-badge {
+  align-self: flex-start;
 }
 
 .lesson-status-badge--early {
@@ -2258,14 +2251,14 @@
   box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* node 3939:34649 — 777×170 row (body + illustration) */
+/* node 3939:34649 — 777×170 row (body + illustration); capture: counterAxisAlign min */
 .lesson-info-section-row {
   display: flex;
   box-sizing: border-box;
   width: 777px;
   max-width: 100%;
   height: 170px;
-  align-items: center;
+  align-items: flex-start;
   flex-shrink: 0;
 }
 
@@ -2349,6 +2342,17 @@
   background-position: 50%;
   background-size: contain;
   background-repeat: no-repeat;
+}
+
+.lesson-record-row-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lesson-record-row:focus-visible {
+  outline: 2px solid #0abab5;
+  outline-offset: 2px;
 }
 
 .lesson-info-illustration--chart {
@@ -2463,9 +2467,11 @@
   line-height: normal;
 }
 
+/* node 3939:34787 — author block sits at the right of the row (pa=max) */
 .lesson-record-row-author {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   margin: 0;
   color: #222;
@@ -2594,9 +2600,14 @@
   line-height: normal;
 }
 
-/* node 3939:34533 — Today's Focus card: 32/64, title + badge + description */
+/* node 3939:34533 — Today's Focus card: 32/64, title + badge + description.
+   Capture body is 504 wide with pad 16/0; description must not stretch to 777. */
 .lesson-record-focus-card {
   gap: 10px;
+}
+
+.lesson-record-focus-card .lesson-info-description {
+  width: 514px;
 }
 
 .lesson-record-focus-head {
