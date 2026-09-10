@@ -606,7 +606,7 @@ export function RecordsDashboard({ kind }: { kind: "academic" | "activity" }) {
                   Overall Learning Picture
                 </h1>
                 <span className={isActivity ? "activity-summary-status" : "academic-summary-status"}>
-                  {records.length >= 5 ? "Consistent pattern" : "Early observations"}
+                  {records.length >= 5 ? "Established pattern" : "Early observations"}
                 </span>
               </div>
             </div>
@@ -704,91 +704,166 @@ export function RecordsDashboard({ kind }: { kind: "academic" | "activity" }) {
   )
 }
 
+type MoreItem = {
+  label: string
+  description?: string | null
+}
+
+function MoreItems({ items, emptyCopy }: { items: MoreItem[]; emptyCopy: string }) {
+  if (!items.length) return <p className="more-info-empty">{emptyCopy}</p>
+  return (
+    <>
+      {items.map((item) => (
+        <div key={item.label} className="more-info-subsection">
+          <h3 className="more-info-subsection-title">{item.label}</h3>
+          {item.description ? (
+            <p className="more-info-card-description">{item.description}</p>
+          ) : null}
+        </div>
+      ))}
+    </>
+  )
+}
+
+/* node 3920:32148 — ZPassport-activity (more info), cards 3939:34907/34918/34961/35060 */
 export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
   const { data } = useStudentPassport()
   const companion = data?.companion
+  const isActivity = kind === "activity"
   const records = (data?.records || []).filter((r) =>
-    kind === "activity" ? r.kind === "activity" : r.kind !== "activity",
+    isActivity ? r.kind === "activity" : r.kind !== "activity",
   )
   const differences = (data?.differences_across_programs || []).filter((d) =>
-    kind === "activity" ? d.kind === "activity" : d.kind !== "activity",
+    isActivity ? d.kind === "activity" : d.kind !== "activity",
   )
-  const prefix = kind === "activity" ? "/account/activity" : "/account/academic"
+  const prefix = isActivity ? "/account/activity" : "/account/academic"
   const portrait =
     narrativeText(companion, ["current_learning_portrait"]) ||
     "This section will fill in as the centre adds learning records."
   const algorithm = companion?.algorithm_json
-  const strengths = algorithm?.repeated_strengths || []
-  const focusAreas = algorithm?.repeated_focus_areas || []
-  const helps = data?.help_across_programs || []
+  const strengths: MoreItem[] = (algorithm?.repeated_strengths || []).map((s) => ({
+    label: s,
+  }))
+  const focusAreas: MoreItem[] = (algorithm?.repeated_focus_areas || []).map((s) => ({
+    label: s,
+  }))
+  const differenceItems: MoreItem[] = differences.map((d) => ({
+    label: d.program,
+    description:
+      [d.repeated_strength, d.repeated_support]
+        .filter((parts) => parts && parts.length)
+        .map((parts) => parts.join(" · "))
+        .join(". ") || null,
+  }))
+  const helpItems: MoreItem[] = (data?.help_across_programs || []).map((h) => ({
+    label: h,
+  }))
   const overallStatus = records.length >= 5 ? "Established pattern" : "Early observations"
 
   return (
     <div className="more-info-page">
-      <Link href={prefix} className="insight-nav-link">
-        ← Back
-      </Link>
+      <nav className="more-info-breadcrumb" aria-label="Breadcrumb">
+        <Link href={prefix} className="more-info-breadcrumb-parent">
+          {isActivity ? "Activity dashboard" : "Academic dashboard"}
+        </Link>
+        <span className="more-info-breadcrumb-separator"> &gt; </span>
+        <span className="more-info-breadcrumb-current">More information</span>
+      </nav>
 
-      <section className="more-summary">
-        <div className="more-summary-head">
-          <h1 className="more-summary-title">Overall Learning Picture</h1>
-          <span className="more-summary-status">{overallStatus}</span>
-        </div>
-        <p className="more-summary-portrait">{portrait}</p>
-      </section>
-
-      <section className="more-section">
-        <h2 className="more-section-title">Stronger Areas</h2>
-        {strengths.length ? (
-          strengths.map((s) => (
-            <div key={s} className="more-item">
-              <h3>{s}</h3>
+      <div className="more-info-cards">
+        <section className="more-info-card more-info-card--overview">
+          <div className="more-info-card-content">
+            <div className="more-info-overview-header">
+              <h1 className="more-info-card-title">Overall Learning Picture</h1>
+              <span className="more-info-badge">{overallStatus}</span>
             </div>
-          ))
-        ) : (
-          <p className="more-empty">Add more records to reveal strengths.</p>
-        )}
-      </section>
+            <p className="more-info-card-description">{portrait}</p>
+          </div>
+          <div className="more-info-illustration-frame" aria-hidden="true">
+            <div
+              className={`more-info-art ${
+                isActivity ? "more-info-art--trophy" : "more-info-art--apple"
+              }`}
+            />
+          </div>
+        </section>
 
-      <section className="more-section">
-        <h2 className="more-section-title">Areas Needing More Support</h2>
-        {focusAreas.length ? (
-          focusAreas.map((s) => (
-            <div key={s} className="more-item">
-              <h3>{s}</h3>
+        <section className="more-info-card">
+          <div className="more-info-section-row">
+            <div className="more-info-card-content">
+              <h2 className="more-info-section-title">Stronger Areas</h2>
+              <MoreItems items={strengths} emptyCopy="Add more records to reveal strengths." />
             </div>
-          ))
-        ) : (
-          <p className="more-empty">Add more records to reveal support areas.</p>
-        )}
-      </section>
+            <div className="more-info-illustration-frame" aria-hidden="true">
+              <div className="more-info-art more-info-art--chart" />
+            </div>
+          </div>
+          <hr className="more-info-divider" />
+          <div className="more-info-card-content">
+            <h2 className="more-info-section-title">Areas Needing More Support</h2>
+            <MoreItems
+              items={focusAreas}
+              emptyCopy="Add more records to reveal support areas."
+            />
+          </div>
+        </section>
 
-      <section className="more-section">
-        <h2 className="more-section-title">Differences Across Programmes</h2>
-        {differences.length ? (
-          differences.map((d) => (
-            <div key={d.program} className="more-item">
-              <h3>{d.program}</h3>
-              {d.repeated_strength.length ? <p>{d.repeated_strength.join(" · ")}</p> : null}
+        <section className="more-info-card">
+          {differenceItems.length ? (
+            <>
+              <div className="more-info-section-row">
+                <div className="more-info-card-content">
+                  <h2 className="more-info-section-title">Differences Across Programmes</h2>
+                  <div className="more-info-subsection">
+                    <h3 className="more-info-subsection-title">{differenceItems[0].label}</h3>
+                    {differenceItems[0].description ? (
+                      <p className="more-info-card-description">{differenceItems[0].description}</p>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="more-info-illustration-frame" aria-hidden="true">
+                  <div className="more-info-art more-info-art--differences" />
+                </div>
+              </div>
+              {differenceItems.slice(1).map((item) => (
+                <div key={item.label}>
+                  <hr className="more-info-divider" />
+                  <div className="more-info-card-content">
+                    <div className="more-info-subsection">
+                      <h3 className="more-info-subsection-title">{item.label}</h3>
+                      {item.description ? (
+                        <p className="more-info-card-description">{item.description}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="more-info-section-row">
+              <div className="more-info-card-content">
+                <h2 className="more-info-section-title">Differences Across Programmes</h2>
+                <p className="more-info-empty">No programmes yet.</p>
+              </div>
+              <div className="more-info-illustration-frame" aria-hidden="true">
+                <div className="more-info-art more-info-art--differences" />
+              </div>
             </div>
-          ))
-        ) : (
-          <p className="more-empty">No programmes yet.</p>
-        )}
-      </section>
+          )}
+        </section>
 
-      <section className="more-section">
-        <h2 className="more-section-title">What Seems to Help Across Programmes</h2>
-        {helps.length ? (
-          helps.map((h) => (
-            <div key={h} className="more-item">
-              <h3>{h}</h3>
+        <section className="more-info-card">
+          <div className="more-info-section-row">
+            <div className="more-info-card-content">
+              <h2 className="more-info-section-title">What Seems to Help Across Programmes</h2>
+              <MoreItems items={helpItems} emptyCopy="More records will reveal what helps." />
             </div>
-          ))
-        ) : (
-          <p className="more-empty">More records will reveal what helps.</p>
-        )}
-      </section>
+            <div className="more-info-illustration-frame" aria-hidden="true">
+              <div className="more-info-art more-info-art--help" />
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

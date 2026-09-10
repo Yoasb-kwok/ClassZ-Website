@@ -889,7 +889,7 @@
   color: #222;
 }
 
-.academic-record-badge--consistent {
+.academic-record-badge--established {
   background: #ffe8d1;
   color: #222;
 }
@@ -1305,7 +1305,7 @@
   color: #222;
 }
 
-.activity-record-badge--consistent {
+.activity-record-badge--established {
   background: #ffe8d1;
   color: #222;
 }
@@ -1359,6 +1359,8 @@
   }
 }
 
+
+/* node 3920:32148 — ZPassport (more info) 1440×2459; cards 3939:34907/34918/34961/35060 */
 .more-info-page {
   display: flex;
   flex-direction: column;
@@ -1371,7 +1373,7 @@
 
 .more-info-breadcrumb {
   align-self: stretch;
-  margin: 0 0 32px;
+  margin: 0 0 48px;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 12px;
   font-style: normal;
@@ -1409,14 +1411,14 @@
   align-self: stretch;
 }
 
+/* node 3939:34907 — Card: w905 pad 32/64 r24 */
 .more-info-card {
   display: flex;
+  flex-direction: column;
+  gap: 20px;
   box-sizing: border-box;
   width: 905px;
   max-width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
   align-self: stretch;
   padding: 32px 64px;
   border-radius: 24px;
@@ -1425,160 +1427,47 @@
 }
 
 .more-info-card--overview {
-  display: flex;
-  box-sizing: border-box;
-  width: 905px;
-  max-width: 100%;
-  min-height: 185px;
-  height: auto;
-  padding: 32px 64px;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
-  align-self: stretch;
-  gap: 0;
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.12);
+  justify-content: space-between;
+  gap: 32px;
 }
 
+/* overview content column — node 3939:34908 w504 gap10 pad 16/0 */
 .more-info-card--overview .more-info-card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
   width: 504px;
-  max-width: 100%;
-  flex: 0 0 auto;
-  min-width: 0;
-  padding-right: 0;
+  gap: 10px;
 }
 
 .more-info-overview-header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0;
-  margin-top: 16px;
+  gap: 8px;
 }
 
-.more-info-card--overview .more-info-card-description {
-  margin-top: 10px;
-  margin-bottom: 16px;
-}
-
-.more-info-card--overview .more-info-illustration--apple {
-  width: 170px;
-  height: 170px;
-  aspect-ratio: 1 / 1;
-  align-self: center;
-  flex-shrink: 0;
-  background-position: 50%;
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.more-info-card--strengths {
-  height: auto;
-  min-height: 500px;
-  align-items: flex-start;
-}
-
-.more-info-card--strengths .more-info-illustration--tablet {
-  align-self: flex-start;
-  flex-shrink: 0;
-}
-
-.more-info-strengths-content {
-  display: flex;
-  width: 504px;
-  max-width: calc(100% - 190px);
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 20px;
-  flex: 0 0 auto;
-  min-width: 0;
-}
-
-.more-info-card--strengths .more-info-strengths-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-self: stretch;
-  max-width: none;
-}
-
-.more-info-strengths-divider {
-  width: 100%;
-  height: 1px;
-  margin: 0;
-  border: none;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.more-info-strengths-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* section content column — nodes 3939:34920/34942 w514 gap16 pad 16/0 */
 .more-info-card-content {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  width: 504px;
+  width: 514px;
   max-width: 100%;
   flex: 0 0 auto;
   min-width: 0;
+  padding: 16px 0;
 }
 
-.more-info-card-title {
-  margin: 0;
-  color: #222;
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 22px;
-  font-style: normal;
-  font-weight: 510;
-  line-height: normal;
-}
-
-.more-info-badge {
-  align-self: flex-start;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: #d7f4f3;
-  color: #222;
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 590;
-  line-height: normal;
-}
-
-.more-info-card-description {
-  margin: 0;
-  width: 504px;
-  max-width: 100%;
-  color: #222;
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 150%;
-}
-
-.more-info-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-}
-
-.more-info-column {
+.more-info-section-row {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  align-self: stretch;
 }
 
+/* node 3939:34912/34924 — 22/510 #222 */
+.more-info-card-title,
 .more-info-section-title {
   margin: 0;
   color: #222;
@@ -1589,80 +1478,118 @@
   line-height: normal;
 }
 
-.more-info-subsection-title {
-  margin: 0;
+/* node 3939:34913 — pad 4/8 r4 #D7F4F3 @0.8 */
+.more-info-badge {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(215, 244, 243, 0.8);
   color: #222;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 590;
   line-height: normal;
 }
 
+/* nodes 3939:34916/34953 — 14/400 lh21 #222 */
+.more-info-card-description {
+  margin: 0;
+  width: 100%;
+  color: #222;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+/* node 3939:34947 — label 21 + gap10 + desc 42 */
 .more-info-subsection {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* node 3939:34951 — 18/510 #222 */
+.more-info-subsection-title {
+  margin: 0;
+  color: #222;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 510;
+  line-height: normal;
+}
+
+/* node 3939:34941 — 1px #EBEBEB, card gap 20 above/below */
 .more-info-divider {
   width: 100%;
   height: 1px;
-  margin: 16px 0;
+  margin: 0;
   border: none;
-  background: var(--border);
-}
-
-.more-info-illustration {
+  background: #ebebeb;
   flex-shrink: 0;
-  align-self: center;
 }
 
-.more-info-illustration--tablet {
-  height: 139.803px;
-  width: auto;
-  aspect-ratio: 107 / 88;
-  background-position: 50%;
-  background-size: contain;
-  background-repeat: no-repeat;
+.more-info-empty {
+  margin: 0;
+  color: #5e5e5e;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 21px;
 }
 
-.more-info-illustration svg {
-  width: 100%;
-  height: 100%;
-}
-
-.more-info-illustration--apple {
-  background-position: 50%;
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.more-info-illustration--chart {
-  width: 151.406px;
+/* illustration containers — nodes 3939:34939/34975/35074: 170×170 centered */
+.more-info-illustration-frame {
+  display: flex;
+  width: 170px;
   height: 170px;
-  aspect-ratio: 57 / 64;
-  align-self: flex-start;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
 }
 
-.more-info-illustration--chart img {
-  display: block;
-  width: 100%;
-  height: 100%;
+/* node 3939:35108 trophy 152×170 / apple 170×170 (academic variant) */
+.more-info-art {
+  background-position: 50% 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
-.more-info-illustration--button {
-  width: 138.068px;
-  height: 116.001px;
-  flex-shrink: 0;
-  aspect-ratio: 138.07 / 116;
-  align-self: flex-start;
+.more-info-art--trophy {
+  width: 152px;
+  height: 170px;
+  background-image: url("/images/activity-summary-trophy.png");
 }
 
-.more-info-illustration--button img {
-  display: block;
-  width: 100%;
-  height: 100%;
+.more-info-art--apple {
+  width: 170px;
+  height: 170px;
+  background-image: url("/images/academic-summary-apple.png");
+}
+
+/* node 3939:34940 — 170×139.8 */
+.more-info-art--chart {
+  width: 170px;
+  height: 139.8px;
+  background-image: url("/images/more-analytics-chart.png");
+}
+
+/* node 3939:34977 — 151.41×170 */
+.more-info-art--differences {
+  width: 151.41px;
+  height: 170px;
+  background-image: url("/images/more-differences-box.png");
+}
+
+/* node 3939:35076 — 138.07×116 */
+.more-info-art--help {
+  width: 138.07px;
+  height: 116px;
+  background-image: url("/images/more-help-box.png");
 }
 
 @media (max-width: 900px) {
@@ -1671,40 +1598,22 @@
     width: 100%;
   }
 
-  .more-info-card {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px 20px;
-  }
-
   .more-info-card--overview {
-    height: auto;
-  }
-
-  .more-info-card--overview .more-info-illustration--apple {
-    align-self: center;
-  }
-
-  .more-info-card--strengths {
-    height: auto;
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .more-info-strengths-content {
+  .more-info-card-content,
+  .more-info-card--overview .more-info-card-content {
     width: 100%;
-    max-width: 100%;
   }
 
-  .more-info-card--strengths .more-info-illustration--tablet {
-    align-self: center;
+  .more-info-section-row {
+    flex-direction: column;
+    gap: 24px;
   }
 
-  .more-info-columns {
-    grid-template-columns: 1fr;
-  }
-
-  .more-info-illustration {
+  .more-info-illustration-frame {
     align-self: center;
   }
 }
@@ -2115,7 +2024,7 @@
   color: #222;
 }
 
-.lesson-status-badge--consistent {
+.lesson-status-badge--established {
   background: #ffe8d1;
   color: #222;
 }
@@ -3284,18 +3193,3 @@
 .pi-error { margin: 8px 0 0; font-size: 13px; color: #d33; }
 .pi-ok { margin: 8px 0 0; font-size: 13px; color: #0a8f7a; }
 .pi-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-
-/* ---- Overall Learning Picture (/more) — ADR-002 items 1-4 ---- */
-.more-info-page { max-width: 820px; margin: 0 auto; padding: 24px 20px 60px; }
-.more-summary { background: #fff; border-radius: 18px; padding: 22px 24px; margin: 16px 0 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-.more-summary-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.more-summary-title { margin: 0; font-size: 20px; font-weight: 640; color: #222; }
-.more-summary-status { font-size: 12px; font-weight: 590; color: #0abab5; background: #d7f4f3; padding: 4px 12px; border-radius: 999px; }
-.more-summary-portrait { margin: 0; font-size: 15px; line-height: 1.6; color: #5e5e5e; }
-.more-section { background: #fff; border-radius: 18px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-.more-section-title { margin: 0 0 12px; font-size: 15px; font-weight: 640; color: #222; }
-.more-item { padding: 10px 0; border-top: 1px solid #f0f0f0; }
-.more-item:first-of-type { border-top: none; padding-top: 0; }
-.more-item h3 { margin: 0; font-size: 15px; font-weight: 590; color: #222; }
-.more-item p { margin: 4px 0 0; font-size: 14px; color: #5e5e5e; line-height: 1.5; }
-.more-empty { margin: 0; font-size: 14px; color: #9a9a9a; }

@@ -36,3 +36,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# Figma capture binaries are local-only working data (220MB); INDEX.md + FEEDBACK.md stay versioned
+figma prompt/**/*.figmacapture/
+figma prompt/**/*.zip
