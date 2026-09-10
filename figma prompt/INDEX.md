@@ -9,7 +9,7 @@ Batch: `1009` · Captured 2026-09-10 · Tool: runkids/figma-to-prompt 0.2.7
 | `ZPassport-activity details expand` | `2210:16986` | 1440×2931 | `/account/activity/lessons/[id]/records/[rid]` | 15–24 |
 
 ## Status
-- `ZPassport-activity (more info)` — **implemented 2026-09-10** (`RecordsMorePage`, capture-exact rebuild). Illustrations: trophy/apple reused from `public/images/activity-summary-trophy.png` / `academic-summary-apple.png`; chart from capture asset (`more-analytics-chart.png`); the two open-box vectors (`more-differences-box.png`, `more-help-box.png`) cropped from the 1× reference by node coords (719,1035,151,170) / (723,1634,138,116) — needs user visual check.
+- `ZPassport-activity (more info)` — **implemented 2026-09-10** (`RecordsMorePage`, capture-exact rebuild). Illustrations: trophy/apple reused from `public/images/activity-summary-trophy.png` / `academic-summary-apple.png`; chart from capture asset (`more-analytics-chart.png`); the two open-box vectors are the user-supplied Figma SVG exports in `1009/icon/` → `public/images/more-differences-box.svg` (`Group(1).svg`, node 3939:34977) and `more-help-box.svg` (`Group.svg`, node 3939:35076).
 - `ZPassport-activity details` / `details expand` — not yet built.
 
 ## Notes

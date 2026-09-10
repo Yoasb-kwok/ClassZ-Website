@@ -1578,18 +1578,18 @@
   background-image: url("/images/more-analytics-chart.png");
 }
 
-/* node 3939:34977 — 151.41×170 */
+/* node 3939:34977 — SVG export 152×175 (art 151.41×170 + shadow padding) */
 .more-info-art--differences {
-  width: 151.41px;
-  height: 170px;
-  background-image: url("/images/more-differences-box.png");
+  width: 152px;
+  height: 175px;
+  background-image: url("/images/more-differences-box.svg");
 }
 
-/* node 3939:35076 — 138.07×116 */
+/* node 3939:35076 — SVG export 139×131 (art 138.07×116 + shadow padding) */
 .more-info-art--help {
-  width: 138.07px;
-  height: 116px;
-  background-image: url("/images/more-help-box.png");
+  width: 139px;
+  height: 131px;
+  background-image: url("/images/more-help-box.svg");
 }
 
 @media (max-width: 900px) {

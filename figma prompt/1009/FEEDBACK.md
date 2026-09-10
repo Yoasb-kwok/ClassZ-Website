@@ -20,3 +20,14 @@ Only `generalizes: Y` items graduate to lessons at end of a check session.
   - generalizes: Y — never trust repo CSS as capture-accurate without re-walking the current capture; verify typography and position per node.
 - **agent-drift (badge state rename)**: D2 renamed statuses to Early/Emerging/Established, but `zpassport.css` still had `--consistent` badge classes while the API now sends `statusType: 'established'` → dashboard badges rendered unstyled. Renamed the three `--consistent` rules to `--established`.
   - generalizes: Y — when a state machine is renamed in ADR decisions, grep BOTH the status strings and the CSS class suffixes derived from them.
+
+## 2026-09-10 (round 2) — /more icons + AI-gated help card
+
+> "the icon of What Seems to Help Across Programmes and Differences Across Programmes is off, i have made a icon folder, use the icon there instaed, the spacing is correct, but inted of Short verbal prompt, just tell teh user they need to wiat for ai to generate. internally please make a log if 5 record is eastablid but ai ouput is not recived."
+
+- **agent-drift / asset-gap (resolved by user asset)**: I had cropped the two vector illustrations from the reference PNG; user judged them "off" and supplied proper Figma SVG exports in `figma prompt/1009/icon/` (`Group.svg` = node 3939:35076 help; `Group(1).svg` = node 3939:34977 differences — identified by the filter IDs embedded in each SVG). Now served from `public/images/more-{help,differences}-box.svg`; cropped PNGs deleted.
+  - generalizes: Y — **never substitute a raster crop for a vector illustration**; ask the user to export the vector node as SVG (Figma filter IDs identify the source node).
+- **product-intent (D1 refinement)**: The *What Seems to Help Across Programmes* card must not display the deterministic `help_across_programs` labels (e.g. "Short verbal prompt"); it is AI-gated and shows a wait-for-AI message until `narrative_json.sections.what_helps_across_programmes` exists (≥5 records) or the records wait state (<5). Recorded as an ADR-002 D1 amendment.
+  - generalizes: N — product decision specific to this card.
+- **product-intent (new diagnostic)**: `getPassport` now logs `[zpassport] profile=… records=… (>= 5) but AI output not received — report=…` when the record threshold is met but `narrative_json.sections` is empty. Verified live: fired with sections cleared, silent once restored.
+  - generalizes: N — feature request.

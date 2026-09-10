@@ -80,6 +80,8 @@ function childPhoto(profile?: { name?: string; photo_url?: string | null } | nul
 }
 
 const WAITING_FOR_RECORDS = "This section will fill in as the centre adds learning records."
+const WAITING_FOR_AI =
+  "This section will fill in once the AI learning summary has been generated."
 
 function isActive(pathname: string, href: string, extra: string[] = []) {
   if (href === "/account") {
@@ -755,9 +757,11 @@ export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
         .map((parts) => parts.join(" · "))
         .join(". ") || null,
   }))
-  const helpItems: MoreItem[] = (data?.help_across_programs || []).map((h) => ({
-    label: h,
-  }))
+  // ADR-002 D1 (refined): "What Seems to Help" is AI-sourced prose
+  // (narrative key: what_helps_across_programmes). The deterministic
+  // help_across_programs labels are deliberately NOT shown — display a
+  // wait-for-AI message until the AI summary exists.
+  const whatHelpsAi = narrativeText(companion, ["what_helps_across_programmes"])
   const overallStatus = records.length >= 5 ? "Established pattern" : "Early observations"
 
   return (
@@ -856,7 +860,13 @@ export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
           <div className="more-info-section-row">
             <div className="more-info-card-content">
               <h2 className="more-info-section-title">What Seems to Help Across Programmes</h2>
-              <MoreItems items={helpItems} emptyCopy="More records will reveal what helps." />
+              {whatHelpsAi ? (
+                <p className="more-info-card-description">{whatHelpsAi}</p>
+              ) : (
+                <p className="more-info-empty">
+                  {records.length >= 5 ? WAITING_FOR_AI : WAITING_FOR_RECORDS}
+                </p>
+              )}
             </div>
             <div className="more-info-illustration-frame" aria-hidden="true">
               <div className="more-info-art more-info-art--help" />

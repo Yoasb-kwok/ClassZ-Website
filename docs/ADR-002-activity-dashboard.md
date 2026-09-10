@@ -68,6 +68,25 @@ repeated_observed_behaviours, progress_context, coach_notes, pattern_confidence
 - **Negative:** "differences across programs" reads as a structured comparison, not fluent prose.
 - **Review trigger:** if the product later wants DeepSeek to *write* the cross-program comparison, revisit (return to Option B).
 
+### Amendment (2026-09-10) — item 4 is AI-gated in the UI
+
+**Decision maker feedback:** the computed `help_across_programs` labels (e.g. "Short verbal prompt") must **not** be displayed on the *What Seems to Help Across Programmes* card. That card is now gated on AI prose and shows a wait state until it exists.
+
+| | |
+|---|---|
+| Field read | `companion.narrative_json.sections.what_helps_across_programmes` (contract for the future agentic feedback system) |
+| AI output present | render the prose |
+| ≥ `MIN_RECORDS_FOR_RESULT` (5) records, no AI output | `WAITING_FOR_AI` copy |
+| < 5 records | existing `WAITING_FOR_RECORDS` copy |
+
+`help_across_programs` remains in the passport payload (unused by this card) — no backend removal. `Differences Across Programmes` (item 3) is unchanged and still shows the deterministic comparison.
+
+- **Positive:** the card never misrepresents computed labels as AI insight; the wait state is honest about pipeline state.
+- **Negative:** the card is empty of content until the agentic feedback system is wired.
+- **Review trigger:** when the agentic feedback system lands, confirm it writes `what_helps_across_programmes` into `narrative_json.sections`; otherwise adjust the key.
+
+Internal diagnostic: `getPassport` logs `[zpassport] ... AI output not received` when records ≥ 5 but `narrative_json.sections` is empty.
+
 ---
 
 ## Decision 2: Two-layer state machine
