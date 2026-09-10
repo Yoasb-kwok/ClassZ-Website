@@ -44,3 +44,16 @@ Built both remaining frames. Findings worth generalizing:
   - generalizes: Y — do not reconcile mock copy across frames; reconcile against the data model.
 - **agent-drift (self-caught)**: I first built Hosted-by and the chart as separate 48px-gap siblings; node `3939:34595` has them in one section with gap 0. Caught by re-checking node hierarchy, not by the CSS class names (which suggested the wrong nesting before).
   - generalizes: Y — verify section grouping from the capture's frame nesting, never from existing CSS class structure.
+
+## 2026-09-10 (round 4) — icons, title centring, time placement, chart
+
+> "1. there are missing icon, use the new icon i add in teh icon folder / 2. scpaing problem: the name of teh program(chess program), should be in the middle / 3. wrong icon for lessons, date and time of leeson card in recentrecord, ive added new icon in the folder as well. / 4. the time placement is wrong in the lesson card. it should be to the right of the date / 5. the chart looks off, is it due to the data or the code of makeing it?"
+
+- **asset-gap (resolved by user)**: programme-card coin illustration and the 16px record-meta icon were vectors not exported by the capture; user supplied `Group 2924.svg` and `menu-board.svg`. Now `public/images/lesson-help-coins.svg` + an inline `IconMenuBoard` (used for lesson/date/time per nodes `3939:34745`, `3920:33273`).
+  - generalizes: Y — when a frame needs a VECTOR asset, ask for that node id up front rather than shipping a slot with no art.
+- **agent-drift (text alignment)**: the capture omits `textAlignHorizontal` (null) on the page titles, and I read null as "left"; the design is centred (the repo's own `.lesson-title` CSS said `text-align: center`). Do not treat an absent alignment field as LEFT — check the repo CSS and ask.
+  - generalizes: Y — absence of `textAlignHorizontal` is not evidence of left alignment; it may be dropped by the capture.
+- **agent-drift (meta grouping)**: the record-row date+time line is `pa=space-between` in the capture, but the date group is a **fixed 155px column** (`3939:34756`) with the time starting directly after it — space-between pushed the time to the far edge. Read the child widths, not just the parent's alignment.
+  - generalizes: Y — a parent's `space-between` says nothing about a fixed-width child; check each child's width.
+- **agent-drift (chart framing + scale)**: my chart used level/4 from the baseline (so levels 3-4 filled most of the plot), drew only left/top borders (capture `3939:34621` "Outline" is a full 4-sided box), and cropped the area to the first/last point centres. Now levels 1..4 span the plot, the box is closed, and the area spans the full width.
+  - generalizes: Y — for a chart, verify against the capture: (a) the plot outline (all four sides?), (b) how the data domain maps onto the plot, (c) whether the area spans the full width.

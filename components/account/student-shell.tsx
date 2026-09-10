@@ -79,6 +79,20 @@ function IconPin({ className = "", stroke = "#222" }: { className?: string; stro
   )
 }
 
+/** node 3939:34745 / 3920:33273 — vuesax/linear/menu-board, used for lesson/date/time meta. */
+function IconMenuBoard({ className = "", stroke = "#5E5E5E" }: { className?: string; stroke?: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className={className} aria-hidden>
+      <path d="M14.6233 4.50537L12.3767 13.5254C12.2167 14.1987 11.6167 14.6654 10.9234 14.6654H2.16334C1.15667 14.6654 0.436685 13.6787 0.736685 12.712L3.54335 3.69873C3.73668 3.07206 4.31669 2.63867 4.97002 2.63867H13.17C13.8033 2.63867 14.33 3.02534 14.55 3.55868C14.6767 3.84534 14.7033 4.17204 14.6233 4.50537Z" stroke={stroke} strokeWidth="1.15909" strokeMiterlimit="10" />
+      <path d="M10.6699 14.6667H13.8566C14.7166 14.6667 15.3899 13.94 15.3299 13.08L14.6699 4" stroke={stroke} strokeWidth="1.15909" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6.45117 4.25301L7.14451 1.37305" stroke={stroke} strokeWidth="1.15909" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.9199 4.2605L11.5466 1.36719" stroke={stroke} strokeWidth="1.15909" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.13672 8H10.4701" stroke={stroke} strokeWidth="1.15909" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4.46875 10.666H9.80208" stroke={stroke} strokeWidth="1.15909" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 function childPhoto(profile?: { name?: string; photo_url?: string | null } | null) {
   if (profile?.photo_url) return resolveUploadUrl(profile.photo_url)
   return ""
@@ -904,24 +918,29 @@ function LessonProgressChart({ records }: { records: PassportRecord[] }) {
 
   const columns = Math.max(charted.length, 1)
   const columnWidth = CHART_PLOT_WIDTH / columns
-  const yFor = (level: number) => CHART_PLOT_HEIGHT - (level / 4) * CHART_PLOT_HEIGHT
+  // Levels 1..4 map across the full plot (1 = bottom edge, 4 = top edge) so the
+  // gridlines land exactly on the level rows and a 2-3 lesson profile is legible.
+  const yFor = (level: number) => CHART_PLOT_HEIGHT * (1 - (level - 1) / 3)
 
   const points = charted.map((level, i) => ({
     x: columnWidth * (i + 0.5),
     y: yFor(level),
   }))
+  // Area spans the full plot width (capture area vector is 606.16 wide).
   const areaPath =
     points.length > 1
-      ? `M${points[0].x.toFixed(2)},${CHART_PLOT_HEIGHT} L${points
+      ? `M0,${yFor(charted[0]).toFixed(2)} L${points
           .map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`)
-          .join(" L")} L${points[points.length - 1].x.toFixed(2)},${CHART_PLOT_HEIGHT} Z`
+          .join(" L")} L${CHART_PLOT_WIDTH},${yFor(charted[charted.length - 1]).toFixed(
+          2,
+        )} L${CHART_PLOT_WIDTH},${CHART_PLOT_HEIGHT} L0,${CHART_PLOT_HEIGHT} Z`
       : ""
 
   return (
     <section className="lesson-chart-section">
       <div className="lesson-chart">
         <div className="lesson-chart-frame">
-          {[1, 2, 3].map((level) => (
+          {[2, 3].map((level) => (
             <div className="lesson-chart-grid-line" key={level} style={{ top: yFor(level) }} />
           ))}
           {Array.from({ length: columns }).map((_, i) =>
@@ -1125,17 +1144,17 @@ export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; 
                     <div className="lesson-record-row-meta">
                       <p className="lesson-record-row-meta-line">
                         <span className="lesson-record-row-meta-item">
-                          <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+                          <IconMenuBoard className="lesson-inline-icon" />
                           {lessonOrdinal(records.length - i)}
                         </span>
                       </p>
                       <p className="lesson-record-row-meta-line">
-                        <span className="lesson-record-row-meta-item">
-                          <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+                        <span className="lesson-record-row-meta-item lesson-record-row-meta-item--date">
+                          <IconMenuBoard className="lesson-inline-icon" />
                           {formatLessonDate(rec.start_time || rec.created_at)}
                         </span>
                         <span className="lesson-record-row-meta-item">
-                          <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+                          <IconMenuBoard className="lesson-inline-icon" />
                           {formatLessonTimeRange(rec.start_time, rec.end_time) || "\u2014"}
                         </span>
                       </p>
@@ -1219,15 +1238,15 @@ export function LessonRecordPage({
         <div className="lesson-header-details">
           <div className="lesson-record-meta-row">
             <p className="lesson-record-meta-cell">
-              <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+              <IconMenuBoard className="lesson-inline-icon" />
               {ordinal}
             </p>
             <p className="lesson-record-meta-cell">
-              <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+              <IconMenuBoard className="lesson-inline-icon" />
               {lessonDate}
             </p>
             <p className="lesson-record-meta-cell">
-              <IconFolderRecord className="lesson-inline-icon" stroke="#5E5E5E" />
+              <IconMenuBoard className="lesson-inline-icon" />
               {formatLessonTimeRange(record.start_time, record.end_time) || "\u2014"}
             </p>
           </div>

@@ -1968,7 +1968,7 @@
   background-repeat: no-repeat;
 }
 
-/* ---------- header: node 3920:32928 (22/590) / 3920:33266 (26/590) ---------- */
+/* ---------- header: node 3920:32928 / 3920:33266 ---------- */
 .lesson-header {
   display: flex;
   box-sizing: border-box;
@@ -1978,10 +1978,12 @@
   gap: 32px;
 }
 
+/* node 3920:32930 (22/590) / 3920:33268 (26/590) — centred per design */
 .lesson-title {
   margin: 0;
   align-self: stretch;
   color: #000;
+  text-align: center;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 22px;
   font-style: normal;
@@ -2142,7 +2144,7 @@
   height: 595.56px;
 }
 
-/* plot frame: left + top border only, white fill */
+/* plot frame: node 3939:34621 "Outline" — full 4-sided 2.287px #E7EAEE box */
 .lesson-chart-frame {
   position: absolute;
   left: 107.51px;
@@ -2150,8 +2152,7 @@
   width: 606.16px;
   height: 448.33px;
   box-sizing: border-box;
-  border-left: 2.287px solid #e7eaee;
-  border-top: 2.287px solid #e7eaee;
+  border: 2.287px solid #e7eaee;
   background: #fff;
 }
 
@@ -2350,6 +2351,13 @@
   gap: 4px;
 }
 
+/* node 3939:34756 — date group is a fixed 155px column; the time sits directly
+   to its right (not pushed to the far edge) */
+.lesson-record-row-meta-item--date {
+  width: 155px;
+  flex-shrink: 0;
+}
+
 .lesson-record-row:focus-visible {
   outline: 2px solid #0abab5;
   outline-offset: 2px;
@@ -2367,11 +2375,12 @@
   background-image: url("/images/lesson-record-coach-note.png");
 }
 
-/* node 3939:34704 — coin illustration; awaiting the Figma SVG export */
+/* node 3939:34704 — coin illustration (Group 2924, art 168.83×122.75 inside a
+   196×149 SVG with filter padding), centred in the 170 slot at true size */
 .lesson-info-illustration--help {
-  width: 168.826px;
-  height: 122.75px;
-  background-size: contain;
+  background-image: url("/images/lesson-help-coins.svg");
+  background-size: 196px 149px;
+  background-position: 50% 50%;
 }
 
 /* ---------- Recent Records: nodes 3939:34731/34733 ---------- */
@@ -2455,7 +2464,7 @@
 .lesson-record-row-meta-line {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   margin: 0;
   min-height: 17px;
