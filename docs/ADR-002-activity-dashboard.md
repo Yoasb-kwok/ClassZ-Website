@@ -244,3 +244,9 @@ Same rule as the D1 amendment for `/more`: the section renders `narrative.sectio
 ### Backend additions
 
 `mapRecord` now also returns `start_time`, `end_time` (class schedule, for the record meta row) and `attention_areas` (repeated-support source; `support_given` maps to "What Helped").
+
+---
+
+## Amendment (2026-09-11) — overall threshold lowered to 3 by ADR-003
+
+ADR-003 (Learning Companion page) Decision 3 lowers `MIN_RECORDS_FOR_RESULT` from **5 → 3** as a single shared constant. This amends Decision 2 above: the overall state machine is now `<3` early / `≥3` established (gen + display), because the `/more` AI cards gate on narrative presence and narrative now exists from 3 records. The **per-program** badge machine (1 = Early, 2 = Emerging, ≥3 = Established) is unchanged. See `docs/ADR-003-learning-companion-page.md`.

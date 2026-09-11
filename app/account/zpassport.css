@@ -1,16 +1,18 @@
 /* ZPassport student portal — ported from Desktop/aaaa */
-:root { --teal: #0abab5; --teal-dark: #099a96; --teal-light: #e6f7f6; --Text: #2d2d2d; --Secondary-Text: #72777b; --bg-page: #ffffff; --bg-sidebar: #ffffff; --white: #ffffff; --text-primary: #1a1a1a; --text-secondary: #6b7280; --text-muted: #9ca3af; --border: #e5e7eb; --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06); --radius: 12px; --radius-pill: 999px; --sidebar-width: 363px; --sidebar-content-width: 263px; }
+:root { --teal: #0abab5; --teal-dark: #099a96; --teal-light: #e6f7f6; --Text: #2d2d2d; --Secondary-Text: #72777b; --bg-page: #ffffff; --bg-sidebar: #ffffff; --white: #ffffff; --text-primary: #1a1a1a; --text-secondary: #6b7280; --text-muted: #9ca3af; --border: #e5e7eb; --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06); --radius: 12px; --radius-pill: 999px; --sidebar-width: 343px; --sidebar-content-width: 263px; }
 .zpassport-app { min-height: 100vh; display: flex; flex-direction: column; background: #fff; color: #1a1a1a; }
 .zpassport-app .app-body { display: flex; flex: 1; align-items: stretch; }
-.zpassport-app .sidebar-divider { width: 1px; flex-shrink: 0; align-self: stretch; background: var(--border); margin: 0 32px; }
-.zpassport-app .main-content { flex: 1; padding: 32px 40px 48px 48px; min-width: 0; }
+/* node 2605:22115/2839:19684 — nav 64, divider #EBEBEB @x375 (sidebar 343 + gap 32), content col @407 */
+.zpassport-app .sidebar-divider { width: 1px; flex-shrink: 0; align-self: stretch; background: #ebebeb; margin: 0 32px; }
+.zpassport-app .main-content { flex: 1; padding: 32px 80px 48px 48px; min-width: 0; }
 @media (max-width: 900px) { .zpassport-app .app-body { flex-direction: column; } .zpassport-app .sidebar-divider { display: none; } .zpassport-app .main-content { padding: 24px 20px 40px; } }
 
+/* node 3920:29373 — sidebar 343×697.74, pad 32/0/32/80; inner 263, gap 48 */
 .sidebar {
   width: var(--sidebar-width);
   min-width: var(--sidebar-width);
   background: var(--bg-sidebar);
-  padding: 32px 20px 32px 80px;
+  padding: 32px 0 32px 80px;
   display: flex;
   flex-direction: column;
   gap: 48px;
@@ -441,11 +443,13 @@
   align-self: stretch;
 }
 
+/* node 3948:35896 — 'Also reflected in their learning...' 18/590 #292929 */
 .secondary-heading {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 590;
+  color: #292929;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .secondary-list {
@@ -487,6 +491,31 @@
   }
 }
 
+/* node: n/a — /account divider between learning card and parent reminder had no
+   rule (browser-default hr). System-standard divider; exact spacing pending the
+   /account frame capture */
+.content-divider {
+  align-self: stretch;
+  width: 100%;
+  height: 0;
+  margin: 32px 0;
+  border: none;
+  border-top: 1px solid #ebebeb;
+}
+
+/* node 2418:25548 — 'Learn how it works →' 14/590 teal, left-aligned, underlined (plain text, no route yet) */
+.how-it-works-link {
+  align-self: stretch;
+  color: #0abab5;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 590;
+  line-height: 17px;
+  margin: 0;
+  text-decoration: underline;
+}
+
 .reminder-card {
   display: flex;
   padding: 32px;
@@ -499,25 +528,29 @@
   background: #fff;
 }
 
+/* nodes 2394:25181 (20/590 #000), 2407:25279 (13/590 teal), 2394:25182 (14/21 #5E5E5E) */
 .reminder-title {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 590;
+  color: #000;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .reminder-subtitle {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 13px;
   color: var(--teal);
-  font-weight: 500;
+  font-weight: 590;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .reminder-body {
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 21px;
+  color: #5e5e5e;
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   align-self: stretch;
 }
 
@@ -1625,9 +1658,10 @@
   align-self: stretch;
 }
 
+/* node 2511:9854 — breadcrumb block ver gap=16 (breadcrumb 12px h14 → hero 285) */
 .insight-breadcrumb {
   align-self: stretch;
-  margin: 0 0 32px;
+  margin: 0 0 16px;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 12px;
   font-style: normal;
@@ -1656,21 +1690,43 @@
   font-weight: 400;
 }
 
+/* node 2418:25518 hero gap=20 (246+20+344); node 3948:36042 respond row gap=10 (287+10+608=905);
+   node 3948:36045 approach row gap=0 (562+343=905) */
 .insight-hero,
 .insight-section {
   display: flex;
   align-items: center;
-  gap: 32px;
   align-self: stretch;
 }
 
+.insight-hero {
+  gap: 20px;
+}
+
+.insight-section {
+  gap: 10px;
+}
+
+.insight-section--image-right {
+  gap: 0;
+}
+
+/* node 3948:36048 flip=H — approach art (and the supporting page's "How You Can
+   Support Them" art, same class) is mirrored in the design so the animal faces
+   the text; the pose asset itself is unmirrored */
+.insight-illustration--approach .insight-section-image,
+.insight-illustration--support .insight-section-image {
+  transform: scaleX(-1);
+}
+
+/* nodes 2418:25417 / 2418:25422 / 2418:25530 — 1px #EBEBEB, parent gap 32 both sides */
 .insight-divider {
   align-self: stretch;
   width: 100%;
   height: 0;
   margin: 32px 0;
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #ebebeb;
 }
 
 .insight-hero-illustration {
@@ -1704,6 +1760,23 @@
   aspect-ratio: 136 / 113;
 }
 
+/* node 3948:36053 — supporting "How You Can Support Them" art 226×291, flip=H */
+.insight-illustration--support {
+  width: 226px;
+  height: 291px;
+}
+
+/* node 3947:35863 — supporting hero art 225×285 (insight's is 246×285) */
+.insight-page--supporting .insight-hero-illustration {
+  width: 225px;
+}
+
+/* node 3948:36052 — supporting section text is TOP-aligned against the 291px art
+   (insight's approach row is ca=center; this one has no counter-axis align) */
+.insight-page--supporting .insight-section--image-right {
+  align-items: flex-start;
+}
+
 .insight-illustration--respond {
   width: 287px;
   height: 285px;
@@ -1729,10 +1802,11 @@
   width: 516px;
 }
 
+/* nodes 3944:35604 / 3944:35605 / 3944:35611 — title↔body ver gap=20 (31 + 20 + 84 = 135) */
 .insight-section-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 20px;
   flex: 1;
   min-width: 0;
 }
@@ -1848,13 +1922,14 @@
   line-height: normal;
 }
 
+/* nodes 2429:25758 / 3944:35629 / 3947:35857 / 3947:35859 — bottom nav links 20/590 teal */
 .insight-nav-link {
   color: #0abab5;
   font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
+  font-size: 20px;
   font-style: normal;
   font-weight: 590;
-  line-height: normal;
+  line-height: 24px;
   text-decoration: none;
   transition: color 0.15s;
 }

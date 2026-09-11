@@ -260,6 +260,7 @@ export function CompanionHome() {
   const narrative = companion?.narrative_json || {}
   const section = (narrative.learning_companion_section || {}) as Record<string, unknown>
   const supporting = companion?.supporting_companions || []
+  const recordsCount = data?.records?.length || 0
 
   if (loading) return <p className="text-sm text-classz-500">Loading learning companion…</p>
   if (error) return <p className="text-sm text-red-600">{error}</p>
@@ -284,7 +285,13 @@ export function CompanionHome() {
             <h1 className="companion-name">{animal?.shortName || "Learning companion"}</h1>
             <p className="companion-subtitle">{animal ? animal.label.replace(animal.shortName, "").trim() : ""}</p>
             <p className="companion-description">
-              {String(section.meaning_paragraph_1 || animal?.meaning1 || "Your child’s Learning Companion will appear here after the centre confirms enough learning records.")}
+              {String(
+                section.meaning_paragraph_1 ||
+                  animal?.meaning1 ||
+                  (recordsCount >= 3
+                    ? `${name}'s Learning Companion report is being prepared — check back soon.`
+                    : "Your child’s Learning Companion will appear here after the centre confirms enough learning records."),
+              )}
             </p>
             <Link href="/account/analytical-insight" className="btn-primary">
               More Analytical Insight <span className="arrow">→</span>
@@ -292,6 +299,7 @@ export function CompanionHome() {
             <p className="companion-footnote">
               Learning Companions summarise patterns in observed learning approaches. They are not fixed personality types.
             </p>
+            <p className="how-it-works-link">Learn how it works →</p>
           </div>
         </div>
         {supporting.length ? (
@@ -324,6 +332,8 @@ export function CompanionHome() {
         ) : null}
       </section>
       <div className="parent-reminder-wrap">
+        {/* nodes 2418:25303 + 2398:25184 — the design stacks TWO divider lines above the reminder */}
+        <hr className="content-divider" />
         <hr className="content-divider" />
         <div className="reminder-card">
           <h2 className="reminder-title">Parent reminder</h2>
@@ -485,6 +495,7 @@ export function SupportingLearningPage() {
   const animal = resolveCompanionAnimal(companion?.primary_companion)
   const poses = companionPoses(animal)
   const help = companion ? (animal?.whatMayHelp || []).slice(0, 3) : []
+  const childName = firstName(data?.profile?.name) || "them"
   const supportCopy =
     narrativeText(companion, ["personalised_strategies", "what_may_help", "conditions_that_bring_out_their_best"]) ||
     WAITING_FOR_RECORDS
@@ -498,7 +509,7 @@ export function SupportingLearningPage() {
     narrativeText(companion, ["also_reflected", "supporting_companions"]) || WAITING_FOR_RECORDS
 
   return (
-    <div className="insight-page">
+    <div className="insight-page insight-page--supporting">
       <nav className="insight-breadcrumb" aria-label="Breadcrumb">
         <Link href="/account" className="insight-breadcrumb-parent">
           Learning Companion
@@ -530,14 +541,14 @@ export function SupportingLearningPage() {
           <ul className="insight-section-list">
             {(help.length ? help : [
               "Demonstrate the first step when introducing a new activity.",
-              `Give ${p.him} some quiet thinking time before stepping in.`,
+              `Give ${childName} some quiet thinking time before stepping in.`,
               "Start with familiar parts first to build momentum before moving to newer steps.",
             ]).map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
-        <InsightArt src={poses.supportWalk} alt="" className="insight-section-illustration insight-illustration--approach" />
+        <InsightArt src={poses.supportWalk} alt="" className="insight-section-illustration insight-illustration--support" />
       </article>
 
       <hr className="insight-divider" />
@@ -627,14 +638,14 @@ export function RecordsDashboard({ kind }: { kind: "academic" | "activity" }) {
                   Overall Learning Picture
                 </h1>
                 <span className={isActivity ? "activity-summary-status" : "academic-summary-status"}>
-                  {records.length >= 5 ? "Established pattern" : "Early observations"}
+                  {records.length >= 3 ? "Established pattern" : "Early observations"}
                 </span>
               </div>
             </div>
             <p className={isActivity ? "activity-summary-description" : "academic-summary-description"}>{portrait}</p>
-            {records.length < 5 ? (
+            {records.length < 3 ? (
               <p className={isActivity ? "activity-summary-footnote" : "academic-summary-footnote"}>
-                More details will be unlocked after 5 records
+                More details will be unlocked after 3 records
               </p>
             ) : null}
           </div>
@@ -781,7 +792,7 @@ export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
   // help_across_programs labels are deliberately NOT shown — display a
   // wait-for-AI message until the AI summary exists.
   const whatHelpsAi = narrativeText(companion, ["what_helps_across_programmes"])
-  const overallStatus = records.length >= 5 ? "Established pattern" : "Early observations"
+  const overallStatus = records.length >= 3 ? "Established pattern" : "Early observations"
 
   return (
     <div className="more-info-page">
@@ -883,7 +894,7 @@ export function RecordsMorePage({ kind }: { kind: "academic" | "activity" }) {
                 <p className="more-info-card-description">{whatHelpsAi}</p>
               ) : (
                 <p className="more-info-empty">
-                  {records.length >= 5 ? WAITING_FOR_AI : WAITING_FOR_RECORDS}
+                  {records.length >= 3 ? WAITING_FOR_AI : WAITING_FOR_RECORDS}
                 </p>
               )}
             </div>
@@ -1015,7 +1026,7 @@ export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; 
   const supportNeed = (insights?.repeated_support || []).join(" · ")
   // ADR-002 D1 amendment: "What Seems to Help" is AI prose only — never the
   // deterministic what_helps labels. Thresholds follow the D2 per-program
-  // state machine (1 / 2 / >=3); /more uses the overall one (5).
+  // state machine (1 / 2 / >=3); /more uses the overall one (3).
   const whatHelpsAi = narrativeText(data?.companion, ["what_helps_across_programmes"])
   const helpWaiting = records.length >= 3 ? WAITING_FOR_AI : WAITING_FOR_RECORDS
 

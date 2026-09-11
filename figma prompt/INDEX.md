@@ -21,3 +21,21 @@ Batch: `1009` · Captured 2026-09-10 · Tool: runkids/figma-to-prompt 0.2.7
 - MCP is not wired into the agent toolset; these `.figmacapture` exports are the source of truth.
 - Known non-blocking warnings: "Figma file version unavailable in plugin sandbox" (all), and one `1.03×` low-res asset in `details expand`.
 - Repo ships Figma-derived CSS with no TSX consumer (`.more-info-*` in `zpassport.css`) — grep for an existing class family before appending new CSS.
+
+---
+
+# Capture Index — Companion pages (ADR-003)
+
+Batch: `1109` · Captured 2026-09-11 · Tool: runkids/figma-to-prompt 0.2.7
+
+| Frame (capture folder) | Node ID | Viewport | Route | Status |
+|---|---|---|---|---|
+| `Navigation` | `2605:22115` | 1440×64 | site nav bar (component) | captured; not a page — do not build as a route |
+| `ZPassport-learning companion` | `2418:25310` | 1440×1956 | `/account/analytical-insight` | **spacing fixed 2026-09-11** (capture-exact: breadcrumb→hero 16, hero gap 20, title↔body 20, approach/respond row gaps 0/10, dividers #EBEBEB, sidebar 343 + content pad-right 80) |
+| `ZPassport-learning companion (home)` | `2374:23143` | 1440×? | `/account` (CompanionHome) | **round-2 fixes 2026-09-11**: secondary-heading 18/590 #292929; reminder title 20/590, subtitle 13/590 teal, body 14/21 #5E5E5E; added "Learn how it works →" (14/590 teal, right-aligned, below footnote — plain text, no route yet). Card/CTA/typography otherwise matched capture. |
+| `ZPassport-learning companion supporting page` | `2418:25566` | 1440×? | `/account/supporting-learning` | **round-2 fixes 2026-09-11**: hero art 225×285 (was 246), support art 226×291 flip=H (was 343×285 class), section text top-aligned (was centered) — "How You Can Support Them" raised; nav links 20/590 (was 14). |
+
+## Notes (1109)
+- Frame `ZPassport-learning companion` includes full site chrome: nav, sidebar (343px, pad 32/0/32/80), content column (1033, pad 0/80/0/48), an **"Option 2" marketing CTA section** ("One Child. Every Perspective. One Platform.") and the site footer. The CTA section is NOT rendered by the current student shell — product decision pending, not built.
+- `/account/supporting-learning` and `/account` (CompanionHome) have NO captures — spacing there follows the shared `.insight-*` / shell values fixed here (flagged assumption in FEEDBACK.md).
+- Shell fixes from this capture (sidebar 343, main-content pad-right 80, divider #EBEBEB) apply to all account pages, including the 1009 dashboards — their 905px cards now sit in a 904px column (design intent).

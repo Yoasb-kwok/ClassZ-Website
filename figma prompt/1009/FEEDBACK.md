@@ -57,3 +57,56 @@ Built both remaining frames. Findings worth generalizing:
   - generalizes: Y — a parent's `space-between` says nothing about a fixed-width child; check each child's width.
 - **agent-drift (chart framing + scale)**: my chart used level/4 from the baseline (so levels 3-4 filled most of the plot), drew only left/top borders (capture `3939:34621` "Outline" is a full 4-sided box), and cropped the area to the first/last point centres. Now levels 1..4 span the plot, the box is closed, and the area spans the full width.
   - generalizes: Y — for a chart, verify against the capture: (a) the plot outline (all four sides?), (b) how the data domain maps onto the plot, (c) whether the area spans the full width.
+
+## 2026-09-11 — companion pages (uncaptured) — pose art swap
+
+> "now the picture is off compare to the hero.png one, why is that?"
+> "2, and the deatil are off for some reason"
+> "it still look off, i can provide the orginal image on figma, would that help?"
+
+- **asset-gap (resolved by user)**: the repo pose PNGs (`public/assets/learning-companion/<animal>/pose-NN.png`, 833×952 etc.) were wrong-crop exports — same characters as Figma but wider canvases (extra transparent padding). Contain-fitted into the 220×285 / 44:57 primary slot they letterboxed and the character rendered small: "details are off". User supplied Figma-original exports (`learning compansion new/ClassZ Rebrand (Mobile)(6)/`, front number N → pose-NN, 36 files); all 36 swapped in. Figma #1 is 235×305 = aspect 0.770 ≈ the 44:57 slot — the slot ratio was correct all along; the assets were not.
+  - generalizes: Y — when page art "looks off but the box seems right", compare the shipped PNG's canvas aspect against the Figma node before touching CSS; wrong-crop exports survive every layout fix.
+- **standing-decision**: companion pages shipped from the supervisor's update without a `.figmacapture`; per ADR-003 D4 the smoke test gates any rebuild. Frame capture still pending — geometry beyond the primary slot (secondary 125×158, insight/supporting pages) remains unverified against Figma.
+  - generalizes: N — page-specific status.
+- **caveat (declared)**: the new exports are 1x (235×305 for #1). Rendered at 220×285 CSS px they are fine on 1x displays, slightly soft on retina. If the user reports softness, ask for 2x re-export of the same nodes.
+
+## 2026-09-11 (round 2) — companion pages visual check
+
+> "1. on the /account page, the spacing between the main box and parent remainder is off / 2. on the /insight page. the rabbit pic of how they approach is mirrored / 3. on the /supporting thier learning page, the spcaing of Supporting Their Learning titile and How You Can Support Them is off, also the rabit on How You Can Support Them is also mirrored"
+
+- **agent-drift (mirrored art, resolved)**: the design mirrors the approach-slot art so the animal faces the text (capture node 3948:36048 records `flip=H`; capture asset 007 faces left while rebrand export #2 / shipped pose-02 faces right). Added `.insight-illustration--approach .insight-section-image { transform: scaleX(-1) }` — fixes both the insight approach rabbit and the supporting page's "How You Can Support Them" rabbit (same class, same mirror, per user report).
+  - generalizes: Y — side-illustrations in alternating sections are often flipped per-instance in Figma; check the capture node's flip/transform, and compare the capture asset against the shipped asset when a user says "mirrored".
+- **agent-drift (unstyled divider, resolved)**: `.content-divider` (the `<hr>` between the learning card and the parent reminder on /account) had NO CSS rule anywhere — the gap was browser-default hr rendering. Styled to the system divider (1px #EBEBEB, 32px margins). Exact /account values pending its frame capture.
+  - generalizes: Y — when a spacing complaint points at a specific seam, first check the seam's class actually HAS a rule; an unstyled hr masquerades as a spacing bug.
+- **data-gap (pending)**: `/account` (CompanionHome) and `/account/supporting-learning` frames not yet captured — exact spacing for the reminder seam and the supporting hero→section seam awaits those exports.
+
+## 2026-09-11 (round 3) — captures arrived for /account + supporting
+
+> "1. on /accpunt page .Also reflected in their learning... font size is off, line spacing is 2 intead of 1 between parent remainder and mainbox. there supposed to be a how it work link(make it plain test for now) / 2. on the /insgiht page . the font size of back and Supporting Their Learning link → is off / 3. on /supporting page. the spacing is stilff off, How You Can Support Them should be higher. the font size of back to home and back is also off."
+
+- **agent-drift (typography in rem guesses, resolved)**: home card typography was rem-based approximations. Capture-exact now: `.secondary-heading` 18/590 #292929 (was 0.95rem/600); reminder title 20/590, subtitle 13/590 teal, body 14/21 #5E5E5E (was 1rem/0.9rem/0.85rem mixes). Nav links `.insight-nav-link` 20/590 (was 14) — matches all four bottom-nav texts across insight + supporting captures.
+  - generalizes: Y — pre-capture pages ship rem-guess typography; when the capture lands, sweep ALL text styles in the flagged region, not only the ones the user names.
+- **agent-drift (supporting section alignment, resolved)**: "How You Can Support Them should be higher" = the text block is TOP-aligned in the design (row 3948:36052 has no counter-axis align = MIN) while I shipped align-items:center from the insight approach row (3948:36045 ca=center). Fixed via `.insight-page--supporting .insight-section--image-right { align-items: flex-start }` + hero art 225×285 + support art 226×291 (was sharing insight's 343×285).
+  - generalizes: Y — same section class on sister pages can carry DIFFERENT per-page alignment; the walker's omitted `ca` field means Figma default (MIN/top), not center.
+- **product-intent (new element)**: "Learn how it works →" added to /account primary content below the footnote (14/590 teal, right-aligned per node 2418:25548) as plain text per user instruction — no route yet.
+  - generalizes: N — page-specific element.
+- **note (divider seam)**: design file shows THREE stacked divider vectors between card and reminder (2916:19760 @925, 2418:25303 @957, 2398:25184 @989 — 32px apart) — a Figma copy artifact; shipped ONE divider at 32/32, the clean reading. User's "line spacing 2 instead of 1" most likely described the pre-fix browser-default hr (inset double-line); re-check after refresh.
+
+## 2026-09-11 (round 4) — home page corrections (user check)
+
+> "1. learn how it work shoul be to the left / 2. there should be 2 line spcaing on the top of parent remainder box, vector 41 and 42"
+
+- **agent-drift (how-it-works alignment, resolved)**: I read node 2418:25548's `pa=max` as right-aligning the text — but pa=max aligned the full-width wrapper; the text inside sits LEFT. Reference PNG confirms left + underlined. Fixed: removed `align-self: flex-end`, added `text-decoration: underline`.
+  - generalizes: Y — `pa`/`ca` on a wrapper describe the wrapper's children packing, not the text alignment inside a full-width child; check the deepest node holding the text.
+- **standing-decision (double divider is intentional, resolved)**: user confirms TWO divider lines above the parent reminder (vectors 41+42) are intentional design, not a copy artifact. Second `<hr className="content-divider">` added. I had "corrected" it to one line — wrong call; the artifact judgment was mine, the design's repetition was deliberate.
+  - generalizes: Y — do not "clean up" repeated elements in a capture as artifacts without asking; repetition can be the spec.
+
+## 2026-09-11 (later) — supporting-learning spacing
+
+> "the /learning supportae page apcing looks off, i have added the capture of this page so you can fix it"
+> "i mean the ui, spacing of the page looks off, so figma-fidelity on this page"
+
+- **data-gap (blocked)**: the supplied capture (`figma prompt/1109/Navigation.figmacapture`, node 2605:22115) is the **top navigation bar** (1440×64: logo, hamburger, Home/About Us/Programs/Workshops/ZPassport links) — not the supporting-learning page. No page frame exists in the capture library. Spacing fixes on `/account/supporting-learning` are blocked until a full-page frame export is supplied; per protocol I will not approximate page geometry from the nav frame.
+  - generalizes: Y — a capture's frame NAME is not always its route; verify the frame content (walk the nodes, check text) against the target page before treating it as source of truth.
+- **RESOLVED (same day)**: user supplied `ZPassport-learning_companion.figmacapture` (node 2418:25310, 1440×1956) — it is the **analytical-insight page** ("Understanding Your Child's Learning"), not supporting-learning; fixed against that frame. Captured geometry vs shipped CSS: breadcrumb→hero 16 (was 32), hero gap 20 (was 32), title↔body 20 (was 8), approach row gap 0 / respond row gap 10 (was 32), dividers #EBEBEB (was #e5e7eb), sidebar 343 + pad-right 0 (was 363/20), content col pad-right 80 (was 40). Shell-level fixes (sidebar width, main-content padding, divider colour) propagate to all account pages — including the 1009-built dashboards, whose 905px cards now sit in a 904px content column (was 944 with slack). Assumption flagged: `.insight-section-content` gap 20 and shell fixes applied to supporting-learning page without its own capture (shared component classes).
+  - generalizes: Y — when a user says "spacing looks off" on a page built before captures existed, suspect the shell (sidebar width / content padding) as well as the page's own gaps; the shell was never capture-derived.
