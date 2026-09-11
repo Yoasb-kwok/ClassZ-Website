@@ -41,9 +41,6 @@ export function useStudentPassport() {
   return useContext(Ctx)
 }
 
-const LESSON_FOCUS_REMINDER =
-  "What was the main lesson focus today? (short answer with 10 words)"
-
 const NAV = [
   { href: "/account/home", label: "Home", Icon: Home },
   { href: "/account", label: "Learning companion", Icon: Sparkles, match: ["/account/analytical-insight", "/account/supporting-learning"] },
@@ -681,8 +678,6 @@ export function RecordsDashboard({ kind }: { kind: "academic" | "activity" }) {
         </div>
       </Link>
 
-      <p className="lesson-focus-reminder">{LESSON_FOCUS_REMINDER}</p>
-
       <section className={isActivity ? "activity-records" : "academic-records"}>
         <h2 className={isActivity ? "activity-records-title" : "academic-records-title"}>{title}</h2>
         {groups.length ? (
@@ -1177,10 +1172,11 @@ export function LessonPage({ kind, lessonId }: { kind: "academic" | "activity"; 
                       </p>
                     </div>
                     {rec.instructor ? (
-                      <p className="lesson-record-row-author">
+                      // div, not p: contains PersonAvatar (a div) — <p> cannot contain <div>
+                      <div className="lesson-record-row-author">
                         <PersonAvatar name={rec.instructor} className="lesson-record-row-avatar" />
                         By {rec.instructor}
-                      </p>
+                      </div>
                     ) : null}
                   </div>
                 </Link>
@@ -1346,7 +1342,8 @@ export function LessonRecordPage({
 
       {record.photo_url ? (
         <section className="lesson-record-moments">
-          <h2 className="lesson-record-moments-title">Moments</h2>
+          {/* node 2159:12902 — section title is 'Work Sample' (16/590 #000), image card r12 h212 */}
+          <h2 className="lesson-record-moments-title">Work Sample</h2>
           <div
             className="lesson-record-moments-image"
             style={{ backgroundImage: `url('${resolveUploadUrl(record.photo_url)}')` }}

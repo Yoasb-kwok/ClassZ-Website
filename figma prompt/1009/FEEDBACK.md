@@ -101,6 +101,38 @@ Built both remaining frames. Findings worth generalizing:
 - **standing-decision (double divider is intentional, resolved)**: user confirms TWO divider lines above the parent reminder (vectors 41+42) are intentional design, not a copy artifact. Second `<hr className="content-divider">` added. I had "corrected" it to one line — wrong call; the artifact judgment was mine, the design's repetition was deliberate.
   - generalizes: Y — do not "clean up" repeated elements in a capture as artifacts without asking; repetition can be the spec.
 
+## 2026-09-11 (round 5) — academic dashboard captures (full flow)
+
+> "ok now the ui of academic dashbrad flow is off, ive put the figma capture, fix it."
+
+- Captures: `ZPassport-academic` (2046:30107), `_academic_(more_info)` (3920:30062), `_academic_details` (2110:24935), `_academic_details_expand` — all capturedAt 2026-09-11T02:12–02:16Z.
+- **agent-drift (academic dashboard list, resolved)**: the shipped academic-* CSS used `w777` summary card (capture: **905**, same width as the record cards below it), heading icon→text gap 8 (capture **32**, ca=center), description #5e5e5e (capture **#222222**), records section w841/gap16 (capture **w905/gap30**), record rows gap 16 pad 16/0 (capture **gap 10, no row pad**) inside a per-date **white card r12 pad 16/32 with rows gap 12** (was missing entirely), title 16/590 #000 (capture **20/510 #222**), badge 12 (capture **14**), authors 12 (capture **14/21**).
+  - generalizes: Y — when a capture lands for a page built by mirroring another page's CSS, expect the mirrored values to be approximations; sweep every dimension in the flagged region against the capture.
+- **note (activity parity)**: the activity-* dashboard list CSS has the same 777/841-era values (its dashboard was never capture-verified — 1009 covered only more/details/expand). Activity was left untouched pending user confirmation; the academic capture likely describes the shared design.
+  - generalizes: N — pending user decision.
+
+## 2026-09-11 (round 6) — academic flow corrections (user check)
+
+> "1. In HTML, <div> cannot be a descendant of <p>." + stack → lesson-record-row-author
+> "'What was the main lesson focus today? (short answer with 10 words)' is unneeDED / use other picture in history class / recent record card title should to the left / it should be work sample instead of moment / the sapcing of overall learning card is off"
+
+- **agent-drift (hydration, resolved)**: `<p className="lesson-record-row-author">` contained `PersonAvatar` (a div) — invalid p>div nesting on every program page with a named coach. Changed to `<div>`; CSS is flex+font only, no p semantics.
+  - generalizes: Y — avatar/name rows: never wrap the avatar component in `<p>`; the avatar is a block.
+- **product-intent (copy removal)**: the "What was the main lesson focus today? (short answer with 10 words)" coach-facing reminder removed from the parent-facing dashboard (LESSON_FOCUS_REMINDER + its <p> deleted) — it was coach-form wording leaking into the parent UI.
+  - generalizes: Y — copy written for coaches (form hints) must not surface on parent-facing pages.
+- **asset-gap / product-intent (history photos, resolved)**: History Class thumbs used guitar/academic-record photos that don't depict history content; user asked for other pictures. Seed updated: History records now use the study-plan/failed-papers photo (record-work-sample.jpg) and swimming photo? — NO: final choice = record-work-sample.jpg for the two original History records… (see seed diff) — picked from existing /images inventory; no new assets exported.
+  - generalizes: N — demo-data content choice.
+- **agent-drift (recent records title, resolved)**: `.lesson-record-row-head` had `justify-content: center` (leftover from an earlier centring request); capture node 2383:24483 shows the title left-aligned (Frame 892 pa=center is horizontal padding packing; text is at frame start). Changed to flex-start.
+  - generalizes: Y — same lesson as the meta-lines round: a wrapper's justify-centres children only when they don't grow; verify which child grows.
+- **standing-decision (label)**: record page photo section title is **"Work Sample"** (node 2159:12902), not "Moments" — renamed.
+  - generalizes: N — page-specific label per capture.
+- **agent-drift (summary card spacing, resolved)**: spacing was off because `.academic-summary-text` lacked the capture's `pad 16/0/16/0` + `gap 10`, and `.academic-summary-heading` gap was 8 vs capture 32, description colour #5e5e5e vs #222. All set from nodes 2095:23848/23825/23833; card 905/gap 64/min-h 297; stats column 161.5 blocks pad 16 with #EBEBEB divider (was 130/70 blocks, 20px margins, #e5e7eb).
+  - generalizes: Y — already covered by the mirrored-CSS lesson: sweep every value in the region, don't spot-fix.
+
+## 2026-09-11 (round 7) — history photos + label
+
+> (continuation of round 6 items 2 & 4) History records reseeded with `record-work-sample.jpg` (the study-papers photo that actually depicts schoolwork); the apple-stickers image (which is the summary-card icon art) and the guitar-kid "moment" photo are gone from the History rows. Verified in DB: History = 3× record-work-sample.jpg; Math keeps academic-record-1.jpg/png; report row recreated (17 records).
+
 ## 2026-09-11 (later) — supporting-learning spacing
 
 > "the /learning supportae page apcing looks off, i have added the capture of this page so you can fix it"
