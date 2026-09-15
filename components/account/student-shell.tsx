@@ -296,7 +296,9 @@ export function CompanionHome() {
             <p className="companion-footnote">
               Learning Companions summarise patterns in observed learning approaches. They are not fixed personality types.
             </p>
-            <p className="how-it-works-link">Learn how it works →</p>
+            <Link href="/account/learn-how-it-works" className="how-it-works-link">
+              Learn how it works →
+            </Link>
           </div>
         </div>
         {supporting.length ? (
@@ -583,6 +585,102 @@ export function SupportingLearningPage() {
         </Link>
         <Link href="/account" className="insight-nav-link">
           Back to home →
+        </Link>
+      </nav>
+    </div>
+  )
+}
+
+/* node 5302:8678 — ZPassport-learning companion (learn how it works), captured 2026-09-15.
+   Content stack 1033, pad 0/80/0/48, gap 32; sections: title 26/590 #000 + body 14/21 #5E5E5E,
+   #EBEBEB dividers 32/32; single ← Back (20/590 teal). */
+const HOW_IT_WORKS_SECTIONS = [
+  {
+    title: "1. Learning begins with real observations",
+    body: [
+      "After each lesson, the coach records what the child did or said, how they approached the task, any support provided and how they responded.",
+      "Only confirmed, valid observations are used. Records marked as having insufficient opportunity to observe are not included.",
+    ],
+  },
+  {
+    title: "2. The Companion needs time to form",
+    body: [
+      "The Learning Companion becomes available when there are:",
+      "At least 3 confirmed, valid learning records\nAt least 1 recognised Learning Approach observed by a coach",
+      "Before then, you will see:\nYour child’s Learning Companion is still forming. More learning records are needed before it can be shown.",
+    ],
+  },
+  {
+    title: "3. Which records are used?",
+    body: [
+      "The Companion uses up to the 10 most recent eligible records from the last 90 days.",
+      "These records may come from different programmes and may include both activity and academic learning experiences.",
+    ],
+  },
+  {
+    title: "4. How is the Primary Companion selected?",
+    body: [
+      "For every valid record, the coach observes the Learning Approach that was most clearly observed.",
+      "The system maps these coach-selected approaches to the Learning Companions. The Companion with the strongest supported evidence becomes the Primary Companion.",
+    ],
+  },
+  {
+    title: "5. Can the Companion change?",
+    body: [
+      "Yes. The Learning Companion may update as new valid records are added and older records move outside the 90-day window.",
+      "A change does not mean that the previous Companion was wrong. It means that the latest evidence now shows a different or more developed learning pattern.",
+    ],
+  },
+  {
+    title: "6. What the Companion does not mean",
+    body: [
+      "The Learning Companion is NOT:\nA diagnosis\nA measure of intelligence or ability\nA school grade\nA comparison with other children\nA fixed personality type\nA prediction of the child’s future",
+      "It is a supportive summary of the learning approaches observed so far.",
+    ],
+  },
+  {
+    title: "7. How should I use it?",
+    body: [
+      "Use the Learning Companion to:\nUnderstand how the child currently approaches learning\nNotice the types of support that may help\nStart conversations with coaches\nTry the suggested support actions at home or in future lessons\nObserve how the child’s learning develops over time",
+      "The Companion should be read together with the child’s lesson and programme records, not as a standalone conclusion.",
+    ],
+  },null as never].filter(Boolean) as { title: string; body: string[] }[]
+
+export function LearnHowItWorksPage() {
+  return (
+    <div className="insight-page">
+      <nav className="insight-breadcrumb" aria-label="Breadcrumb">
+        <Link href="/account" className="insight-breadcrumb-parent">
+          Learning Companion
+        </Link>
+        <span className="insight-breadcrumb-separator"> &gt; </span>
+        <span className="insight-breadcrumb-current">Learn how it works</span>
+      </nav>
+
+      <div className="lhw-hero">
+        {/* node 5302:8888 — group hero 779×326.63, exported whole */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/learn-how-it-works-hero.png" alt="The six Learning Companion animals around the ClassZ Z" className="lhw-hero-image" />
+        <div className="lhw-title-wrap">
+          <h1 className="lhw-title">Learn how it works</h1>
+        </div>
+      </div>
+
+      {HOW_IT_WORKS_SECTIONS.map((section) => (
+        <div key={section.title}>
+          <hr className="insight-divider" />
+          <article className="lhw-section">
+            <h2 className="insight-section-title">{section.title}</h2>
+            {section.body.map((para, i) => (
+              <p key={i} className="lhw-para">{para}</p>
+            ))}
+          </article>
+        </div>
+      ))}
+
+      <nav className="insight-nav insight-nav--spaced">
+        <Link href="/account" className="insight-nav-link">
+          ← Back
         </Link>
       </nav>
     </div>

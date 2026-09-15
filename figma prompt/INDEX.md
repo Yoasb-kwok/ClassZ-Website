@@ -38,6 +38,7 @@ Batch: `1109` · Captured 2026-09-11 · Tool: runkids/figma-to-prompt 0.2.7
 | `ZPassport-academic (more info)` | `3920:30062` | 1440×? | `/account/academic/more` | captured; matches shared RecordsMorePage components — parity confirmed, no structural diffs found |
 | `ZPassport-academic details` | `2110:24935` | 1440×? | `/account/academic/lessons/[id]` | captured; mock shows "S3 Chinese Class" (mock-copy inconsistency, per 1009 lesson) — component parity confirmed |
 | `ZPassport-academic details expand` | `2124:25840` | 1440×? | `/account/academic/lessons/[id]/records/[rid]` | captured; parity confirmed |
+| `ZPassport-learning companion (learn how it works)` | `5302:8678` | 1440×? | `/account/learn-how-it-works` | **built 2026-09-15** — hero group PNG (779×327) + 7 numbered sections (title 26/590, body 14/21 #5E5E5E) with #EBEBEB dividers; hidden CTA not built; wired from "Learn how it works →" on /account |
 
 ## Notes (1109)
 - Frame `ZPassport-learning companion` includes full site chrome: nav, sidebar (343px, pad 32/0/32/80), content column (1033, pad 0/80/0/48), an **"Option 2" marketing CTA section** ("One Child. Every Perspective. One Platform.") and the site footer. The CTA section is NOT rendered by the current student shell — product decision pending, not built.

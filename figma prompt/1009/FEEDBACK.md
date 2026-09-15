@@ -142,3 +142,14 @@ Built both remaining frames. Findings worth generalizing:
   - generalizes: Y — a capture's frame NAME is not always its route; verify the frame content (walk the nodes, check text) against the target page before treating it as source of truth.
 - **RESOLVED (same day)**: user supplied `ZPassport-learning_companion.figmacapture` (node 2418:25310, 1440×1956) — it is the **analytical-insight page** ("Understanding Your Child's Learning"), not supporting-learning; fixed against that frame. Captured geometry vs shipped CSS: breadcrumb→hero 16 (was 32), hero gap 20 (was 32), title↔body 20 (was 8), approach row gap 0 / respond row gap 10 (was 32), dividers #EBEBEB (was #e5e7eb), sidebar 343 + pad-right 0 (was 363/20), content col pad-right 80 (was 40). Shell-level fixes (sidebar width, main-content padding, divider colour) propagate to all account pages — including the 1009-built dashboards, whose 905px cards now sit in a 904px content column (was 944 with slack). Assumption flagged: `.insight-section-content` gap 20 and shell fixes applied to supporting-learning page without its own capture (shared component classes).
   - generalizes: Y — when a user says "spacing looks off" on a page built before captures existed, suspect the shell (sidebar width / content padding) as well as the page's own gaps; the shell was never capture-derived.
+
+## 2026-09-15 — /account/learn-how-it-works (new page)
+
+> "first back to using english thinking. now we have the how to think page now, i've add a 1509 folder and you should see figma prompt inside."
+> "1. ive add the whole png it to the reference folder now. check it / 2. ok"
+
+- Capture: `1509/ZPassport-learning_companion_(learn_how_it_works).figmacapture`, node 5302:8678, capturedAt 2026-09-15T00:09. Page: breadcrumb `Learning Companion > Learn how it works`, hero group 779×326.63 (6 animals + Z mascot) + title 30/590 #000 centered, 7 sections (title 26/590 + body 14/21 #5E5E5E) with #EBEBEB dividers 32/32, single ← Back (20/590 teal). A "See Alex's Learning Insights" button is HIDDEN in the frame — not built.
+- **data-gap (capture text vs reference)**: the reference PNG shows numbered titles ("1. …"–"7. …") but the capture TEXT nodes contain no numbers. Rendered visual wins — headings include the numbers.
+- **asset resolution**: hero is 7 positioned image rects in the frame (two flip=H); user exported the whole group as one PNG (`Frame 2147237620.png`, 779×327) → shipped as `public/images/learn-how-it-works-hero.png`.
+- **wiring**: "Learn how it works →" on /account (previously plain text per product-intent) is now a Link to `/account/learn-how-it-works`. Breadcrumb parent links to /account; single ← Back.
+- **verification honesty**: page is behind the client auth gate — curl/SSR only shows the Loading state; structural checks (200, route chunk, tsc clean) pass, but the visual pass is the user's.
