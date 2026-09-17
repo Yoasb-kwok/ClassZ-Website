@@ -1,6 +1,6 @@
 import type { ClasszPortalRole } from "@/lib/classz-auth"
 import { getClasszSession } from "@/lib/classz-auth"
-import { getAdminNavGroups as allGroups, type AdminNavGroup } from "@/lib/classz-admin-nav"
+import { getAdminNavGroups as allGroups, getContentNavGroups, type AdminNavGroup } from "@/lib/classz-admin-nav"
 import { getCenterAdminNavGroups, getCoachNavGroups } from "@/lib/center-admin-nav"
 import { Building2, CheckCircle, IdCard, LayoutDashboard, Shield, Users } from "lucide-react"
 
@@ -33,7 +33,9 @@ export function getAdminNavGroupsForRole(role: ClasszPortalRole): AdminNavGroup[
         items: g.items.filter((item) => item.moduleKey !== "centre_profile" && item.moduleKey !== "centre_members"),
       }))
       .filter((g) => g.items.length > 0)
-    return [...PLATFORM_ONLY, ...centerNav]
+    // The CMS pages live in the Content group, which otherwise only reaches the
+    // fallback branch — platform admins could not see /admin/cms/* in the sidebar.
+    return [...PLATFORM_ONLY, ...getContentNavGroups(), ...centerNav]
   }
   return allGroups()
 }

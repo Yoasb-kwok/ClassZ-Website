@@ -72,6 +72,11 @@ export function getAdminNavGroups(): AdminNavGroup[] {
   ]
 }
 
+/** Content group (CMS pages) — reused by the platform-admin sidebar. */
+export function getContentNavGroups(): AdminNavGroup[] {
+  return getAdminNavGroups().filter((g) => g.titleEn === "Content")
+}
+
 export function getAdminNavLabel(path: string, zh: boolean): string | null {
   for (const g of getAdminNavGroups()) {
     const item = g.items.find((i) => i.path === path)
