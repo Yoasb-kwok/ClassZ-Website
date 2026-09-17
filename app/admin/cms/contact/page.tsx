@@ -1,5 +1,5 @@
-import { CmsPageForm } from "@/components/admin/cms-page-form"
+import { PageEditor } from "@/components/admin/page-editor/page-editor"
 
 export default function AdminCmsContactPage() {
-  return <CmsPageForm pageKey="contact" />
+  return <PageEditor pageKey="contact" />
 }
