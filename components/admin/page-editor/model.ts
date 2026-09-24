@@ -394,8 +394,7 @@ export function sanitizeBlock(block: SiteBlock): SiteBlock {
 
 // --- Page meta ---
 
-export type PageEditorKey =
-  "landing" | "about" | "terms" | "privacy" | "faq" | "contact";
+export type PageEditorKey = "terms" | "privacy" | "faq" | "contact" | "landing";
 export type PageEditorMode = "blocks" | "items";
 
 export type PageMeta = {
@@ -421,15 +420,6 @@ export const PAGE_META: Record<PageEditorKey, PageMeta> = {
       "編輯首頁各區塊文字，右側即時預覽。未填寫的區塊會使用預設文案。",
     descriptionEn:
       "Edit the landing sections with a live preview. Sections left empty fall back to the default copy.",
-  },
-  about: {
-    mode: "blocks",
-    itemMode: null,
-    publicPath: "/about",
-    titleZh: "關於我們",
-    titleEn: "About us",
-    descriptionZh: "逐個元素編輯內容，右側即時預覽。",
-    descriptionEn: "Edit the page element by element with a live preview.",
   },
   terms: {
     mode: "blocks",

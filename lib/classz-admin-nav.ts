@@ -11,7 +11,6 @@ import {
   MessageSquare,
   BookOpen,
   Newspaper,
-  Info,
   Phone,
   HelpCircle,
   ScrollText,
@@ -123,12 +122,10 @@ export function getAdminNavGroups(): AdminNavGroup[] {
           labelEn: "News",
           icon: Newspaper,
         },
-        {
-          path: "/admin/cms/about",
-          labelZh: "關於我們",
-          labelEn: "About us",
-          icon: Info,
-        },
+        // /admin/cms/about is retired (user decision 2026-09-24): About Us is
+        // static marketing content — the public page never rendered the CMS
+        // blocks, so the editor had no visible effect. The route and the
+        // cms_pages('about') row were removed/left unread with it.
         {
           path: "/admin/cms/contact",
           labelZh: "聯絡我們",
