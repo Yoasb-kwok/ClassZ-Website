@@ -3,6 +3,8 @@
 /**
  * RichTextEditor — the WYSIWYG input for every CMS HTML field
  * (ADR-004 Decision 6 upgrade: admins format visually, never write HTML).
+ * The raw-HTML disclosure was removed (user decision 2026-09-24) — the
+ * toolbar is the only editing surface.
  *
  * Storage is unchanged — the editor produces the same HTML the API validates
  * and the public renderer styles:
@@ -29,7 +31,6 @@ import {
   Link2,
   ImagePlus,
   RemoveFormatting,
-  Code,
 } from "lucide-react";
 import { uploadImageFile } from "@/components/admin/page-editor/image-list-field";
 
@@ -72,17 +73,13 @@ type RichTextEditorProps = {
   onChange: (html: string) => void;
   /** Height hint for the editing surface. */
   minHeight?: number;
-  /** Show the raw-HTML disclosure (default: collapsed). */
-  allowHtmlView?: boolean;
 };
 
 export function RichTextEditor({
   value,
   onChange,
   minHeight = 180,
-  allowHtmlView = true,
 }: RichTextEditorProps) {
-  const [htmlView, setHtmlView] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -109,8 +106,8 @@ export function RichTextEditor({
     },
   });
 
-  // Apply external value changes (language switch, record swap, raw-HTML edit)
-  // only when they actually differ from what the editor shows.
+  // Apply external value changes (language switch, record swap) only when
+  // they actually differ from what the editor shows.
   useEffect(() => {
     if (!editor) return;
     const current = editor.getHTML();
@@ -246,39 +243,17 @@ export function RichTextEditor({
         >
           <RemoveFormatting className="h-4 w-4" />
         </ToolbarButton>
-        {allowHtmlView ? (
-          <ToolbarButton
-            title="View HTML"
-            active={htmlView}
-            onClick={() => setHtmlView((v) => !v)}
-          >
-            <Code className="h-4 w-4" />
-          </ToolbarButton>
-        ) : null}
         <span className="ml-auto pr-1 text-[11px] text-classz-600">
           {uploading ? "Uploading image…" : `${editor.getText().length} chars`}
         </span>
       </div>
 
       {/* Editing surface */}
-      {htmlView ? (
-        <textarea
-          className="w-full resize-y bg-[#F9FBFD] p-3 font-mono text-xs text-classz-700 focus:outline-none"
-          style={{ minHeight }}
-          value={value || ""}
-          onChange={(event) => {
-            onChange(event.target.value);
-            editor.commands.setContent(event.target.value, false);
-          }}
-          spellCheck={false}
-        />
-      ) : (
-        <EditorContent
-          editor={editor}
-          className="[&_.tiptap]:px-3 [&_.tiptap]:py-3 [&_.tiptap]:text-[15px] [&_.tiptap]:leading-relaxed [&_.tiptap]:text-classz-700 [&_.tiptap]:focus:outline-none [&_.tiptap_ul]:list-disc [&_.tiptap_ol]:list-decimal [&_.tiptap_li]:ml-5 [&_.tiptap_h3]:text-lg [&_.tiptap_h3]:font-semibold [&_.tiptap_h4]:text-base [&_.tiptap_h4]:font-semibold [&_.tiptap_a]:text-[#00A3A0] [&_.tiptap_a]:underline [&_.tiptap_img]:max-w-full [&_.tiptap_img]:rounded-xl"
-          style={{ minHeight }}
-        />
-      )}
+      <EditorContent
+        editor={editor}
+        className="[&_.tiptap]:px-3 [&_.tiptap]:py-3 [&_.tiptap]:text-[15px] [&_.tiptap]:leading-relaxed [&_.tiptap]:text-classz-700 [&_.tiptap]:focus:outline-none [&_.tiptap_ul]:list-disc [&_.tiptap_ol]:list-decimal [&_.tiptap_li]:ml-5 [&_.tiptap_h3]:text-lg [&_.tiptap_h3]:font-semibold [&_.tiptap_h4]:text-base [&_.tiptap_a]:text-[#00A3A0] [&_.tiptap_a]:underline [&_.tiptap_img]:max-w-full [&_.tiptap_img]:rounded-xl"
+        style={{ minHeight }}
+      />
     </div>
   );
 }
