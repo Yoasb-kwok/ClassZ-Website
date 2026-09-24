@@ -10,12 +10,10 @@ import {
   FileText,
   MessageSquare,
   BookOpen,
-  Newspaper,
   Phone,
   HelpCircle,
   ScrollText,
   Shield,
-  Home,
 } from "lucide-react";
 
 export type AdminNavItem = {
@@ -110,18 +108,12 @@ export function getAdminNavGroups(): AdminNavGroup[] {
         // adminCourseIntroController is unmounted, so this form only ever wrote to
         // the local demo store. Restore it as course data (per-programme rows via a
         // follow-up ADR), not as a generic title+HTML page.
-        {
-          path: "/admin/cms/landing",
-          labelZh: "首頁",
-          labelEn: "Landing",
-          icon: Home,
-        },
-        {
-          path: "/admin/cms/news",
-          labelZh: "最新消息",
-          labelEn: "News",
-          icon: Newspaper,
-        },
+        // /admin/cms/landing is hidden (user decision 2026-09-24): the landing
+        // copy overrides are not needed for now. The editor route still works by
+        // URL and the public fallback (locale keys) is unchanged.
+        // /admin/cms/news is hidden (same decision): NewsManager writes to the
+        // localStorage demo store and nothing renders news publicly yet —
+        // revisit once a public news endpoint + section exist.
         // /admin/cms/about is retired (user decision 2026-09-24): About Us is
         // static marketing content — the public page never rendered the CMS
         // blocks, so the editor had no visible effect. The route and the
