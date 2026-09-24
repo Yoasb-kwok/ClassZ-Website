@@ -108,7 +108,7 @@ export function Navbar() {
   const isActive = (href: string, extra: string[] = []) =>
     [href, ...extra].some((path) => {
       const p = pathOf(path);
-      if (p === "/" || p === "/school") return pathname === p;
+      if (p === "/") return pathname === p;
       return pathname === p || Boolean(pathname?.startsWith(`${p}/`));
     });
 
@@ -155,19 +155,22 @@ export function Navbar() {
                   {showMenuLinksInDropdown ? (
                     <div className="flex flex-col gap-5">
                       {links.map((link, i) => (
-                          <DropdownMenu.Item asChild key={`${surface}-${link.key}`}>
-                            <Link
-                              href={link.href}
-                              style={{ animationDelay: `${i * 35}ms` }}
-                              className={`nav-menu-item flex h-11 cursor-pointer items-center rounded-lg px-2.5 text-base outline-none ${
-                                link.cta
-                                  ? "justify-center bg-[#222] font-[590] text-white data-[highlighted]:bg-[#111]"
-                                  : `text-ink data-[highlighted]:bg-[#F5F5F5] ${isActive(link.href, link.match) ? "font-[590]" : ""}`
-                              }`}
-                            >
-                              {t(link.key)}
-                            </Link>
-                          </DropdownMenu.Item>
+                        <DropdownMenu.Item
+                          asChild
+                          key={`${surface}-${link.key}`}
+                        >
+                          <Link
+                            href={link.href}
+                            style={{ animationDelay: `${i * 35}ms` }}
+                            className={`nav-menu-item flex h-11 cursor-pointer items-center rounded-lg px-2.5 text-base outline-none ${
+                              link.cta
+                                ? "justify-center bg-[#222] font-[590] text-white data-[highlighted]:bg-[#111]"
+                                : `text-ink data-[highlighted]:bg-[#F5F5F5] ${isActive(link.href, link.match) ? "font-[590]" : ""}`
+                            }`}
+                          >
+                            {t(link.key)}
+                          </Link>
+                        </DropdownMenu.Item>
                       ))}
                       <div className="h-px bg-[#EBEBEB]" aria-hidden />
                     </div>
@@ -261,27 +264,17 @@ export function Navbar() {
             locale={locale}
             onSelect={setLocale}
           />
-          {surface === "school" ? (
-            <Link
-              href="/"
-              onClick={() => rememberSurface("info")}
-              className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
-            >
-              {t("nav.classz")}
-            </Link>
-          ) : (
-            links
-              .filter((link) => link.cta)
-              .map((link) => (
-                <Link
-                  key={`${surface}-${link.key}`}
-                  href={link.href}
-                  className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
-                >
-                  {t(link.key)}
-                </Link>
-              ))
-          )}
+          {links
+            .filter((link) => link.cta)
+            .map((link) => (
+              <Link
+                key={`${surface}-${link.key}`}
+                href={link.href}
+                className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
+              >
+                {t(link.key)}
+              </Link>
+            ))}
           {session ? (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
@@ -310,7 +303,11 @@ export function Navbar() {
                 >
                   <DropdownMenu.Item asChild>
                     <Link
-                      href={session.user.role === "student" ? "/account/profile" : homePathForRole(session.user.role)}
+                      href={
+                        session.user.role === "student"
+                          ? "/account/profile"
+                          : homePathForRole(session.user.role)
+                      }
                       className="flex cursor-pointer items-center rounded-lg px-3 py-2 text-sm text-ink outline-none data-[highlighted]:bg-[#F5F5F5]"
                     >
                       {t("nav.profile")}
@@ -329,13 +326,13 @@ export function Navbar() {
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
           ) : (
-              <button
-                type="button"
-                onClick={() => openAuth("login")}
-                className="flex h-9 shrink-0 items-center rounded-full bg-[#0abab5] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-colors hover:bg-[#089591]"
-              >
-                {t("nav.login")}
-              </button>
+            <button
+              type="button"
+              onClick={() => openAuth("login")}
+              className="flex h-9 shrink-0 items-center rounded-full bg-[#0abab5] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-colors hover:bg-[#089591]"
+            >
+              {t("nav.login")}
+            </button>
           )}
         </div>
       </div>
@@ -348,9 +345,9 @@ function DesktopNavLink({
   label,
   active,
 }: {
-  href: string
-  label: string
-  active: boolean
+  href: string;
+  label: string;
+  active: boolean;
 }) {
   return (
     <Link
@@ -365,7 +362,7 @@ function DesktopNavLink({
         }`}
       />
     </Link>
-  )
+  );
 }
 
 function LanguageMenu({
@@ -375,11 +372,11 @@ function LanguageMenu({
   locale,
   onSelect,
 }: {
-  label: string
-  englishLabel: string
-  chineseLabel: string
-  locale: "en" | "zh-TW"
-  onSelect: (locale: "en" | "zh-TW") => void
+  label: string;
+  englishLabel: string;
+  chineseLabel: string;
+  locale: "en" | "zh-TW";
+  onSelect: (locale: "en" | "zh-TW") => void;
 }) {
   return (
     <DropdownMenu.Root>
@@ -417,5 +414,5 @@ function LanguageMenu({
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
-  )
+  );
 }

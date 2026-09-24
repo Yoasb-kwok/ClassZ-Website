@@ -116,7 +116,7 @@ export function AboutPage() {
         primary={t("infoPages.ctaZpassport")}
         primaryHref="/zpassport"
         secondary={t("infoPages.about.ctaLearnSchool")}
-        secondaryHref="/school"
+        secondaryHref="/"
         visual={
           <div className="mx-auto max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
             <img src="/landing/zpassport-phone.jpg" alt="" className="w-full object-cover" />

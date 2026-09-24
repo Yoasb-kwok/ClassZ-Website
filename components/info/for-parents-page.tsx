@@ -44,7 +44,7 @@ export function ForParentsPage() {
             {t("infoPages.parents.heroBody")}
           </p>
           <Link
-            href="/school"
+            href="/"
             className="mt-8 inline-flex h-12 items-center rounded-full bg-[#0abab5] px-7 text-sm font-semibold text-white transition hover:bg-[#089591]"
           >
             {t("infoPages.parents.ctaJourney")}
@@ -98,7 +98,7 @@ export function ForParentsPage() {
         <h2 className="text-3xl font-semibold tracking-[-0.03em] md:text-4xl">{t("infoPages.parents.startTitle")}</h2>
         <p className="mt-2 text-sm font-medium text-[#0abab5]">{t("infoPages.parents.earlyAccess")}</p>
         <Link
-          href="/school"
+          href="/"
           className="mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-[#222] px-8 text-sm font-semibold text-white transition hover:opacity-90"
         >
           {t("infoPages.parents.joinEarly")}

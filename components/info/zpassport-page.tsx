@@ -167,9 +167,9 @@ export function ZPassportPage() {
         title={t("infoPages.zpassport.ctaTitle")}
         body={t("infoPages.zpassport.ctaBody")}
         primary={t("infoPages.ctaStarted")}
-        primaryHref="/school"
+        primaryHref="/"
         secondary={t("infoPages.ctaSchool")}
-        secondaryHref="/school"
+        secondaryHref="/"
         visual={
           <PhoneFrame className="mx-auto max-w-[240px]">
             <img src="/landing/zpassport-phone.jpg" alt="" className="w-full object-cover" />
