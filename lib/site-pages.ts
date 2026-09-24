@@ -6,7 +6,8 @@
  * immediately; the window is the fallback.
  */
 
-export type SitePageKey = "about" | "terms" | "privacy" | "faqs" | "contact";
+export type SitePageKey =
+  "about" | "terms" | "privacy" | "faqs" | "contact" | "landing";
 
 export type SiteLocale = "en" | "zh-TW" | "zh-CN";
 
@@ -87,11 +88,7 @@ export type CtaBlock = {
 };
 
 export type SiteBlock =
-  | RichTextBlock
-  | ImageSplitBlock
-  | FaqItemBlock
-  | BranchBlock
-  | CtaBlock;
+  RichTextBlock | ImageSplitBlock | FaqItemBlock | BranchBlock | CtaBlock;
 
 export type SitePage = {
   page_key: SitePageKey;
@@ -105,11 +102,11 @@ export type SitePage = {
   updated_at?: string | null;
 };
 
-import { getBackendOrigin } from "@/lib/backend-origin"
+import { getBackendOrigin } from "@/lib/backend-origin";
 
 function backendOrigin(): string {
   // Single source of truth with the catch-all proxy (lib/backend-origin.ts).
-  return getBackendOrigin()
+  return getBackendOrigin();
 }
 
 /** Fallback content shown when the API is unreachable (the ISR cache usually covers this). */
@@ -134,7 +131,10 @@ export async function fetchSitePage(pageKey: SitePageKey): Promise<SitePage> {
     if (!res.ok) return EMPTY_PAGE(pageKey);
     const json = (await res.json()) as { success?: boolean; data?: SitePage };
     if (!json?.success || !json.data) return EMPTY_PAGE(pageKey);
-    return { ...json.data, blocks: Array.isArray(json.data.blocks) ? json.data.blocks : [] };
+    return {
+      ...json.data,
+      blocks: Array.isArray(json.data.blocks) ? json.data.blocks : [],
+    };
   } catch {
     return EMPTY_PAGE(pageKey);
   }
@@ -152,7 +152,7 @@ const LOCALE_SUFFIX: Record<string, string> = {
 export function pickText<T extends Record<string, unknown>>(
   block: T,
   field: string,
-  locale: string
+  locale: string,
 ): string {
   const base = block[field];
   const lang = String(locale || "en");
@@ -168,7 +168,85 @@ export function pickText<T extends Record<string, unknown>>(
 
 export function isBlockType<T extends SiteBlock["type"]>(
   block: SiteBlock,
-  type: T
+  type: T,
 ): block is Extract<SiteBlock, { type: T }> {
   return block.type === type;
+}
+
+// --- Landing page CMS overrides (one-home consolidation) ---
+
+/**
+ * The landing (`/`) renders MarketplaceLanding whose copy falls back to the
+ * locale files. Editors can override any section via a rich_text block with
+ * one of these well-known ids in cms_pages('landing'):
+ *
+ *   intro            title -> hero heading,        body_html -> hero subtitle
+ *   workshops-heading  title -> "Trending workshops" heading
+ *   programs-heading   title -> "New programs" heading
+ *   zpassport          title -> eyebrow,             body_html -> card paragraphs
+ *   zpassport-tagline  body_html -> teal tagline
+ *
+ * Missing/empty blocks fall back to the locale keys, so the page renders
+ * complete copy with zero CMS rows seeded.
+ */
+export type LandingCmsOverrides = {
+  introTitle?: string;
+  introSubtitle?: string;
+  workshopsHeading?: string;
+  programsHeading?: string;
+  zpassportEyebrow?: string;
+  zpassportBody?: string;
+  zpassportTagline?: string;
+};
+
+/** HTML -> plain text; <p>/</p> and <br> become paragraph/line breaks. */
+function htmlToPlain(html: string): string {
+  return html
+    .replace(/<\/p\s*>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .trim();
+}
+
+function blockTextById(
+  blocks: SiteBlock[],
+  id: string,
+  field: "title" | "body_html",
+  locale: string,
+): string | undefined {
+  const block = blocks.find(
+    (candidate): candidate is Extract<SiteBlock, { type: "rich_text" }> =>
+      candidate.id === id && candidate.type === "rich_text",
+  );
+  if (!block) return undefined;
+  const raw = pickText(block, field, locale);
+  if (!raw.trim()) return undefined;
+  const plain = field === "body_html" ? htmlToPlain(raw) : raw.trim();
+  return plain || undefined;
+}
+
+/** Server-side: extract the landing overrides for one locale (EN fallback). */
+export function landingOverridesFromBlocks(
+  blocks: SiteBlock[],
+  locale: string,
+): LandingCmsOverrides {
+  if (!blocks?.length) return {};
+  const out: LandingCmsOverrides = {};
+  const map: Array<[keyof LandingCmsOverrides, string, "title" | "body_html"]> =
+    [
+      ["introTitle", "intro", "title"],
+      ["introSubtitle", "intro", "body_html"],
+      ["workshopsHeading", "workshops-heading", "title"],
+      ["programsHeading", "programs-heading", "title"],
+      ["zpassportEyebrow", "zpassport", "title"],
+      ["zpassportBody", "zpassport", "body_html"],
+      ["zpassportTagline", "zpassport-tagline", "body_html"],
+    ];
+  for (const [key, id, field] of map) {
+    const value = blockTextById(blocks, id, field, locale);
+    if (value) out[key] = value;
+  }
+  return out;
 }

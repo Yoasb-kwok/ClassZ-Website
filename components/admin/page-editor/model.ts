@@ -8,125 +8,151 @@
  * Kept free of React and of network calls so it stays easy to read.
  */
 
-import type { BlockImage, SiteBlock } from "@/lib/site-pages"
+import type { BlockImage, SiteBlock } from "@/lib/site-pages";
 
 // --- Languages (Decision 4: inline suffixed fields) ---
 
-export type EditorLanguage = "en" | "zh-TW" | "zh-CN"
+export type EditorLanguage = "en" | "zh-TW" | "zh-CN";
 
 export type LanguageOption = {
-  id: EditorLanguage
+  id: EditorLanguage;
   /** Compact label for the language toggles. */
-  short: string
-  label: string
+  short: string;
+  label: string;
   /** Field-name suffix for the inline i18n columns. */
-  suffix: string
-}
+  suffix: string;
+};
 
 export const LANGUAGES: LanguageOption[] = [
   { id: "en", short: "EN", label: "English", suffix: "" },
   { id: "zh-TW", short: "繁", label: "繁體中文 (zh-TW)", suffix: "_zh_tw" },
   { id: "zh-CN", short: "简", label: "简体中文 (zh-CN)", suffix: "_zh_cn" },
-]
+];
 
 export function languageMeta(language: EditorLanguage): LanguageOption {
-  return LANGUAGES.find((option) => option.id === language) ?? LANGUAGES[0]
+  return LANGUAGES.find((option) => option.id === language) ?? LANGUAGES[0];
 }
 
 /** Physical field name for a translatable base field in one language. */
 export function fieldName(base: string, language: EditorLanguage): string {
-  return `${base}${languageMeta(language).suffix}`
+  return `${base}${languageMeta(language).suffix}`;
 }
 
 // --- Reading drafts (blocks, rows and raw API payloads) ---
 
 export function readText(record: object, name: string): string {
-  const value = (record as Record<string, unknown>)[name]
-  return typeof value === "string" ? value : ""
+  const value = (record as Record<string, unknown>)[name];
+  return typeof value === "string" ? value : "";
 }
 
 export function hasText(record: object, name: string): boolean {
-  return readText(record, name).trim().length > 0
+  return readText(record, name).trim().length > 0;
 }
 
 export function hasStringField(record: object, name: string): boolean {
-  return typeof (record as Record<string, unknown>)[name] === "string"
+  return typeof (record as Record<string, unknown>)[name] === "string";
 }
 
 export function readNullable(record: object, name: string): string | null {
-  const value = readText(record, name)
-  return value.trim() ? value : null
+  const value = readText(record, name);
+  return value.trim() ? value : null;
 }
 
 export function readNumber(record: object, name: string): number {
-  const value = Number((record as Record<string, unknown>)[name])
-  return Number.isFinite(value) ? value : 0
+  const value = Number((record as Record<string, unknown>)[name]);
+  return Number.isFinite(value) ? value : 0;
 }
 
 export function readBoolean(record: object, name: string): boolean {
-  return Boolean((record as Record<string, unknown>)[name])
+  return Boolean((record as Record<string, unknown>)[name]);
 }
 
 /** Exact locale -> English fallback (same rule as the renderer). */
-export function translate(record: object, base: string, language: EditorLanguage): string {
-  return readText(record, fieldName(base, language)) || readText(record, base)
+export function translate(
+  record: object,
+  base: string,
+  language: EditorLanguage,
+): string {
+  return readText(record, fieldName(base, language)) || readText(record, base);
 }
 
 function toImage(entry: unknown): BlockImage | null {
-  if (!entry || typeof entry !== "object") return null
-  const src = (entry as { src?: unknown }).src
-  const alt = (entry as { alt?: unknown }).alt
-  return { src: typeof src === "string" ? src : "", alt: typeof alt === "string" ? alt : null }
+  if (!entry || typeof entry !== "object") return null;
+  const src = (entry as { src?: unknown }).src;
+  const alt = (entry as { alt?: unknown }).alt;
+  return {
+    src: typeof src === "string" ? src : "",
+    alt: typeof alt === "string" ? alt : null,
+  };
 }
 
 export function readImages(record: object): BlockImage[] {
-  const raw = (record as Record<string, unknown>).images
-  if (!Array.isArray(raw)) return []
-  return raw.map(toImage).filter((image): image is BlockImage => image !== null)
+  const raw = (record as Record<string, unknown>).images;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map(toImage)
+    .filter((image): image is BlockImage => image !== null);
 }
 
 /**
  * Rows without a src are dropped: the API rejects an empty src and the renderer
  * would show a broken image.
  */
-export function cleanImages(images: BlockImage[] | null | undefined): BlockImage[] {
+export function cleanImages(
+  images: BlockImage[] | null | undefined,
+): BlockImage[] {
   return (Array.isArray(images) ? images : [])
     .map((image) => ({
       src: String(image?.src ?? "").trim(),
-      alt: typeof image?.alt === "string" && image.alt.trim() ? image.alt : null,
+      alt:
+        typeof image?.alt === "string" && image.alt.trim() ? image.alt : null,
     }))
-    .filter((image) => image.src.length > 0)
+    .filter((image) => image.src.length > 0);
 }
 
 // --- Editable blocks ---
 
-export type BlockType = SiteBlock["type"]
+export type BlockType = SiteBlock["type"];
 
-export const BLOCK_TYPES: BlockType[] = ["rich_text", "image_split", "faq_item", "branch", "cta"]
+export const BLOCK_TYPES: BlockType[] = [
+  "rich_text",
+  "image_split",
+  "faq_item",
+  "branch",
+  "cta",
+];
 
 /** A patch is always a flat, field-name-keyed write onto the current draft. */
-export type DraftValue = string | number | boolean | null | undefined | BlockImage[]
-export type BlockPatch = Record<string, DraftValue>
+export type DraftValue =
+  string | number | boolean | null | undefined | BlockImage[];
+export type BlockPatch = Record<string, DraftValue>;
 
-let blockCounter = 0
+let blockCounter = 0;
 
 /** Client-side block id; the API only requires uniqueness within the page. */
 export function newBlockId(type: BlockType): string {
-  blockCounter += 1
-  return `${type}-${Date.now().toString(36)}-${blockCounter}`
+  blockCounter += 1;
+  return `${type}-${Date.now().toString(36)}-${blockCounter}`;
 }
 
 /** Legacy blocks carry no `type`/`schemaVersion` (mirrors helpers/cmsBlocks.js). */
 function inferBlockType(block: Record<string, unknown>): BlockType {
-  const declared = block.type
-  if (typeof declared === "string" && (BLOCK_TYPES as string[]).includes(declared)) {
-    return declared as BlockType
+  const declared = block.type;
+  if (
+    typeof declared === "string" &&
+    (BLOCK_TYPES as string[]).includes(declared)
+  ) {
+    return declared as BlockType;
   }
-  if (block.layout !== undefined || ("image_url" in block && "body_html" in block)) return "image_split"
-  if ("question" in block) return "faq_item"
-  if ("name" in block && !("body_html" in block)) return "branch"
-  if ("label" in block && "href" in block) return "cta"
-  return "rich_text"
+  if (
+    block.layout !== undefined ||
+    ("image_url" in block && "body_html" in block)
+  )
+    return "image_split";
+  if ("question" in block) return "faq_item";
+  if ("name" in block && !("body_html" in block)) return "branch";
+  if ("label" in block && "href" in block) return "cta";
+  return "rich_text";
 }
 
 /** Required-but-may-be-empty strings (mirrors the API's REQUIRED_STRING_FIELDS). */
@@ -134,24 +160,27 @@ const REQUIRED_STRING_FIELDS: Partial<Record<BlockType, string[]>> = {
   rich_text: ["body_html"],
   image_split: ["body_html"],
   faq_item: ["answer_html"],
-}
+};
 
 /** Page document stored in cms_pages.content_json. */
-export function parseContentJson(raw: unknown): { blocks: unknown[]; doc: Record<string, unknown> } {
-  let parsed: unknown = raw
+export function parseContentJson(raw: unknown): {
+  blocks: unknown[];
+  doc: Record<string, unknown>;
+} {
+  let parsed: unknown = raw;
   if (typeof raw === "string") {
     try {
-      parsed = JSON.parse(raw)
+      parsed = JSON.parse(raw);
     } catch {
-      parsed = null
+      parsed = null;
     }
   }
-  if (Array.isArray(parsed)) return { blocks: parsed, doc: {} }
+  if (Array.isArray(parsed)) return { blocks: parsed, doc: {} };
   if (parsed && typeof parsed === "object") {
-    const doc = parsed as Record<string, unknown>
-    return { blocks: Array.isArray(doc.blocks) ? doc.blocks : [], doc }
+    const doc = parsed as Record<string, unknown>;
+    return { blocks: Array.isArray(doc.blocks) ? doc.blocks : [], doc };
   }
-  return { blocks: [], doc: {} }
+  return { blocks: [], doc: {} };
 }
 
 /**
@@ -160,42 +189,45 @@ export function parseContentJson(raw: unknown): { blocks: unknown[]; doc: Record
  * for a legacy block the editor never touched.
  */
 export function normalizeBlocks(raw: unknown[]): SiteBlock[] {
-  const seen = new Set<string>()
-  const blocks: SiteBlock[] = []
+  const seen = new Set<string>();
+  const blocks: SiteBlock[] = [];
 
   raw.forEach((entry, index) => {
-    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return
-    const source = { ...(entry as Record<string, unknown>) }
-    const type = inferBlockType(source)
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return;
+    const source = { ...(entry as Record<string, unknown>) };
+    const type = inferBlockType(source);
 
-    let id = typeof source.id === "string" && source.id.trim() ? source.id : `block-${index + 1}`
-    while (seen.has(id)) id = `${id}-copy`
-    seen.add(id)
+    let id =
+      typeof source.id === "string" && source.id.trim()
+        ? source.id
+        : `block-${index + 1}`;
+    while (seen.has(id)) id = `${id}-copy`;
+    seen.add(id);
 
     for (const field of REQUIRED_STRING_FIELDS[type] ?? []) {
-      if (!hasStringField(source, field)) source[field] = ""
+      if (!hasStringField(source, field)) source[field] = "";
     }
 
-    blocks.push({ ...source, id, type, schemaVersion: 1 } as SiteBlock)
-  })
+    blocks.push({ ...source, id, type, schemaVersion: 1 } as SiteBlock);
+  });
 
-  return blocks
+  return blocks;
 }
 
 // --- FAQ / branch rows (Decision 3: item pages are row-backed) ---
 
-export type ItemMode = "faq" | "contact"
+export type ItemMode = "faq" | "contact";
 
 /** One row of faq_items / contact_branches, normalized for the editor. */
 export type ItemRow = {
-  id: string
-  display_order: number
-  is_active: boolean
-  [field: string]: unknown
-}
+  id: string;
+  display_order: number;
+  is_active: boolean;
+  [field: string]: unknown;
+};
 
 export function newRowDraft(mode: ItemMode, zh: boolean): ItemRow {
-  const base = { id: "", display_order: 0, is_active: true }
+  const base = { id: "", display_order: 0, is_active: true };
   if (mode === "faq") {
     return {
       ...base,
@@ -206,7 +238,7 @@ export function newRowDraft(mode: ItemMode, zh: boolean): ItemRow {
       answer_html_zh_tw: null,
       answer_html_zh_cn: null,
       images: [] as BlockImage[],
-    }
+    };
   }
   return {
     ...base,
@@ -221,17 +253,20 @@ export function newRowDraft(mode: ItemMode, zh: boolean): ItemRow {
     hours_zh_cn: null,
     image_url: "",
     map_query: "",
-  }
+  };
 }
 
 /** API row -> editor row. */
 export function rowFromApi(raw: unknown, mode: ItemMode): ItemRow {
-  const record = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>
+  const record = (raw && typeof raw === "object" ? raw : {}) as Record<
+    string,
+    unknown
+  >;
   const base = {
     id: record.id != null ? String(record.id) : "",
     display_order: readNumber(record, "display_order"),
     is_active: Boolean(record.is_active),
-  }
+  };
   if (mode === "faq") {
     return {
       ...base,
@@ -242,7 +277,7 @@ export function rowFromApi(raw: unknown, mode: ItemMode): ItemRow {
       answer_html_zh_tw: readNullable(record, "answer_html_zh_tw"),
       answer_html_zh_cn: readNullable(record, "answer_html_zh_cn"),
       images: readImages(record),
-    }
+    };
   }
   return {
     ...base,
@@ -257,12 +292,12 @@ export function rowFromApi(raw: unknown, mode: ItemMode): ItemRow {
     hours_zh_cn: readNullable(record, "hours_zh_cn"),
     image_url: readText(record, "image_url"),
     map_query: readText(record, "map_query"),
-  }
+  };
 }
 
 /** Editor row -> the block shape the shared renderer and element forms expect. */
 export function rowAsBlock(row: ItemRow, mode: ItemMode): SiteBlock {
-  const elementId = Number(row.id)
+  const elementId = Number(row.id);
   if (mode === "faq") {
     return {
       id: `faq-${row.id}`,
@@ -278,7 +313,7 @@ export function rowAsBlock(row: ItemRow, mode: ItemMode): SiteBlock {
       images: readImages(row),
       display_order: row.display_order,
       is_active: row.is_active,
-    }
+    };
   }
   return {
     id: `branch-${row.id}`,
@@ -298,12 +333,16 @@ export function rowAsBlock(row: ItemRow, mode: ItemMode): SiteBlock {
     map_query: readText(row, "map_query"),
     display_order: row.display_order,
     is_active: row.is_active,
-  }
+  };
 }
 
 /** Editor row -> POST/PATCH body. Create omits display_order so the API appends. */
-export function rowPayload(row: ItemRow, mode: ItemMode, options: { includeOrder?: boolean } = {}): Record<string, unknown> {
-  const images = cleanImages(readImages(row))
+export function rowPayload(
+  row: ItemRow,
+  mode: ItemMode,
+  options: { includeOrder?: boolean } = {},
+): Record<string, unknown> {
+  const images = cleanImages(readImages(row));
   const fields =
     mode === "faq"
       ? {
@@ -327,18 +366,20 @@ export function rowPayload(row: ItemRow, mode: ItemMode, options: { includeOrder
           hours_zh_cn: readNullable(row, "hours_zh_cn"),
           image_url: readText(row, "image_url"),
           map_query: readText(row, "map_query"),
-        }
+        };
 
   return {
     ...fields,
-    ...(options.includeOrder === false ? {} : { display_order: row.display_order }),
+    ...(options.includeOrder === false
+      ? {}
+      : { display_order: row.display_order }),
     is_active: row.is_active,
-  }
+  };
 }
 
 /** Seeded convention (Decision 8): display_order < 100 -> parents tab. */
 export function audienceFor(displayOrder: number): "parents" | "centres" {
-  return Number(displayOrder) < 100 ? "parents" : "centres"
+  return Number(displayOrder) < 100 ? "parents" : "centres";
 }
 
 /**
@@ -346,29 +387,41 @@ export function audienceFor(displayOrder: number): "parents" | "centres" {
  * the public renderer (broken <img>) or the API (rejects an empty src).
  */
 export function sanitizeBlock(block: SiteBlock): SiteBlock {
-  if (block.type !== "faq_item") return block
-  const images = cleanImages(block.images)
-  return { ...block, images: images.length ? images : null }
+  if (block.type !== "faq_item") return block;
+  const images = cleanImages(block.images);
+  return { ...block, images: images.length ? images : null };
 }
 
 // --- Page meta ---
 
-export type PageEditorKey = "about" | "terms" | "privacy" | "faq" | "contact"
-export type PageEditorMode = "blocks" | "items"
+export type PageEditorKey =
+  "landing" | "about" | "terms" | "privacy" | "faq" | "contact";
+export type PageEditorMode = "blocks" | "items";
 
 export type PageMeta = {
-  mode: PageEditorMode
+  mode: PageEditorMode;
   /** Null for the three block pages. */
-  itemMode: ItemMode | null
+  itemMode: ItemMode | null;
   /** Public route, for the "view page" link. */
-  publicPath: string
-  titleZh: string
-  titleEn: string
-  descriptionZh: string
-  descriptionEn: string
-}
+  publicPath: string;
+  titleZh: string;
+  titleEn: string;
+  descriptionZh: string;
+  descriptionEn: string;
+};
 
 export const PAGE_META: Record<PageEditorKey, PageMeta> = {
+  landing: {
+    mode: "blocks",
+    itemMode: null,
+    publicPath: "/",
+    titleZh: "首頁",
+    titleEn: "Landing page",
+    descriptionZh:
+      "編輯首頁各區塊文字，右側即時預覽。未填寫的區塊會使用預設文案。",
+    descriptionEn:
+      "Edit the landing sections with a live preview. Sections left empty fall back to the default copy.",
+  },
   about: {
     mode: "blocks",
     itemMode: null,
@@ -414,4 +467,4 @@ export const PAGE_META: Record<PageEditorKey, PageMeta> = {
     descriptionZh: "每個分店是一行資料，儲存後即時生效。",
     descriptionEn: "Each branch is its own row and saves on its own.",
   },
-}
+};

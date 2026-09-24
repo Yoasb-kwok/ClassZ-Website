@@ -1,6 +1,7 @@
 import { generateMetadata } from "@/lib/metadata";
 import { isRegularCourseType, isWorkshopCourseType } from "@/lib/course-types";
 import { getPublicCourses, getPublicCourse } from "@/lib/public-courses";
+import { fetchSitePage, landingOverridesFromBlocks } from "@/lib/site-pages";
 import { MarketplaceLanding } from "@/components/programs/marketplace-landing";
 
 export const metadata = generateMetadata({
@@ -10,8 +11,13 @@ export const metadata = generateMetadata({
   url: "/",
 });
 
+export const revalidate = 60;
+
 export default async function Home() {
-  const courses = await getPublicCourses();
+  const [courses, landingPage] = await Promise.all([
+    getPublicCourses(),
+    fetchSitePage("landing"),
+  ]);
   const programs = courses.filter((c) => isRegularCourseType(c.course_type));
   const workshops = courses.filter((c) => isWorkshopCourseType(c.course_type));
 
@@ -31,6 +37,10 @@ export default async function Home() {
       programs={programs}
       workshops={workshops}
       prices={prices}
+      cms={{
+        en: landingOverridesFromBlocks(landingPage.blocks, "en"),
+        zhTw: landingOverridesFromBlocks(landingPage.blocks, "zh-TW"),
+      }}
     />
   );
 }

@@ -16,6 +16,7 @@ import {
   HelpCircle,
   ScrollText,
   Shield,
+  Home,
 } from "lucide-react";
 
 export type AdminNavItem = {
@@ -110,6 +111,12 @@ export function getAdminNavGroups(): AdminNavGroup[] {
         // adminCourseIntroController is unmounted, so this form only ever wrote to
         // the local demo store. Restore it as course data (per-programme rows via a
         // follow-up ADR), not as a generic title+HTML page.
+        {
+          path: "/admin/cms/landing",
+          labelZh: "首頁",
+          labelEn: "Landing",
+          icon: Home,
+        },
         {
           path: "/admin/cms/news",
           labelZh: "最新消息",

@@ -6,9 +6,15 @@ import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import type { PublicCourse } from "@/lib/public-courses";
+import type { LandingCmsOverrides } from "@/lib/site-pages";
 import { ProgramCard } from "@/components/programs/program-card";
 
 const outfit = Outfit({ weight: "700", subsets: ["latin"] });
+
+/** Per-locale CMS overrides extracted from cms_pages('landing') on the
+ *  server (lib/site-pages.ts landingOverridesFromBlocks). Missing fields
+ *  fall back to the locale keys. */
+export type LandingCms = { en: LandingCmsOverrides; zhTw: LandingCmsOverrides };
 
 /**
  * Landing from Figma #2346:21370 (2408 capture, 2026-08-24).
@@ -28,14 +34,18 @@ export function MarketplaceLanding({
   programs,
   workshops,
   prices,
+  cms,
 }: {
   programs: PublicCourse[];
   workshops: PublicCourse[];
   /** Per-course real prices (detail-endpoint fetch in app/page.tsx —
    *  the /api/courses list omits `price`); keyed by course id. */
   prices?: Record<number, number>;
+  cms?: LandingCms;
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const o: LandingCmsOverrides =
+    cms && locale === "zh-TW" ? cms.zhTw : (cms?.en ?? {});
 
   return (
     <main className="flex min-h-screen flex-col bg-white text-ink md:gap-[32px] lg:mx-auto lg:max-w-[1440px]">
@@ -127,10 +137,10 @@ export function MarketplaceLanding({
             Title 40/590 leading 48 (h48 = 48/40), subtitle 20/30 w884. */}
         <section className="flex flex-col items-center gap-4 px-6 py-8 text-center md:px-[120px] md:py-[32px] md:gap-[16px]">
           <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
-            {t("landing.introTitle")}
+            {o.introTitle ?? t("landing.introTitle")}
           </h1>
           <p className="max-w-[884px] text-[20px] font-normal leading-[30px] text-ink">
-            {t("landing.introSubtitle")}
+            {o.introSubtitle ?? t("landing.introSubtitle")}
           </p>
         </section>
       </div>
@@ -148,7 +158,7 @@ export function MarketplaceLanding({
               Title 28/590 #000; "See more" 14/400 #5E5E5E (node 21453). */}
           <div className="flex items-end justify-between gap-[10px]">
             <h2 className="text-[28px] font-[weight:590] text-ink">
-              {t("landing.trendingWorkshop")}
+              {o.workshopsHeading ?? t("landing.trendingWorkshop")}
             </h2>
             <Link
               href="/workshops"
@@ -187,7 +197,7 @@ export function MarketplaceLanding({
             <div className="flex min-w-0 flex-1 flex-col gap-[32px]">
               {/* node 2346:21421 — 16/590 #222 */}
               <p className="text-[16px] font-[weight:590] text-ink">
-                {t("landing.introducing")}
+                {o.zpassportEyebrow ?? t("landing.introducing")}
               </p>
               {/* node 2346:21422 — wordmark row: gap 5.78, icon 23.07×30.29
                   + wordmark 226.25×46.93 (existing SVGs, exact height,
@@ -211,7 +221,11 @@ export function MarketplaceLanding({
                   wordmark 95.79×19.87, gap 2.45) sits inline on line 3
                   where the design's leading spaces are. */}
               <p className="whitespace-pre-line text-[18px] leading-[27px] text-ink">
-                {t("landing.zpassportCardLead") + "\n\n"}
+                {
+                  (o.zpassportBody
+                    ? o.zpassportBody + "\n\n"
+                    : t("landing.zpassportCardLead") + "\n\n") as string
+                }
                 <span className="inline-flex translate-y-[3px] items-center gap-[2.45px]">
                   <img
                     src="/landing/zpassport-icon.svg"
@@ -225,8 +239,11 @@ export function MarketplaceLanding({
                     className="h-[19.87px] w-auto"
                   />
                 </span>
-                {" " + t("landing.zpassportCardBody") + "\n\n"}
-                {t("landing.zpassportCardTail")}
+                {" " +
+                  (o.zpassportBody
+                    ? ""
+                    : t("landing.zpassportCardBody") + "\n\n")}
+                {o.zpassportBody ?? t("landing.zpassportCardTail")}
               </p>
             </div>
 
@@ -293,7 +310,7 @@ export function MarketplaceLanding({
               <p
                 className={`${outfit.className} text-[25px] font-bold leading-[38px] text-[#0ABAB5]`}
               >
-                {t("landing.zpassportCardTagline")}
+                {o.zpassportTagline ?? t("landing.zpassportCardTagline")}
               </p>
             </div>
           </div>
@@ -307,7 +324,7 @@ export function MarketplaceLanding({
         <section className="flex flex-col gap-8 px-6 py-8 md:px-[80px] md:py-[32px] md:gap-[32px]">
           <div className="flex items-end justify-between gap-[10px]">
             <h2 className="text-[28px] font-[weight:590] text-ink">
-              {t("landing.newPrograms")}
+              {o.programsHeading ?? t("landing.newPrograms")}
             </h2>
             <Link
               href="/programs"
