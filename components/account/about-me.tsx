@@ -88,15 +88,16 @@ export function AboutMePage() {
     setSaving(true);
     setSaved(false);
     setError(null);
+    const nextLocale = summary?.locale || "en";
     try {
       await apiPatch(
         "/me",
-        { full_name: fullName, address, locale },
+        { full_name: fullName, address, locale: nextLocale },
         "student",
       );
       setSaved(true);
-      if (locale !== (summary?.locale || "en")) {
-        setLocale(locale as "en" | "zh-TW");
+      if (locale !== nextLocale) {
+        setLocale(nextLocale as "en" | "zh-TW");
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");

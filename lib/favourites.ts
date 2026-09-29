@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { apiGet, apiPost } from "@/lib/classz-api-client"
+import { useEffect, useState } from "react";
+import { apiGet, apiPost } from "@/lib/classz-api-client";
 import {
   CLASSZ_SESSION_EVENT,
   getClasszSession,
   type ClasszSession,
-} from "@/lib/classz-auth"
-import { isCourseSaved, toggleCourseSaved } from "@/lib/saved-courses"
+} from "@/lib/classz-auth";
+import { isCourseSaved, toggleCourseSaved } from "@/lib/saved-courses";
 
 /**
  * ADR-006 D8 — favourites as real data.
@@ -17,119 +17,140 @@ import { isCourseSaved, toggleCourseSaved } from "@/lib/saved-courses"
  * the guest course hearts are imported server-side and the old key is cleared.
  */
 
-export type FavItemType = "course" | "centre"
+export type FavItemType = "course" | "centre";
 
-const GUEST_CENTRE_KEY = "classz_favourite_centres:guest"
-const IMPORT_FLAG = "classz_favourites_imported"
-const FAV_EVENT = "classz-favourites-changed"
+const GUEST_CENTRE_KEY = "classz_favourite_centres:guest";
+const GUEST_COURSE_KEY = "classz_saved_courses:guest";
+const IMPORT_FLAG = "classz_favourites_imported";
+const FAV_EVENT = "classz-favourites-changed";
 
-type Cache = { ids: Set<string>; loaded: boolean }
-let cache: Cache = { ids: new Set(), loaded: false }
-let loading: Promise<void> | null = null
+type Cache = { ids: Set<string>; loaded: boolean };
+let cache: Cache = { ids: new Set(), loaded: false };
+let loading: Promise<void> | null = null;
 
 function keyOf(type: FavItemType, id: number) {
-  return `${type}:${id}`
+  return `${type}:${id}`;
 }
 
 function emitChange() {
-  if (typeof window !== "undefined") window.dispatchEvent(new Event(FAV_EVENT))
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(FAV_EVENT));
 }
 
 function readGuestCentreIds(): number[] {
-  if (typeof window === "undefined") return []
+  if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(GUEST_CENTRE_KEY)
-    const parsed = raw ? (JSON.parse(raw) as unknown) : []
+    const raw = window.localStorage.getItem(GUEST_CENTRE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
     return Array.isArray(parsed)
       ? parsed.map(Number).filter((n) => Number.isInteger(n) && n > 0)
-      : []
+      : [];
   } catch {
-    return []
+    return [];
   }
 }
 
 function readSavedCourseIds(): number[] {
   // The old saved-courses key (per email or guest) — used for the one-time merge.
-  if (typeof window === "undefined") return []
+  if (typeof window === "undefined") return [];
   try {
-    const session = getClasszSession()
-    const email = session?.user?.email?.trim().toLowerCase()
-    const key = email ? `classz_saved_courses:${email}` : "classz_saved_courses:guest"
-    const raw = window.localStorage.getItem(key)
-    const parsed = raw ? (JSON.parse(raw) as unknown) : []
+    const session = getClasszSession();
+    const email = session?.user?.email?.trim().toLowerCase();
+    const key = email ? `classz_saved_courses:${email}` : GUEST_COURSE_KEY;
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
     return Array.isArray(parsed)
       ? parsed.map(Number).filter((n) => Number.isInteger(n) && n > 0)
-      : []
+      : [];
   } catch {
-    return []
+    return [];
+  }
+}
+
+function readGuestCourseIds(): number[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(GUEST_COURSE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(parsed)
+      ? parsed.map(Number).filter((n) => Number.isInteger(n) && n > 0)
+      : [];
+  } catch {
+    return [];
   }
 }
 
 function isParent(session: ClasszSession | null): boolean {
-  return !!session && session.user.role === "student"
+  return !!session && session.user.role === "student";
 }
 
 async function importGuestCoursesOnce(ownerEmail: string): Promise<void> {
-  if (typeof window === "undefined") return
-  if (window.localStorage.getItem(IMPORT_FLAG) === ownerEmail) return
-  const ids = readSavedCourseIds()
-  window.localStorage.setItem(IMPORT_FLAG, ownerEmail)
-  if (!ids.length) return
+  if (typeof window === "undefined") return;
+  if (window.localStorage.getItem(IMPORT_FLAG) === ownerEmail) return;
+  // Merge BOTH the per-email key and the pre-login guest key — nobody loses hearts.
+  const emailKey = `classz_saved_courses:${ownerEmail}`;
+  const ids = [...new Set([...readSavedCourseIds(), ...readGuestCourseIds()])];
+  if (!ids.length) {
+    window.localStorage.setItem(IMPORT_FLAG, ownerEmail);
+    return;
+  }
   try {
     await apiPost(
       "/favourites/import",
       { items: ids.map((id) => ({ item_type: "course", item_id: id })) },
       "student",
-    )
-    const key = `classz_saved_courses:${ownerEmail}`
-    window.localStorage.removeItem(key)
-    for (const id of ids) cache.ids.add(keyOf("course", id))
+    );
+    // Only clear/flag after a successful import so a failure retries next load.
+    window.localStorage.setItem(IMPORT_FLAG, ownerEmail);
+    window.localStorage.removeItem(emailKey);
+    window.localStorage.removeItem(GUEST_COURSE_KEY);
+    for (const id of ids) cache.ids.add(keyOf("course", id));
   } catch {
     // Import is best-effort; hearts stay local if the API call fails.
   }
 }
 
 export async function ensureFavouritesLoaded(): Promise<void> {
-  if (cache.loaded) return
-  if (loading) return loading
+  if (cache.loaded) return;
+  if (loading) return loading;
   loading = (async () => {
-    const session = getClasszSession()
+    const session = getClasszSession();
     if (isParent(session)) {
       try {
         const rows = await apiGet<
           Array<{ item_type: FavItemType; item_id: number }>
-        >("/favourites", "student")
-        const next = new Set<string>()
-        for (const row of rows || []) next.add(keyOf(row.item_type, row.item_id))
-        cache = { ids: next, loaded: true }
+        >("/favourites", "student");
+        const next = new Set<string>();
+        for (const row of rows || [])
+          next.add(keyOf(row.item_type, row.item_id));
+        cache = { ids: next, loaded: true };
         await importGuestCoursesOnce(
           (session?.user?.email || "").trim().toLowerCase(),
-        )
+        );
       } catch {
-        cache = { ids: new Set(), loaded: true }
+        cache = { ids: new Set(), loaded: true };
       }
     } else {
-      const next = new Set<string>()
-      for (const id of readSavedCourseIds()) next.add(keyOf("course", id))
-      for (const id of readGuestCentreIds()) next.add(keyOf("centre", id))
-      cache = { ids: next, loaded: true }
+      const next = new Set<string>();
+      for (const id of readSavedCourseIds()) next.add(keyOf("course", id));
+      for (const id of readGuestCentreIds()) next.add(keyOf("centre", id));
+      cache = { ids: next, loaded: true };
     }
-    emitChange()
-  })()
+    emitChange();
+  })();
   try {
-    await loading
+    await loading;
   } finally {
-    loading = null
+    loading = null;
   }
 }
 
 function toggleGuestCentre(id: number): boolean {
-  if (typeof window === "undefined") return false
-  const ids = new Set(readGuestCentreIds())
-  if (ids.has(id)) ids.delete(id)
-  else ids.add(id)
-  window.localStorage.setItem(GUEST_CENTRE_KEY, JSON.stringify([...ids]))
-  return ids.has(id)
+  if (typeof window === "undefined") return false;
+  const ids = new Set(readGuestCentreIds());
+  if (ids.has(id)) ids.delete(id);
+  else ids.add(id);
+  window.localStorage.setItem(GUEST_CENTRE_KEY, JSON.stringify([...ids]));
+  return ids.has(id);
 }
 
 /** Toggle and return the new state. Guest toggles stay local (courses via the
@@ -138,57 +159,57 @@ export async function toggleFavourite(
   type: FavItemType,
   id: number,
 ): Promise<boolean> {
-  const session = getClasszSession()
+  const session = getClasszSession();
   if (isParent(session)) {
     const res = await apiPost<{ favourited: boolean }>(
       "/favourites/toggle",
       { item_type: type, item_id: id },
       "student",
-    )
-    if (res?.favourited) cache.ids.add(keyOf(type, id))
-    else cache.ids.delete(keyOf(type, id))
-    emitChange()
-    return !!res?.favourited
+    );
+    if (res?.favourited) cache.ids.add(keyOf(type, id));
+    else cache.ids.delete(keyOf(type, id));
+    emitChange();
+    return !!res?.favourited;
   }
   if (type === "course") {
-    const next = toggleCourseSaved(id)
-    if (next) cache.ids.add(keyOf(type, id))
-    else cache.ids.delete(keyOf(type, id))
-    emitChange()
-    return next
+    const next = toggleCourseSaved(id);
+    if (next) cache.ids.add(keyOf(type, id));
+    else cache.ids.delete(keyOf(type, id));
+    emitChange();
+    return next;
   }
-  const next = toggleGuestCentre(id)
-  if (next) cache.ids.add(keyOf(type, id))
-  else cache.ids.delete(keyOf(type, id))
-  emitChange()
-  return next
+  const next = toggleGuestCentre(id);
+  if (next) cache.ids.add(keyOf(type, id));
+  else cache.ids.delete(keyOf(type, id));
+  emitChange();
+  return next;
 }
 
 /** Reactive hook — true when the item is hearted by the current visitor. */
 export function useIsFavourited(type: FavItemType, id: number): boolean {
-  const [favourited, setFavourited] = useState(false)
+  const [favourited, setFavourited] = useState(false);
 
   useEffect(() => {
-    let alive = true
+    let alive = true;
     const sync = () => {
-      if (alive) setFavourited(cache.ids.has(keyOf(type, id)))
-    }
-    sync()
-    ensureFavouritesLoaded().then(sync)
-    window.addEventListener(FAV_EVENT, sync)
-    window.addEventListener(CLASSZ_SESSION_EVENT, sync)
+      if (alive) setFavourited(cache.ids.has(keyOf(type, id)));
+    };
+    sync();
+    ensureFavouritesLoaded().then(sync);
+    window.addEventListener(FAV_EVENT, sync);
+    window.addEventListener(CLASSZ_SESSION_EVENT, sync);
     return () => {
-      alive = false
-      window.removeEventListener(FAV_EVENT, sync)
-      window.removeEventListener(CLASSZ_SESSION_EVENT, sync)
-    }
-  }, [type, id])
+      alive = false;
+      window.removeEventListener(FAV_EVENT, sync);
+      window.removeEventListener(CLASSZ_SESSION_EVENT, sync);
+    };
+  }, [type, id]);
 
-  return favourited
+  return favourited;
 }
 
 /** Force a reload from the API (e.g. after login/logout or on list pages). */
 export function refreshFavourites(): void {
-  cache = { ids: new Set(), loaded: false }
-  ensureFavouritesLoaded()
+  cache = { ids: new Set(), loaded: false };
+  ensureFavouritesLoaded();
 }
