@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { CircleCheck, Heart, MapPin, Star } from "lucide-react";
+import { CircleCheck, MapPin, Star } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { FavouriteButton } from "@/components/favourite-button";
 import { formatTemplate } from "@/components/programs/format";
 import { districtLabel } from "@/lib/locations";
 import type { Centre } from "@/lib/centre-data";
@@ -108,19 +109,13 @@ export function CentreCard({
                   </span>
                 </div>
               </div>
-              {/* Heart (workshop `3866:17617`) — scaled UP from the design's
-                  23.33/19.44×17.33 to 27.23/22.69×20.23 #BDBDBD/2.26
-                  (user 2026-08-26: "even bigger"). */}
-              <span
-                aria-hidden
+              {/* Heart (workshop `3866:17617`) — LIVE favourite toggle
+                  (ADR-006 D8): was a static grey placeholder span. */}
+              <FavouriteButton
+                type="centre"
+                id={centre.id}
                 className="flex h-[27.23px] w-[27.23px] shrink-0 items-center justify-center"
-              >
-                <Heart
-                  className="h-[20.23px] w-[22.69px] text-[#BDBDBD]"
-                  strokeWidth={2.26}
-                  fill="none"
-                />
-              </span>
+              />
             </div>
 
             {/* Middle (live `3866:17758` col gap 10) — age 14 #5E5E5E,
@@ -133,9 +128,14 @@ export function CentreCard({
               <p className="text-[14px] leading-[17px] text-[#5E5E5E]">
                 {centre.category
                   ? locale === "zh-TW"
-                    ? (CENTRE_CATEGORIES.find((c) => c.value === centre.category)?.zh || centre.category)
-                    : (CENTRE_CATEGORIES.find((c) => c.value === centre.category)?.en || centre.category)
-                  : t("programs.ageLabel").replace("{age}", centre.ageTag || "—")}
+                    ? CENTRE_CATEGORIES.find((c) => c.value === centre.category)
+                        ?.zh || centre.category
+                    : CENTRE_CATEGORIES.find((c) => c.value === centre.category)
+                        ?.en || centre.category
+                  : t("programs.ageLabel").replace(
+                      "{age}",
+                      centre.ageTag || "—",
+                    )}
               </p>
               <div className="flex items-center gap-1">
                 <MapPin
@@ -182,13 +182,10 @@ export function CentreCard({
             </span>
           </span>
         ) : null}
-        <Heart
-          aria-hidden
-          strokeWidth={2.27}
-          fill="#222222"
-          fillOpacity={0.3}
-          stroke="#FFFFFF"
-          className="absolute right-[18.16px] top-[18.16px] h-[27.23px] w-[27.23px] text-white transition-all duration-200 group-hover:right-[20.41px] group-hover:top-[20.41px] group-hover:h-[30.62px] group-hover:w-[30.62px]"
+        <FavouriteButton
+          type="centre"
+          id={centre.id}
+          className="absolute right-[18.16px] top-[18.16px] flex h-[27.23px] w-[27.23px] items-center justify-center transition-all duration-200 group-hover:right-[20.41px] group-hover:top-[20.41px] group-hover:h-[30.62px] group-hover:w-[30.62px]"
         />
       </div>
 

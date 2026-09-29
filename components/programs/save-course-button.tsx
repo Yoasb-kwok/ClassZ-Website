@@ -3,17 +3,23 @@
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { CLASSZ_SESSION_EVENT } from "@/lib/classz-auth";
-import { isCourseSaved, toggleCourseSaved } from "@/lib/saved-courses";
+import { toggleFavourite, useIsFavourited } from "@/lib/favourites";
 
+/**
+ * ADR-006 D8 — the course heart now reads/writes the favourites API when the
+ * visitor is a logged-in parent; guests keep the localStorage behaviour
+ * (handled inside lib/favourites). One-time guest → account merge happens on
+ * the first authenticated load (lib/favourites).
+ */
 export function SaveCourseButton({ courseId }: { courseId: number }) {
-  const [saved, setSaved] = useState(false);
+  const saved = useIsFavourited("course", courseId);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    const sync = () => setSaved(isCourseSaved(courseId));
-    sync();
+    const sync = () => setPending(false);
     window.addEventListener(CLASSZ_SESSION_EVENT, sync);
     return () => window.removeEventListener(CLASSZ_SESSION_EVENT, sync);
-  }, [courseId]);
+  }, []);
 
   return (
     <button
@@ -24,7 +30,11 @@ export function SaveCourseButton({ courseId }: { courseId: number }) {
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        setSaved(toggleCourseSaved(courseId));
+        if (pending) return;
+        setPending(true);
+        void toggleFavourite("course", courseId).finally(() =>
+          setPending(false),
+        );
       }}
       className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm"
     >

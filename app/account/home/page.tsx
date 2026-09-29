@@ -1,7 +1,6 @@
-"use client"
+import { redirect } from "next/navigation";
 
-import { PersonalInfoCard } from "@/components/account/personal-info-card"
-
+/** ADR-006 D9 — the old landing retires; the Profile section replaces it. */
 export default function AccountHomePage() {
-  return <PersonalInfoCard />
+  redirect("/account/profile");
 }

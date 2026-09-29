@@ -1081,6 +1081,99 @@
       "deleteFailed": "無法刪除帳戶，請重試。"
     }
   },
+  "account": {
+    "loading": "載入中…",
+    "loadFailed": "無法載入此頁面。",
+    "comingSoon": "即將推出",
+    "cancel": "取消",
+    "save": "儲存",
+    "saved": "已儲存",
+    "uploading": "上傳中…",
+    "sidebar": {
+      "title": "個人檔案",
+      "aboutMe": "關於我",
+      "childProfile": "子女檔案",
+      "transactions": "交易紀錄",
+      "favorites": "收藏",
+      "helpCentre": "支援中心",
+      "deleteAccount": "刪除帳戶",
+      "logOut": "登出"
+    },
+    "aboutMe": {
+      "hello": "你好，{name}！",
+      "children": "子女數目",
+      "bookings": "預約次數",
+      "years": "加入 ClassZ 年資",
+      "personalInfo": "個人資料",
+      "changePhoto": "更換相片",
+      "fullName": "全名",
+      "email": "電郵地址",
+      "verified": "已驗證",
+      "address": "地址",
+      "phone": "電話",
+      "verify": "驗證",
+      "language": "語言"
+    },
+    "children": {
+      "addTitle": "新增子女檔案",
+      "editTitle": "編輯子女檔案",
+      "add": "新增",
+      "empty": "尚未有任何子女檔案，立即新增第一位子女。",
+      "fullName": "全名",
+      "idNumber": "身份證號碼",
+      "birthday": "出生日期",
+      "sex": "性別",
+      "male": "男",
+      "female": "女",
+      "emergencyContact": "緊急聯絡人",
+      "contactName": "聯絡人姓名",
+      "contactPhone": "電話號碼",
+      "zschool": "Zschool",
+      "connected": "已連結",
+      "notConnected": "未連結",
+      "senRequired": "需要 SEN 支援",
+      "yearsOnClassz": "加入 ClassZ {n} 年",
+      "age": "{n} 歲"
+    },
+    "transactions": {
+      "savedMethod": "已儲存的付款方式",
+      "addMethod": "新增付款方式",
+      "noMethods": "尚未儲存任何信用卡。",
+      "removeMethod": "移除信用卡",
+      "default": "預設",
+      "searchPlaceholder": "搜尋",
+      "statusFilter": "狀態",
+      "empty": "沒有符合的交易紀錄。",
+      "lessons": "{n} 堂",
+      "by": "導師：{name}",
+      "status": {
+        "all": "全部",
+        "pending": "待付款",
+        "successful": "付款成功",
+        "refunded": "已退款",
+        "failed": "失敗"
+      },
+      "promocodes": "優惠碼",
+      "promoPlaceholder": "輸入優惠碼",
+      "promoClaim": "兌換",
+      "promoClaimed": "優惠碼已兌換。",
+      "noPromos": "你尚未持有任何優惠碼。",
+      "validUntil": "有效期至",
+      "promoStatus": {
+        "available": "可用",
+        "used": "已使用",
+        "expired": "已過期"
+      }
+    },
+    "favorites": {
+      "empty": "收藏清單是空的——在任何課程、工作坊、試堂或中心點擊紅心即可收藏。",
+      "remove": "從收藏移除",
+      "program": "課程",
+      "workshop": "工作坊",
+      "trial": "試堂",
+      "centre": "中心"
+    }
+  },
   "centres": {
     "recommendedProgram": "推薦課程",
     "excludeStars": "排除 {n}★ 中心",

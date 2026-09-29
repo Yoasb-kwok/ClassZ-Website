@@ -1,7 +1,5 @@
-"use client"
-
-import { StudentProfilePage } from "@/components/account/student-shell"
+import { AboutMePage } from "@/components/account/about-me";
 
 export default function Page() {
-  return <StudentProfilePage />
+  return <AboutMePage />;
 }

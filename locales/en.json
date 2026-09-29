@@ -1086,6 +1086,99 @@
       "deleteFailed": "Failed to delete account. Please try again."
     }
   },
+  "account": {
+    "loading": "Loading…",
+    "loadFailed": "Could not load this page.",
+    "comingSoon": "Coming soon",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saved": "Saved",
+    "uploading": "Uploading…",
+    "sidebar": {
+      "title": "Profile",
+      "aboutMe": "About me",
+      "childProfile": "Child profile",
+      "transactions": "Transactions",
+      "favorites": "Favorites",
+      "helpCentre": "Help centre",
+      "deleteAccount": "Delete account",
+      "logOut": "Log Out"
+    },
+    "aboutMe": {
+      "hello": "Hello, {name}!",
+      "children": "Children",
+      "bookings": "Bookings",
+      "years": "Years on ClassZ",
+      "personalInfo": "Personal information",
+      "changePhoto": "Change photo",
+      "fullName": "Full name",
+      "email": "Email address",
+      "verified": "Verified",
+      "address": "Address",
+      "phone": "Phone",
+      "verify": "Verify",
+      "language": "Language"
+    },
+    "children": {
+      "addTitle": "Add child profile",
+      "editTitle": "Edit child profile",
+      "add": "Add",
+      "empty": "No child profiles yet. Add your first child to get started.",
+      "fullName": "Full name",
+      "idNumber": "ID card number",
+      "birthday": "Birthday",
+      "sex": "Sex",
+      "male": "Male",
+      "female": "Female",
+      "emergencyContact": "Emergency contact",
+      "contactName": "Contact name",
+      "contactPhone": "Phone number",
+      "zschool": "Zschool",
+      "connected": "connected",
+      "notConnected": "not connected",
+      "senRequired": "Required SEN assistance",
+      "yearsOnClassz": "{n} years on ClassZ",
+      "age": "Age {n}"
+    },
+    "transactions": {
+      "savedMethod": "Saved payment method",
+      "addMethod": "Add payment method",
+      "noMethods": "No saved cards yet.",
+      "removeMethod": "Remove card",
+      "default": "Default",
+      "searchPlaceholder": "Search",
+      "statusFilter": "Status",
+      "empty": "No transactions found.",
+      "lessons": "{n} lessons",
+      "by": "by {name}",
+      "status": {
+        "all": "All",
+        "pending": "Payment pending",
+        "successful": "Payment successful",
+        "refunded": "Refunded",
+        "failed": "Failed"
+      },
+      "promocodes": "Promocodes",
+      "promoPlaceholder": "Enter a promocode",
+      "promoClaim": "Claim",
+      "promoClaimed": "Promocode claimed.",
+      "noPromos": "You don't have any promocodes yet.",
+      "validUntil": "Valid until",
+      "promoStatus": {
+        "available": "Available",
+        "used": "Used",
+        "expired": "Expired"
+      }
+    },
+    "favorites": {
+      "empty": "Nothing in your favorites yet — tap the heart on any program, workshop, trial or centre.",
+      "remove": "Remove from favorites",
+      "program": "Program",
+      "workshop": "Workshop",
+      "trial": "Trial lesson",
+      "centre": "Centre"
+    }
+  },
   "centres": {
     "recommendedProgram": "Recommended Program",
     "excludeStars": "Exclude {n}★ centres",

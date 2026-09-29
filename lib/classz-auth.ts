@@ -1,125 +1,138 @@
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from "jwt-decode";
 
-export const CLASSZ_SESSION_KEY = "classz_session"
-const CLASSZ_MODULES_KEY = "classz_enabled_modules"
+export const CLASSZ_SESSION_KEY = "classz_session";
+const CLASSZ_MODULES_KEY = "classz_enabled_modules";
 
-export type ClasszPortalRole = "platform_admin" | "center_admin" | "coach" | "student"
+export type ClasszPortalRole =
+  "platform_admin" | "center_admin" | "coach" | "student";
 
-export function homePathForRole(role: ClasszPortalRole | string | null | undefined): string {
-  return role === "student" ? "/account/home" : "/admin"
+export function homePathForRole(
+  role: ClasszPortalRole | string | null | undefined,
+): string {
+  // ADR-006 D9 — parents land on the new Profile "About me" page.
+  return role === "student" ? "/account/profile" : "/admin";
 }
 
 export type ClasszSession = {
-  token: string
+  token: string;
   user: {
-    email: string
-    name: string
-    role: ClasszPortalRole
-    roleLabel: string
-    center_id?: number | null
-  }
-}
+    email: string;
+    name: string;
+    role: ClasszPortalRole;
+    roleLabel: string;
+    center_id?: number | null;
+  };
+};
 
-const USE_DEMO = process.env.NEXT_PUBLIC_CLASSZ_USE_DEMO === "1"
+const USE_DEMO = process.env.NEXT_PUBLIC_CLASSZ_USE_DEMO === "1";
 
 const DEMO_USERS: Record<
   string,
   { password: string; name: string; role: ClasszPortalRole; roleLabel: string }
-> = {}
+> = {};
 
 export function roleLabelFor(role: ClasszPortalRole): string {
-  if (role === "platform_admin") return "平台"
-  if (role === "center_admin") return "中心"
-  if (role === "student") return "家長／學員"
-  return "導師"
+  if (role === "platform_admin") return "平台";
+  if (role === "center_admin") return "中心";
+  if (role === "student") return "家長／學員";
+  return "導師";
 }
 
 export function getClasszSession(): ClasszSession | null {
-  if (typeof window === "undefined") return null
-  const raw = localStorage.getItem(CLASSZ_SESSION_KEY)
-  if (!raw) return null
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(CLASSZ_SESSION_KEY);
+  if (!raw) return null;
   try {
-    return JSON.parse(raw) as ClasszSession
+    return JSON.parse(raw) as ClasszSession;
   } catch {
-    return null
+    return null;
   }
 }
 
-export const CLASSZ_SESSION_EVENT = "classz-session-changed"
+export const CLASSZ_SESSION_EVENT = "classz-session-changed";
 
 function notifySessionChanged() {
-  if (typeof window === "undefined") return
-  window.dispatchEvent(new Event(CLASSZ_SESSION_EVENT))
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(CLASSZ_SESSION_EVENT));
 }
 
 export function setClasszSession(session: ClasszSession) {
-  localStorage.setItem(CLASSZ_SESSION_KEY, JSON.stringify(session))
-  notifySessionChanged()
+  localStorage.setItem(CLASSZ_SESSION_KEY, JSON.stringify(session));
+  notifySessionChanged();
 }
 
 export function clearClasszSession() {
-  localStorage.removeItem(CLASSZ_SESSION_KEY)
+  localStorage.removeItem(CLASSZ_SESSION_KEY);
   try {
-    sessionStorage.removeItem(CLASSZ_MODULES_KEY)
+    sessionStorage.removeItem(CLASSZ_MODULES_KEY);
   } catch {
     /* ignore */
   }
-  notifySessionChanged()
+  notifySessionChanged();
 }
 
 export function readCachedModules(token: string): string[] | null {
-  if (typeof window === "undefined" || !token) return null
+  if (typeof window === "undefined" || !token) return null;
   try {
-    const raw = sessionStorage.getItem(CLASSZ_MODULES_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as { token?: string; modules?: string[] }
-    if (parsed.token !== token || !Array.isArray(parsed.modules)) return null
-    return parsed.modules
+    const raw = sessionStorage.getItem(CLASSZ_MODULES_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { token?: string; modules?: string[] };
+    if (parsed.token !== token || !Array.isArray(parsed.modules)) return null;
+    return parsed.modules;
   } catch {
-    return null
+    return null;
   }
 }
 
 export function writeCachedModules(token: string, modules: string[]) {
-  if (typeof window === "undefined" || !token) return
+  if (typeof window === "undefined" || !token) return;
   try {
-    sessionStorage.setItem(CLASSZ_MODULES_KEY, JSON.stringify({ token, modules }))
+    sessionStorage.setItem(
+      CLASSZ_MODULES_KEY,
+      JSON.stringify({ token, modules }),
+    );
   } catch {
     /* ignore */
   }
 }
 
 async function prefetchEnabledModules(token: string, role: ClasszPortalRole) {
-  const prefix = role === "platform_admin" ? "/admin" : "/center"
+  const prefix = role === "platform_admin" ? "/admin" : "/center";
   try {
     const res = await fetch(`/api${prefix}/me/modules`, {
       headers: { Authorization: `Bearer ${token}` },
-    })
-    const body = (await res.json().catch(() => ({}))) as { success?: boolean; data?: { modules?: string[] } }
-    const modules = body?.success && Array.isArray(body.data?.modules) ? body.data.modules : []
-    writeCachedModules(token, modules)
+    });
+    const body = (await res.json().catch(() => ({}))) as {
+      success?: boolean;
+      data?: { modules?: string[] };
+    };
+    const modules =
+      body?.success && Array.isArray(body.data?.modules)
+        ? body.data.modules
+        : [];
+    writeCachedModules(token, modules);
   } catch {
-    writeCachedModules(token, [])
+    writeCachedModules(token, []);
   }
 }
 
 function mapJwtRole(payload: {
-  role?: string
-  portal?: string
-  is_admin?: number
+  role?: string;
+  portal?: string;
+  is_admin?: number;
 }): ClasszPortalRole {
-  if (Number(payload.is_admin) === 1) return "platform_admin"
-  const p = String(payload.portal || "").toLowerCase()
-  if (p === "platform_admin") return "platform_admin"
-  if (p === "coach") return "coach"
-  if (p === "center_admin") return "center_admin"
-  if (p === "student") return "student"
-  const r = String(payload.role || "").toLowerCase()
-  if (r === "admin" || r === "platform_admin") return "platform_admin"
-  if (r === "coach") return "coach"
-  if (r === "center_admin") return "center_admin"
-  if (r === "student" || r === "parent") return "student"
-  return "center_admin"
+  if (Number(payload.is_admin) === 1) return "platform_admin";
+  const p = String(payload.portal || "").toLowerCase();
+  if (p === "platform_admin") return "platform_admin";
+  if (p === "coach") return "coach";
+  if (p === "center_admin") return "center_admin";
+  if (p === "student") return "student";
+  const r = String(payload.role || "").toLowerCase();
+  if (r === "admin" || r === "platform_admin") return "platform_admin";
+  if (r === "coach") return "coach";
+  if (r === "center_admin") return "center_admin";
+  if (r === "student" || r === "parent") return "student";
+  return "center_admin";
 }
 
 async function loginViaProxy(loginIdentifier: string, password: string) {
@@ -131,49 +144,54 @@ async function loginViaProxy(loginIdentifier: string, password: string) {
       password,
       rememberMe: true,
     }),
-  })
+  });
   const data = (await res.json()) as {
-    success?: boolean
-    msg?: string
-    message?: string
-    token?: string
-    user?: { email?: string; name?: string; ID?: number; id?: number }
-  }
+    success?: boolean;
+    msg?: string;
+    message?: string;
+    token?: string;
+    user?: { email?: string; name?: string; ID?: number; id?: number };
+  };
   if (!res.ok || !data.success || !data.token) {
-    const err = new Error(data.msg || data.message || "Login failed") as Error & { status?: number }
-    err.status = res.status
-    throw err
+    const err = new Error(
+      data.msg || data.message || "Login failed",
+    ) as Error & { status?: number };
+    err.status = res.status;
+    throw err;
   }
-  return data
+  return data;
 }
 
 export function isDemoTokenSession(): boolean {
-  const s = getClasszSession()
-  return !s?.token || s.token === "demo-classz-token"
+  const s = getClasszSession();
+  return !s?.token || s.token === "demo-classz-token";
 }
 
-export async function classzSignIn(loginIdentifier: string, password: string): Promise<void> {
-  const id = loginIdentifier.trim().toLowerCase()
+export async function classzSignIn(
+  loginIdentifier: string,
+  password: string,
+): Promise<void> {
+  const id = loginIdentifier.trim().toLowerCase();
 
   if (!USE_DEMO) {
     try {
-      const data = await loginViaProxy(loginIdentifier, password)
+      const data = await loginViaProxy(loginIdentifier, password);
       const payload = jwtDecode<{
-        role?: string
-        portal?: string
-        role_label?: string
-        is_admin?: number
-        email?: string
-        name?: string
-        center_id?: number
-      }>(data.token!)
-      const role = mapJwtRole(payload)
-      const email = data.user?.email || payload.email || loginIdentifier.trim()
+        role?: string;
+        portal?: string;
+        role_label?: string;
+        is_admin?: number;
+        email?: string;
+        name?: string;
+        center_id?: number;
+      }>(data.token!);
+      const role = mapJwtRole(payload);
+      const email = data.user?.email || payload.email || loginIdentifier.trim();
       const name =
         data.user?.name ||
         payload.name ||
         (data.user as { username?: string })?.username ||
-        email
+        email;
       setClasszSession({
         token: data.token!,
         user: {
@@ -183,21 +201,21 @@ export async function classzSignIn(loginIdentifier: string, password: string): P
           roleLabel: payload.role_label || roleLabelFor(role),
           center_id: payload.center_id ?? null,
         },
-      })
-      if (role !== "student") await prefetchEnabledModules(data.token!, role)
-      return
+      });
+      if (role !== "student") await prefetchEnabledModules(data.token!, role);
+      return;
     } catch (e) {
-      const status = (e as Error & { status?: number }).status
+      const status = (e as Error & { status?: number }).status;
       // Do not fall back to demo session when API is down (503) — that breaks /api/admin/* JWT auth.
-      if (status && status !== 401) throw e
-      const demo = DEMO_USERS[id]
-      if (!demo) throw e
+      if (status && status !== 401) throw e;
+      const demo = DEMO_USERS[id];
+      if (!demo) throw e;
     }
   }
 
-  const u = DEMO_USERS[id]
+  const u = DEMO_USERS[id];
   if (!u || u.password !== password) {
-    throw new Error("Invalid email or password")
+    throw new Error("Invalid email or password");
   }
   setClasszSession({
     token: "demo-classz-token",
@@ -207,34 +225,39 @@ export async function classzSignIn(loginIdentifier: string, password: string): P
       role: u.role,
       roleLabel: u.roleLabel,
     },
-  })
+  });
 }
 
 export async function classzRegisterCenterAndSignIn(body: {
-  center_name: string
-  district: string
-  category: string
-  email: string
-  password: string
-  full_name: string
-  mobile: string
+  center_name: string;
+  district: string;
+  category: string;
+  email: string;
+  password: string;
+  full_name: string;
+  mobile: string;
 }): Promise<void> {
   const res = await fetch("/api/public/centers/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  })
+  });
   const data = (await res.json()) as {
-    success?: boolean
-    msg?: string
-    message?: string
-    token?: string
-    user?: { email: string; name: string; role: string; center_id: number }
-  }
+    success?: boolean;
+    msg?: string;
+    message?: string;
+    token?: string;
+    user?: { email: string; name: string; role: string; center_id: number };
+  };
   if (!res.ok || !data.success || !data.token) {
-    throw new Error(data.msg || data.message || "Registration failed")
+    throw new Error(data.msg || data.message || "Registration failed");
   }
-  const payload = jwtDecode<{ role?: string; center_id?: number; email?: string; name?: string }>(data.token)
+  const payload = jwtDecode<{
+    role?: string;
+    center_id?: number;
+    email?: string;
+    name?: string;
+  }>(data.token);
   setClasszSession({
     token: data.token,
     user: {
@@ -244,6 +267,6 @@ export async function classzRegisterCenterAndSignIn(body: {
       roleLabel: roleLabelFor("center_admin"),
       center_id: data.user?.center_id ?? payload.center_id ?? null,
     },
-  })
-  await prefetchEnabledModules(data.token, "center_admin")
+  });
+  await prefetchEnabledModules(data.token, "center_admin");
 }
