@@ -1083,6 +1083,7 @@
   },
   "centres": {
     "recommendedProgram": "推薦課程",
+    "excludeStars": "排除 {n}★ 中心",
     "members": "中心成員",
     "reviews": "評價",
     "location": "地點",
@@ -1115,6 +1116,7 @@
     "schedulesMany": "10+ 個課堂",
     "locationFilter": "地區",
     "dateRange": "日期",
+    "weekdayFilter": "星期",
     "from": "由",
     "to": "至",
     "budget": "價錢",

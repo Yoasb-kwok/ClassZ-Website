@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, MapPin, Search, Star } from "lucide-react";
+import { ChevronDown, MapPin, Star } from "lucide-react";
 import { SaveCourseButton } from "@/components/programs/save-course-button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { useLanguage } from "@/components/language-provider";
 import {
-  HK_ISLAND_DISTRICTS,
-  KOWLOON_DISTRICTS,
-  NEW_TERRITORIES_DISTRICTS,
   findDistrict,
   officialDistrictFrom,
   type District,
@@ -27,6 +24,7 @@ import {
   type PublicClass,
   type PublicCourse,
 } from "@/lib/public-courses";
+import { CheckRow, ListingToolbar, type ToolbarPop } from "./listing-toolbar";
 import { formatTemplate } from "./format";
 
 /**
@@ -37,14 +35,18 @@ import { formatTemplate } from "./format";
  * deltas: r9.14 + shadow (demo-approved) instead of the capture's flat card.
  *
  * Layout:
- * - segmented box [Category | Location | Date Range] connected to the search
- *   bar (#1988:7481 base), aligned to the card grid (974 @1440, pad 48/80)
+ * - segmented box [Category | Location | Date Range (weekday on /programs)]
+ *   connected to the search bar (#1988:7481 base), aligned to the card grid
+ *   (974 @1440, pad 48/80) — shared ListingToolbar chrome
  * - row below: Filter | Budget | Class Size (Filter leftmost per demo it.3)
  * - card list bounded in a gray #F7F7F7 r12 panel (demo it.4)
  *
  * Data honesty (Block B):
  * - Location: REAL (district pills, lib/locations)
- * - Date Range: REAL (PublicClass.start_time → per-course min/max day)
+ * - Date Range: REAL (PublicClass.start_time → per-course min/max day) —
+ *   workshops/trials only; /programs swaps the same slot for a Weekday
+ *   filter (user decision 2026-09-29: recurring programs have no fixed
+ *   dates; union semantics — any selected weekday matches)
  * - Budget/Class Size sorts: REAL (detail-endpoint prices passed in;
  *   class capacity from classes)
  * - Category / star-exclusion / service tags: inert "coming soon" chrome
@@ -79,56 +81,6 @@ function DateBox({
         className="w-full bg-transparent text-[14px] leading-[17px] text-ink focus:outline-none"
       />
     </label>
-  );
-}
-
-/** district pill — filter-sidebar Pill (#3816:21052 chrome) */
-function Pill({
-  district,
-  selected,
-  onToggle,
-}: {
-  district: District;
-  selected: boolean;
-  onToggle: () => void;
-}) {
-  const { locale } = useLanguage();
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onToggle}
-      className={`flex h-[25px] items-center rounded-[4px] px-2 py-1 text-[12px] leading-[14px] text-ink opacity-80 transition-colors ${
-        selected
-          ? "bg-[rgba(10,186,181,0.3)] font-[weight:590]"
-          : "bg-[rgba(34,34,34,0.1)] font-normal hover:bg-[rgba(34,34,34,0.16)]"
-      }`}
-    >
-      {locale === "zh-TW" ? district.zh : district.en}
-    </button>
-  );
-}
-
-/** category checkbox row */
-function CheckRow({
-  label,
-  selected,
-  onToggle,
-}: {
-  label: string;
-  selected?: boolean;
-  onToggle?: () => void;
-}) {
-  return (
-    <button type="button" onClick={onToggle} className="flex items-center gap-5 text-left">
-      <span
-        aria-hidden
-        className={`flex h-4 w-4 items-center justify-center rounded-[4px] border ${
-          selected ? "border-[#0ABAB5] bg-[rgba(10,186,181,0.35)]" : "border-[#B0B0B0] bg-white"
-        }`}
-      />
-      <span className="text-sm leading-[21px] text-ink">{label}</span>
-    </button>
   );
 }
 
@@ -182,7 +134,10 @@ function mostCommon(values: number[]): number | null {
 
 export type ListingVariant = "programs" | "workshops" | "trials";
 
-function matchesListingVariant(courseType: string | null | undefined, variant: ListingVariant) {
+function matchesListingVariant(
+  courseType: string | null | undefined,
+  variant: ListingVariant,
+) {
   if (variant === "workshops") return isWorkshopCourseType(courseType);
   if (variant === "trials") return isTrialCourseType(courseType);
   return isRegularCourseType(courseType);
@@ -205,29 +160,21 @@ export function ProgramsListing({
 }) {
   const { t } = useLanguage();
 
+  const isPrograms = variant === "programs";
+
   const [query, setQuery] = useState("");
   const [districts, setDistricts] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<Set<string>>(new Set());
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  /** Weekday filter (programs variant only) — JS day numbers 0–6, union
+   *  semantics: a program matches when it runs on ANY selected day. */
+  const [weekdays, setWeekdays] = useState<Set<number>>(new Set());
   /** which popover is open — only one at a time (demo behavior) */
-  const [openPop, setOpenPop] = useState<
-    "category" | "location" | "date" | "filter" | null
-  >(null);
+  const [openPop, setOpenPop] = useState<ToolbarPop>(null);
   const [activeSort, setActiveSort] = useState<"budget" | "size" | null>(null);
   const [budgetDir, setBudgetDir] = useState<"asc" | "desc">("asc");
   const [sizeDir, setSizeDir] = useState<"desc" | "asc">("desc");
-
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  /* close popovers on outside click */
-  useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpenPop(null);
-    };
-    document.addEventListener("click", onDocClick);
-    return () => document.removeEventListener("click", onDocClick);
-  }, []);
 
   const rows: Row[] = useMemo(() => {
     return courses
@@ -301,7 +248,12 @@ export function ProgramsListing({
         const district = findDistrict(row.course.location);
         if (!district || !districts.has(district.slug)) return false;
       }
-      if (fromDay != null || toDay != null) {
+      if (isPrograms) {
+        /* Weekday filter (union): keep programs running on any selected day */
+        if (weekdays.size > 0 && !row.weekdays.some((d) => weekdays.has(d))) {
+          return false;
+        }
+      } else if (fromDay != null || toDay != null) {
         /* overlap semantics (demo): course runs during the selected period */
         if (row.minDay == null || row.maxDay == null) return false;
         if (fromDay != null && row.maxDay < fromDay) return false;
@@ -328,8 +280,12 @@ export function ProgramsListing({
       const bp = b.course.boosted ? 0 : 1;
       if (ap !== bp) return ap - bp;
       if (a.course.boosted && b.course.boosted) {
-        const ta = a.course.boost_paid_at ? new Date(a.course.boost_paid_at).getTime() : 0;
-        const tb = b.course.boost_paid_at ? new Date(b.course.boost_paid_at).getTime() : 0;
+        const ta = a.course.boost_paid_at
+          ? new Date(a.course.boost_paid_at).getTime()
+          : 0;
+        const tb = b.course.boost_paid_at
+          ? new Date(b.course.boost_paid_at).getTime()
+          : 0;
         return ta - tb;
       }
       return 0;
@@ -361,6 +317,8 @@ export function ProgramsListing({
     categories,
     dateFrom,
     dateTo,
+    weekdays,
+    isPrograms,
     activeSort,
     budgetDir,
     sizeDir,
@@ -374,12 +332,29 @@ export function ProgramsListing({
       return next;
     });
 
+  const toggleCategory = (key: string) =>
+    setCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  const toggleWeekday = (day: number) =>
+    setWeekdays((prev) => {
+      const next = new Set(prev);
+      if (next.has(day)) next.delete(day);
+      else next.add(day);
+      return next;
+    });
+
   const clearFilters = () => {
     setQuery("");
     setDistricts(new Set());
     setCategories(new Set());
     setDateFrom("");
     setDateTo("");
+    setWeekdays(new Set());
     setActiveSort(null);
     setBudgetDir("asc");
     setSizeDir("desc");
@@ -387,14 +362,10 @@ export function ProgramsListing({
 
   const dateCount = dateFrom || dateTo ? 1 : 0;
 
-  const segWrap = "relative flex min-w-0 flex-1";
-  const segBtn =
-    "flex w-full items-center justify-start gap-[6px] px-5 text-left text-[15px] leading-none text-ink transition-colors hover:bg-black/[0.03] aria-expanded:bg-[rgba(10,186,181,0.06)]";
-
   return (
     <main className="min-h-screen bg-white text-ink">
       <Navbar />
-      <div className="flex flex-col lg:mx-auto lg:max-w-[1440px]" ref={rootRef}>
+      <div className="flex flex-col lg:mx-auto lg:max-w-[1440px]">
         {/* Intro — node #1626:16265 (unchanged from the previous listing) */}
         <section className="flex flex-col items-center gap-5 px-6 py-8 text-center md:px-20">
           <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
@@ -417,328 +388,211 @@ export function ProgramsListing({
           </p>
         </section>
 
-        {/* Filter + search — demo design 2026-08-27 (no capture): segmented
-            box aligned to the card grid (974 @1440: container 1102, pad
-            48/80), connected to the search bar (shared border, bottom-only
-            radius). Mobile stacks the sections (spec-silent, demo media). */}
-        <div className="mx-auto w-full max-w-[1440px] px-6 md:px-16 lg:px-20">
-          <div className="flex flex-col divide-y divide-[#B0B0B0] rounded-t-[8px] border border-b-0 border-[#B0B0B0] bg-white md:h-[56px] md:flex-row md:divide-x md:divide-y-0">
-            {/* Category — filters on course.category from centre listings */}
-            <div className={segWrap}>
-              <button
-                type="button"
-                aria-expanded={openPop === "category"}
-                onClick={() =>
-                  setOpenPop(openPop === "category" ? null : "category")
-                }
-                className={segBtn}
-              >
-                {t("programs.category")}
-                <ChevronDown
-                  aria-hidden
-                  className={`h-4 w-4 shrink-0 text-[#5E5E5E] transition-transform ${
-                    openPop === "category" ? "rotate-180" : ""
-                  }`}
-                  strokeWidth={1.16}
-                />
-              </button>
-              {openPop === "category" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[200px]">
-                  <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.category")}
-                  </h4>
-                  <div className="flex flex-col gap-4">
-                    {(
-                      [
-                        "academic",
-                        "music",
-                        "art",
-                        "dance",
-                        "sports",
-                        "stem",
-                        "language",
-                        "parentChild",
-                        "others",
-                      ] as const
-                    ).map((key) => (
-                      <CheckRow
-                        key={key}
-                        label={t(`programs.categories.${key}`)}
-                        selected={categories.has(key)}
-                        onToggle={() =>
-                          setCategories((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(key)) next.delete(key);
-                            else next.add(key);
-                            return next;
-                          })
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Location — REAL district filter (regions → pills) */}
-            <div className={segWrap}>
-              <button
-                type="button"
-                aria-expanded={openPop === "location"}
-                onClick={() =>
-                  setOpenPop(openPop === "location" ? null : "location")
-                }
-                className={`${segBtn} ${districts.size > 0 ? "text-classz-500" : ""}`}
-              >
-                {t("programs.locationFilter")}
-                {districts.size > 0 ? (
-                  <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[rgba(10,186,181,0.3)] px-[5px] text-[11px] font-[weight:590] leading-none">
-                    {districts.size}
-                  </span>
-                ) : null}
-                <ChevronDown
-                  aria-hidden
-                  className={`h-4 w-4 shrink-0 text-[#5E5E5E] transition-transform ${
-                    openPop === "location" ? "rotate-180" : ""
-                  }`}
-                  strokeWidth={1.16}
-                />
-              </button>
-              {openPop === "location" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 max-h-[380px] w-full overflow-auto rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[420px]">
-                  <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.locationFilter")}
-                  </h4>
-                  <div className="flex flex-col gap-4">
-                    {[
-                      {
-                        titleKey: "programs.hkIsland",
-                        list: HK_ISLAND_DISTRICTS,
-                        defaultOpen: true,
-                      },
-                      {
-                        titleKey: "programs.kowloon",
-                        list: KOWLOON_DISTRICTS,
-                        defaultOpen: false,
-                      },
-                      {
-                        titleKey: "programs.newTerritories",
-                        list: NEW_TERRITORIES_DISTRICTS,
-                        defaultOpen: false,
-                      },
-                    ].map((region) => (
-                      <LocationRegion
-                        key={region.titleKey}
-                        titleKey={region.titleKey}
-                        districts={region.list}
-                        defaultOpen={region.defaultOpen}
-                        selected={districts}
-                        onToggle={toggleDistrict}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            {/* Date Range — REAL (session date span, overlap semantics) */}
-            <div className={segWrap}>
-              <button
-                type="button"
-                aria-expanded={openPop === "date"}
-                onClick={() => setOpenPop(openPop === "date" ? null : "date")}
-                className={`${segBtn} ${dateCount > 0 ? "text-classz-500" : ""}`}
-              >
-                {t("programs.dateRange")}
-                {dateCount > 0 ? (
-                  <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[rgba(10,186,181,0.3)] px-[5px] text-[11px] font-[weight:590] leading-none">
-                    {dateCount}
-                  </span>
-                ) : null}
-                <ChevronDown
-                  aria-hidden
-                  className={`h-4 w-4 shrink-0 text-[#5E5E5E] transition-transform ${
-                    openPop === "date" ? "rotate-180" : ""
-                  }`}
-                  strokeWidth={1.16}
-                />
-              </button>
-              {openPop === "date" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[360px]">
-                  <h4 className="mb-4 text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.dateRange")}
-                  </h4>
-                  <div className="flex gap-4">
-                    <DateBox
-                      labelKey="programs.from"
-                      value={dateFrom}
-                      onChange={setDateFrom}
-                    />
-                    <DateBox
-                      labelKey="programs.to"
-                      value={dateTo}
-                      onChange={setDateTo}
-                    />
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          {/* Search — #1988:7481 chrome, connected (bottom-only radius).
-              Demo deviation: widened/aligned to the card grid (974 @1440). */}
-          <div className="flex items-center gap-[4px] rounded-b-[8px] border border-[#B0B0B0] bg-white px-4 py-[18px]">
-            <Search
-              aria-hidden
-              className="h-4 w-4 shrink-0 text-shade-400"
-              strokeWidth={1.5}
-            />
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("programs.searchPlaceholder")}
-              aria-label={t("programs.searchPlaceholder")}
-              className="w-full bg-transparent text-[16px] leading-[19px] text-ink placeholder:text-shade-400 focus:outline-none"
-            />
-          </div>
-
-          {/* Row 2 — Filter | Budget | Class Size (Filter leftmost per demo) */}
-          <div className="mt-4 flex flex-wrap gap-2 pb-12">
-            {/* Filter — inert until rating/service API fields exist
-                (filter-sidebar.tsx same policy) */}
-            <div className="relative">
-              <button
-                type="button"
-                aria-expanded={openPop === "filter"}
-                onClick={() =>
-                  setOpenPop(openPop === "filter" ? null : "filter")
-                }
-                title={t("programs.comingSoon")}
-                className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
-              >
-                {t("programs.filter")}
-                <ChevronDown
-                  aria-hidden
-                  className={`h-4 w-4 text-[#5E5E5E] transition-transform ${
-                    openPop === "filter" ? "rotate-180" : ""
-                  }`}
-                  strokeWidth={1.16}
-                />
-              </button>
-              {openPop === "filter" ? (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
-                  <h4 className="text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.rating")}
-                  </h4>
-                  <fieldset
-                    disabled
-                    className="mt-4 flex flex-col gap-4"
-                    title={t("programs.comingSoon")}
-                  >
-                    {[1, 2, 3, 4].map((n) => (
-                      <div key={n} className="flex items-center gap-5">
-                        <span
-                          aria-hidden
-                          className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-[#B0B0B0] bg-white"
+        {/* Filter + search — shared ListingToolbar; the third segment is
+            Date Range on workshops/trials, Weekday on /programs. */}
+        <ListingToolbar
+          openPop={openPop}
+          onTogglePop={(pop) => setOpenPop(openPop === pop ? null : pop)}
+          categoryOptions={(
+            [
+              "academic",
+              "music",
+              "art",
+              "dance",
+              "sports",
+              "stem",
+              "language",
+              "parentChild",
+              "others",
+            ] as const
+          ).map((key) => ({
+            key,
+            label: t(`programs.categories.${key}`),
+          }))}
+          selectedCategories={categories}
+          onToggleCategory={toggleCategory}
+          selectedDistricts={districts}
+          onToggleDistrict={toggleDistrict}
+          middle={
+            isPrograms
+              ? {
+                  id: "weekday" as const,
+                  label: t("programs.weekdayFilter"),
+                  count: weekdays.size,
+                  popoverClassName: "md:w-[200px]",
+                  children: (
+                    <div className="flex flex-col gap-4">
+                      {WEEKDAY_KEYS.map((key, day) => (
+                        <CheckRow
+                          key={key}
+                          label={t(`programs.weekday.${key}`)}
+                          selected={weekdays.has(day)}
+                          onToggle={() => toggleWeekday(day)}
                         />
-                        <span className="flex items-center gap-1 text-sm leading-[21px] text-ink">
-                          <Star
+                      ))}
+                    </div>
+                  ),
+                }
+              : {
+                  id: "date" as const,
+                  label: t("programs.dateRange"),
+                  count: dateCount,
+                  children: (
+                    <div className="flex gap-4">
+                      <DateBox
+                        labelKey="programs.from"
+                        value={dateFrom}
+                        onChange={setDateFrom}
+                      />
+                      <DateBox
+                        labelKey="programs.to"
+                        value={dateTo}
+                        onChange={setDateTo}
+                      />
+                    </div>
+                  ),
+                }
+          }
+          searchValue={query}
+          onSearchChange={setQuery}
+          searchPlaceholder={t("programs.searchPlaceholder")}
+          actions={
+            <>
+              {/* Filter — inert until rating/service API fields exist
+                (filter-sidebar.tsx same policy) */}
+              <div className="relative">
+                <button
+                  type="button"
+                  aria-expanded={openPop === "filter"}
+                  onClick={() =>
+                    setOpenPop(openPop === "filter" ? null : "filter")
+                  }
+                  title={t("programs.comingSoon")}
+                  className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
+                >
+                  {t("programs.filter")}
+                  <ChevronDown
+                    aria-hidden
+                    className={`h-4 w-4 text-[#5E5E5E] transition-transform ${
+                      openPop === "filter" ? "rotate-180" : ""
+                    }`}
+                    strokeWidth={1.16}
+                  />
+                </button>
+                {openPop === "filter" ? (
+                  <div className="absolute left-0 top-[calc(100%+8px)] z-30 w-full rounded-[12px] bg-white p-5 text-left shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)] md:w-[280px]">
+                    <h4 className="text-[16px] font-[weight:590] leading-[19px]">
+                      {t("programs.rating")}
+                    </h4>
+                    <fieldset
+                      disabled
+                      className="mt-4 flex flex-col gap-4"
+                      title={t("programs.comingSoon")}
+                    >
+                      {[1, 2, 3, 4].map((n) => (
+                        <div key={n} className="flex items-center gap-5">
+                          <span
                             aria-hidden
-                            className="h-3 w-3 text-ink"
-                            strokeWidth={0}
-                            fill="#222222"
+                            className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-[#B0B0B0] bg-white"
                           />
-                          {formatTemplate(t, "programs.excludeStars", { n })}
+                          <span className="flex items-center gap-1 text-sm leading-[21px] text-ink">
+                            <Star
+                              aria-hidden
+                              className="h-3 w-3 text-ink"
+                              strokeWidth={0}
+                              fill="#222222"
+                            />
+                            {formatTemplate(t, "programs.excludeStars", { n })}
+                          </span>
+                        </div>
+                      ))}
+                    </fieldset>
+                    <h4 className="mt-5 text-[16px] font-[weight:590] leading-[19px]">
+                      {t("programs.service")}
+                    </h4>
+                    <fieldset
+                      disabled
+                      className="mt-3 flex max-w-[240px] flex-wrap gap-2"
+                      title={t("programs.comingSoon")}
+                    >
+                      {(
+                        [
+                          "sen",
+                          "smallClass",
+                          "examPathway",
+                          "performance",
+                        ] as const
+                      ).map((key) => (
+                        <span
+                          key={key}
+                          className="flex h-[25px] items-center rounded-[4px] bg-[rgba(34,34,34,0.1)] px-2 py-1 text-[12px] font-normal leading-[14px] text-ink opacity-80"
+                        >
+                          {t(`programs.serviceTags.${key}`)}
                         </span>
-                      </div>
-                    ))}
-                  </fieldset>
-                  <h4 className="mt-5 text-[16px] font-[weight:590] leading-[19px]">
-                    {t("programs.service")}
-                  </h4>
-                  <fieldset
-                    disabled
-                    className="mt-3 flex max-w-[240px] flex-wrap gap-2"
-                    title={t("programs.comingSoon")}
-                  >
-                    {(
-                      [
-                        "sen",
-                        "smallClass",
-                        "examPathway",
-                        "performance",
-                      ] as const
-                    ).map((key) => (
-                      <span
-                        key={key}
-                        className="flex h-[25px] items-center rounded-[4px] bg-[rgba(34,34,34,0.1)] px-2 py-1 text-[12px] font-normal leading-[14px] text-ink opacity-80"
-                      >
-                        {t(`programs.serviceTags.${key}`)}
-                      </span>
-                    ))}
-                  </fieldset>
-                </div>
-              ) : null}
-            </div>
+                      ))}
+                    </fieldset>
+                  </div>
+                ) : null}
+              </div>
 
-            {/* Budget — REAL price sort (asc ⇄ desc; null prices sink) */}
-            <button
-              type="button"
-              onClick={() => {
-                if (activeSort !== "budget") {
-                  setActiveSort("budget");
-                  setBudgetDir("asc");
-                } else {
-                  setBudgetDir((d) => (d === "asc" ? "desc" : "asc"));
-                }
-              }}
-              aria-pressed={activeSort === "budget"}
-              className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
-                activeSort === "budget"
-                  ? "border-classz-500 font-[weight:590] text-ink"
-                  : "border-[#B0B0B0] text-ink"
-              }`}
-            >
-              {t("programs.budget")}
-              <span className="text-[12px] font-normal text-[#5E5E5E]">
-                {t(
-                  budgetDir === "asc"
-                    ? "programs.lowToHigh"
-                    : "programs.highToLow",
-                )}
-              </span>
-            </button>
+              {/* Budget — REAL price sort (asc ⇄ desc; null prices sink) */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (activeSort !== "budget") {
+                    setActiveSort("budget");
+                    setBudgetDir("asc");
+                  } else {
+                    setBudgetDir((d) => (d === "asc" ? "desc" : "asc"));
+                  }
+                }}
+                aria-pressed={activeSort === "budget"}
+                className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
+                  activeSort === "budget"
+                    ? "border-classz-500 font-[weight:590] text-ink"
+                    : "border-[#B0B0B0] text-ink"
+                }`}
+              >
+                {t("programs.budget")}
+                <span className="text-[12px] font-normal text-[#5E5E5E]">
+                  {t(
+                    budgetDir === "asc"
+                      ? "programs.lowToHigh"
+                      : "programs.highToLow",
+                  )}
+                </span>
+              </button>
 
-            {/* Class Size — REAL capacity sort (desc ⇄ asc; null sinks) */}
-            <button
-              type="button"
-              onClick={() => {
-                if (activeSort !== "size") {
-                  setActiveSort("size");
-                  setSizeDir("desc");
-                } else {
-                  setSizeDir((d) => (d === "desc" ? "asc" : "desc"));
-                }
-              }}
-              aria-pressed={activeSort === "size"}
-              className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
-                activeSort === "size"
-                  ? "border-classz-500 font-[weight:590] text-ink"
-                  : "border-[#B0B0B0] text-ink"
-              }`}
-            >
-              {t("programs.classSize")}
-              <span className="text-[12px] font-normal text-[#5E5E5E]">
-                {t(
-                  sizeDir === "desc"
-                    ? "programs.largeToSmall"
-                    : "programs.smallToLarge",
-                )}
-              </span>
-            </button>
-          </div>
-        </div>
+              {/* Class Size — REAL capacity sort (desc ⇄ asc; null sinks) */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (activeSort !== "size") {
+                    setActiveSort("size");
+                    setSizeDir("desc");
+                  } else {
+                    setSizeDir((d) => (d === "desc" ? "asc" : "desc"));
+                  }
+                }}
+                aria-pressed={activeSort === "size"}
+                className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] transition-colors hover:border-ink ${
+                  activeSort === "size"
+                    ? "border-classz-500 font-[weight:590] text-ink"
+                    : "border-[#B0B0B0] text-ink"
+                }`}
+              >
+                {t("programs.classSize")}
+                <span className="text-[12px] font-normal text-[#5E5E5E]">
+                  {t(
+                    sizeDir === "desc"
+                      ? "programs.largeToSmall"
+                      : "programs.smallToLarge",
+                  )}
+                </span>
+              </button>
+            </>
+          }
+        />
 
         {/* Card list — gray panel bounding the list (demo it.4). Empty
             state replaces the panel (demo no-cards behavior). */}
@@ -790,54 +644,6 @@ export function ProgramsListing({
   );
 }
 
-/** Location region group inside the Location popover (accordion like the
- *  sidebar Place group — #3816:21054, first region open by default). */
-function LocationRegion({
-  titleKey,
-  districts,
-  selected,
-  onToggle,
-  defaultOpen,
-}: {
-  titleKey: string;
-  districts: District[];
-  selected: Set<string>;
-  onToggle: (slug: string) => void;
-  defaultOpen: boolean;
-}) {
-  const { t } = useLanguage();
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="flex flex-col gap-4">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex items-center gap-2 text-ink"
-      >
-        <span className="text-xs leading-[14px]">{t(titleKey)}</span>
-        <ChevronDown
-          aria-hidden
-          className={`h-4 w-4 text-[#5E5E5E] transition-transform ${open ? "rotate-180" : ""}`}
-          strokeWidth={1.16}
-        />
-      </button>
-      {open ? (
-        <div className="flex flex-wrap gap-2">
-          {districts.map((d) => (
-            <Pill
-              key={d.slug}
-              district={d}
-              selected={selected.has(d.slug)}
-              onToggle={() => onToggle(d.slug)}
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
 /** Compact vertical card for the responsive 1–5 column grid. */
 function ageRangeLabel(course: PublicCourse, locale: "en" | "zh-TW") {
   const min = course.age_min;
@@ -851,7 +657,10 @@ function ageRangeLabel(course: PublicCourse, locale: "en" | "zh-TW") {
           ? `≤${max}`
           : (course.age_tag ?? "").trim();
   if (!raw) return "";
-  const range = raw.replace(/歲$/u, "").replace(/\s*years?$/i, "").trim();
+  const range = raw
+    .replace(/歲$/u, "")
+    .replace(/\s*years?$/i, "")
+    .trim();
   return locale === "zh-TW" ? `${range}歲` : range;
 }
 
@@ -865,7 +674,11 @@ function durationLabel(minutes: number | null, t: (key: string) => string) {
 
 const WEEKDAY_ZH_SHORT = ["日", "一", "二", "三", "四", "五", "六"] as const;
 
-function weekdayLine(days: number[], t: (key: string) => string, locale: "en" | "zh-TW") {
+function weekdayLine(
+  days: number[],
+  t: (key: string) => string,
+  locale: "en" | "zh-TW",
+) {
   const valid = days.filter((d) => d >= 0 && d <= 6);
   if (!valid.length) return "";
   if (locale === "zh-TW") {

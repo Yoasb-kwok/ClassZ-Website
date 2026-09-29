@@ -6,7 +6,6 @@ import {
   ArrowUp,
   ImageIcon,
   Loader2,
-  Plus,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -230,13 +229,6 @@ export function ImageListField({
           </span>
         </AdminLabel>
         <div className="flex items-center gap-1.5">
-          <AdminGhostButton
-            size="sm"
-            onClick={() => onChange([...images, { src: "", alt: null }])}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add row
-          </AdminGhostButton>
           <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-classz-200 px-2 py-1 text-xs font-medium text-classz-700 hover:bg-classz-50">
             {busy ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -264,7 +256,7 @@ export function ImageListField({
 
       {images.length === 0 ? (
         <p className="rounded-lg border border-dashed border-classz-200 px-3 py-2 text-xs text-classz-600/80">
-          No images. Add a row and upload a walkthrough screenshot.
+          No images. Upload a screenshot to add one.
         </p>
       ) : (
         <ul className="space-y-2">
@@ -285,13 +277,6 @@ export function ImageListField({
                     placeholder="/uploads/… or https://…"
                     onChange={(event) =>
                       patchAt(index, { src: event.target.value })
-                    }
-                  />
-                  <AdminInput
-                    value={image.alt ?? ""}
-                    placeholder="Alt text"
-                    onChange={(event) =>
-                      patchAt(index, { alt: event.target.value })
                     }
                   />
                 </div>

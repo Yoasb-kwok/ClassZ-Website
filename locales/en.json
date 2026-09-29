@@ -1088,6 +1088,7 @@
   },
   "centres": {
     "recommendedProgram": "Recommended Program",
+    "excludeStars": "Exclude {n}★ centres",
     "members": "Members",
     "reviews": "Reviews",
     "location": "Location",
@@ -1120,6 +1121,7 @@
     "schedulesMany": "10+ schedules",
     "locationFilter": "Location",
     "dateRange": "Date Range",
+    "weekdayFilter": "Weekday",
     "from": "From",
     "to": "To",
     "budget": "Budget",
