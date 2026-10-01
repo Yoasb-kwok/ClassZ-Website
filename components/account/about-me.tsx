@@ -149,9 +149,10 @@ export function AboutMePage() {
       ) : (
         /* The Card — 945 wide, white, r24, shadow, pad 48/64, gap 32 */
         <div className="flex w-full max-w-[945px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
-          {/* Top row — info col (745.5) + 150×150 photo (capture
-              Frame 2147237524, justify-between) */}
-          <div className="flex items-start justify-between gap-8">
+          {/* Top row — info col (486.5) + 150×150 photo inside a 745.5-wide
+              frame (capture Frame 2147237524): the photo does NOT align with
+              the 817-wide form below — its right edge stops at 745.5 */}
+          <div className="flex w-full max-w-[745.5px] items-start justify-between gap-8">
             <div className="flex min-w-0 flex-col">
               <div className="flex flex-col gap-[3px] py-4">
                 <p className="text-[22px] font-[weight:590] leading-[26px] text-black">
