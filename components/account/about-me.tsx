@@ -45,7 +45,7 @@ const COUNTRY_PREFIXES = ["+852", "+86", "+65", "+81", "+44", "+1"];
 
 function Info({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex w-[168px] flex-col">
+    <div className="flex w-[151.5px] flex-col">
       <span className="text-[20px] font-[weight:590] leading-[24px] text-[#222222]">
         {value}
       </span>
