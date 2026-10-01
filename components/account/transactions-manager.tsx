@@ -288,13 +288,10 @@ export function TransactionsPage() {
         ) : null}
       </section>
 
-      {/* Saved cards — bordered r8 mini cards (capture Frame 2147237525) */}
+      {/* Saved cards — bordered r8 mini cards (capture Frame 2147237525).
+          No empty-state text: the capture only shows a card once saved */}
       <div className="mt-6 px-3">
-        {methods.length === 0 ? (
-          <p className="text-[13px] text-[#717171]">
-            {t("account.transactions.noMethods")}
-          </p>
-        ) : (
+        {methods.length > 0 ? (
           <div className="flex flex-wrap gap-4">
             {methods.map((m) => (
               <div
@@ -329,7 +326,7 @@ export function TransactionsPage() {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Search + status pill (capture Frame 2147237123: h30 input r8 +
