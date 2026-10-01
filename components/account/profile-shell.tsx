@@ -113,14 +113,16 @@ export function ProfileShell({
           </div>
         </aside>
 
-        {/* Vertical divider between the sidebar and the card (capture
-            Line 18: 32px off the sidebar, card 32px after it) */}
+        {/* div (not <section>) — globals.css gives every <section>
+            overflow-x: clip, which would horizontally clip the card's
+            box-shadow; the card sits flush with this container's left edge.
+            Capture Line 18: 32px off the sidebar, card right after it */}
         <div
           aria-hidden
           className="mx-8 hidden self-stretch w-px bg-[#EBEBEB] md:block"
         />
 
-        <section className="min-w-0 flex-1">{children}</section>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
       <Footer />
     </main>

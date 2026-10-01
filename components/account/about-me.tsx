@@ -20,6 +20,9 @@ import { ProfileShell } from "./profile-shell";
  * 16/400 #222 · Verified/Verify 14/590 #222 · Language inline: "Language"
  * 16/400 #222 + 113×35 box, 1px #B0B0B0 r4, pad 8/16, arrow 16 #5E5E5E.
  * No address. Verification on hold (D4): email badge static, Verify stub.
+ * Card shadow 0 6px 16px rgba(0,0,0,.12) per capture; the shell wraps
+ * content in a <div> because globals.css overflow-clips <section>s, which
+ * erased the left/right half of the shade.
  */
 
 type Summary = {
@@ -147,14 +150,16 @@ export function AboutMePage() {
           {error || t("account.loadFailed")}
         </p>
       ) : (
-        /* The Card — white, r24, even shade on all four sides (blur+spread
-            so left/right are clearly visible), pad 48/64, gap 32 */
-        <div className="flex w-full max-w-[1000px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_0_28px_6px_rgba(0,0,0,0.14)]">
+        /* The Card — white, r24, figma-exact shade on all four sides
+            (0 6px 16px rgba(0,0,0,.12), capture Card shadows), pad 48/64,
+            gap 32. Rendered inside a div: globals.css overflow-clips every
+            <section>, which cut the left/right shade off */
+        <div className="flex w-full max-w-[1000px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
           {/* Top row — info col (486.5) + 150×150 photo inside a 745.5-wide
               frame (capture Frame 2147237524): the photo does NOT align with
               the 817-wide form below — its right edge stops at 745.5 */}
           <div className="flex w-full max-w-[745.5px] items-start justify-between gap-8">
-            <div className="flex min-w-0 flex-col gap-6">
+            <div className="flex min-w-0 flex-col gap-8">
               <div className="flex flex-col gap-2.5 py-2">
                 <p className="text-[22px] font-[weight:590] leading-[26px] text-black">
                   {formatTemplate(t, "account.aboutMe.hello", {
@@ -337,9 +342,10 @@ export function AboutMePage() {
               </div>
             </div>
 
-            {/* Language — aligned with the rows (pl-3): 16px label + the
-                shaded select box, slightly smaller (100×30) */}
-            <div className="mt-10 flex items-center gap-3 pl-3">
+            {/* Language — aligned with the rows (pl-3): 16px label, 20px
+                gap, 113×35 box (1px #B0B0B0 r4, pad 8/16, 16px text,
+                arrow 16 #5E5E5E) — capture Frame 2147237009 */}
+            <div className="mt-8 flex items-center gap-5 pl-3">
               <span className="text-[16px] leading-[19px] text-[#222222]">
                 {t("account.aboutMe.language")}
               </span>
@@ -350,17 +356,17 @@ export function AboutMePage() {
                     const next = e.target.value;
                     setSummary((s) => (s ? { ...s, locale: next } : s));
                   }}
-                  className="h-[30px] w-[100px] appearance-none rounded-[4px] border border-[#B0B0B0] bg-white pl-3 pr-7 text-[14px] leading-[17px] text-[#222222] focus:border-classz-400 focus:outline-none"
+                  className="h-[35px] w-[113px] appearance-none rounded-[4px] border border-[#B0B0B0] bg-white pl-4 pr-10 text-[16px] leading-[19px] text-[#222222] focus:border-classz-400 focus:outline-none"
                 >
                   <option value="en">English</option>
                   <option value="zh-TW">繁體中文</option>
                 </select>
                 <svg
                   aria-hidden
-                  width="14"
-                  height="14"
+                  width="16"
+                  height="16"
                   viewBox="0 0 16 16"
-                  className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2"
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2"
                 >
                   <path
                     d="M2.72 6l5.28 5.28L13.28 6"
