@@ -1135,6 +1135,7 @@
       "notConnected": "未連結",
       "senRequired": "需要 SEN 支援",
       "yearsOnClassz": "加入 ClassZ {n} 年",
+      "yearsOnClasszLabel": "加入 ClassZ 年數",
       "age": "{n} 歲"
     },
     "transactions": {

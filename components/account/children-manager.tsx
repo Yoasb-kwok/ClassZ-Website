@@ -57,6 +57,56 @@ const EMPTY_FORM: ChildForm = {
   sen_assistance: false,
 };
 
+function TickCircle({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 10 10"
+      width={10}
+      height={10}
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <circle cx="5" cy="5" r="4.17" stroke="#5E5E5E" strokeWidth="0.83" />
+      <path
+        d="M3.2 5.1l1.2 1.2 2.4-2.6"
+        stroke="#5E5E5E"
+        strokeWidth="0.83"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function FemaleSymbol({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 12 12"
+      width={12}
+      height={12}
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <circle cx="6" cy="4.2" r="2.9" stroke="#0ABAB5" strokeWidth="1.1" />
+      <path
+        d="M6 7.1V11M4.3 9.3h3.4"
+        stroke="#0ABAB5"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/** ADR-006 D3 — child card per the "Profile-child profile" capture (Card
+ * 456.73×207, r12, shadow 0 6px 16px 12%, pad 32/16, no border): photo
+ * 100×100 centred with the name BELOW it (18/590 #000); right column =
+ * year badge (#D7F4F3 r4 pad 4/8, 14/590 #222) · years value 18/590 +
+ * "Years on ClassZ" 16/590 · divider · zschool logo + connected
+ * (12/590, teal when connected / #5E5E5E when not) · divider · meta row
+ * (sex icon + "Age n" and tick-circle + "SEN", 12/400 #5E5E5E). */
 function ChildCard({ child, onEdit }: { child: Child; onEdit: () => void }) {
   const { t } = useLanguage();
   const photo = child.photo_url ? resolveUploadUrl(child.photo_url) : "";
@@ -64,59 +114,86 @@ function ChildCard({ child, onEdit }: { child: Child; onEdit: () => void }) {
     <button
       type="button"
       onClick={onEdit}
-      className="flex w-full items-center gap-4 rounded-[12px] border border-[#EBEBEB] bg-white p-4 text-left transition-shadow hover:shadow-[0_6px_16px_2px_rgba(0,0,0,0.08)]"
+      className="flex w-full max-w-[456.73px] items-center gap-2 rounded-[12px] bg-white p-[32px_16px] text-left shadow-[0_6px_16px_rgba(0,0,0,0.12)] transition-shadow hover:shadow-[0_6px_20px_rgba(0,0,0,0.16)]"
     >
-      {photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={photo}
-          alt=""
-          className="h-[72px] w-[72px] shrink-0 rounded-full border border-[#EBEBEB] object-cover"
-        />
-      ) : (
-        <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full border border-[#EBEBEB] bg-[#F5F5F5] text-[24px] font-[weight:590]">
-          {(child.full_name || "?").slice(0, 1).toUpperCase()}
-        </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[16px] font-[weight:590] leading-[19px]">
-            {child.full_name}
-          </p>
-          <span className="rounded-full bg-[#D7F4F3] px-2 py-0.5 text-[11px] font-[weight:590] text-[#0ABAB5]">
-            {child.year_badge}
-          </span>
-          {child.sen_assistance ? (
-            <span className="rounded-full bg-[#222222] px-2 py-0.5 text-[11px] font-[weight:590] text-white">
-              SEN
-            </span>
-          ) : null}
-        </div>
-        <p className="mt-1 text-[13px] leading-[16px] text-[#5E5E5E]">
-          {formatTemplate(t, "account.children.yearsOnClassz", {
-            n: child.years_on_classz,
-          })}
-          {child.age != null
-            ? ` · ${formatTemplate(t, "account.children.age", { n: child.age })}`
-            : ""}
-          {child.sex === 1
-            ? ` · ${t("account.children.male")}`
-            : child.sex === 0
-              ? ` · ${t("account.children.female")}`
-              : ""}
+      {/* Left — photo + name centred underneath (capture Frame 2147236858) */}
+      <div className="flex w-[151.5px] shrink-0 flex-col items-center gap-[10px]">
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photo}
+            alt=""
+            className="h-[100px] w-[100px] rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-[100px] w-[100px] items-center justify-center rounded-full bg-[#F5F5F5] text-[32px] font-[weight:590] text-[#5E5E5E]">
+            {(child.full_name || "?").slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <p className="max-w-full truncate text-[18px] font-[weight:590] leading-[21px] text-black">
+          {child.full_name}
         </p>
-        <p className="mt-1 text-[12px] leading-[15px] text-[#717171]">
-          {t("account.children.zschool")}:{" "}
+      </div>
+
+      {/* Right — badge / years / zschool / meta (capture Frame 2147236959) */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <span className="self-start rounded-[4px] bg-[#D7F4F3] px-2 py-1 text-[14px] font-[weight:590] leading-[17px] text-[#222222]">
+          {child.year_badge}
+        </span>
+        <div className="flex flex-col gap-1">
+          <span className="text-[18px] font-[weight:590] leading-[21px] text-[#222222]">
+            {child.years_on_classz}
+          </span>
+          <span className="text-[16px] font-[weight:590] leading-[19px] text-[#222222]">
+            {t("account.children.yearsOnClasszLabel")}
+          </span>
+        </div>
+        <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/profile/zschool-logo.png"
+            alt="Zschool"
+            className="h-[20px] w-auto"
+          />
           <span
-            className={
-              child.zschool_connected ? "text-[#0ABAB5]" : "text-[#717171]"
-            }
+            className={`text-[12px] font-[weight:590] leading-[16px] ${
+              child.zschool_connected ? "text-[#0ABAB5]" : "text-[#5E5E5E]"
+            }`}
           >
             {child.zschool_connected
               ? t("account.children.connected")
               : t("account.children.notConnected")}
           </span>
-        </p>
+        </div>
+        <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
+        <div className="flex items-center gap-[10px]">
+          <span className="flex items-center gap-1">
+            {child.sex === 1 ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src="/icons/profile/male.png" alt="" className="h-3 w-3" />
+            ) : child.sex === 0 ? (
+              <FemaleSymbol />
+            ) : null}
+            <span className="text-[12px] leading-[14px] text-[#5E5E5E]">
+              {child.age != null
+                ? formatTemplate(t, "account.children.age", { n: child.age })
+                : child.sex === 1
+                  ? t("account.children.male")
+                  : child.sex === 0
+                    ? t("account.children.female")
+                    : "—"}
+            </span>
+          </span>
+          {child.sen_assistance ? (
+            <span className="flex items-center gap-1">
+              <TickCircle />
+              <span className="text-[12px] leading-[14px] text-[#5E5E5E]">
+                SEN
+              </span>
+            </span>
+          ) : null}
+        </div>
       </div>
     </button>
   );
@@ -395,28 +472,28 @@ export function ChildrenPage() {
 
   return (
     <ProfileShell active="children">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[28px] font-[weight:590] leading-[34px]">
-          {t("account.sidebar.childProfile")}
-        </h1>
+      {/* Capture content frame: no page title — just the "Add Child Profile +"
+          text link (14/510 #5E5E5E, 16px plus), pad x 12 */}
+      <h1 className="sr-only">{t("account.sidebar.childProfile")}</h1>
+      <div className="px-3">
         <button
           type="button"
           onClick={() => setModal({ open: true, editing: null })}
-          className="flex h-10 items-center gap-2 rounded-[8px] bg-[#222222] px-4 text-[14px] font-[weight:590] text-white transition-colors hover:bg-black"
+          className="flex items-center gap-1.5 text-[14px] font-[weight:510] leading-[21px] text-[#5E5E5E] transition-colors hover:text-[#222222]"
         >
-          <Plus className="h-4 w-4" />
           {t("account.children.addTitle")}
+          <Plus className="h-4 w-4" strokeWidth={1.5} />
         </button>
       </div>
 
       {children === null ? (
         <p className="mt-8 text-sm text-[#717171]">{t("account.loading")}</p>
       ) : children.length === 0 ? (
-        <p className="mt-8 text-sm text-[#717171]">
+        <p className="mt-8 px-3 text-sm text-[#717171]">
           {t("account.children.empty")}
         </p>
       ) : (
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-8 flex flex-row flex-wrap gap-8">
           {children.map((child) => (
             <ChildCard
               key={child.id}

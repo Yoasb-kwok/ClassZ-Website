@@ -1140,6 +1140,7 @@
       "notConnected": "not connected",
       "senRequired": "Required SEN assistance",
       "yearsOnClassz": "{n} years on ClassZ",
+      "yearsOnClasszLabel": "Years on ClassZ",
       "age": "Age {n}"
     },
     "transactions": {
