@@ -1149,6 +1149,7 @@
       "noMethods": "No saved cards yet.",
       "removeMethod": "Remove card",
       "default": "Default",
+      "expiry": "Expiry",
       "searchPlaceholder": "Search",
       "statusFilter": "Status",
       "empty": "No transactions found.",

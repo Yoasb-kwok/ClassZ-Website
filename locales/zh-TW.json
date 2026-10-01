@@ -1144,6 +1144,7 @@
       "noMethods": "尚未儲存任何信用卡。",
       "removeMethod": "移除信用卡",
       "default": "預設",
+      "expiry": "有效期",
       "searchPlaceholder": "搜尋",
       "statusFilter": "狀態",
       "empty": "沒有符合的交易紀錄。",

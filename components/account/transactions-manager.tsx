@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { formatTemplate } from "@/components/programs/format";
 import { apiDelete, apiGet, apiPost } from "@/lib/classz-api-client";
 import { ProfileShell } from "./profile-shell";
 
 /**
- * ADR-006 — "Profile-Transaction": the transactions ledger (search by
- * name / status filter), saved Stripe payment methods (setup-mode Checkout
- * redirect), and the promocode toggle section (user addition — D7).
+ * ADR-006 — "Profile-Transaction" per the Profile-add_payment_method
+ * capture (the transaction page sits behind that modal): an "Add payment
+ * method +" text link · saved-card mini cards (border r8, pad 12: card
+ * mark + •••• last4 14/400, Expiry 12/400, Default 10/400 #5E5E5E) ·
+ * search input (h30 r8 12px + 10px search icon) and status pill (r24 h22
+ * 12px + chevron) · ONE white r12 shadowed history card (pad 16, rows
+ * split by #EBEBEB hairlines) where each row is: date 12/400 #717171 →
+ * child 14/510 #222 + status as plain text right (teal when successful) →
+ * program 12/510 + amount 14/510 right → "n lessons · period" 12/400 →
+ * note 10/400 #5E5E5E + "by coach" 10/400 right. Promocodes (user
+ * addition, D7) stay as a collapsible section below.
  */
 
 type PaymentMethod = {
@@ -70,19 +78,33 @@ function fmtPeriod(start: string | null, end: string | null): string {
   return `${start ? fmtDate(start) : "?"} – ${end ? fmtDate(end) : "?"}`;
 }
 
-function StatusChip({ status }: { status: Transaction["status"] }) {
-  const { t } = useLanguage();
-  const map: Record<Transaction["status"], string> = {
-    pending: "bg-[#FFF4E0] text-[#B7791F]",
-    successful: "bg-[#D7F4F3] text-[#0ABAB5]",
-    refunded: "bg-[#F5F5F5] text-[#5E5E5E]",
-    failed: "bg-[#FFE5E5] text-[#D64545]",
-  };
+const STATUS_TEXT_COLOR: Record<Transaction["status"], string> = {
+  pending: "text-[#717171]",
+  successful: "text-[#0ABAB5]",
+  refunded: "text-[#5E5E5E]",
+  failed: "text-[#D64545]",
+};
+
+function CardMark({ brand }: { brand: string | null }) {
+  const b = (brand || "").toLowerCase();
+  if (b.includes("master")) {
+    return (
+      <svg
+        width="23"
+        height="16"
+        viewBox="0 0 23 16"
+        aria-hidden
+        className="shrink-0"
+      >
+        <rect width="23" height="16" rx="2.5" fill="#FFFFFF" stroke="#EBEBEB" />
+        <circle cx="9.2" cy="8" r="4.95" fill="#ED0006" />
+        <circle cx="13.8" cy="8" r="4.95" fill="#F9A000" fillOpacity="0.92" />
+      </svg>
+    );
+  }
   return (
-    <span
-      className={`rounded-full px-2 py-0.5 text-[11px] font-[weight:590] ${map[status]}`}
-    >
-      {t(`account.transactions.status.${status}`)}
+    <span className="flex h-4 w-[23px] shrink-0 items-center justify-center rounded-[2.5px] border border-[#EBEBEB] text-[8px] font-[weight:590] uppercase text-[#5E5E5E]">
+      {(brand || "card").slice(0, 4)}
     </span>
   );
 }
@@ -120,7 +142,7 @@ export function TransactionsPage() {
     if (status !== "all" && row.status !== status) return false;
     if (!q) return true;
     return [row.child_name, row.program_name, row.coach_name]
-      .filter(Boolean)
+      .filter((v): v is string => Boolean(v))
       .some((v) => v.toLowerCase().includes(q));
   });
 
@@ -164,76 +186,208 @@ export function TransactionsPage() {
 
   return (
     <ProfileShell active="transactions">
-      <h1 className="text-[28px] font-[weight:590] leading-[34px]">
-        {t("account.sidebar.transactions")}
-      </h1>
+      <h1 className="sr-only">{t("account.sidebar.transactions")}</h1>
 
-      {/* Saved payment methods (Decision 6) */}
-      <section className="mt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[16px] font-[weight:590]">
-            {t("account.transactions.savedMethod")}
-          </h2>
-          <button
-            type="button"
-            disabled={adding}
-            onClick={() => void addPaymentMethod()}
-            className="flex h-9 items-center gap-2 rounded-[8px] border border-[#B0B0B0] px-3 text-[13px] transition-colors hover:border-ink disabled:opacity-50"
-          >
-            {adding ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
-            {t("account.transactions.addMethod")}
-          </button>
-        </div>
+      {/* Capture header: "Add payment method +" text link (14/510 #5E5E5E) */}
+      <div className="px-3">
+        <button
+          type="button"
+          disabled={adding}
+          onClick={() => void addPaymentMethod()}
+          className="flex items-center gap-1.5 text-[14px] font-[weight:510] leading-[21px] text-[#5E5E5E] transition-colors hover:text-[#222222] disabled:opacity-50"
+        >
+          {adding ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" strokeWidth={1.5} />
+          )}
+          {t("account.transactions.addMethod")}
+        </button>
+      </div>
+
+      {/* Saved cards — bordered r8 mini cards (capture Frame 2147237525) */}
+      <div className="mt-6 px-3">
         {methods.length === 0 ? (
-          <p className="mt-3 text-[13px] text-[#717171]">
+          <p className="text-[13px] text-[#717171]">
             {t("account.transactions.noMethods")}
           </p>
         ) : (
-          <div className="mt-3 flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4">
             {methods.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center gap-3 rounded-[8px] border border-[#EBEBEB] px-4 py-3"
+                className="w-[244px] rounded-[8px] border border-[#EBEBEB] p-3"
               >
-                <div className="flex h-8 w-12 items-center justify-center rounded bg-[#F5F5F5] text-[11px] font-[weight:590] uppercase">
-                  {m.brand || "card"}
-                </div>
-                <div>
-                  <p className="text-[14px] font-[weight:590]">
-                    {m.brand
-                      ? m.brand[0].toUpperCase() + m.brand.slice(1)
-                      : "Card"}{" "}
+                <div className="flex items-center gap-2">
+                  <CardMark brand={m.brand} />
+                  <p className="flex-1 truncate text-[14px] text-[#222222]">
                     •••• {m.last4}
                   </p>
-                  <p className="text-[12px] text-[#717171]">
-                    {m.exp_month != null
-                      ? `${String(m.exp_month).padStart(2, "0")}/${m.exp_year}`
-                      : ""}
-                    {m.is_default
-                      ? ` · ${t("account.transactions.default")}`
-                      : ""}
-                  </p>
+                  <button
+                    type="button"
+                    aria-label={t("account.transactions.removeMethod")}
+                    onClick={() => void removePaymentMethod(m.id)}
+                    className="rounded p-1 text-[#717171] transition-colors hover:bg-[#F5F5F5] hover:text-brand-coral"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  aria-label={t("account.transactions.removeMethod")}
-                  onClick={() => void removePaymentMethod(m.id)}
-                  className="ml-2 rounded p-1.5 text-[#717171] transition-colors hover:bg-[#F5F5F5] hover:text-brand-coral"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <p className="mt-2.5 text-[12px] text-[#222222]">
+                  {t("account.transactions.expiry")}{" "}
+                  {m.exp_month != null
+                    ? `${String(m.exp_month).padStart(2, "0")}/${m.exp_year}`
+                    : "—"}
+                </p>
+                {m.is_default ? (
+                  <p className="mt-1 text-[10px] text-[#5E5E5E]">
+                    {t("account.transactions.default")}
+                  </p>
+                ) : null}
               </div>
             ))}
           </div>
         )}
-      </section>
+      </div>
 
-      {/* Promocodes — toggle section (user addition) */}
-      <section className="mt-6 rounded-[12px] border border-[#EBEBEB]">
+      {/* Search + status pill (capture Frame 2147237123: h30 input r8 +
+          r24 tag pill) */}
+      <div className="mt-8 flex items-center gap-2.5 px-3">
+        <div className="flex h-[30px] w-full max-w-[420px] items-center gap-1.5 rounded-[8px] border border-[#EBEBEB] px-3">
+          <Search className="h-2.5 w-2.5 shrink-0 text-[#5E5E5E]" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t("account.transactions.searchPlaceholder")}
+            aria-label={t("account.transactions.searchPlaceholder")}
+            className="w-full bg-transparent text-[12px] text-[#222222] placeholder:text-[#717171] focus:outline-none"
+          />
+        </div>
+        <div className="relative">
+          <select
+            value={status}
+            onChange={(e) =>
+              setStatus(e.target.value as (typeof STATUS_OPTIONS)[number])
+            }
+            className="h-[22px] appearance-none rounded-full border border-[#EBEBEB] bg-white py-0.5 pl-3 pr-6 text-[12px] text-[#5E5E5E] focus:outline-none"
+            aria-label={t("account.transactions.statusFilter")}
+          >
+            {STATUS_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option === "all"
+                  ? t("account.transactions.status.all")
+                  : t(`account.transactions.status.${option}`)}
+              </option>
+            ))}
+          </select>
+          <svg
+            aria-hidden
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2"
+          >
+            <path
+              d="M2 3.5l3 3 3-3"
+              stroke="#5E5E5E"
+              strokeWidth="1.1"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* Transaction history — ONE white r12 shadowed card, rows split by
+          hairlines (capture Frame 2147237124) */}
+      <div className="mt-8 px-3">
+        {loading ? (
+          <p className="text-sm text-[#717171]">{t("account.loading")}</p>
+        ) : visibleTransactions.length === 0 ? (
+          <p className="text-sm text-[#717171]">
+            {t("account.transactions.empty")}
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-3 rounded-[12px] bg-white p-4 shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+            {visibleTransactions.map((row, i) => (
+              <li key={row.id} className="flex flex-col">
+                {i > 0 ? (
+                  <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
+                ) : null}
+                {/* Row header — date, then child + status (pad 16/20/12/20) */}
+                <div className="flex flex-col gap-3 px-5 pb-3 pt-4">
+                  <p className="text-[12px] text-[#717171]">
+                    {fmtDate(row.paid_at)}
+                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-[14px] font-[weight:510] text-[#222222]">
+                      {row.child_name || "—"}
+                    </p>
+                    <p
+                      className={`shrink-0 text-[12px] ${STATUS_TEXT_COLOR[row.status]}`}
+                    >
+                      {t(`account.transactions.status.${row.status}`)}
+                    </p>
+                  </div>
+                </div>
+                {/* Row body — program + amount, lessons · period, note +
+                    by coach (pad 0/20/20/20) */}
+                <div className="flex flex-col gap-4 px-5 pb-5">
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="truncate text-[12px] font-[weight:510] text-[#222222]">
+                        {row.program_name || "—"}
+                      </p>
+                      <p className="shrink-0 text-[14px] font-[weight:510] text-[#222222]">
+                        ${row.amount.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 text-[12px] text-[#222222]">
+                      {row.lessons_count != null ? (
+                        <span>
+                          {formatTemplate(t, "account.transactions.lessons", {
+                            n: row.lessons_count,
+                          })}
+                        </span>
+                      ) : null}
+                      {row.lessons_count != null &&
+                      (row.period_start || row.period_end) ? (
+                        <span
+                          aria-hidden
+                          className="h-0.5 w-0.5 rounded-full bg-[#717171]"
+                        />
+                      ) : null}
+                      {row.period_start || row.period_end ? (
+                        <span>
+                          {fmtPeriod(row.period_start, row.period_end)}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  {row.note || row.coach_name ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="min-w-0 truncate text-[10px] text-[#5E5E5E]">
+                        {row.note || ""}
+                      </p>
+                      {row.coach_name ? (
+                        <p className="shrink-0 text-[10px] text-[#5E5E5E]">
+                          {formatTemplate(t, "account.transactions.by", {
+                            name: row.coach_name,
+                          })}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Promocodes — toggle section (user addition, below the ledger) */}
+      <section className="mx-3 mt-8 rounded-[12px] border border-[#EBEBEB]">
         <button
           type="button"
           aria-expanded={promoOpen}
@@ -312,93 +466,6 @@ export function TransactionsPage() {
             )}
           </div>
         ) : null}
-      </section>
-
-      {/* Ledger */}
-      <section className="mt-8">
-        <div className="flex flex-wrap gap-3">
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t("account.transactions.searchPlaceholder")}
-            aria-label={t("account.transactions.searchPlaceholder")}
-            className="h-10 flex-1 rounded-[8px] border border-[#B0B0B0] px-4 text-sm focus:border-classz-400 focus:outline-none"
-          />
-          <select
-            value={status}
-            onChange={(e) =>
-              setStatus(e.target.value as (typeof STATUS_OPTIONS)[number])
-            }
-            className="h-10 rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-sm"
-            aria-label={t("account.transactions.statusFilter")}
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option === "all"
-                  ? t("account.transactions.status.all")
-                  : t(`account.transactions.status.${option}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {loading ? (
-          <p className="mt-6 text-sm text-[#717171]">{t("account.loading")}</p>
-        ) : visibleTransactions.length === 0 ? (
-          <p className="mt-6 text-sm text-[#717171]">
-            {t("account.transactions.empty")}
-          </p>
-        ) : (
-          <ul className="mt-4 flex flex-col gap-3">
-            {visibleTransactions.map((row) => (
-              <li
-                key={row.id}
-                className="rounded-[12px] border border-[#EBEBEB] p-4"
-              >
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <span className="text-[13px] text-[#717171]">
-                    {fmtDate(row.paid_at)}
-                  </span>
-                  <span className="text-[15px] font-[weight:590]">
-                    {row.child_name || "—"}
-                  </span>
-                  <StatusChip status={row.status} />
-                  <span className="ml-auto text-[16px] font-[weight:590]">
-                    ${row.amount.toLocaleString()}
-                  </span>
-                </div>
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[#5E5E5E]">
-                  {row.program_name ? (
-                    <span className="font-[weight:510] text-ink">
-                      {row.program_name}
-                    </span>
-                  ) : null}
-                  {row.note ? <span>· {row.note}</span> : null}
-                  {row.lessons_count != null ? (
-                    <span>
-                      ·{" "}
-                      {formatTemplate(t, "account.transactions.lessons", {
-                        n: row.lessons_count,
-                      })}
-                    </span>
-                  ) : null}
-                  {row.period_start || row.period_end ? (
-                    <span>· {fmtPeriod(row.period_start, row.period_end)}</span>
-                  ) : null}
-                  {row.coach_name ? (
-                    <span>
-                      ·{" "}
-                      {formatTemplate(t, "account.transactions.by", {
-                        name: row.coach_name,
-                      })}
-                    </span>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
     </ProfileShell>
   );
