@@ -159,8 +159,10 @@ export function AboutMePage() {
               frame (capture Frame 2147237524): the photo does NOT align with
               the 817-wide form below — its right edge stops at 745.5 */}
           <div className="flex w-full max-w-[745.5px] items-start justify-between gap-8">
-            <div className="flex min-w-0 flex-col gap-8">
-              <div className="flex flex-col gap-2.5 py-2">
+            {/* Greeting stack — capture Frame 2147237518: pad y 16, 23px
+                between the greeting block and the stats row */}
+            <div className="flex min-w-0 flex-col gap-[23px] py-4">
+              <div className="flex flex-col gap-2.5">
                 <p className="text-[22px] font-[weight:590] leading-[26px] text-black">
                   {formatTemplate(t, "account.aboutMe.hello", {
                     name: summary.name || "",
@@ -170,7 +172,7 @@ export function AboutMePage() {
                   Hong Kong
                 </p>
               </div>
-              <div className="flex items-center bg-white py-2">
+              <div className="flex items-center bg-white">
                 <Info
                   value={summary.children_count}
                   label={t("account.aboutMe.children")}
