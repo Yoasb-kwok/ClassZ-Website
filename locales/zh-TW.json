@@ -1109,6 +1109,8 @@
       "fullName": "全名",
       "email": "電郵地址",
       "verified": "已驗證",
+      "country": "國家/地區",
+      "clearName": "清除",
       "address": "地址",
       "phone": "電話",
       "verify": "驗證",

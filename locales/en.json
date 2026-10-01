@@ -1114,6 +1114,8 @@
       "fullName": "Full name",
       "email": "Email address",
       "verified": "Verified",
+      "country": "Country",
+      "clearName": "Clear",
       "address": "Address",
       "phone": "Phone",
       "verify": "Verify",
