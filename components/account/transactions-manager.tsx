@@ -395,61 +395,66 @@ export function TransactionsPage() {
                 {i > 0 ? (
                   <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
                 ) : null}
-                {/* Row — capture-exact (Frame 2147237070): header pad
-                    16/20/12/20 with 12px gaps; date 12/400 #717171 · name
-                    14/510 + status 12/400 · centre 12/400 #5E5E5E (user
-                    addition) · program 12/510 + amount 14/510 · duration
-                    12/400 #222 with 2px dot. */}
+                {/* Row — capture placement (brightened Profile-add_payment
+                    _method ref): right column stacks status then price;
+                    left column date, name, centre, program, duration.
+                    Centre + program bold per user. */}
                 <div className="flex flex-col gap-3 px-5 pb-5 pt-4">
                   <p className="text-[12px] leading-[15px] text-[#717171]">
                     {fmtDate(row.paid_at)}
                   </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
-                      {row.child_name || "—"}
-                    </p>
-                    <p
-                      className={`shrink-0 text-[12px] leading-[15px] ${STATUS_TEXT_COLOR[row.status]}`}
-                    >
-                      {t(`account.transactions.status.${row.status}`)}
-                    </p>
-                  </div>
-                  <p className="truncate text-[12px] leading-[15px] text-[#5E5E5E]">
-                    {row.centre_name || "—"}
-                  </p>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-[12px] font-[weight:510] leading-[15px] text-[#222222]">
-                      {row.program_name || "—"}
-                    </p>
-                    <p className="shrink-0 text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
-                      ${row.amount.toLocaleString()}
-                    </p>
-                  </div>
-                  {row.lessons_count != null ||
-                  row.period_start ||
-                  row.period_end ? (
-                    <div className="-mt-1 flex items-center gap-1 text-[12px] leading-[15px] text-[#222222]">
-                      {row.lessons_count != null ? (
-                        <span>
-                          {formatTemplate(t, "account.transactions.lessons", {
-                            n: row.lessons_count,
-                          })}
-                        </span>
-                      ) : null}
-                      {row.lessons_count != null &&
-                      (row.period_start || row.period_end) ? (
-                        <span
-                          aria-hidden
-                          className="h-0.5 w-0.5 rounded-full bg-[#222222]"
-                        />
-                      ) : null}
-                      {row.period_start || row.period_end ? (
-                        <span>
-                          {fmtPeriod(row.period_start, row.period_end)}
-                        </span>
+                  <div className="flex items-start justify-between gap-6">
+                    <div className="flex min-w-0 flex-col gap-3">
+                      <p className="truncate text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
+                        {row.child_name || "—"}
+                      </p>
+                      <p className="truncate text-[12px] font-[weight:590] leading-[15px] text-[#5E5E5E]">
+                        {row.centre_name || "—"}
+                      </p>
+                      <p className="truncate text-[14px] font-[weight:590] leading-[18px] text-[#222222]">
+                        {row.program_name || "—"}
+                      </p>
+                      {row.lessons_count != null ||
+                      row.period_start ||
+                      row.period_end ? (
+                        <div className="flex items-center gap-1 text-[12px] leading-[15px] text-[#222222]">
+                          {row.lessons_count != null ? (
+                            <span>
+                              {formatTemplate(
+                                t,
+                                "account.transactions.lessons",
+                                {
+                                  n: row.lessons_count,
+                                },
+                              )}
+                            </span>
+                          ) : null}
+                          {row.lessons_count != null &&
+                          (row.period_start || row.period_end) ? (
+                            <span
+                              aria-hidden
+                              className="h-0.5 w-0.5 rounded-full bg-[#222222]"
+                            />
+                          ) : null}
+                          {row.period_start || row.period_end ? (
+                            <span>
+                              {fmtPeriod(row.period_start, row.period_end)}
+                            </span>
+                          ) : null}
+                        </div>
                       ) : null}
                     </div>
-                  ) : null}
+                    <div className="flex shrink-0 flex-col items-end gap-2.5">
+                      <p
+                        className={`text-[12px] leading-[15px] ${STATUS_TEXT_COLOR[row.status]}`}
+                      >
+                        {t(`account.transactions.status.${row.status}`)}
+                      </p>
+                      <p className="text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
+                        ${row.amount.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </li>
             ))}
