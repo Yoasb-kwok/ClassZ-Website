@@ -68,7 +68,7 @@ export function ProfileShell({
           </p>
           <nav
             aria-label={t("account.sidebar.title")}
-            className="flex flex-col gap-1"
+            className="flex flex-col gap-5"
           >
             {NAV_ITEMS.map(({ key, href, labelKey, icon }) => {
               const isActive = active === key;
@@ -77,7 +77,7 @@ export function ProfileShell({
                   key={key}
                   href={href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] leading-[17px] transition-colors ${
+                  className={`flex items-center gap-3 rounded-[8px] px-3 py-3 text-[14px] leading-[17px] transition-colors ${
                     isActive
                       ? "bg-[#F5F5F5] text-[#222222]"
                       : "text-[#222222] hover:bg-[#F5F5F5]"
@@ -97,7 +97,7 @@ export function ProfileShell({
             })}
           </nav>
 
-          <div className="mt-6 flex flex-col gap-1 border-t border-[#EBEBEB] pt-4">
+          <div className="mt-8 flex flex-col gap-5 border-t border-[#EBEBEB] pt-5">
             <a
               href="/delete-account"
               className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[15px] leading-[18px] text-brand-coral transition-colors hover:bg-[#F5F5F5]"
