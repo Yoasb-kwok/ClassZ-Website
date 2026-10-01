@@ -49,14 +49,25 @@ import { formatTemplate } from "./format";
  *   dates; union semantics — any selected weekday matches)
  * - Budget/Class Size sorts: REAL (detail-endpoint prices passed in;
  *   class capacity from classes)
- * - Category / star-exclusion / service tags: inert "coming soon" chrome
- *   (same policy as filter-sidebar.tsx — no API fields)
- * - Card star+rating row + service tag pills: OMITTED (no public API
- *   fields; WorkshopCard precedent) — see INDEX.md.
+ * - Category: REAL (course.category)
+ * - Filter: REAL star-rating exclusion (user decision 2026-10-01, same as
+ *   the centre listing) — reads the per-course mock-fallback rating
+ *   (courseRating below; no public rating API field yet, same policy as
+ *   the centre mock ratings). Service tags stay out until that API exists.
+ * - Card star+rating row shows the same mock-fallback value so the filter
+ *   matches what the card displays.
  * - Card links carry ?dates=1 → detail opens with lesson dates expanded.
  */
 
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+
+/** Mock-fallback rating per course (D2) — deterministic per id, same
+ *  policy as the centre mock ratings; swapped for real aggregates when
+ *  the reviews feature lands. Range 3.60–4.98, 2 decimals ("4.91"). */
+function courseRating(course: PublicCourse): string {
+  const v = (((course.id * 2654435761) % 1000) + 1000) % 1000;
+  return (3.6 + (v / 1000) * 1.38).toFixed(2);
+}
 
 /** demo CSS pbox.date — sidebar price box #1973:20101 chrome (105×57 r8) */
 function DateBox({
@@ -97,6 +108,8 @@ interface Row {
   durationMinutes: number | null;
   weekdays: number[];
   district: District | undefined;
+  /** mock-fallback rating ("4.91") — filter + card star block */
+  rating: string;
 }
 
 const DAY_MS = 86_400_000;
@@ -170,6 +183,9 @@ export function ProgramsListing({
   /** Weekday filter (programs variant only) — JS day numbers 0–6, union
    *  semantics: a program matches when it runs on ANY selected day. */
   const [weekdays, setWeekdays] = useState<Set<number>>(new Set());
+  /** excluded star bounds — "Exclude {n}★ and below", n ∈ 1..4 (centre
+   *  listing parity): rating must be strictly above every kept bound; */
+  const [excludeStars, setExcludeStars] = useState<Set<number>>(new Set());
   /** which popover is open — only one at a time (demo behavior) */
   const [openPop, setOpenPop] = useState<ToolbarPop>(null);
   const [activeSort, setActiveSort] = useState<"budget" | "size" | null>(null);
@@ -231,6 +247,7 @@ export function ProgramsListing({
             ...sessions.map((s) => s.location),
             ...(centreHints[course.center_id] ?? []),
           ),
+          rating: courseRating(course),
         };
       });
   }, [courses, classes, prices, variant, centreHints]);
@@ -258,6 +275,14 @@ export function ProgramsListing({
         if (row.minDay == null || row.maxDay == null) return false;
         if (fromDay != null && row.maxDay < fromDay) return false;
         if (toDay != null && row.minDay > toDay) return false;
+      }
+      if (excludeStars.size > 0) {
+        const rating = Number.parseFloat(row.rating);
+        /* unrated courses sink whenever a star filter is active */
+        if (Number.isNaN(rating)) return false;
+        for (const n of excludeStars) {
+          if (rating <= n) return false;
+        }
       }
       if (q) {
         const haystack = [
@@ -318,6 +343,7 @@ export function ProgramsListing({
     dateFrom,
     dateTo,
     weekdays,
+    excludeStars,
     isPrograms,
     activeSort,
     budgetDir,
@@ -348,6 +374,14 @@ export function ProgramsListing({
       return next;
     });
 
+  const toggleExcludeStars = (n: number) =>
+    setExcludeStars((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+
   const clearFilters = () => {
     setQuery("");
     setDistricts(new Set());
@@ -355,6 +389,7 @@ export function ProgramsListing({
     setDateFrom("");
     setDateTo("");
     setWeekdays(new Set());
+    setExcludeStars(new Set());
     setActiveSort(null);
     setBudgetDir("asc");
     setSizeDir("desc");
@@ -458,8 +493,9 @@ export function ProgramsListing({
           searchPlaceholder={t("programs.searchPlaceholder")}
           actions={
             <>
-              {/* Filter — inert until rating/service API fields exist
-                (filter-sidebar.tsx same policy) */}
+              {/* Filter — REAL star-rating exclusion (centre-listing parity,
+                  user decision 2026-10-01); service tags stay out until that
+                  API exists */}
               <div className="relative">
                 <button
                   type="button"
@@ -467,10 +503,18 @@ export function ProgramsListing({
                   onClick={() =>
                     setOpenPop(openPop === "filter" ? null : "filter")
                   }
-                  title={t("programs.comingSoon")}
-                  className="flex h-10 items-center gap-[6px] rounded-[8px] border border-[#B0B0B0] bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink"
+                  className={`flex h-10 items-center gap-[6px] rounded-[8px] border bg-white px-3 text-[14px] leading-[17px] text-ink transition-colors hover:border-ink ${
+                    excludeStars.size > 0
+                      ? "border-classz-500 font-[weight:590]"
+                      : "border-[#B0B0B0]"
+                  }`}
                 >
                   {t("programs.filter")}
+                  {excludeStars.size > 0 ? (
+                    <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[rgba(10,186,181,0.3)] px-[5px] text-[11px] font-[weight:590] leading-none">
+                      {excludeStars.size}
+                    </span>
+                  ) : null}
                   <ChevronDown
                     aria-hidden
                     className={`h-4 w-4 text-[#5E5E5E] transition-transform ${
@@ -484,16 +528,22 @@ export function ProgramsListing({
                     <h4 className="text-[16px] font-[weight:590] leading-[19px]">
                       {t("programs.rating")}
                     </h4>
-                    <fieldset
-                      disabled
-                      className="mt-4 flex flex-col gap-4"
-                      title={t("programs.comingSoon")}
-                    >
+                    <div className="mt-4 flex flex-col gap-4">
                       {[1, 2, 3, 4].map((n) => (
-                        <div key={n} className="flex items-center gap-5">
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => toggleExcludeStars(n)}
+                          aria-pressed={excludeStars.has(n)}
+                          className="flex items-center gap-5 text-left"
+                        >
                           <span
                             aria-hidden
-                            className="flex h-4 w-4 items-center justify-center rounded-[4px] border border-[#B0B0B0] bg-white"
+                            className={`flex h-4 w-4 items-center justify-center rounded-[4px] border ${
+                              excludeStars.has(n)
+                                ? "border-[#0ABAB5] bg-[rgba(10,186,181,0.35)]"
+                                : "border-[#B0B0B0] bg-white"
+                            }`}
                           />
                           <span className="flex items-center gap-1 text-sm leading-[21px] text-ink">
                             <Star
@@ -504,33 +554,9 @@ export function ProgramsListing({
                             />
                             {formatTemplate(t, "programs.excludeStars", { n })}
                           </span>
-                        </div>
+                        </button>
                       ))}
-                    </fieldset>
-                    <h4 className="mt-5 text-[16px] font-[weight:590] leading-[19px]">
-                      {t("programs.service")}
-                    </h4>
-                    <fieldset
-                      disabled
-                      className="mt-3 flex max-w-[240px] flex-wrap gap-2"
-                      title={t("programs.comingSoon")}
-                    >
-                      {(
-                        [
-                          "sen",
-                          "smallClass",
-                          "examPathway",
-                          "performance",
-                        ] as const
-                      ).map((key) => (
-                        <span
-                          key={key}
-                          className="flex h-[25px] items-center rounded-[4px] bg-[rgba(34,34,34,0.1)] px-2 py-1 text-[12px] font-normal leading-[14px] text-ink opacity-80"
-                        >
-                          {t(`programs.serviceTags.${key}`)}
-                        </span>
-                      ))}
-                    </fieldset>
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -727,9 +753,25 @@ function ListingCard({ row, href }: { row: Row; href: string }) {
         <h3 className="line-clamp-2 text-[15px] font-[590] leading-5 text-ink">
           {course.name}
         </h3>
-        {priceLine ? (
-          <p className="text-sm font-[590] text-ink">{priceLine}</p>
-        ) : null}
+        <div className="flex items-center justify-between gap-2">
+          {priceLine ? (
+            <p className="text-sm font-[590] text-ink">{priceLine}</p>
+          ) : null}
+          {/* star + mock-fallback rating — same value the star Filter
+              reads (courseRating), swapped for real aggregates when the
+              reviews feature lands */}
+          <span className="ml-auto flex shrink-0 items-center gap-[4px]">
+            <Star
+              aria-hidden
+              className="h-3.5 w-3.5 text-[#222222]"
+              strokeWidth={0}
+              fill="#222222"
+            />
+            <span className="text-[12px] leading-[15px] text-[#222222]">
+              {row.rating}
+            </span>
+          </span>
+        </div>
         {weekday || district || age ? (
           <div className="mt-auto flex items-center gap-2 pt-1 text-xs leading-4 text-[#5E5E5E]">
             <div className="flex min-w-0 items-center gap-2">
