@@ -147,15 +147,15 @@ export function AboutMePage() {
           {error || t("account.loadFailed")}
         </p>
       ) : (
-        /* The Card — white, r24, even shade visible on all four sides,
-            pad 48/64, gap 32; capped (user: previous full-width was too big) */
-        <div className="flex w-full max-w-[1000px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_0_24px_rgba(0,0,0,0.12)]">
+        /* The Card — white, r24, even shade on all four sides (blur+spread
+            so left/right are clearly visible), pad 48/64, gap 32 */
+        <div className="flex w-full max-w-[1000px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_0_28px_6px_rgba(0,0,0,0.14)]">
           {/* Top row — info col (486.5) + 150×150 photo inside a 745.5-wide
               frame (capture Frame 2147237524): the photo does NOT align with
               the 817-wide form below — its right edge stops at 745.5 */}
           <div className="flex w-full max-w-[745.5px] items-start justify-between gap-8">
-            <div className="flex min-w-0 flex-col">
-              <div className="flex flex-col gap-2.5 py-4">
+            <div className="flex min-w-0 flex-col gap-6">
+              <div className="flex flex-col gap-2.5 py-2">
                 <p className="text-[22px] font-[weight:590] leading-[26px] text-black">
                   {formatTemplate(t, "account.aboutMe.hello", {
                     name: summary.name || "",
@@ -165,7 +165,7 @@ export function AboutMePage() {
                   Hong Kong
                 </p>
               </div>
-              <div className="flex items-center bg-white py-4">
+              <div className="flex items-center bg-white py-2">
                 <Info
                   value={summary.children_count}
                   label={t("account.aboutMe.children")}
@@ -337,9 +337,9 @@ export function AboutMePage() {
               </div>
             </div>
 
-            {/* Language — inline: 16px label + shaded 113×35 box (1px
-                #B0B0B0, r4, pad 8/16, arrow #5E5E5E). No wrapper box. */}
-            <div className="mt-10 flex items-center gap-3">
+            {/* Language — aligned with the rows (pl-3): 16px label + the
+                shaded select box, slightly smaller (100×30) */}
+            <div className="mt-10 flex items-center gap-3 pl-3">
               <span className="text-[16px] leading-[19px] text-[#222222]">
                 {t("account.aboutMe.language")}
               </span>
@@ -350,15 +350,15 @@ export function AboutMePage() {
                     const next = e.target.value;
                     setSummary((s) => (s ? { ...s, locale: next } : s));
                   }}
-                  className="h-[35px] w-[113px] appearance-none rounded-[4px] border border-[#B0B0B0] bg-white pl-4 pr-8 text-[16px] leading-[19px] text-[#222222] focus:border-classz-400 focus:outline-none"
+                  className="h-[30px] w-[100px] appearance-none rounded-[4px] border border-[#B0B0B0] bg-white pl-3 pr-7 text-[14px] leading-[17px] text-[#222222] focus:border-classz-400 focus:outline-none"
                 >
                   <option value="en">English</option>
                   <option value="zh-TW">繁體中文</option>
                 </select>
                 <svg
                   aria-hidden
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 16 16"
                   className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2"
                 >
