@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Heart, HelpCircle, LogOut, Trash2, UserRound } from "lucide-react";
+import { HelpCircle, LogOut, Trash2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { useLanguage } from "@/components/language-provider";
@@ -12,6 +12,10 @@ import { clearClasszSession, getClasszSession } from "@/lib/classz-auth";
  * "Profile-about_me"): About me / Child profile / Transactions / Favorites +
  * Help centre / Delete account / Log Out. Those last three are LINKS to the
  * existing surfaces — this build does not modify them.
+ *
+ * The four section icons are the user-supplied capture SVGs (figma prompt/
+ * 2909/icon, served from /icons/profile) — profile-circle, cup,
+ * empty-wallet, heart — 19px, stroke #222222.
  */
 
 const NAV_ITEMS = [
@@ -19,22 +23,25 @@ const NAV_ITEMS = [
     key: "about",
     href: "/account/profile",
     labelKey: "account.sidebar.aboutMe",
+    icon: "/icons/profile/profile-circle.svg",
   },
   {
     key: "children",
     href: "/account/children",
     labelKey: "account.sidebar.childProfile",
+    icon: "/icons/profile/cup.svg",
   },
   {
     key: "transactions",
     href: "/account/transactions",
     labelKey: "account.sidebar.transactions",
+    icon: "/icons/profile/empty-wallet.svg",
   },
   {
     key: "favorites",
     href: "/account/favorites",
     labelKey: "account.sidebar.favorites",
-    Icon: Heart,
+    icon: "/icons/profile/heart.svg",
   },
 ] as const;
 
@@ -63,8 +70,7 @@ export function ProfileShell({
             aria-label={t("account.sidebar.title")}
             className="flex flex-col gap-1"
           >
-            {NAV_ITEMS.map(({ key, href, labelKey, ...rest }) => {
-              const Icon = "Icon" in rest ? rest.Icon : UserRound;
+            {NAV_ITEMS.map(({ key, href, labelKey, icon }) => {
               const isActive = active === key;
               return (
                 <a
@@ -77,7 +83,14 @@ export function ProfileShell({
                       : "text-[#222222] hover:bg-[#F5F5F5]"
                   }`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={icon}
+                    alt=""
+                    width={19}
+                    height={19}
+                    className="h-[19px] w-[19px] shrink-0"
+                  />
                   {t(labelKey)}
                 </a>
               );

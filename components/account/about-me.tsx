@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Pencil, XCircle } from "lucide-react";
+import { Loader2, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { formatTemplate } from "@/components/programs/format";
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client";
@@ -216,7 +216,14 @@ export function AboutMePage() {
                 {uploading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Pencil className="h-4 w-4" strokeWidth={2} />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src="/icons/profile/edit-2.svg"
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="h-4 w-4"
+                  />
                 )}
               </button>
               <input
