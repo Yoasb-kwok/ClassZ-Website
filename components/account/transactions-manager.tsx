@@ -395,31 +395,12 @@ export function TransactionsPage() {
                 {i > 0 ? (
                   <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
                 ) : null}
-                {/* Row per user spec: lesson duration (n lessons · start –
-                    end) on top, then name → centre → program. Status +
-                    amount stay on the right edge. */}
+                {/* Row per the capture: transaction date on top, then name
+                    + status, centre, program + amount, duration at the
+                    bottom. */}
                 <div className="flex flex-col gap-2 px-5 py-4">
-                  <p className="text-[12px] leading-[15px] text-[#222222]">
-                    {row.lessons_count != null ||
-                    row.period_start ||
-                    row.period_end
-                      ? [
-                          row.lessons_count != null
-                            ? formatTemplate(
-                                t,
-                                "account.transactions.lessons",
-                                {
-                                  n: row.lessons_count,
-                                },
-                              )
-                            : null,
-                          row.period_start || row.period_end
-                            ? fmtPeriod(row.period_start, row.period_end)
-                            : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")
-                      : fmtDate(row.paid_at)}
+                  <p className="text-[12px] leading-[15px] text-[#717171]">
+                    {fmtDate(row.paid_at)}
                   </p>
                   <div className="flex items-center justify-between gap-3">
                     <p className="truncate text-[16px] font-[weight:590] leading-[19px] text-[#222222]">
@@ -442,6 +423,24 @@ export function TransactionsPage() {
                       ${row.amount.toLocaleString()}
                     </p>
                   </div>
+                  {row.lessons_count != null ||
+                  row.period_start ||
+                  row.period_end ? (
+                    <p className="text-[12px] leading-[15px] text-[#222222]">
+                      {[
+                        row.lessons_count != null
+                          ? formatTemplate(t, "account.transactions.lessons", {
+                              n: row.lessons_count,
+                            })
+                          : null,
+                        row.period_start || row.period_end
+                          ? fmtPeriod(row.period_start, row.period_end)
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" \u00b7 ")}
+                    </p>
+                  ) : null}
                 </div>
               </li>
             ))}
