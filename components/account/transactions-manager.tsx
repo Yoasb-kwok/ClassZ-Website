@@ -36,6 +36,7 @@ type Transaction = {
   amount: number;
   status: "pending" | "successful" | "refunded" | "failed";
   program_name: string | null;
+  centre_name: string | null;
   coach_name: string | null;
   lessons_count: number | null;
   period_start: string | null;
@@ -141,7 +142,7 @@ export function TransactionsPage() {
   const visibleTransactions = transactions.filter((row) => {
     if (status !== "all" && row.status !== status) return false;
     if (!q) return true;
-    return [row.child_name, row.program_name, row.coach_name]
+    return [row.child_name, row.centre_name, row.program_name, row.coach_name]
       .filter((v): v is string => Boolean(v))
       .some((v) => v.toLowerCase().includes(q));
   });
@@ -329,18 +330,17 @@ export function TransactionsPage() {
         ) : null}
       </div>
 
-      {/* Search + status pill (capture Frame 2147237123: h30 input r8 +
-          r24 tag pill) */}
+      {/* Search + status pill — 40px input, 14px text */}
       <div className="mt-8 flex items-center gap-2.5 px-3">
-        <div className="flex h-[30px] w-full max-w-[420px] items-center gap-1.5 rounded-[8px] border border-[#EBEBEB] px-3">
-          <Search className="h-2.5 w-2.5 shrink-0 text-[#5E5E5E]" />
+        <div className="flex h-10 w-full max-w-[420px] items-center gap-2 rounded-[8px] border border-[#EBEBEB] px-3.5">
+          <Search className="h-3.5 w-3.5 shrink-0 text-[#5E5E5E]" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("account.transactions.searchPlaceholder")}
             aria-label={t("account.transactions.searchPlaceholder")}
-            className="w-full bg-transparent text-[12px] text-[#222222] placeholder:text-[#717171] focus:outline-none"
+            className="w-full bg-transparent text-[14px] text-[#222222] placeholder:text-[#717171] focus:outline-none"
           />
         </div>
         <div className="relative">
@@ -395,13 +395,11 @@ export function TransactionsPage() {
                 {i > 0 ? (
                   <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
                 ) : null}
-                {/* Row header — date, then child + status (pad 16/20/12/20) */}
-                <div className="flex flex-col gap-3 px-5 pb-3 pt-4">
-                  <p className="text-[12px] text-[#717171]">
-                    {fmtDate(row.paid_at)}
-                  </p>
+                {/* Row per user spec: name → which centre → which program →
+                    date. Status + amount stay on the right edge. */}
+                <div className="flex flex-col gap-2 px-5 py-4">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-[14px] font-[weight:510] text-[#222222]">
+                    <p className="truncate text-[16px] font-[weight:590] leading-[19px] text-[#222222]">
                       {row.child_name || "—"}
                     </p>
                     <p
@@ -410,55 +408,20 @@ export function TransactionsPage() {
                       {t(`account.transactions.status.${row.status}`)}
                     </p>
                   </div>
-                </div>
-                {/* Row body — program + amount, lessons · period, note +
-                    by coach (pad 0/20/20/20) */}
-                <div className="flex flex-col gap-4 px-5 pb-5">
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="truncate text-[12px] font-[weight:510] text-[#222222]">
-                        {row.program_name || "—"}
-                      </p>
-                      <p className="shrink-0 text-[14px] font-[weight:510] text-[#222222]">
-                        ${row.amount.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 text-[12px] text-[#222222]">
-                      {row.lessons_count != null ? (
-                        <span>
-                          {formatTemplate(t, "account.transactions.lessons", {
-                            n: row.lessons_count,
-                          })}
-                        </span>
-                      ) : null}
-                      {row.lessons_count != null &&
-                      (row.period_start || row.period_end) ? (
-                        <span
-                          aria-hidden
-                          className="h-0.5 w-0.5 rounded-full bg-[#717171]"
-                        />
-                      ) : null}
-                      {row.period_start || row.period_end ? (
-                        <span>
-                          {fmtPeriod(row.period_start, row.period_end)}
-                        </span>
-                      ) : null}
-                    </div>
+                  <p className="truncate text-[13px] leading-[16px] text-[#5E5E5E]">
+                    {row.centre_name || "—"}
+                  </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
+                      {row.program_name || "—"}
+                    </p>
+                    <p className="shrink-0 text-[16px] font-[weight:590] text-[#222222]">
+                      ${row.amount.toLocaleString()}
+                    </p>
                   </div>
-                  {row.note || row.coach_name ? (
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="min-w-0 truncate text-[10px] text-[#5E5E5E]">
-                        {row.note || ""}
-                      </p>
-                      {row.coach_name ? (
-                        <p className="shrink-0 text-[10px] text-[#5E5E5E]">
-                          {formatTemplate(t, "account.transactions.by", {
-                            name: row.coach_name,
-                          })}
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
+                  <p className="text-[12px] leading-[15px] text-[#717171]">
+                    {fmtDate(row.paid_at)}
+                  </p>
                 </div>
               </li>
             ))}
