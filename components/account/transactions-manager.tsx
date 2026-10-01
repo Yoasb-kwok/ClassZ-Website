@@ -205,6 +205,89 @@ export function TransactionsPage() {
         </button>
       </div>
 
+      {/* Promocodes — user addition (D7), placed at the top so it is
+          immediately viewable even though it is not in the capture */}
+      <section className="mx-3 mt-6 rounded-[12px] border border-[#EBEBEB]">
+        <button
+          type="button"
+          aria-expanded={promoOpen}
+          onClick={() => setPromoOpen((v) => !v)}
+          className="flex w-full items-center justify-between px-5 py-4"
+        >
+          <span className="text-[16px] font-[weight:590]">
+            {t("account.transactions.promocodes")}
+          </span>
+          <span className="text-[13px] text-[#5E5E5E]">
+            {promoOpen ? "−" : "+"}{" "}
+            {coupons.filter((c) => c.status === "available").length}
+          </span>
+        </button>
+        {promoOpen ? (
+          <div className="flex flex-col gap-3 border-t border-[#EBEBEB] px-5 py-4">
+            <div className="flex gap-2">
+              <input
+                value={claimCode}
+                onChange={(e) => setClaimCode(e.target.value)}
+                placeholder={t("account.transactions.promoPlaceholder")}
+                className="h-10 flex-1 rounded-[8px] border border-[#EFF1F3] px-4 text-sm focus:border-classz-400 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => void claim()}
+                className="h-10 rounded-[8px] bg-[#222222] px-4 text-[13px] font-[weight:590] text-white transition-colors hover:bg-black"
+              >
+                {t("account.transactions.promoClaim")}
+              </button>
+            </div>
+            {claimMsg ? (
+              <p className="text-[13px] text-[#5E5E5E]">{claimMsg}</p>
+            ) : null}
+            {coupons.length === 0 ? (
+              <p className="text-[13px] text-[#717171]">
+                {t("account.transactions.noPromos")}
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {coupons.map((c) => (
+                  <li
+                    key={c.id}
+                    className="flex items-center justify-between rounded-[8px] border border-[#EBEBEB] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-[14px] font-[weight:590]">{c.code}</p>
+                      <p className="text-[12px] text-[#717171]">
+                        {c.center_name || "—"}
+                        {c.valid_until
+                          ? ` · ${t("account.transactions.validUntil")} ${fmtDate(c.valid_until)}`
+                          : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[14px] font-[weight:590]">
+                        {c.discount_type === "percentage"
+                          ? `${c.discount_value}%`
+                          : `HKD ${c.discount_value}`}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[11px] font-[weight:590] ${
+                          c.status === "available"
+                            ? "bg-[#D7F4F3] text-[#0ABAB5]"
+                            : c.status === "used"
+                              ? "bg-[#F5F5F5] text-[#5E5E5E]"
+                              : "bg-[#FFE5E5] text-[#D64545]"
+                        }`}
+                      >
+                        {t(`account.transactions.promoStatus.${c.status}`)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : null}
+      </section>
+
       {/* Saved cards — bordered r8 mini cards (capture Frame 2147237525) */}
       <div className="mt-6 px-3">
         {methods.length === 0 ? (
@@ -385,88 +468,6 @@ export function TransactionsPage() {
           </ul>
         )}
       </div>
-
-      {/* Promocodes — toggle section (user addition, below the ledger) */}
-      <section className="mx-3 mt-8 rounded-[12px] border border-[#EBEBEB]">
-        <button
-          type="button"
-          aria-expanded={promoOpen}
-          onClick={() => setPromoOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-5 py-4"
-        >
-          <span className="text-[16px] font-[weight:590]">
-            {t("account.transactions.promocodes")}
-          </span>
-          <span className="text-[13px] text-[#5E5E5E]">
-            {promoOpen ? "−" : "+"}{" "}
-            {coupons.filter((c) => c.status === "available").length}
-          </span>
-        </button>
-        {promoOpen ? (
-          <div className="flex flex-col gap-3 border-t border-[#EBEBEB] px-5 py-4">
-            <div className="flex gap-2">
-              <input
-                value={claimCode}
-                onChange={(e) => setClaimCode(e.target.value)}
-                placeholder={t("account.transactions.promoPlaceholder")}
-                className="h-10 flex-1 rounded-[8px] border border-[#EFF1F3] px-4 text-sm focus:border-classz-400 focus:outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => void claim()}
-                className="h-10 rounded-[8px] bg-[#222222] px-4 text-[13px] font-[weight:590] text-white transition-colors hover:bg-black"
-              >
-                {t("account.transactions.promoClaim")}
-              </button>
-            </div>
-            {claimMsg ? (
-              <p className="text-[13px] text-[#5E5E5E]">{claimMsg}</p>
-            ) : null}
-            {coupons.length === 0 ? (
-              <p className="text-[13px] text-[#717171]">
-                {t("account.transactions.noPromos")}
-              </p>
-            ) : (
-              <ul className="flex flex-col gap-2">
-                {coupons.map((c) => (
-                  <li
-                    key={c.id}
-                    className="flex items-center justify-between rounded-[8px] border border-[#EBEBEB] px-4 py-3"
-                  >
-                    <div>
-                      <p className="text-[14px] font-[weight:590]">{c.code}</p>
-                      <p className="text-[12px] text-[#717171]">
-                        {c.center_name || "—"}
-                        {c.valid_until
-                          ? ` · ${t("account.transactions.validUntil")} ${fmtDate(c.valid_until)}`
-                          : ""}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[14px] font-[weight:590]">
-                        {c.discount_type === "percentage"
-                          ? `${c.discount_value}%`
-                          : `HKD ${c.discount_value}`}
-                      </span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-[weight:590] ${
-                          c.status === "available"
-                            ? "bg-[#D7F4F3] text-[#0ABAB5]"
-                            : c.status === "used"
-                              ? "bg-[#F5F5F5] text-[#5E5E5E]"
-                              : "bg-[#FFE5E5] text-[#D64545]"
-                        }`}
-                      >
-                        {t(`account.transactions.promoStatus.${c.status}`)}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ) : null}
-      </section>
     </ProfileShell>
   );
 }
