@@ -395,51 +395,60 @@ export function TransactionsPage() {
                 {i > 0 ? (
                   <div aria-hidden className="h-px w-full bg-[#EBEBEB]" />
                 ) : null}
-                {/* Row per the capture: transaction date on top, then name
-                    + status, centre, program + amount, duration at the
-                    bottom. */}
-                <div className="flex flex-col gap-2 px-5 py-4">
+                {/* Row — capture-exact (Frame 2147237070): header pad
+                    16/20/12/20 with 12px gaps; date 12/400 #717171 · name
+                    14/510 + status 12/400 · centre 12/400 #5E5E5E (user
+                    addition) · program 12/510 + amount 14/510 · duration
+                    12/400 #222 with 2px dot. */}
+                <div className="flex flex-col gap-3 px-5 pb-5 pt-4">
                   <p className="text-[12px] leading-[15px] text-[#717171]">
                     {fmtDate(row.paid_at)}
                   </p>
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-[16px] font-[weight:590] leading-[19px] text-[#222222]">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
                       {row.child_name || "—"}
                     </p>
                     <p
-                      className={`shrink-0 text-[12px] ${STATUS_TEXT_COLOR[row.status]}`}
+                      className={`shrink-0 text-[12px] leading-[15px] ${STATUS_TEXT_COLOR[row.status]}`}
                     >
                       {t(`account.transactions.status.${row.status}`)}
                     </p>
                   </div>
-                  <p className="truncate text-[13px] leading-[16px] text-[#5E5E5E]">
+                  <p className="truncate text-[12px] leading-[15px] text-[#5E5E5E]">
                     {row.centre_name || "—"}
                   </p>
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-[12px] font-[weight:510] leading-[15px] text-[#222222]">
                       {row.program_name || "—"}
                     </p>
-                    <p className="shrink-0 text-[16px] font-[weight:590] text-[#222222]">
+                    <p className="shrink-0 text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
                       ${row.amount.toLocaleString()}
                     </p>
                   </div>
                   {row.lessons_count != null ||
                   row.period_start ||
                   row.period_end ? (
-                    <p className="text-[12px] leading-[15px] text-[#222222]">
-                      {[
-                        row.lessons_count != null
-                          ? formatTemplate(t, "account.transactions.lessons", {
-                              n: row.lessons_count,
-                            })
-                          : null,
-                        row.period_start || row.period_end
-                          ? fmtPeriod(row.period_start, row.period_end)
-                          : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" \u00b7 ")}
-                    </p>
+                    <div className="-mt-1 flex items-center gap-1 text-[12px] leading-[15px] text-[#222222]">
+                      {row.lessons_count != null ? (
+                        <span>
+                          {formatTemplate(t, "account.transactions.lessons", {
+                            n: row.lessons_count,
+                          })}
+                        </span>
+                      ) : null}
+                      {row.lessons_count != null &&
+                      (row.period_start || row.period_end) ? (
+                        <span
+                          aria-hidden
+                          className="h-0.5 w-0.5 rounded-full bg-[#222222]"
+                        />
+                      ) : null}
+                      {row.period_start || row.period_end ? (
+                        <span>
+                          {fmtPeriod(row.period_start, row.period_end)}
+                        </span>
+                      ) : null}
+                    </div>
                   ) : null}
                 </div>
               </li>
