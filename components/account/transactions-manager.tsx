@@ -408,7 +408,7 @@ export function TransactionsPage() {
                       <p className="truncate text-[14px] font-[weight:510] leading-[18px] text-[#222222]">
                         {row.child_name || "—"}
                       </p>
-                      <p className="truncate text-[14px] font-[weight:590] leading-[18px] text-[#5E5E5E]">
+                      <p className="truncate text-[14px] font-[weight:590] leading-[18px] text-[#222222]">
                         {row.centre_name || "—"}
                       </p>
                       <p className="truncate text-[14px] font-[weight:590] leading-[18px] text-[#222222]">
