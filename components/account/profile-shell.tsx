@@ -61,10 +61,10 @@ export function ProfileShell({
     <main className="min-h-screen bg-white text-ink">
       <Navbar />
       <div className="mx-auto flex w-full max-w-[1440px] flex-row items-stretch px-6 py-10 md:px-12 lg:px-16">
-        {/* In-page profile sidebar — NOT the hamburger menu. Flex column with
-            the capture's ~622px height (min-h) so the Delete/Log Out block
-            stays pinned to the bottom even on short-content pages */}
-        <aside className="flex w-full flex-col md:min-h-[620px] md:w-[240px]">
+        {/* In-page profile sidebar — NOT the hamburger menu. Fixed height
+            (the capture's ~622px) so the Delete/Log Out block sits at the
+            SAME position on every profile page, not drifting with content */}
+        <aside className="flex w-full flex-col md:h-[620px] md:w-[240px]">
           <p className="mb-4 text-[22px] font-[weight:590] leading-[26px]">
             {t("account.sidebar.title")}
           </p>
