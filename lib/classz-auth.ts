@@ -21,6 +21,9 @@ export type ClasszSession = {
     role: ClasszPortalRole;
     roleLabel: string;
     center_id?: number | null;
+    /** Parent profile photo — kept in sync so the navbar avatar updates
+        live when the photo changes on the About me page. */
+    photo_url?: string | null;
   };
 };
 
@@ -59,6 +62,20 @@ function notifySessionChanged() {
 export function setClasszSession(session: ClasszSession) {
   localStorage.setItem(CLASSZ_SESSION_KEY, JSON.stringify(session));
   notifySessionChanged();
+}
+
+/** Update the signed-in parent's photo on the stored session (no-op when
+    logged out or unchanged) so the navbar avatar re-renders via the
+    session-change event. */
+export function setClasszSessionPhoto(photoUrl: string | null | undefined) {
+  const session = getClasszSession();
+  if (!session) return;
+  const next = photoUrl || null;
+  if ((session.user.photo_url || null) === next) return;
+  setClasszSession({
+    ...session,
+    user: { ...session.user, photo_url: next },
+  });
 }
 
 export function clearClasszSession() {

@@ -5,6 +5,7 @@ import { Loader2, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { formatTemplate } from "@/components/programs/format";
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client";
+import { setClasszSessionPhoto } from "@/lib/classz-auth";
 import { resolveUploadUrl } from "@/lib/resolve-upload-url";
 import { ProfileShell } from "./profile-shell";
 
@@ -80,6 +81,8 @@ export function AboutMePage() {
         setSummary(data);
         setFullName(data.name || "");
         setCountryCode(data.country_code || "+852");
+        // Keep the navbar avatar (session-stored photo) in sync
+        setClasszSessionPhoto(data.photo_url);
       })
       .catch(
         (e) => alive && setError(e instanceof Error ? e.message : "Failed"),
@@ -132,6 +135,8 @@ export function AboutMePage() {
         "student",
       );
       setSummary((s) => (s ? { ...s, photo_url: res?.url || s.photo_url } : s));
+      // Reflect the new photo in the navbar avatar immediately
+      setClasszSessionPhoto(res?.url);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
     } finally {

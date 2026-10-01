@@ -33,6 +33,7 @@ import {
   surfaceFromPath,
   type ClasszSurface,
 } from "@/lib/classz-site";
+import { resolveUploadUrl } from "@/lib/resolve-upload-url";
 
 function initials(name?: string) {
   const parts = String(name || "")
@@ -286,7 +287,11 @@ export function Navbar() {
                   {session.user.role === "student" ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src="/images/profile-parent.png"
+                      src={
+                        session.user.photo_url
+                          ? resolveUploadUrl(session.user.photo_url)
+                          : "/images/profile-parent.png"
+                      }
                       alt=""
                       className="h-full w-full object-cover"
                     />

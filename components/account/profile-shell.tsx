@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { HelpCircle, LogOut, Trash2 } from "lucide-react";
+import { LogOut, Trash2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { useLanguage } from "@/components/language-provider";
@@ -98,13 +98,6 @@ export function ProfileShell({
           </nav>
 
           <div className="mt-6 flex flex-col gap-1 border-t border-[#EBEBEB] pt-4">
-            <a
-              href="/faqs"
-              className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[15px] leading-[18px] text-ink transition-colors hover:bg-[#F5F5F5]"
-            >
-              <HelpCircle className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-              {t("account.sidebar.helpCentre")}
-            </a>
             <a
               href="/delete-account"
               className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[15px] leading-[18px] text-brand-coral transition-colors hover:bg-[#F5F5F5]"
