@@ -446,7 +446,7 @@ export function TransactionsPage() {
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-2.5">
                       <p
-                        className={`text-[12px] leading-[15px] ${STATUS_TEXT_COLOR[row.status]}`}
+                        className={`text-[12px] font-[weight:590] leading-[15px] ${STATUS_TEXT_COLOR[row.status]}`}
                       >
                         {t(`account.transactions.status.${row.status}`)}
                       </p>
