@@ -147,15 +147,15 @@ export function AboutMePage() {
           {error || t("account.loadFailed")}
         </p>
       ) : (
-        /* The Card — white, r24, even shadow on all four sides, pad 48/64,
-            gap 32; fills the content column (user: wider box) */
-        <div className="flex w-full flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_4px_24px_rgba(0,0,0,0.10)]">
+        /* The Card — white, r24, even shade visible on all four sides,
+            pad 48/64, gap 32; capped (user: previous full-width was too big) */
+        <div className="flex w-full max-w-[1000px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_0_24px_rgba(0,0,0,0.12)]">
           {/* Top row — info col (486.5) + 150×150 photo inside a 745.5-wide
               frame (capture Frame 2147237524): the photo does NOT align with
               the 817-wide form below — its right edge stops at 745.5 */}
           <div className="flex w-full max-w-[745.5px] items-start justify-between gap-8">
             <div className="flex min-w-0 flex-col">
-              <div className="flex flex-col gap-[3px] py-4">
+              <div className="flex flex-col gap-2.5 py-4">
                 <p className="text-[22px] font-[weight:590] leading-[26px] text-black">
                   {formatTemplate(t, "account.aboutMe.hello", {
                     name: summary.name || "",
@@ -237,7 +237,7 @@ export function AboutMePage() {
               void save();
             }}
           >
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {/* Full name — bordered row */}
               <div className="rounded-[8px] border border-[#222222] px-3 py-4">
                 <div className="flex items-center justify-between">
@@ -281,17 +281,20 @@ export function AboutMePage() {
                 ) : null}
               </div>
 
-              {/* Country (100 dropdown + arrow) | Phone + Verify (borderless) */}
-              <div className="flex h-[69px] items-center gap-2 px-3">
-                <label className="relative flex w-[100px] shrink-0 flex-col justify-center rounded-[8px] px-3 py-2">
+              {/* Phone — own row, aligned with Email's left edge; the
+                  country prefix stays as a compact select beside the number
+                  (user 2026-09-30: phone aligned with email) */}
+              <div className="flex h-[69px] items-center justify-between px-3">
+                <div className="flex min-w-0 flex-col gap-1">
                   <span className="text-[12px] leading-[14px] text-[#717171]">
-                    {t("account.aboutMe.country")}
+                    {t("account.aboutMe.phone")}
                   </span>
-                  <span className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <select
                       value={countryCode}
                       onChange={(e) => setCountryCode(e.target.value)}
-                      className="w-full appearance-none bg-transparent text-[16px] leading-[19px] text-[#222222] focus:outline-none"
+                      aria-label={t("account.aboutMe.country")}
+                      className="h-[28px] rounded-[4px] border border-[#B0B0B0] bg-white px-2 text-[14px] leading-[17px] text-[#222222] focus:border-classz-400 focus:outline-none"
                     >
                       {COUNTRY_PREFIXES.map((prefix) => (
                         <option key={prefix} value={prefix}>
@@ -299,46 +302,23 @@ export function AboutMePage() {
                         </option>
                       ))}
                     </select>
-                    <svg
-                      aria-hidden
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
-                    >
-                      <path
-                        d="M2.67 6l5.33 5.33L13.33 6"
-                        stroke="#222222"
-                        strokeWidth="1.33"
-                        fill="none"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </span>
-                </label>
-
-                <div className="flex min-w-0 flex-1 items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[12px] leading-[14px] text-[#717171]">
-                      {t("account.aboutMe.phone")}
-                    </span>
                     <span className="text-[16px] leading-[19px] text-[#222222]">
                       {summary.mobile || "—"}
                     </span>
                   </div>
-                  <span
-                    className="cursor-not-allowed text-[14px] font-[weight:590] text-[#222222] opacity-60"
-                    title={t("account.comingSoon")}
-                  >
-                    {t("account.aboutMe.verify")}
-                  </span>
                 </div>
+                <span
+                  className="cursor-not-allowed text-[14px] font-[weight:590] text-[#222222] opacity-60"
+                  title={t("account.comingSoon")}
+                >
+                  {t("account.aboutMe.verify")}
+                </span>
               </div>
             </div>
 
             {/* Language — inline: 16px label + shaded 113×35 box (1px
-                #B0B0B0, r4, pad 8/16, arrow #5E5E5E) */}
-            <div className="mt-10 flex items-center gap-3 border border-[#EBEBEB] p-3">
+                #B0B0B0, r4, pad 8/16, arrow #5E5E5E). No wrapper box. */}
+            <div className="mt-10 flex items-center gap-3">
               <span className="text-[16px] leading-[19px] text-[#222222]">
                 {t("account.aboutMe.language")}
               </span>
@@ -370,25 +350,26 @@ export function AboutMePage() {
                   />
                 </svg>
               </div>
+            </div>
 
-              <div className="ml-auto flex items-center gap-3">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex h-10 items-center gap-2 rounded-[8px] bg-[#222222] px-5 text-[14px] font-[weight:590] text-white transition-colors hover:bg-black disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {t("account.save")}
-                </button>
-                {saved ? (
-                  <span className="text-[13px] text-[#0ABAB5]">
-                    {t("account.saved")}
-                  </span>
-                ) : null}
-                {error ? (
-                  <span className="text-[13px] text-brand-coral">{error}</span>
-                ) : null}
-              </div>
+            {/* Save — at the very bottom, standing for the whole page */}
+            <div className="mt-8 flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex h-10 items-center gap-2 rounded-[8px] bg-[#222222] px-5 text-[14px] font-[weight:590] text-white transition-colors hover:bg-black disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {t("account.save")}
+              </button>
+              {saved ? (
+                <span className="text-[13px] text-[#0ABAB5]">
+                  {t("account.saved")}
+                </span>
+              ) : null}
+              {error ? (
+                <span className="text-[13px] text-brand-coral">{error}</span>
+              ) : null}
             </div>
           </form>
         </div>
