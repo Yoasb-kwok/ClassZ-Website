@@ -61,8 +61,10 @@ export function ProfileShell({
     <main className="min-h-screen bg-white text-ink">
       <Navbar />
       <div className="mx-auto flex w-full max-w-[1440px] flex-row items-stretch px-6 py-10 md:px-12 lg:px-16">
-        {/* In-page profile sidebar — NOT the hamburger menu */}
-        <aside className="w-full shrink-0 md:w-[240px]">
+        {/* In-page profile sidebar — NOT the hamburger menu. Flex column so
+            the Delete/Log Out block pins to the bottom (capture: nav ends at
+            y≈300, the block sits at y≈516 of 590) */}
+        <aside className="flex w-full flex-col md:w-[240px]">
           <p className="mb-4 text-[22px] font-[weight:590] leading-[26px]">
             {t("account.sidebar.title")}
           </p>
@@ -97,10 +99,10 @@ export function ProfileShell({
             })}
           </nav>
 
-          <div className="mt-8 flex flex-col gap-10 border-t border-[#EBEBEB] pt-6">
+          <div className="mt-auto flex flex-col gap-5 border-t border-[#EBEBEB] pt-5">
             <a
               href="/delete-account"
-              className="flex items-center gap-3 rounded-[8px] px-3 py-3 text-[15px] leading-[18px] text-brand-coral transition-colors hover:bg-[#F5F5F5]"
+              className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[15px] leading-[18px] text-brand-coral transition-colors hover:bg-[#F5F5F5]"
             >
               <Trash2 className="h-4 w-4 shrink-0" strokeWidth={1.8} />
               {t("account.sidebar.deleteAccount")}
@@ -111,7 +113,7 @@ export function ProfileShell({
                 clearClasszSession();
                 router.push("/");
               }}
-              className="flex items-center gap-3 rounded-[8px] px-3 py-3 text-left text-[15px] leading-[18px] text-ink transition-colors hover:bg-[#F5F5F5]"
+              className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-left text-[15px] leading-[18px] text-ink transition-colors hover:bg-[#F5F5F5]"
             >
               <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.8} />
               {t("account.sidebar.logOut")}
