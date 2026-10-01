@@ -281,20 +281,18 @@ export function AboutMePage() {
                 ) : null}
               </div>
 
-              {/* Phone — own row, aligned with Email's left edge; the
-                  country prefix stays as a compact select beside the number
-                  (user 2026-09-30: phone aligned with email) */}
-              <div className="flex h-[69px] items-center justify-between px-3">
-                <div className="flex min-w-0 flex-col gap-1">
+              {/* Country (labeled, borderless dropdown w/ arrow) + Phone
+                  (labeled) + Verify — capture Frame 2147236979 */}
+              <div className="flex h-[69px] items-center gap-2 px-3">
+                <label className="relative flex w-[100px] shrink-0 cursor-pointer flex-col gap-1">
                   <span className="text-[12px] leading-[14px] text-[#717171]">
-                    {t("account.aboutMe.phone")}
+                    {t("account.aboutMe.country")}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <span className="flex items-center justify-between">
                     <select
                       value={countryCode}
                       onChange={(e) => setCountryCode(e.target.value)}
-                      aria-label={t("account.aboutMe.country")}
-                      className="h-[28px] rounded-[4px] border border-[#B0B0B0] bg-white px-2 text-[14px] leading-[17px] text-[#222222] focus:border-classz-400 focus:outline-none"
+                      className="w-full appearance-none bg-transparent pr-3 text-[16px] leading-[19px] text-[#222222] focus:outline-none"
                     >
                       {COUNTRY_PREFIXES.map((prefix) => (
                         <option key={prefix} value={prefix}>
@@ -302,17 +300,40 @@ export function AboutMePage() {
                         </option>
                       ))}
                     </select>
+                    <svg
+                      aria-hidden
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      className="pointer-events-none absolute right-0 bottom-1"
+                    >
+                      <path
+                        d="M2.67 6l5.33 5.33L13.33 6"
+                        stroke="#222222"
+                        strokeWidth="1.33"
+                        fill="none"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </span>
+                </label>
+
+                <div className="flex min-w-0 flex-1 items-center justify-between pl-8">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[12px] leading-[14px] text-[#717171]">
+                      {t("account.aboutMe.phone")}
+                    </span>
                     <span className="text-[16px] leading-[19px] text-[#222222]">
                       {summary.mobile || "—"}
                     </span>
                   </div>
+                  <span
+                    className="cursor-not-allowed text-[14px] font-[weight:590] text-[#222222]"
+                    title={t("account.comingSoon")}
+                  >
+                    {t("account.aboutMe.verify")}
+                  </span>
                 </div>
-                <span
-                  className="cursor-not-allowed text-[14px] font-[weight:590] text-[#222222] opacity-60"
-                  title={t("account.comingSoon")}
-                >
-                  {t("account.aboutMe.verify")}
-                </span>
               </div>
             </div>
 

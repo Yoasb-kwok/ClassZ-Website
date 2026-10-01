@@ -53,7 +53,7 @@ export function ProfileShell({
   return (
     <main className="min-h-screen bg-white text-ink">
       <Navbar />
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-8 px-6 py-10 md:flex-row md:px-12 lg:px-16">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-row items-stretch px-6 py-10 md:px-12 lg:px-16">
         {/* In-page profile sidebar — NOT the hamburger menu */}
         <aside className="w-full shrink-0 md:w-[240px]">
           <p className="mb-4 text-[22px] font-[weight:590] leading-[26px]">
@@ -71,10 +71,10 @@ export function ProfileShell({
                   key={key}
                   href={href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[15px] leading-[18px] transition-colors ${
+                  className={`flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[14px] leading-[17px] transition-colors ${
                     isActive
-                      ? "bg-[#D7F4F3] font-[weight:590] text-[#0ABAB5]"
-                      : "text-ink hover:bg-[#F5F5F5]"
+                      ? "bg-[#F5F5F5] text-[#222222]"
+                      : "text-[#222222] hover:bg-[#F5F5F5]"
                   }`}
                 >
                   <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
@@ -112,6 +112,13 @@ export function ProfileShell({
             </button>
           </div>
         </aside>
+
+        {/* Vertical divider between the sidebar and the card (capture
+            Line 18: 32px off the sidebar, card 32px after it) */}
+        <div
+          aria-hidden
+          className="mx-8 hidden self-stretch w-px bg-[#EBEBEB] md:block"
+        />
 
         <section className="min-w-0 flex-1">{children}</section>
       </div>
