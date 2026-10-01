@@ -42,11 +42,11 @@ const COUNTRY_PREFIXES = ["+852", "+86", "+65", "+81", "+44", "+1"];
 
 function Info({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex w-[151.5px] flex-col">
-      <span className="text-[18px] font-[weight:590] leading-[21px] text-[#222222]">
+    <div className="flex w-[168px] flex-col">
+      <span className="text-[20px] font-[weight:590] leading-[24px] text-[#222222]">
         {value}
       </span>
-      <span className="text-[16px] font-[weight:590] leading-[19px] text-[#222222]">
+      <span className="text-[17px] font-[weight:590] leading-[21px] text-[#222222]">
         {label}
       </span>
     </div>
@@ -147,8 +147,9 @@ export function AboutMePage() {
           {error || t("account.loadFailed")}
         </p>
       ) : (
-        /* The Card — 945 wide, white, r24, shadow, pad 48/64, gap 32 */
-        <div className="flex w-full max-w-[945px] flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+        /* The Card — white, r24, even shadow on all four sides, pad 48/64,
+            gap 32; fills the content column (user: wider box) */
+        <div className="flex w-full flex-col gap-8 rounded-[24px] bg-white p-[48px_64px] shadow-[0_4px_24px_rgba(0,0,0,0.10)]">
           {/* Top row — info col (486.5) + 150×150 photo inside a 745.5-wide
               frame (capture Frame 2147237524): the photo does NOT align with
               the 817-wide form below — its right edge stops at 745.5 */}
@@ -236,7 +237,7 @@ export function AboutMePage() {
               void save();
             }}
           >
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-3">
               {/* Full name — bordered row */}
               <div className="rounded-[8px] border border-[#222222] px-3 py-4">
                 <div className="flex items-center justify-between">
@@ -337,7 +338,7 @@ export function AboutMePage() {
 
             {/* Language — inline: 16px label + shaded 113×35 box (1px
                 #B0B0B0, r4, pad 8/16, arrow #5E5E5E) */}
-            <div className="mt-8 flex items-center gap-3 border border-[#EBEBEB] p-3">
+            <div className="mt-10 flex items-center gap-3 border border-[#EBEBEB] p-3">
               <span className="text-[16px] leading-[19px] text-[#222222]">
                 {t("account.aboutMe.language")}
               </span>
