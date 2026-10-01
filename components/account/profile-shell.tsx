@@ -97,10 +97,10 @@ export function ProfileShell({
             })}
           </nav>
 
-          <div className="mt-8 flex flex-col gap-5 border-t border-[#EBEBEB] pt-5">
+          <div className="mt-8 flex flex-col gap-10 border-t border-[#EBEBEB] pt-6">
             <a
               href="/delete-account"
-              className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[15px] leading-[18px] text-brand-coral transition-colors hover:bg-[#F5F5F5]"
+              className="flex items-center gap-3 rounded-[8px] px-3 py-3 text-[15px] leading-[18px] text-brand-coral transition-colors hover:bg-[#F5F5F5]"
             >
               <Trash2 className="h-4 w-4 shrink-0" strokeWidth={1.8} />
               {t("account.sidebar.deleteAccount")}
@@ -111,7 +111,7 @@ export function ProfileShell({
                 clearClasszSession();
                 router.push("/");
               }}
-              className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-left text-[15px] leading-[18px] text-ink transition-colors hover:bg-[#F5F5F5]"
+              className="flex items-center gap-3 rounded-[8px] px-3 py-3 text-left text-[15px] leading-[18px] text-ink transition-colors hover:bg-[#F5F5F5]"
             >
               <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.8} />
               {t("account.sidebar.logOut")}
