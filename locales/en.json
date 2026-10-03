@@ -1155,6 +1155,9 @@
       "empty": "No transactions found.",
       "lessons": "{n} lessons",
       "by": "by {name}",
+      "setupSuccess": "Payment method added.",
+      "setupCancelled": "Payment method setup was cancelled.",
+      "setupFailed": "We couldn't save your payment method — please try again.",
       "status": {
         "all": "All",
         "pending": "Payment pending",

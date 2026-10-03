@@ -1150,6 +1150,9 @@
       "empty": "沒有符合的交易紀錄。",
       "lessons": "{n} 堂",
       "by": "導師：{name}",
+      "setupSuccess": "付款方式已新增。",
+      "setupCancelled": "已取消新增付款方式。",
+      "setupFailed": "無法儲存你的付款方式，請再試一次。",
       "status": {
         "all": "全部",
         "pending": "待付款",

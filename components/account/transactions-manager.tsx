@@ -5,6 +5,7 @@ import { Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { formatTemplate } from "@/components/programs/format";
 import { apiDelete, apiGet, apiPost } from "@/lib/classz-api-client";
+import { confirmPaymentMethodSetup } from "@/lib/reservations";
 import { ProfileShell } from "./profile-shell";
 
 /**
@@ -122,6 +123,7 @@ export function TransactionsPage() {
   const [promoOpen, setPromoOpen] = useState(false);
   const [claimCode, setClaimCode] = useState("");
   const [claimMsg, setClaimMsg] = useState<string | null>(null);
+  const [setupMsg, setSetupMsg] = useState<string | null>(null);
 
   function reload() {
     Promise.all([
@@ -137,6 +139,33 @@ export function TransactionsPage() {
   }
 
   useEffect(reload, []);
+
+  // Setup-mode Checkout return (ADR-006 D6): the saved card is written by
+  // the webhook — which cannot reach a local/dev API — so confirm the
+  // session directly, then surface the outcome. Cleans the address bar so a
+  // refresh does not re-trigger the flow.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const setup = params.get("setup");
+    if (!setup) return;
+    const sessionId = params.get("session_id") || "";
+    window.history.replaceState(null, "", window.location.pathname);
+    if (setup === "cancelled") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-shot URL-return bootstrap, same as auth-modal/payment-client session bootstrap
+      setSetupMsg(t("account.transactions.setupCancelled"));
+      return;
+    }
+    if (!sessionId) return;
+    confirmPaymentMethodSetup(sessionId).then((ok) => {
+      setSetupMsg(
+        ok
+          ? t("account.transactions.setupSuccess")
+          : t("account.transactions.setupFailed"),
+      );
+      if (ok) reload();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on return
+  }, []);
 
   const q = search.trim().toLowerCase();
   const visibleTransactions = transactions.filter((row) => {
@@ -205,6 +234,23 @@ export function TransactionsPage() {
           {t("account.transactions.addMethod")}
         </button>
       </div>
+
+      {/* Setup-mode Checkout return banner (saved-card confirm) */}
+      {setupMsg ? (
+        <div className="mx-3 mt-3 flex items-center justify-between rounded-[8px] border border-[#D7F4F3] bg-[#D7F4F3]/40 px-4 py-3">
+          <p className="text-[13px] font-[weight:510] text-[#222222]">
+            {setupMsg}
+          </p>
+          <button
+            type="button"
+            aria-label="Dismiss"
+            onClick={() => setSetupMsg(null)}
+            className="text-[16px] leading-none text-[#5E5E5E] transition-colors hover:text-[#222222]"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
 
       {/* Promocodes — user addition (D7), placed at the top so it is
           immediately viewable even though it is not in the capture */}

@@ -113,6 +113,25 @@ export async function createPaymentMethodSetup(): Promise<string | null> {
   }
 }
 
+/**
+ * POST /api/student/payment-methods/confirm — verify-on-return fallback for
+ * saved cards (the webhook cannot reach a local/dev API, ADR-006 D6).
+ */
+export async function confirmPaymentMethodSetup(
+  sessionId: string,
+): Promise<boolean> {
+  try {
+    const data = await apiPost<{ success?: boolean }>(
+      "/payment-methods/confirm",
+      { session_id: sessionId },
+      "student",
+    );
+    return Boolean(data?.success);
+  } catch {
+    return false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Coupon math — mirrors helpers/reservationMath.js on the API (ADR-005 D3:
 // the discounted amount is what gets snapshotted onto the request).
