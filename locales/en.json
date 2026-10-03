@@ -1303,6 +1303,17 @@
     "seeMore": "See more",
     "noSessions": "No upcoming sessions for this program yet."
   },
+  "schedule": {
+    "today": "Today",
+    "upcoming": "Upcoming",
+    "all": "All",
+    "switchChild": "Switch child",
+    "lessonOf": "Lesson {i} of {n}",
+    "moreEvents": "+{n} More",
+    "emptyToday": "No classes today.",
+    "emptyUpcoming": "No upcoming classes.",
+    "loadFailed": "Couldn't load the schedule."
+  },
   "nav": {
     "home": "Home",
     "aboutUs": "About Us",
