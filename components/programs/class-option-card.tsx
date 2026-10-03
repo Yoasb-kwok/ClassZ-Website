@@ -31,17 +31,36 @@ import type { PublicClass } from "@/lib/public-courses";
  * Show/Hide; the arrow stays DOWN in both states (no flip flag in
  * either capture). Time range = start_time/end_time hours (node
  * 3985:5586 "4:00PM - 5:00PM").
+ *
+ * ADR-005 reservation flow: the expanded grid lists the program's REAL
+ * upcoming sessions (class rows) as multi-select checkboxes —
+ * lesson_class_ids = selected class ids; the sticky summary bar in
+ * ProgramDetail carries "N sessions · HKD X → Enroll". When `sessions`
+ * is not provided the card falls back to its W3 virtual weekly dates
+ * (non-selectable, legacy display).
  */
 export function ClassOptionCard({
   cls,
+  courseId,
   price,
   defaultExpanded = false,
+  sessions,
+  selectedIds,
+  onToggleSession,
 }: {
   cls: PublicClass;
+  /** Owning course id — the Enroll deep link targets /payment?course=<id>. */
+  courseId: number;
   price: number | null;
   /** Programs-listing flow: the wide listing card links with ?dates=1 so
    *  the W3 expanded state (capture 3879:19020) opens on arrival. */
   defaultExpanded?: boolean;
+  /** Real upcoming sessions for this program (ADR-005 multi-select). */
+  sessions?: PublicClass[];
+  /** Currently selected real session ids (controlled by ProgramDetail). */
+  selectedIds?: number[];
+  /** Toggle callback — absent = display-only (legacy behaviour). */
+  onToggleSession?: (classId: number) => void;
 }) {
   const { t, locale } = useLanguage();
   const [showDates, setShowDates] = useState(defaultExpanded);
@@ -75,18 +94,41 @@ export function ClassOptionCard({
   const spotsLeft = Math.max(0, cls.capacity - cls.enrolled_count);
   const isFull = spotsLeft <= 0;
 
-  const lessonDates = Array.from(
-    { length: lessons },
-    (_, i) => new Date(start.getTime() + i * 7 * 24 * 60 * 60 * 1000),
-  );
+  const selectable = Boolean(onToggleSession && sessions && sessions.length);
+  const selected = selectedIds ?? [];
+  const isSessionSelected = (id: number) => selected.includes(id);
+
+  // ADR-005 — real sessions when provided; otherwise the W3 virtual dates.
+  const sessionRows: {
+    id: number;
+    start: Date;
+    end: Date;
+    full: boolean;
+  }[] = sessions?.length
+    ? sessions.map((s) => {
+        const sStart = new Date(s.start_time);
+        const sEndRaw = new Date(s.end_time);
+        const cap = Number(s.capacity) || 0;
+        return {
+          id: s.id,
+          start: sStart,
+          end: Number.isNaN(sEndRaw.getTime()) ? sStart : sEndRaw,
+          full: cap > 0 && s.enrolled_count >= cap,
+        };
+      })
+    : Array.from(
+        { length: lessons },
+        (_, i) => new Date(start.getTime() + i * 7 * 24 * 60 * 60 * 1000),
+      ).map((d, i) => ({ id: -(i + 1), start: d, end: endTime, full: false }));
 
   // node 3985:5579 — 3 columns (8 lessons → 3/3/2; earlier columns
   // take the remainder)
-  const numbered = lessonDates.map((d, i) => ({ d, n: i + 1 }));
-  const per = Math.floor(lessons / 3);
-  const rem = lessons % 3;
+  const numbered = sessionRows.map((row, i) => ({ ...row, n: i + 1 }));
+  const total = numbered.length;
+  const per = Math.floor(total / 3);
+  const rem = total % 3;
   const sizes = [per + (rem > 0 ? 1 : 0), per + (rem > 1 ? 1 : 0), per];
-  const dateColumns: { d: Date; n: number }[][] = [[], [], []];
+  const dateColumns: (typeof numbered)[] = [[], [], []];
   let idx = 0;
   for (let c = 0; c < 3; c += 1) {
     for (let r = 0; r < sizes[c] && idx < numbered.length; r += 1) {
@@ -219,8 +261,9 @@ export function ClassOptionCard({
         {/* node 1981:7601 — Enroll: 148×37 r8 bg#222, text 14/590 white.
             Absolutely placed at lg (@419,139.92 in the 573 col → 6px off
             the right edge, 11.51px below price1's top); flows after the
-            rows below lg. W10 flow wiring: href → /payment (404 until
-            W9's payment captures land — was /login). */}
+            rows below lg. ADR-005: the CTA books the program's sessions —
+            href carries the current selection to /payment (login gate
+            handled by the login page's ?next= return). */}
         {isFull ? (
           <span
             aria-disabled
@@ -230,7 +273,7 @@ export function ClassOptionCard({
           </span>
         ) : (
           <Link
-            href="/payment"
+            href={enrollHref(courseId, selected, sessions, price, selectable)}
             data-testid="enroll-link"
             className="mt-[10px] flex h-[37px] w-[148px] items-center justify-center self-end rounded-[8px] bg-[#222222] text-[14px] font-[weight:590] text-white transition-colors hover:bg-shade-600 lg:absolute lg:right-[6px] lg:top-[139.92px] lg:mt-0 lg:self-auto"
           >
@@ -242,10 +285,12 @@ export function ClassOptionCard({
       {/* node 3985:5576 — expanded block (W3 capture 3879:19020):
           "Lesson dates" 14/590 #222 + grid 3985:5579 (space-between,
           col gap 10, rows h39: num 12/590 #000 + 2px dot + gap-5 pair
-          [date 14/590 #222, time range 14/400 #222], gap 10). */}
+          [date 14/590 #222, time range 14/400 #222], gap 10).
+          ADR-005: rows are the program's real sessions; when selectable,
+          each row is a checkbox button (checked rows highlight teal). */}
       {showDates ? (
         <div className="flex flex-col gap-[10px]">
-          <p className="text-[14px] font-[weight:590] leading-[17px] text-ink">
+          <p className="text-[14px] font-[weight:510] leading-[17px] text-ink">
             {t("programs.lessonDates")}
           </p>
           <div className="flex items-start justify-between">
@@ -253,25 +298,65 @@ export function ClassOptionCard({
               .filter((col) => col.length > 0)
               .map((col, c) => (
                 <div key={c} className="flex flex-col gap-[10px]">
-                  {col.map(({ d, n }) => (
-                    <div key={n} className="flex items-center gap-[10px]">
-                      <span className="text-[12px] font-[weight:590] leading-[14px] text-black">
-                        {n}
-                      </span>
-                      <span
-                        aria-hidden
-                        className="h-[2px] w-[2px] shrink-0 rounded-full bg-black"
-                      />
-                      <div className="flex flex-col gap-[5px]">
-                        <span className="text-[14px] font-[weight:590] leading-[17px] text-ink">
-                          {fmtDateLine(d)}
+                  {col.map(({ id, n, start: d, end: dEnd, full }) => {
+                    const isSelected = selectable && isSessionSelected(id);
+                    const row = (
+                      <>
+                        <span className="text-[12px] font-[weight:590] leading-[14px] text-black">
+                          {n}
                         </span>
-                        <span className="text-[14px] font-normal leading-[17px] text-ink">
-                          {fmtTime(d)} - {fmtTime(endTime)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                        <span
+                          aria-hidden
+                          className="h-[2px] w-[2px] shrink-0 rounded-full bg-black"
+                        />
+                        <div className="flex flex-col gap-[5px]">
+                          <span
+                            className={`text-[14px] font-[weight:590] leading-[17px] ${
+                              full ? "text-[#C1C1C1]" : "text-ink"
+                            }`}
+                          >
+                            {fmtDateLine(d)}
+                            {full ? ` · ${t("programs.classFull")}` : ""}
+                          </span>
+                          <span
+                            className={`text-[14px] font-normal leading-[17px] ${
+                              full ? "text-[#C1C1C1]" : "text-ink"
+                            }`}
+                          >
+                            {fmtTime(d)} - {fmtTime(dEnd)}
+                          </span>
+                        </div>
+                      </>
+                    );
+                    if (!selectable || full) {
+                      return (
+                        <div
+                          key={id}
+                          className="flex items-center gap-[10px]"
+                          aria-disabled={full || undefined}
+                        >
+                          {row}
+                        </div>
+                      );
+                    }
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="checkbox"
+                        aria-checked={isSelected}
+                        data-testid={`session-option-${id}`}
+                        onClick={() => onToggleSession?.(id)}
+                        className={`flex items-center gap-[10px] rounded-[8px] text-left transition-colors ${
+                          isSelected
+                            ? "bg-[#0ABAB5]/[0.08] outline outline-1 outline-[#0ABAB5]"
+                            : "hover:bg-[#F5F5F5]"
+                        }`}
+                      >
+                        {row}
+                      </button>
+                    );
+                  })}
                 </div>
               ))}
           </div>
@@ -279,4 +364,25 @@ export function ClassOptionCard({
       ) : null}
     </article>
   );
+}
+
+/** /payment deep link: ?course=<id>&classes=<selected ids> (selection
+ *  survives the login ?next= round-trip per ADR-005 D6). */
+function enrollHref(
+  courseId: number,
+  selected: number[],
+  sessions: PublicClass[] | undefined,
+  price: number | null,
+  selectable: boolean,
+): string {
+  // With real sessions available, Enroll books the whole list by default —
+  // the parent trims it on /payment (or via the checkboxes before Enroll).
+  const ids =
+    selectable && selected.length > 0
+      ? selected
+      : (sessions ?? []).map((s) => s.id);
+  const qs = new URLSearchParams({ course: String(courseId) });
+  if (ids.length) qs.set("classes", ids.join(","));
+  if (price != null) qs.set("price", String(price));
+  return `/payment?${qs.toString()}`;
 }

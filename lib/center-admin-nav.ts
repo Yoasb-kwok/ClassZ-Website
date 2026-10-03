@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react"
+import type { LucideIcon } from "lucide-react";
 import {
   CreditCard,
   LayoutDashboard,
@@ -6,6 +6,7 @@ import {
   GraduationCap,
   Building2,
   CalendarCheck,
+  CalendarClock,
   BookOpen,
   ClipboardList,
   Receipt,
@@ -23,21 +24,21 @@ import {
   UserCog,
   Sparkles,
   UserPlus,
-} from "lucide-react"
+} from "lucide-react";
 
 export type CenterAdminNavItem = {
-  path: string
-  labelZh: string
-  labelEn: string
-  icon: LucideIcon
-  moduleKey?: string
-}
+  path: string;
+  labelZh: string;
+  labelEn: string;
+  icon: LucideIcon;
+  moduleKey?: string;
+};
 
 export type CenterAdminNavGroup = {
-  titleZh: string
-  titleEn: string
-  items: CenterAdminNavItem[]
-}
+  titleZh: string;
+  titleEn: string;
+  items: CenterAdminNavItem[];
+};
 
 /** Full Centre Admin IA — Dashboard through Marketing. */
 export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
@@ -46,29 +47,101 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
       titleZh: "總覽",
       titleEn: "Overview",
       items: [
-        { path: "/admin", labelZh: "Dashboard", labelEn: "Dashboard", icon: LayoutDashboard, moduleKey: "dashboard" },
-        { path: "/admin/centre-profile", labelZh: "中心資料", labelEn: "Centre profile", icon: Building2, moduleKey: "centre_profile" },
+        {
+          path: "/admin",
+          labelZh: "Dashboard",
+          labelEn: "Dashboard",
+          icon: LayoutDashboard,
+          moduleKey: "dashboard",
+        },
+        {
+          path: "/admin/centre-profile",
+          labelZh: "中心資料",
+          labelEn: "Centre profile",
+          icon: Building2,
+          moduleKey: "centre_profile",
+        },
       ],
     },
     {
       titleZh: "人員",
       titleEn: "People",
       items: [
-        { path: "/admin/students", labelZh: "學員", labelEn: "Students", icon: Users, moduleKey: "students" },
-        { path: "/admin/teachers", labelZh: "導師", labelEn: "Teachers", icon: GraduationCap, moduleKey: "teachers" },
-        { path: "/admin/members", labelZh: "人員管理", labelEn: "Members", icon: UserCog, moduleKey: "centre_members" },
+        {
+          path: "/admin/students",
+          labelZh: "學員",
+          labelEn: "Students",
+          icon: Users,
+          moduleKey: "students",
+        },
+        {
+          path: "/admin/teachers",
+          labelZh: "導師",
+          labelEn: "Teachers",
+          icon: GraduationCap,
+          moduleKey: "teachers",
+        },
+        {
+          path: "/admin/members",
+          labelZh: "人員管理",
+          labelEn: "Members",
+          icon: UserCog,
+          moduleKey: "centre_members",
+        },
       ],
     },
     {
       titleZh: "營運",
       titleEn: "Operations",
       items: [
-        { path: "/admin/schedule", labelZh: "排程", labelEn: "Schedule", icon: CalendarCheck, moduleKey: "schedule" },
-        { path: "/admin/programs", labelZh: "課程", labelEn: "Courses", icon: BookOpen, moduleKey: "programs" },
-        { path: "/admin/workshops", labelZh: "工作坊", labelEn: "Workshops", icon: Sparkles, moduleKey: "workshops" },
-        { path: "/admin/trials", labelZh: "試堂", labelEn: "Trial classes", icon: UserPlus, moduleKey: "trials" },
-        { path: "/admin/attendance", labelZh: "點名", labelEn: "Attendance", icon: ClipboardList, moduleKey: "attendance" },
-        { path: "/admin/tasks", labelZh: "指派任務", labelEn: "Tasks", icon: ListTodo, moduleKey: "tasks" },
+        {
+          path: "/admin/schedule",
+          labelZh: "排程",
+          labelEn: "Schedule",
+          icon: CalendarCheck,
+          moduleKey: "schedule",
+        },
+        {
+          path: "/admin/bookings",
+          labelZh: "預約審批",
+          labelEn: "Bookings",
+          icon: CalendarClock,
+        },
+        {
+          path: "/admin/programs",
+          labelZh: "課程",
+          labelEn: "Courses",
+          icon: BookOpen,
+          moduleKey: "programs",
+        },
+        {
+          path: "/admin/workshops",
+          labelZh: "工作坊",
+          labelEn: "Workshops",
+          icon: Sparkles,
+          moduleKey: "workshops",
+        },
+        {
+          path: "/admin/trials",
+          labelZh: "試堂",
+          labelEn: "Trial classes",
+          icon: UserPlus,
+          moduleKey: "trials",
+        },
+        {
+          path: "/admin/attendance",
+          labelZh: "點名",
+          labelEn: "Attendance",
+          icon: ClipboardList,
+          moduleKey: "attendance",
+        },
+        {
+          path: "/admin/tasks",
+          labelZh: "指派任務",
+          labelEn: "Tasks",
+          icon: ListTodo,
+          moduleKey: "tasks",
+        },
         {
           path: "/admin/learning-records",
           labelZh: "Learning Record",
@@ -82,33 +155,105 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
       titleZh: "財務",
       titleEn: "Finance",
       items: [
-        { path: "/admin/payments", labelZh: "付款記錄", labelEn: "Payments", icon: Receipt, moduleKey: "payments" },
-        { path: "/admin/subscription", labelZh: "訂閱方案", labelEn: "Plan", icon: CreditCard, moduleKey: "subscription" },
-        { path: "/admin/coupons", labelZh: "優惠券", labelEn: "Coupons", icon: Tag, moduleKey: "coupons" },
-        { path: "/admin/refunds", labelZh: "退款記錄", labelEn: "Refunds", icon: Undo2, moduleKey: "refunds" },
+        {
+          path: "/admin/payments",
+          labelZh: "付款記錄",
+          labelEn: "Payments",
+          icon: Receipt,
+          moduleKey: "payments",
+        },
+        {
+          path: "/admin/subscription",
+          labelZh: "訂閱方案",
+          labelEn: "Plan",
+          icon: CreditCard,
+          moduleKey: "subscription",
+        },
+        {
+          path: "/admin/coupons",
+          labelZh: "優惠券",
+          labelEn: "Coupons",
+          icon: Tag,
+          moduleKey: "coupons",
+        },
+        {
+          path: "/admin/refunds",
+          labelZh: "退款記錄",
+          labelEn: "Refunds",
+          icon: Undo2,
+          moduleKey: "refunds",
+        },
       ],
     },
     {
       titleZh: "增長",
       titleEn: "Growth",
       items: [
-        { path: "/admin/crm", labelZh: "CRM", labelEn: "CRM", icon: Contact, moduleKey: "crm" },
-        { path: "/admin/marketing", labelZh: "行銷", labelEn: "Marketing", icon: Megaphone, moduleKey: "marketing" },
+        {
+          path: "/admin/crm",
+          labelZh: "CRM",
+          labelEn: "CRM",
+          icon: Contact,
+          moduleKey: "crm",
+        },
+        {
+          path: "/admin/marketing",
+          labelZh: "行銷",
+          labelEn: "Marketing",
+          icon: Megaphone,
+          moduleKey: "marketing",
+        },
       ],
     },
     {
       titleZh: "洞察",
       titleEn: "Insights",
       items: [
-        { path: "/admin/reports", labelZh: "報表總覽", labelEn: "Reports hub", icon: BarChart3, moduleKey: "reports" },
-        { path: "/admin/reports/teacher-ratings", labelZh: "導師評價排行", labelEn: "Teacher ratings", icon: Star, moduleKey: "reports_teacher_ratings" },
-        { path: "/admin/reports/revenue", labelZh: "收入報表", labelEn: "Revenue", icon: DollarSign, moduleKey: "reports_revenue" },
-        { path: "/admin/reports/retention", labelZh: "學員留存", labelEn: "Retention", icon: UsersRound, moduleKey: "reports_retention" },
-        { path: "/admin/reports/popular-courses", labelZh: "課程熱門度", labelEn: "Course popularity", icon: Flame, moduleKey: "reports_popular" },
-        { path: "/admin/reports/ad-conversion", labelZh: "廣告學生轉換率", labelEn: "Ad conversion", icon: Megaphone, moduleKey: "reports_ad_conversion" },
+        {
+          path: "/admin/reports",
+          labelZh: "報表總覽",
+          labelEn: "Reports hub",
+          icon: BarChart3,
+          moduleKey: "reports",
+        },
+        {
+          path: "/admin/reports/teacher-ratings",
+          labelZh: "導師評價排行",
+          labelEn: "Teacher ratings",
+          icon: Star,
+          moduleKey: "reports_teacher_ratings",
+        },
+        {
+          path: "/admin/reports/revenue",
+          labelZh: "收入報表",
+          labelEn: "Revenue",
+          icon: DollarSign,
+          moduleKey: "reports_revenue",
+        },
+        {
+          path: "/admin/reports/retention",
+          labelZh: "學員留存",
+          labelEn: "Retention",
+          icon: UsersRound,
+          moduleKey: "reports_retention",
+        },
+        {
+          path: "/admin/reports/popular-courses",
+          labelZh: "課程熱門度",
+          labelEn: "Course popularity",
+          icon: Flame,
+          moduleKey: "reports_popular",
+        },
+        {
+          path: "/admin/reports/ad-conversion",
+          labelZh: "廣告學生轉換率",
+          labelEn: "Ad conversion",
+          icon: Megaphone,
+          moduleKey: "reports_ad_conversion",
+        },
       ],
     },
-  ]
+  ];
 }
 
 /** Coach (teacher login) — students Learning Record + tasks. */
@@ -130,10 +275,21 @@ export function getCoachNavGroups(): CenterAdminNavGroup[] {
     {
       titleZh: "營運",
       titleEn: "Operations",
-      items: [{ path: "/admin/tasks", labelZh: "我的任務", labelEn: "My tasks", icon: ListTodo, moduleKey: "tasks" }],
+      items: [
+        {
+          path: "/admin/tasks",
+          labelZh: "我的任務",
+          labelEn: "My tasks",
+          icon: ListTodo,
+          moduleKey: "tasks",
+        },
+      ],
     },
-  ]
+  ];
 }
 
 /** Kept for platform CRM horizontal nav (4-step ops). */
-export { CENTER_FLOW_NAV, isCenterFlowPathActive } from "@/lib/classz-center-flow-nav"
+export {
+  CENTER_FLOW_NAV,
+  isCenterFlowPathActive,
+} from "@/lib/classz-center-flow-nav";

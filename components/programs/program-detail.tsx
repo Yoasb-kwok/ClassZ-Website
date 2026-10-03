@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
@@ -79,6 +80,39 @@ export function ProgramDetail({
   const district = course.venue || districtLabel(course.location, locale);
   const centreName = hostCentre?.name ?? "";
   const centreHref = hostCentre ? `/centres/${hostCentre.id}` : null;
+
+  // ADR-005 — multi-session reservation selection (lesson_class_ids).
+  // Only future, non-cancelled sessions are bookable.
+  const bookableSessions = useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity -- client-only snapshot; sessions are day-granular so a render-time now is hydration-safe here
+    const now = Date.now();
+    return classes.filter(
+      (c) =>
+        (c.is_cancelled === 0 || c.is_cancelled == null) &&
+        new Date(c.start_time).getTime() > now,
+    );
+  }, [classes]);
+  const [selectedSessionIds, setSelectedSessionIds] = useState<number[]>([]);
+  const toggleSession = (classId: number) => {
+    setSelectedSessionIds((prev) =>
+      prev.includes(classId)
+        ? prev.filter((id) => id !== classId)
+        : [...prev, classId],
+    );
+  };
+  const selectedCount = selectedSessionIds.length;
+  // The bar's Enroll books the current selection, falling back to ALL
+  // bookable sessions — the label must show what will actually be booked.
+  const effectiveIds =
+    selectedCount > 0 ? selectedSessionIds : bookableSessions.map((s) => s.id);
+  const selectedTotal =
+    price != null ? Math.round(price * effectiveIds.length * 100) / 100 : null;
+  const paymentQs = useMemo(() => {
+    const qs = new URLSearchParams({ course: String(course.id) });
+    if (effectiveIds.length) qs.set("classes", effectiveIds.join(","));
+    if (price != null) qs.set("price", String(price));
+    return qs.toString();
+  }, [course.id, effectiveIds, price]);
 
   return (
     <main className="min-h-screen bg-white text-ink">
@@ -291,8 +325,12 @@ export function ProgramDetail({
                     <ClassOptionCard
                       key={cls.id}
                       cls={cls}
+                      courseId={course.id}
                       price={price}
                       defaultExpanded={expandLessonDates}
+                      sessions={bookableSessions}
+                      selectedIds={selectedSessionIds}
+                      onToggleSession={toggleSession}
                     />
                   ))}
                 </div>
@@ -304,6 +342,35 @@ export function ProgramDetail({
             )}
           </div>
         </div>
+
+        {/* ADR-005 — sticky reservation summary: "N sessions · HKD X → Enroll".
+            Sits above the footer on mobile; fixed bottom-center on lg. */}
+        {bookableSessions.length > 0 && price != null ? (
+          <div
+            className="sticky bottom-4 z-30 mx-auto flex w-[min(92vw,605px)] items-center justify-between gap-4 rounded-[12px] border border-[#EBEBEB] bg-white/95 p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)] backdrop-blur"
+            data-testid="reservation-bar"
+          >
+            <p className="min-w-0 text-[14px] leading-[17px] text-ink">
+              <span className="font-[weight:590]">
+                {formatTemplate(t, "programs.selectedSessions", {
+                  count: effectiveIds.length,
+                })}
+              </span>{" "}
+              {selectedTotal != null ? (
+                <span className="text-[#5E5E5E]">
+                  · HKD {selectedTotal.toLocaleString("en-HK")}
+                </span>
+              ) : null}
+            </p>
+            <Link
+              href={`/payment?${paymentQs}`}
+              data-testid="reservation-bar-enroll"
+              className="flex h-[37px] shrink-0 items-center justify-center rounded-[8px] bg-[#222222] px-[24px] text-[14px] font-[weight:590] text-white transition-colors hover:bg-shade-600"
+            >
+              {t("programs.enroll")}
+            </Link>
+          </div>
+        ) : null}
 
         {/* node 2834:18822 — recommended programs: root gap 32 (mt-[32px]),
           pad 0/80 (no vertical padding), gap 32 */}

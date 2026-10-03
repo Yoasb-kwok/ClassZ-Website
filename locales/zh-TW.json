@@ -1289,6 +1289,7 @@
     "hideFullDates": "收起日期",
     "lessonDates": "課堂日期",
     "enroll": "報名",
+    "selectedSessions": "{count} 堂",
     "hostedBy": "課程中心",
     "similarPrograms": "推薦課程",
     "seeMore": "查看更多",

@@ -44,3 +44,21 @@ Batch: `1109` · Captured 2026-09-11 · Tool: runkids/figma-to-prompt 0.2.7
 - Frame `ZPassport-learning companion` includes full site chrome: nav, sidebar (343px, pad 32/0/32/80), content column (1033, pad 0/80/0/48), an **"Option 2" marketing CTA section** ("One Child. Every Perspective. One Platform.") and the site footer. The CTA section is NOT rendered by the current student shell — product decision pending, not built.
 - `/account/supporting-learning` and `/account` (CompanionHome) have NO captures — spacing there follows the shared `.insight-*` / shell values fixed here (flagged assumption in FEEDBACK.md).
 - Shell fixes from this capture (sidebar 343, main-content pad-right 80, divider #EBEBEB) apply to all account pages, including the 1009 dashboards — their 905px cards now sit in a 904px column (design intent).
+
+---
+
+# Capture Index — Payment / Reservation (ADR-005)
+
+Batch: `0310` · Captured 2026-10-03 · Tool: runkids/figma-to-prompt 0.2.7
+
+| Frame (capture folder) | Node ID | Viewport | Route | Status |
+|---|---|---|---|---|
+| `Payment` | `1990:8282` | 1440×1874 | `/payment` | **implemented 2026-10-03** (capture-exact `PaymentClient`) |
+| `Payment-promote code` | `2511:25194` | 1440×2047 | `/payment` (Promo modal) | **implemented 2026-10-03** (`PromoModal`) |
+| `Payment-successful` | `2031:8286` | 1440×2047 | `/payment?status=success` (modal) | **implemented 2026-10-03** (`SuccessModal`) |
+
+## Notes (0310)
+- Wired per ADR-005: program detail cards select real class rows (`lesson_class_ids`), sticky "N sessions · HKD X → Enroll" bar, Enroll → `/payment?course=<id>&classes=<ids>`; the page is login-gated via `/login?next=` (D6).
+- Deviations (asset/data gaps, disclosed): strike-through "$399" omitted (single price in API); "Platform fee $5" row omitted (no fee data — money must follow the ADR price × N formula); card-brand icon strip + Stripe wordmark approximated in text (#6461FC); "4.91" rating is the shared D2 placeholder (no public rating field); language row omitted (no API field, same as program detail); success-modal confetti is a CSS approximation in the capture palette (vectors had no export); "Switch" renders only with 2+ children; "Go to Timetable" targets `/schedule` (page itself still deferred per ADR-005 Open Item 1).
+- Hero/carousel images reuse `programImage()` (centre upload → placeholder) like the program detail page.
+- Success modal polls `GET /api/payment/order-status?session_id=` until the webhook settles the order (paid) before rendering.

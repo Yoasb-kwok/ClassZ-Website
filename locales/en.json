@@ -1294,6 +1294,7 @@
     "hideFullDates": "Hide full dates",
     "lessonDates": "Lesson dates",
     "enroll": "Enroll",
+    "selectedSessions": "{count} sessions",
     "hostedBy": "Course centre",
     "similarPrograms": "Recommended Programs",
     "seeMore": "See more",
