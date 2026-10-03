@@ -106,6 +106,8 @@ export function PaymentClient({
   const [coupon, setCoupon] = useState<ParentCoupon | null>(null);
   const [reserving, setReserving] = useState(false);
   const [reserveError, setReserveError] = useState("");
+  const [addingMethod, setAddingMethod] = useState(false);
+  const [methodError, setMethodError] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
   const [paidAmount, setPaidAmount] = useState<number | null>(null);
   const pollTries = useRef(0);
@@ -253,8 +255,30 @@ export function PaymentClient({
   }
 
   async function addPaymentMethod() {
-    const url = await createPaymentMethodSetup();
-    if (url) window.location.href = url;
+    setAddingMethod(true);
+    setMethodError("");
+    try {
+      const url = await createPaymentMethodSetup();
+      if (url) {
+        window.location.href = url;
+        return;
+      }
+      setMethodError(
+        zh
+          ? "暫時無法新增付款方法，請稍後再試。"
+          : "Could not start payment-method setup — please try again.",
+      );
+    } catch (err) {
+      setMethodError(
+        err instanceof Error
+          ? err.message
+          : zh
+            ? "暫時無法新增付款方法。"
+            : "Could not start payment-method setup.",
+      );
+    } finally {
+      setAddingMethod(false);
+    }
   }
 
   if (!gateChecked) {
@@ -640,12 +664,25 @@ export function PaymentClient({
                   </p>
                   <button
                     type="button"
+                    data-testid="add-payment-method"
                     onClick={addPaymentMethod}
-                    className="shrink-0 text-[14px] font-[weight:590] text-[#222222] underline underline-offset-2"
+                    disabled={addingMethod}
+                    className="shrink-0 text-[14px] font-[weight:590] text-[#222222] underline underline-offset-2 disabled:opacity-50"
                   >
-                    {zh ? "新增" : "Add"}
+                    {addingMethod
+                      ? zh
+                        ? "跳轉中…"
+                        : "Redirecting…"
+                      : zh
+                        ? "新增"
+                        : "Add"}
                   </button>
                 </div>
+                {methodError ? (
+                  <p className="px-[16px] text-[14px] text-[#E16E65]">
+                    {methodError}
+                  </p>
+                ) : null}
                 {/* node 3997:4844 — promo field 51 r8 #B0B0B0 */}
                 <button
                   type="button"
