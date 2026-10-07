@@ -575,9 +575,9 @@ export function ScheduleClient() {
                   {t("schedule.emptyToday")}
                 </p>
               ) : (
-                // Roomy spacing between capture-sized cards (361×169) so
-                // their drop shadows never overlap
-                <div className="mt-[10px] flex flex-col gap-[24px]">
+                // Roomy spacing between capture-sized cards (361×169);
+                // 28px keeps even the blur extremes apart
+                <div className="mt-[10px] flex flex-col gap-[28px]">
                   {todaySessions.map((s) => (
                     <SessionCard key={`${s.profile_id}-${s.class_id}`} s={s} />
                   ))}
@@ -595,7 +595,7 @@ export function ScheduleClient() {
                   {t("schedule.emptyUpcoming")}
                 </p>
               ) : (
-                <div className="mt-[10px] flex flex-col gap-[24px]">
+                <div className="mt-[10px] flex flex-col gap-[28px]">
                   {upcomingSessions.map((s) => (
                     <SessionCard key={`${s.profile_id}-${s.class_id}`} s={s} />
                   ))}
@@ -618,8 +618,9 @@ export function ScheduleClient() {
     return (
       // node 2028:20982 — capture-exact card: 361×169, r12 pad16, image
       // 93×113 r12; capture drop shadow #000 12% offsetY 6 blur 16.
-      // Capped at 361 wide inside the (larger) sidebar section.
-      <div className="w-full max-w-[361px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+      // User-directed 2026-10-03: +1px #EBEBEB ring so every edge (left/
+      // right included) reads as a clear line even where shadows meet.
+      <div className="w-full max-w-[361px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)] ring-1 ring-[#EBEBEB]">
         {/* node 2028:20983 — dot + time + · + date */}
         <div className="flex h-[14px] items-center gap-[4px] text-[12px] font-normal leading-[14px] tracking-[0.75px] text-[#222222]">
           <span
