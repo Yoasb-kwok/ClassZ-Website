@@ -36,3 +36,10 @@ into the lessons log / skill at end of session.
   beats shadow-only boundaries when the user repeatedly can't see the
   card edge. **generalizes: Y** — on white-on-white UIs, pair soft
   shadows with a hairline ring.
+- "no still overlapp, make the tutle one move to the left" / "swap the
+  owl and turtle position" → root cause: capture asset files 007/009
+  contained swapped artwork (names didn't match node ids), so position
+  swaps could never fix what was a wrong-asset bug.
+  · **data-gap** — verify what an exported asset actually depicts when
+  individual pieces are placed independently. **generalizes: Y** —
+  never trust export filenames; eyeball each placed asset.
