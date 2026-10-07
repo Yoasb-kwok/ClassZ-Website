@@ -110,6 +110,7 @@ export function PaymentClient({
   const [methodError, setMethodError] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
   const [paidAmount, setPaidAmount] = useState<number | null>(null);
+  const [datesOpen, setDatesOpen] = useState(true);
   const pollTries = useRef(0);
 
   const price = course.price != null ? Number(course.price) : null;
@@ -556,15 +557,28 @@ export function PaymentClient({
                         : ""}
                     </span>
                   </p>
-                  {/* node 3999:5112 — "Hide full dates" 14/590 #5E5E5E centered */}
+                  {/* node 3999:5112 — "Hide/Show full dates" toggle, 14/590
+                      #5E5E5E centered; collapsed shows only the summary */}
                   <div className="flex justify-center">
-                    <span className="flex items-center gap-[4px] text-[14px] font-[weight:590] text-[#5E5E5E]">
-                      {zh ? "收起完整日期" : "Hide full dates"}
+                    <button
+                      type="button"
+                      aria-expanded={datesOpen}
+                      onClick={() => setDatesOpen((v) => !v)}
+                      className="flex items-center gap-[4px] text-[14px] font-[weight:590] text-[#5E5E5E] transition-colors hover:text-[#222222]"
+                    >
+                      {datesOpen
+                        ? zh
+                          ? "收起完整日期"
+                          : "Hide full dates"
+                        : zh
+                          ? "展開完整日期"
+                          : "Show full dates"}
                       <svg
                         width="17"
                         height="17"
                         viewBox="0 0 18 18"
                         aria-hidden
+                        className={`transition-transform ${datesOpen ? "" : "rotate-180"}`}
                       >
                         <path
                           d="M4 7l5 5 5-5"
@@ -574,44 +588,52 @@ export function PaymentClient({
                           strokeLinecap="round"
                         />
                       </svg>
-                    </span>
+                    </button>
                   </div>
-                  {/* node 3999:5119 — divider #EBEBEB */}
-                  <div className="h-px w-full bg-[#EBEBEB]" />
-                  {/* node 3999:5120 — "Lesson dates" + 3-col grid */}
-                  <div className="flex flex-col gap-[16px]">
-                    <p className="text-[14px] font-[weight:510] leading-[17px] text-[#222222]">
-                      {t("programs.lessonDates")}
-                    </p>
-                    <div className="flex items-start justify-between">
-                      {dateColumns.map((col, c) => (
-                        <div key={c} className="flex flex-col gap-[10px]">
-                          {col.map(({ id, n, start: d, end: dEnd }) => (
-                            <div
-                              key={id}
-                              className="flex items-center gap-[10px]"
-                            >
-                              <span className="text-[12px] font-[weight:590] leading-[14px] text-black">
-                                {n}
-                              </span>
-                              <span
-                                aria-hidden
-                                className="h-[2px] w-[2px] shrink-0 rounded-full bg-black"
-                              />
-                              <div className="flex flex-col gap-[5px]">
-                                <span className="text-[14px] font-[weight:590] leading-[17px] text-[#222222]">
-                                  {fmtDateLine(d, locale)}
-                                </span>
-                                <span className="text-[14px] font-normal leading-[17px] text-[#222222]">
-                                  {fmtTime(d, locale)} - {fmtTime(dEnd, locale)}
-                                </span>
+                  {datesOpen ? (
+                    <>
+                      {/* node 3999:5119 — divider #EBEBEB */}
+                      <div className="h-px w-full bg-[#EBEBEB]" />
+                      {/* node 3999:5120 — "Lesson dates" + 3-col grid;
+                          visible area fits 3 rows (9 dates), scroll for more */}
+                      <div className="flex flex-col gap-[16px]">
+                        <p className="text-[14px] font-[weight:510] leading-[17px] text-[#222222]">
+                          {t("programs.lessonDates")}
+                        </p>
+                        <div className="max-h-[137px] overflow-y-auto">
+                          <div className="flex items-start justify-between">
+                            {dateColumns.map((col, c) => (
+                              <div key={c} className="flex flex-col gap-[10px]">
+                                {col.map(({ id, n, start: d, end: dEnd }) => (
+                                  <div
+                                    key={id}
+                                    className="flex items-center gap-[10px]"
+                                  >
+                                    <span className="text-[12px] font-[weight:590] leading-[14px] text-black">
+                                      {n}
+                                    </span>
+                                    <span
+                                      aria-hidden
+                                      className="h-[2px] w-[2px] shrink-0 rounded-full bg-black"
+                                    />
+                                    <div className="flex flex-col gap-[5px]">
+                                      <span className="text-[14px] font-[weight:590] leading-[17px] text-[#222222]">
+                                        {fmtDateLine(d, locale)}
+                                      </span>
+                                      <span className="text-[14px] font-normal leading-[17px] text-[#222222]">
+                                        {fmtTime(d, locale)} -{" "}
+                                        {fmtTime(dEnd, locale)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                    </>
+                  ) : null}
                 </div>
               </section>
             </div>
