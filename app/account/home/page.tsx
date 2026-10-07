@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-/** ADR-006 D9 — the old landing retires; the Profile section replaces it. */
-export default function AccountHomePage() {
-  redirect("/account/profile");
+import { ZPassportHome } from "@/components/account/zpassport-home";
+
+export default function Page() {
+  return <ZPassportHome />;
 }

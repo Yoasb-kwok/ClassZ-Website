@@ -65,3 +65,20 @@ Batch: `0310` · Captured 2026-10-03 · Tool: runkids/figma-to-prompt 0.2.7
 - Success modal polls `GET /api/payment/order-status?session_id=` until the webhook settles the order (paid) before rendering. Since 2026-10-03 (late) `order-status` settles the session directly with Stripe on return, so the modal appears without a webhook locally; reservation settles also write the family `transactions` ledger.
 - `Schedule` (ADR-005 Open Item 1) — **implemented 2026-10-03**: month calendar (Sunday-first, 116px cells, #E6E6E6 grid, teal today badge, dot+title chips, max 2 + "+N More") + child switcher ("All" + per-child, overlapping 40×40 avatar cluster) + Today/Upcoming session cards (status dot teal=confirmed / yellow=pending reservation). Data: `GET /api/student/children/schedule` — confirmed from `class_enrollments`, pending from open `enrollment_requests`; "Lesson X of Y" = class position within its course series (program_code|center_id, sorted by start_time). Reached via the navbar hamburger's existing "Schedule" quick link; the Payment-successful "Go to Timetable" button links here.
 - Schedule deviations (disclosed): mock-only cell notes ("Add your holiday" / "Write somthing here") not built; the mock's mixed 8px in-cell time+name variant is unified to the dominant 12px dot+title chip; Upcoming section capped at 8 cards (capture region shows 2); below-lg stacks to a single column (capture specs one desktop viewport); out-of-month cells render empty per the mock. Mock "Memorial Day" holiday text is static mock content, not built.
+
+---
+
+# Capture Index — ZPassport Home (0710)
+
+Batch: `0710` · Captured 2026-10-07 · Tool: runkids/figma-to-prompt 0.2.7
+
+| Frame (capture folder) | Node ID | Viewport | Route | Status |
+|---|---|---|---|---|
+| `ZPassport-_(home)` | `3969:36185` | 1440×3460.55 | `/account/home` | **implemented 2026-10-07** (`ZPassportHome` in the existing `StudentAccountGate` shell) |
+
+## Notes (0710)
+- The sidebar "Home" item (existing `StudentSidebar` NAV) now leads to the real home page — previously `/account/home` redirected to `/account/profile` (ADR-006 D9 superseded by this build).
+- Sections (main column pad 32/80/32/48, content 905, 32px gaps, #EBEBEB dividers): hero 905×342 r12 · intro (30/590 + 14/400 + 14/700) · journey row (text col + 453.5×567 img r12, teal links → /account/academic, /account/activity) · companion row (7-asset animals collage 542.63×250.33 absolutely positioned + teal note 21.71/700 lh33; right col 332.37, link → /account) · know-what row (text col + 453.5×525 img r12) · understand progress (centred) · closing (40/590 centred, page-level).
+- Assets exported from the capture at 4× into `public/images/zpassport-home/` (hero/journey/knowwhat + 7 animal PNGs named by node id).
+- The capture's sidebar matches the existing `StudentSidebar` (child switcher, same 6 items) — no sidebar changes needed; its mock avatar/gender icon assets (002/003/004) were skipped in favour of live data.
+- Responsive below lg: rows stack (text above image) — spec-silent, no mobile frame; disclosed.
