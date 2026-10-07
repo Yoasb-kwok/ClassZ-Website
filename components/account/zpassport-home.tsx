@@ -199,8 +199,12 @@ export function ZPassportHome() {
                   },
                   {
                     src: "007-3973_36512.png",
-                    x: 444.08,
-                    y: 130.55,
+                    // User-corrected vs nodes.json (which read x444 — the
+                    // transform was relative to a nested parent): the
+                    // reference renders the turtle left of the owl,
+                    // bottom-aligned with it (owl bottom 227.38).
+                    x: 345,
+                    y: 124.38,
                     w: 98.55,
                     h: 103.01,
                     alt: "Turtle",
