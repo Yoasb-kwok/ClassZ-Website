@@ -198,17 +198,20 @@ export function ZPassportHome() {
                     alt: "Rabbit",
                   },
                   {
-                    src: "009-3973_36514.png",
-                    // Swapped with the turtle (user request)
-                    x: 345,
-                    y: 124.38,
+                    src: "007-3973_36512.png",
+                    // NOTE: asset file 007 contains the OWL artwork and 009
+                    // the TURTLE (plugin export names don't match node ids
+                    // for these two — user caught the swap).
+                    x: 462,
+                    y: 140,
                     w: 118.71,
                     h: 78.54,
                     alt: "Owl",
                   },
                   {
-                    src: "007-3973_36512.png",
-                    x: 441.85,
+                    src: "009-3973_36514.png",
+                    // Moved closer to the Z logo (user request)
+                    x: 360,
                     y: 148.84,
                     w: 98.55,
                     h: 103.01,
