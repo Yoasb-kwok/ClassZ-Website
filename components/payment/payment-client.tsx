@@ -417,8 +417,34 @@ export function PaymentClient({
                   </p>
                 ) : null}
 
-                {/* node 3999:5067 — language row omitted (no API field, same
-                    decision as the program detail page) */}
+                {/* node 3999:5067 — language row: globe 20.02 + 14/400 */}
+                {course.language ? (
+                  <p className="flex items-center gap-[5px] text-[14px] font-normal leading-[17px] text-[#5E5E5E]">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      aria-hidden
+                      className="shrink-0"
+                    >
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="8.4"
+                        stroke="#5E5E5E"
+                        strokeWidth="1.2"
+                        fill="none"
+                      />
+                      <path
+                        d="M1.6 10h16.8M10 1.6c-2.4 2.3-3.6 5.1-3.6 8.4s1.2 6.1 3.6 8.4c2.4-2.3 3.6-5.1 3.6-8.4S12.4 3.9 10 1.6z"
+                        stroke="#5E5E5E"
+                        strokeWidth="1.2"
+                        fill="none"
+                      />
+                    </svg>
+                    {course.language}
+                  </p>
+                ) : null}
 
                 {/* node 3999:5078 — location row: icon 20.02 + 14/400 */}
                 {course.venue || course.location ? (
@@ -876,7 +902,7 @@ export function PaymentClient({
           onClose={() => setSuccessOpen(false)}
           courseName={course.name}
           courseImage={programImage(course.id, course.image_url)}
-          languageLabel={null}
+          languageLabel={course.language || null}
           locationLabel={course.venue || course.location}
           childName={child?.full_name || ""}
           childPhoto={child?.photo_url}
