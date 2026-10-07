@@ -12,6 +12,7 @@ import { apiGet } from "@/lib/classz-api-client";
 import { getClasszSession } from "@/lib/classz-auth";
 import { resolveUploadUrl } from "@/lib/resolve-upload-url";
 import { CLASS_AVATARS, programImage } from "@/lib/program-images";
+import { holidayFor } from "@/lib/hk-holidays";
 
 /**
  * /schedule — capture 2022:20563 (0310 "Schedule", 1440×1519.55; the
@@ -29,11 +30,17 @@ import { CLASS_AVATARS, programImage } from "@/lib/program-images";
  * 12/510, gap 5) stacked, max 2 then "+N More" 12/400.
  *
  * RIGHT (node 2028:21067, 361 wide, gap 20): child switcher h40 (avatar
- * cluster 40×40 + label 18/590 + chevron); "Today"/"Upcoming" 18/590;
- * session cards (r12, pad 16, white, soft shadow): status dot + time
- * 12/400 ls0.75 + "·" + "Sept 02" 12/400; image 93×113 r12 + title
+ * cluster 40×40 + "Select all" 18/590 + chevron); "Today"/"Upcoming"
+ * 18/590; session cards (r12, pad 16, white, soft shadow): status dot +
+ * time 12/400 ls0.75 + "·" + "Sept 02" 12/400; image 93×113 r12 + title
  * 14/590 + "Lesson 1 of 8" 12/590 + child row (avatar 24 + 12/590) +
  * centre 12/400 #5E5E5E.
+ *
+ * "Select all" view: every child's lessons get their own colour (capture
+ * palette) with a dot+name legend under the calendar's bottom-left;
+ * single-child view keeps status colours (teal confirmed / yellow
+ * pending). Holidays render as gray entries in cells (mock "Memorial
+ * Day" style) via lib/hk-holidays.
  *
  * Disclosed deviations (INDEX.md): mock-only cell notes ("Add your
  * holiday") not built; mock's 8px in-cell time+name variant unified to
@@ -70,6 +77,16 @@ const DOT_COLORS: Record<SchedSession["status"], string> = {
   confirmed: "#0ABAB5",
   pending: "#FFC943",
 };
+
+/** Per-child colours for the "Select all" view (capture palette). */
+const CHILD_COLORS = [
+  "#0ABAB5", // teal
+  "#FFC943", // yellow
+  "#FC5555", // red
+  "#5D9275", // green
+  "#FF7D57", // orange
+  "#C2E0ED", // light blue
+];
 
 const MONTH_ABBR = [
   "Jan",
@@ -266,6 +283,15 @@ export function ScheduleClient() {
       ? t("schedule.all")
       : (children.find((c) => c.id === selectedChild)?.full_name ?? "");
 
+  /** In "Select all" every child gets its own colour; a single child's view
+   * keeps the status colours (teal confirmed / yellow pending). */
+  const isAll = selectedChild === "all";
+  const colorFor = (s: SchedSession): string => {
+    if (!isAll) return DOT_COLORS[s.status];
+    const idx = children.findIndex((c) => c.id === s.profile_id);
+    return CHILD_COLORS[(idx >= 0 ? idx : 0) % CHILD_COLORS.length];
+  };
+
   if (!gateChecked) {
     return (
       <main className="min-h-screen bg-white text-ink">
@@ -361,8 +387,16 @@ export function ScheduleClient() {
                       const dayEvents = inMonth
                         ? (sessionsByDay.get(key) ?? [])
                         : [];
-                      const visible = dayEvents.slice(0, 2);
-                      const extra = dayEvents.length - visible.length;
+                      const holiday = inMonth ? holidayFor(key) : null;
+                      // The holiday entry occupies a slot like a lesson chip.
+                      const entries = (holiday ? 1 : 0) + dayEvents.length;
+                      const visible = entries > 2 ? 2 : entries;
+                      const extra = entries - visible;
+                      const showHoliday = holiday !== null && visible > 0;
+                      const shownEvents = Math.min(
+                        dayEvents.length,
+                        visible - (showHoliday ? 1 : 0),
+                      );
                       const isToday = key === todayKey;
                       return (
                         <div
@@ -380,7 +414,16 @@ export function ScheduleClient() {
                                   {date.getDate()}
                                 </span>
                               )}
-                              {visible.map((ev) => (
+                              {showHoliday ? (
+                                // node mock — holiday text in gray ("Memorial Day")
+                                <span
+                                  className="truncate text-[12px] font-normal leading-[14px] text-[#666666]"
+                                  title={holiday ?? ""}
+                                >
+                                  {holiday}
+                                </span>
+                              ) : null}
+                              {dayEvents.slice(0, shownEvents).map((ev) => (
                                 <div
                                   key={`${ev.profile_id}-${ev.class_id}-${ev.status}`}
                                   className="flex min-w-0 items-center gap-[5px]"
@@ -388,9 +431,7 @@ export function ScheduleClient() {
                                 >
                                   <span
                                     className="h-[10px] w-[10px] shrink-0 rounded-full"
-                                    style={{
-                                      backgroundColor: DOT_COLORS[ev.status],
-                                    }}
+                                    style={{ backgroundColor: colorFor(ev) }}
                                   />
                                   <span className="truncate text-[12px] font-[weight:510] leading-[14px] text-[#222222]">
                                     {ev.title}
@@ -410,13 +451,36 @@ export function ScheduleClient() {
                       );
                     })}
                   </div>
+
+                  {/* Per-child colour legend — bottom-left of the schedule,
+                      visible in "Select all" so kids are distinguishable */}
+                  {isAll && children.length > 1 ? (
+                    <div className="flex flex-wrap items-center gap-x-[16px] gap-y-[6px] pt-[12px]">
+                      {children.map((child, i) => (
+                        <span
+                          key={child.id}
+                          className="flex items-center gap-[6px] text-[12px] font-[weight:510] text-[#222222]"
+                        >
+                          <span
+                            className="h-[10px] w-[10px] shrink-0 rounded-full"
+                            style={{
+                              backgroundColor:
+                                CHILD_COLORS[i % CHILD_COLORS.length],
+                            }}
+                          />
+                          {child.full_name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </>
             )}
           </section>
 
-          {/* node 2028:21067 — sidebar 361, gap 20 */}
-          <aside className="flex w-full flex-col gap-[20px] lg:w-[361px]">
+          {/* node 2028:21067 — sidebar 361, gap 20; capped at the capture
+              width so cards never stretch below lg */}
+          <aside className="flex w-full max-w-[361px] flex-col gap-[20px] lg:w-[361px]">
             {/* node 2046:29830 — child switcher h40 */}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
@@ -549,7 +613,7 @@ export function ScheduleClient() {
         <div className="flex h-[14px] items-center gap-[4px] text-[12px] font-normal leading-[14px] tracking-[0.75px] text-[#222222]">
           <span
             className="h-[10px] w-[10px] shrink-0 rounded-full"
-            style={{ backgroundColor: DOT_COLORS[s.status] }}
+            style={{ backgroundColor: colorFor(s) }}
           />
           <span className="shrink-0">
             {start && end ? `${fmtTime(start)}-${fmtTime(end)}` : "—"}

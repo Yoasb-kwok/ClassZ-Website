@@ -1301,7 +1301,7 @@
   "schedule": {
     "today": "今日",
     "upcoming": "即將到來",
-    "all": "全部",
+    "all": "全選",
     "switchChild": "切換子女",
     "lessonOf": "第 {i}/{n} 節",
     "moreEvents": "+{n} 更多",

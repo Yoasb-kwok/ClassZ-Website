@@ -1306,7 +1306,7 @@
   "schedule": {
     "today": "Today",
     "upcoming": "Upcoming",
-    "all": "All",
+    "all": "Select all",
     "switchChild": "Switch child",
     "lessonOf": "Lesson {i} of {n}",
     "moreEvents": "+{n} More",
