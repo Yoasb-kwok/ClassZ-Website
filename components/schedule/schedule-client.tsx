@@ -398,6 +398,10 @@ export function ScheduleClient() {
                         visible - (showHoliday ? 1 : 0),
                       );
                       const isToday = key === todayKey;
+                      // Capture: weekend (Sat/Sun) numbers are gray #666666,
+                      // weekdays #080808.
+                      const dow = date.getDay();
+                      const isWeekend = dow === 0 || dow === 6;
                       return (
                         <div
                           key={`${key}-${i}`}
@@ -410,7 +414,9 @@ export function ScheduleClient() {
                                   {date.getDate()}
                                 </span>
                               ) : (
-                                <span className="text-[14px] font-[weight:510] leading-[17px] text-[#080808]">
+                                <span
+                                  className={`text-[14px] font-[weight:510] leading-[17px] ${isWeekend ? "text-[#666666]" : "text-[#080808]"}`}
+                                >
                                   {date.getDate()}
                                 </span>
                               )}
@@ -607,8 +613,9 @@ export function ScheduleClient() {
     const child = children.find((c) => c.id === s.profile_id);
     const childIdx = children.findIndex((c) => c.id === s.profile_id);
     return (
-      // node 2028:20982 — card r12 pad16 white, soft shadow
-      <div className="rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.08)]">
+      // node 2028:20982 — card r12 pad16 white; capture drop shadow:
+      // #000 12% offsetY 6 blur 16
+      <div className="rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
         {/* node 2028:20983 — dot + time + · + date */}
         <div className="flex h-[14px] items-center gap-[4px] text-[12px] font-normal leading-[14px] tracking-[0.75px] text-[#222222]">
           <span
