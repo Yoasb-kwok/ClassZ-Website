@@ -618,10 +618,11 @@ export function ScheduleClient() {
     const childIdx = children.findIndex((c) => c.id === s.profile_id);
     return (
       // node 2028:20982 — capture-exact card: 361×169, r12 pad16, image
-      // 93×113 r12. User-directed: 1px #EBEBEB ring for crisp edges, and
-      // a bottom-only shadow (spread −8 ⇒ zero left/right spill) so no
-      // shadow can ever reach past the card's side edges.
-      <div className="w-full max-w-[361px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_-8px_rgba(0,0,0,0.16)] ring-1 ring-[#EBEBEB]">
+      // 93×113 r12. User-directed: 1px #EBEBEB border for crisp edges +
+      // bottom-only shadow. NOTE: border property, NOT ring-* — in
+      // Tailwind v4 an arbitrary shadow-[...] overrides ring-1 (both set
+      // box-shadow), which is why the ring never rendered.
+      <div className="w-full max-w-[361px] rounded-[12px] border border-[#EBEBEB] bg-white p-[16px] shadow-[0_6px_16px_-8px_rgba(0,0,0,0.16)]">
         {/* node 2028:20983 — dot + time + · + date */}
         <div className="flex h-[14px] items-center gap-[4px] text-[12px] font-normal leading-[14px] tracking-[0.75px] text-[#222222]">
           <span
