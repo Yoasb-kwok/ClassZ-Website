@@ -486,8 +486,9 @@ export function ScheduleClient() {
 
           {/* Sidebar SECTION — user-directed 2026-10-03: the section is
               enlarged (500px) while each card keeps the capture size
-              (361×169); extra room keeps shadows from overlapping */}
-          <aside className="flex w-full max-w-[500px] flex-col gap-[20px] lg:w-[500px]">
+              (361×169); left inset keeps the card's left shadow inside
+              the section instead of spilling toward the calendar */}
+          <aside className="flex w-full max-w-[500px] flex-col gap-[20px] lg:w-[500px] lg:pl-[24px]">
             {/* node 2046:29830 — child switcher h40 */}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
