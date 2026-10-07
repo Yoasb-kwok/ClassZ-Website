@@ -415,7 +415,7 @@ export function ScheduleClient() {
                                 </span>
                               ) : (
                                 <span
-                                  className={`text-[14px] font-[weight:510] leading-[17px] ${isWeekend ? "text-[#666666]" : "text-[#080808]"}`}
+                                  className={`text-[14px] font-[weight:510] leading-[17px] ${isWeekend ? "text-[#666666]/50" : "text-[#080808]"}`}
                                 >
                                   {date.getDate()}
                                 </span>
@@ -574,7 +574,9 @@ export function ScheduleClient() {
                   {t("schedule.emptyToday")}
                 </p>
               ) : (
-                <div className="mt-[10px] flex flex-col gap-[10px]">
+                // Wider gaps so the cards' drop shadows don't overlap —
+                // each card stays at the capture size (361×169)
+                <div className="mt-[10px] flex flex-col gap-[20px]">
                   {todaySessions.map((s) => (
                     <SessionCard key={`${s.profile_id}-${s.class_id}`} s={s} />
                   ))}
@@ -592,7 +594,7 @@ export function ScheduleClient() {
                   {t("schedule.emptyUpcoming")}
                 </p>
               ) : (
-                <div className="mt-[10px] flex flex-col gap-[10px]">
+                <div className="mt-[10px] flex flex-col gap-[20px]">
                   {upcomingSessions.map((s) => (
                     <SessionCard key={`${s.profile_id}-${s.class_id}`} s={s} />
                   ))}
