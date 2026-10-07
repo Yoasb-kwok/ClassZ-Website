@@ -618,10 +618,10 @@ export function ScheduleClient() {
     const childIdx = children.findIndex((c) => c.id === s.profile_id);
     return (
       // node 2028:20982 — capture-exact card: 361×169, r12 pad16, image
-      // 93×113 r12; capture drop shadow #000 12% offsetY 6 blur 16.
-      // User-directed 2026-10-03: +1px #EBEBEB ring so every edge (left/
-      // right included) reads as a clear line even where shadows meet.
-      <div className="w-full max-w-[361px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)] ring-1 ring-[#EBEBEB]">
+      // 93×113 r12. User-directed: 1px #EBEBEB ring for crisp edges, and
+      // a bottom-only shadow (spread −8 ⇒ zero left/right spill) so no
+      // shadow can ever reach past the card's side edges.
+      <div className="w-full max-w-[361px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_-8px_rgba(0,0,0,0.16)] ring-1 ring-[#EBEBEB]">
         {/* node 2028:20983 — dot + time + · + date */}
         <div className="flex h-[14px] items-center gap-[4px] text-[12px] font-normal leading-[14px] tracking-[0.75px] text-[#222222]">
           <span
