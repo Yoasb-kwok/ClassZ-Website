@@ -484,9 +484,10 @@ export function ScheduleClient() {
             )}
           </section>
 
-          {/* Sidebar — user-directed 2026-10-03: cards enlarged ~1.2× from
-              the capture (361×169 → 440×205), so the column widens to fit */}
-          <aside className="flex w-full max-w-[440px] flex-col gap-[20px] lg:w-[440px]">
+          {/* Sidebar SECTION — user-directed 2026-10-03: the section is
+              enlarged (500px) while each card keeps the capture size
+              (361×169); extra room keeps shadows from overlapping */}
+          <aside className="flex w-full max-w-[500px] flex-col gap-[20px] lg:w-[500px]">
             {/* node 2046:29830 — child switcher h40 */}
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
@@ -574,9 +575,9 @@ export function ScheduleClient() {
                   {t("schedule.emptyToday")}
                 </p>
               ) : (
-                // Wider gaps so the cards' drop shadows don't overlap —
-                // cards are user-enlarged, 440×205 each
-                <div className="mt-[10px] flex flex-col gap-[28px]">
+                // Roomy spacing between capture-sized cards (361×169) so
+                // their drop shadows never overlap
+                <div className="mt-[10px] flex flex-col gap-[24px]">
                   {todaySessions.map((s) => (
                     <SessionCard key={`${s.profile_id}-${s.class_id}`} s={s} />
                   ))}
@@ -594,7 +595,7 @@ export function ScheduleClient() {
                   {t("schedule.emptyUpcoming")}
                 </p>
               ) : (
-                <div className="mt-[10px] flex flex-col gap-[28px]">
+                <div className="mt-[10px] flex flex-col gap-[24px]">
                   {upcomingSessions.map((s) => (
                     <SessionCard key={`${s.profile_id}-${s.class_id}`} s={s} />
                   ))}
@@ -615,53 +616,54 @@ export function ScheduleClient() {
     const child = children.find((c) => c.id === s.profile_id);
     const childIdx = children.findIndex((c) => c.id === s.profile_id);
     return (
-      // User-directed 2026-10-03: enlarged ~1.2× from the capture card
-      // (361×169 → 440×205). Capture drop shadow kept: #000 12% / 6 / 16.
-      <div className="rounded-[14px] bg-white p-[20px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
-        {/* dot + time + · + date (scaled from node 2028:20983) */}
-        <div className="flex h-[16px] items-center gap-[5px] text-[14px] font-normal leading-[16px] tracking-[0.75px] text-[#222222]">
+      // node 2028:20982 — capture-exact card: 361×169, r12 pad16, image
+      // 93×113 r12; capture drop shadow #000 12% offsetY 6 blur 16.
+      // Capped at 361 wide inside the (larger) sidebar section.
+      <div className="w-full max-w-[361px] rounded-[12px] bg-white p-[16px] shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+        {/* node 2028:20983 — dot + time + · + date */}
+        <div className="flex h-[14px] items-center gap-[4px] text-[12px] font-normal leading-[14px] tracking-[0.75px] text-[#222222]">
           <span
-            className="h-[12px] w-[12px] shrink-0 rounded-full"
+            className="h-[10px] w-[10px] shrink-0 rounded-full"
             style={{ backgroundColor: colorFor(s) }}
           />
           <span className="shrink-0">
             {start && end ? `${fmtTime(start)}-${fmtTime(end)}` : "—"}
           </span>
-          <span className="h-[3px] w-[3px] shrink-0 rounded-full bg-[#222222]" />
+          <span className="h-[2px] w-[2px] shrink-0 rounded-full bg-[#222222]" />
           <span className="shrink-0">{start ? fmtCardDate(start) : "—"}</span>
         </div>
 
-        {/* image 113×137 r14 + info column gap 12 (scaled 20991/20993) */}
-        <div className="mt-[12px] flex items-stretch gap-[12px]">
+        {/* node 2028:20991 — image 93×113 r12 + info column gap 10 */}
+        <div className="mt-[10px] flex items-stretch gap-[10px]">
           <img
             src={programImage(s.class_id, s.image_url)}
             alt=""
-            className="h-[137px] w-[113px] shrink-0 rounded-[14px] object-cover"
+            className="h-[113px] w-[93px] shrink-0 rounded-[12px] object-cover"
           />
-          <div className="flex min-w-0 flex-1 flex-col gap-[12px]">
-            <p className="truncate text-[17px] font-[weight:590] leading-[20px] text-[#222222]">
+          <div className="flex min-w-0 flex-1 flex-col gap-[10px]">
+            <p className="truncate text-[14px] font-[weight:590] leading-[17px] text-[#222222]">
               {s.title}
             </p>
             {s.lesson_index != null && s.lesson_total != null ? (
-              <p className="text-[14px] font-[weight:590] leading-[17px] text-[#222222]">
+              <p className="text-[12px] font-[weight:590] leading-[14px] text-[#222222]">
                 {formatTemplate(t, "schedule.lessonOf", {
                   i: s.lesson_index,
                   n: s.lesson_total,
                 })}
               </p>
             ) : null}
-            <div className="flex min-w-0 items-center gap-[5px]">
+            <div className="flex min-w-0 items-center gap-[4px]">
               <img
                 src={childAvatar(child, childIdx)}
                 alt=""
-                className="h-[28px] w-[28px] shrink-0 rounded-full object-cover"
+                className="h-[24px] w-[24px] shrink-0 rounded-full object-cover"
               />
-              <span className="truncate text-[14px] font-[weight:590] text-[#222222]">
+              <span className="truncate text-[12px] font-[weight:590] text-[#222222]">
                 {child?.full_name ?? ""}
               </span>
             </div>
             {s.centre_name ? (
-              <p className="truncate text-[14px] font-normal leading-[17px] text-[#5E5E5E]">
+              <p className="truncate text-[12px] font-normal leading-[14px] text-[#5E5E5E]">
                 {s.centre_name}
               </p>
             ) : null}
