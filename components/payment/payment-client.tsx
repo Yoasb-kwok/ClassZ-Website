@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useLanguage } from "@/components/language-provider";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -674,16 +675,68 @@ export function PaymentClient({
                       </p>
                     </div>
                     {children.length > 1 ? (
-                      <button
-                        type="button"
-                        data-testid="switch-child"
-                        onClick={() =>
-                          setChildIndex((i) => (i + 1) % children.length)
-                        }
-                        className="shrink-0 text-[14px] font-[weight:590] text-[#222222] underline underline-offset-2"
-                      >
-                        {zh ? "切換" : "Switch"}
-                      </button>
+                      // Click opens a list of the children; picking one switches
+                      // the booking target (replaces the old cycle-on-click).
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                          <button
+                            type="button"
+                            data-testid="switch-child"
+                            className="shrink-0 text-[14px] font-[weight:590] text-[#222222] underline underline-offset-2"
+                          >
+                            {zh ? "切換" : "Switch"}
+                          </button>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Portal>
+                          <DropdownMenu.Content
+                            align="end"
+                            sideOffset={8}
+                            className="z-[100] min-w-[220px] rounded-xl bg-white p-2 shadow-[0_6px_16px_2px_rgba(0,0,0,0.12)]"
+                          >
+                            {children.map((c, i) => (
+                              <DropdownMenu.Item
+                                key={c.id}
+                                onSelect={() => setChildIndex(i)}
+                                className={`flex h-12 cursor-pointer items-center gap-3 rounded-lg px-3 text-[14px] text-ink outline-none data-[highlighted]:bg-[#F5F5F5] ${
+                                  i === childIndex
+                                    ? "bg-[#F5F5F5] font-[weight:590]"
+                                    : ""
+                                }`}
+                              >
+                                <img
+                                  src={
+                                    c.photo_url ||
+                                    "/images/programs/avatars/a2.jpg"
+                                  }
+                                  alt=""
+                                  className="h-8 w-8 shrink-0 rounded-full object-cover"
+                                />
+                                <span className="min-w-0 flex-1 truncate">
+                                  {c.full_name}
+                                </span>
+                                {i === childIndex ? (
+                                  <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 16 16"
+                                    aria-hidden
+                                    className="shrink-0"
+                                  >
+                                    <path
+                                      d="M3 8.5l3.5 3.5L13 5"
+                                      stroke="#0ABAB5"
+                                      strokeWidth="1.6"
+                                      fill="none"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                ) : null}
+                              </DropdownMenu.Item>
+                            ))}
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                      </DropdownMenu.Root>
                     ) : null}
                   </div>
                 )}
