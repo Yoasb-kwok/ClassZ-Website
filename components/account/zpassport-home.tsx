@@ -141,93 +141,15 @@ export function ZPassportHome() {
 
         {/* node 3973:36491 — companion row, gap 30, items centred */}
         <div className="flex flex-col items-center gap-[30px] lg:flex-row">
-          {/* left: animals collage — FIXED capture size 542.63×250.33 with
-              exact px placement (group 3973:36511); percentages distorted
-              the collage whenever the column width changed. shrink-0 so
-              the collage never reflows; the teal note sits below. */}
+          {/* left: the six Learning Companion animals around the ClassZ Z —
+              same group art as the learn-how-it-works hero (779×326.63 @2x).
+              User-directed: replaces the 0710 collage assets. */}
           <div className="flex w-full shrink-0 flex-col justify-between gap-[32px] lg:w-[542.63px] lg:self-stretch">
-            {/* node 3973:36511 — 7 animal assets at capture px coords
-                (node id → asset file; positions/sizes exact from nodes.json).
-                Fixed 542.63×250.33 — below lg the collage scrolls horizontally
-                instead of distorting. */}
-            <div className="w-full max-w-full overflow-x-auto pb-[8px] lg:overflow-visible lg:pb-0">
-              <div
-                className="relative h-[250.33px] w-[542.63px] shrink-0"
-                role="img"
-                aria-label="ClassZ learning companion animals"
-              >
-                {[
-                  {
-                    src: "011-3973_36516.png",
-                    x: 143.46,
-                    y: 0,
-                    w: 75.68,
-                    h: 72.8,
-                    alt: "Bee",
-                  },
-                  {
-                    src: "010-3973_36515.png",
-                    x: 0,
-                    y: 109.75,
-                    w: 105.08,
-                    h: 120.86,
-                    alt: "Fox",
-                  },
-                  {
-                    src: "008-3973_36513.png",
-                    x: 95.76,
-                    y: 87.15,
-                    w: 133.86,
-                    h: 146.24,
-                    alt: "Dolphin",
-                  },
-                  {
-                    src: "012-3973_36517.png",
-                    x: 206.58,
-                    y: 105.8,
-                    w: 144.89,
-                    h: 144.53,
-                    alt: "Z-sir",
-                  },
-                  {
-                    src: "013-3973_36518.png",
-                    x: 457.63,
-                    y: 28.33,
-                    w: 117.63,
-                    h: 131.27,
-                    alt: "Rabbit",
-                  },
-                  {
-                    src: "007-3973_36512.png",
-                    // NOTE: asset file 007 contains the OWL artwork and 009
-                    // the TURTLE (plugin export names don't match node ids
-                    // for these two — user caught the swap).
-                    x: 462,
-                    y: 140,
-                    w: 118.71,
-                    h: 78.54,
-                    alt: "Owl",
-                  },
-                  {
-                    src: "009-3973_36514.png",
-                    // Moved closer to the Z logo (user request)
-                    x: 360,
-                    y: 148.84,
-                    w: 98.55,
-                    h: 103.01,
-                    alt: "Turtle",
-                  },
-                ].map((a) => (
-                  <img
-                    key={a.src}
-                    src={`${IMG}/${a.src}`}
-                    alt={a.alt}
-                    className="absolute"
-                    style={{ left: a.x, top: a.y, width: a.w, height: a.h }}
-                  />
-                ))}
-              </div>
-            </div>
+            <img
+              src="/images/learn-how-it-works-hero.png"
+              alt="The six Learning Companion animals around the ClassZ Z"
+              className="w-full max-w-[542.63px]"
+            />
             <p className="text-[21.71px] font-[weight:700] leading-[33px] text-[#0ABAB5]">
               Unlock deeper insights after 3 records, automatically analyzed and
               updated with every new lesson.
