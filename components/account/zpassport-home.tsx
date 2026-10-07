@@ -198,24 +198,21 @@ export function ZPassportHome() {
                     alt: "Rabbit",
                   },
                   {
-                    src: "007-3973_36512.png",
-                    // User-corrected vs nodes.json (which read x444 — the
-                    // transform was relative to a nested parent): the
-                    // reference renders the turtle left of the owl,
-                    // bottom-aligned with it (owl bottom 227.38).
+                    src: "009-3973_36514.png",
+                    // Swapped with the turtle (user request)
                     x: 345,
                     y: 124.38,
-                    w: 98.55,
-                    h: 103.01,
-                    alt: "Turtle",
-                  },
-                  {
-                    src: "009-3973_36514.png",
-                    x: 441.85,
-                    y: 148.84,
                     w: 118.71,
                     h: 78.54,
                     alt: "Owl",
+                  },
+                  {
+                    src: "007-3973_36512.png",
+                    x: 441.85,
+                    y: 148.84,
+                    w: 98.55,
+                    h: 103.01,
+                    alt: "Turtle",
                   },
                 ].map((a) => (
                   <img
