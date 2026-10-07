@@ -30,3 +30,9 @@ into the lessons log / skill at end of session.
   **generalizes: Y** — extraction checklist: verify `effects`, not just
   fills/strokes; and remember adjacent shadows overlap when card gaps
   are smaller than the blur radius.
+- "the left and right border of each card is still overlapping" →
+  added a 1px #EBEBEB ring to the session cards (capture has no stroke)
+  and widened gaps to 28px. · **product-intent** — a crisp border line
+  beats shadow-only boundaries when the user repeatedly can't see the
+  card edge. **generalizes: Y** — on white-on-white UIs, pair soft
+  shadows with a hairline ring.
