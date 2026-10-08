@@ -61,6 +61,7 @@ function CentresShell({ tab, children }: { tab: CentreTab; children: ReactNode }
               <Link
                 key={item.id}
                 href={item.href}
+                scroll={false}
                 aria-current={active ? "page" : undefined}
                 className={`-mb-px shrink-0 border-b-2 pb-3 text-[18px] leading-6 md:text-[20px] ${
                   active ? "border-[#222222] text-[#222222]" : "border-transparent text-[#222222]"
