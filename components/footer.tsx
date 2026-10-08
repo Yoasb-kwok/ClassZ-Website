@@ -15,13 +15,13 @@ export function Footer() {
         <div className="flex flex-col gap-5">
           <h4 className="text-lg font-semibold text-white">{t("footer.contactTitle")}</h4>
           <div className="flex flex-col gap-5 px-1">
-            <a href="mailto:theclasszclassz@gmail.com" className="flex items-center gap-2 hover:opacity-70">
+            <a href={`mailto:${t("footer.email")}`} className="flex items-center gap-2 hover:opacity-70">
               <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-white p-2">
                 <MapPin className="h-4 w-4 text-white" strokeWidth={1.5} />
               </span>
               <span className="text-sm text-white">{t("footer.email")}</span>
             </a>
-            <a href="tel:+85212345678" className="flex items-center gap-2 hover:opacity-70">
+            <a href={`tel:${t("footer.phone").replace(/\s/g, "")}`} className="flex items-center gap-2 hover:opacity-70">
               <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full border border-white p-2">
                 <Phone className="h-4 w-4 text-white" strokeWidth={1.5} />
               </span>
