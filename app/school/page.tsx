@@ -1,5 +1,5 @@
 import { generateMetadata } from "@/lib/metadata";
-import { isRegularCourseType, isWorkshopCourseType } from "@/lib/course-types";
+import { isWorkshopCourseType } from "@/lib/course-types";
 import { getPublicCourses, getPublicCourse } from "@/lib/public-courses";
 import { fetchSitePage, landingOverridesFromBlocks } from "@/lib/site-pages";
 import { MarketplaceLanding } from "@/components/programs/marketplace-landing";
@@ -18,12 +18,9 @@ export default async function ClasszSchoolPage() {
     getPublicCourses(),
     fetchSitePage("landing"),
   ]);
-  const programs = courses.filter((c) => isRegularCourseType(c.course_type));
   const workshops = courses.filter((c) => isWorkshopCourseType(c.course_type));
 
-  const featured = [...programs.slice(0, 3), ...workshops.slice(0, 3)].filter(
-    (c) => c.price == null,
-  );
+  const featured = workshops.slice(0, 3).filter((c) => c.price == null);
   const details = await Promise.all(featured.map((c) => getPublicCourse(c.id)));
   const prices: Record<number, number> = {};
   for (const d of details) {
@@ -34,7 +31,6 @@ export default async function ClasszSchoolPage() {
 
   return (
     <MarketplaceLanding
-      programs={programs}
       workshops={workshops}
       prices={prices}
       cms={{
