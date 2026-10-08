@@ -8,5 +8,5 @@ export const metadata = generateMetadata({
 })
 
 export default function Page() {
-  return <ForCentresPage />
+  return <ForCentresPage tab="overview" />
 }

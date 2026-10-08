@@ -3,50 +3,52 @@
 import { useState } from "react"
 import { useLanguage } from "@/components/language-provider"
 
-const CLASS_TYPES = [
-  { id: "academic", key: "infoPages.centres.clsAcademic" },
-  { id: "language", key: "infoPages.centres.clsLanguage" },
-  { id: "art", key: "infoPages.centres.clsArt" },
-  { id: "music", key: "infoPages.centres.clsMusic" },
-  { id: "sports", key: "infoPages.centres.clsSports" },
-  { id: "dance", key: "infoPages.centres.clsDance" },
-  { id: "others", key: "infoPages.centres.clsOthers" },
+const STATUSES = [
+  { id: "company", key: "infoPages.centres.statusCompany" },
+  { id: "individual", key: "infoPages.centres.statusIndividual" },
 ] as const
 
-const ROLES = [
-  { id: "owner", key: "infoPages.centres.roleOwner" },
-  { id: "manager", key: "infoPages.centres.roleManager" },
-  { id: "coach", key: "infoPages.centres.roleCoach" },
+const INTERESTS = [
+  { id: "lms", key: "infoPages.centres.interestLms" },
+  { id: "recruit", key: "infoPages.centres.interestRecruit" },
+  { id: "workshop", key: "infoPages.centres.interestWorkshop" },
+  { id: "admin", key: "infoPages.centres.interestAdmin" },
+  { id: "feedback", key: "infoPages.centres.interestFeedback" },
+  { id: "promo", key: "infoPages.centres.interestPromo" },
+  { id: "engage", key: "infoPages.centres.interestEngage" },
 ] as const
 
-const SIZES = [
-  { id: "s", key: "infoPages.centres.size1" },
-  { id: "m", key: "infoPages.centres.size2" },
-  { id: "l", key: "infoPages.centres.size3" },
+const HEARD = [
+  { id: "social", key: "infoPages.centres.hearSocial" },
+  { id: "news", key: "infoPages.centres.hearNews" },
+  { id: "search", key: "infoPages.centres.hearSearch" },
+  { id: "event", key: "infoPages.centres.hearEvent" },
+  { id: "ads", key: "infoPages.centres.hearAds" },
+  { id: "friends", key: "infoPages.centres.hearFriends" },
+  { id: "blogs", key: "infoPages.centres.hearBlogs" },
 ] as const
 
-const emptyForm = {
+const empty = {
   name: "",
+  centreName: "",
+  status: "",
   email: "",
   phone: "",
-  centreName: "",
-  address: "",
-  role: "",
-  size: "",
-  message: "",
-  services: [] as string[],
+  webpage: "",
+  interests: [] as string[],
+  heard: "",
 }
 
 export function CentreRequestForm() {
   const { t } = useLanguage()
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState(empty)
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const toggleService = (id: string, checked: boolean) => {
+  const toggleInterest = (id: string, checked: boolean) => {
     setForm((prev) => ({
       ...prev,
-      services: checked ? [...prev.services, id] : prev.services.filter((s) => s !== id),
+      interests: checked ? [...prev.interests, id] : prev.interests.filter((item) => item !== id),
     }))
   }
 
@@ -63,17 +65,16 @@ export function CentreRequestForm() {
 
     setSubmitting(true)
     setStatus(null)
-    const classLabels = form.services.map((id) => t(CLASS_TYPES.find((s) => s.id === id)?.key || id))
-    const sizeLabel = t(SIZES.find((s) => s.id === form.size)?.key || form.size)
-    const roleLabel = t(ROLES.find((s) => s.id === form.role)?.key || form.role)
+    const interestLabels = form.interests.map((id) => t(INTERESTS.find((item) => item.id === id)?.key || id))
+    const statusLabel = t(STATUSES.find((item) => item.id === form.status)?.key || form.status)
+    const heardLabel = t(HEARD.find((item) => item.id === form.heard)?.key || form.heard)
     const message = [
       `Centre: ${form.centreName}`,
+      statusLabel ? `Status: ${statusLabel}` : "",
       `Phone: ${form.phone}`,
-      form.address ? `Address: ${form.address}` : "",
-      roleLabel ? `Role: ${roleLabel}` : "",
-      sizeLabel ? `Students: ${sizeLabel}` : "",
-      classLabels.length ? `Classes: ${classLabels.join(", ")}` : "",
-      form.message ? `Notes: ${form.message}` : "",
+      form.webpage ? `Webpage: ${form.webpage}` : "",
+      interestLabels.length ? `Interest: ${interestLabels.join(", ")}` : "",
+      heardLabel ? `Heard about us: ${heardLabel}` : "",
     ]
       .filter(Boolean)
       .join("\n")
@@ -92,7 +93,7 @@ export function CentreRequestForm() {
       })
       if (!response.ok) throw new Error("submit failed")
       setStatus({ type: "success", message: t("infoPages.centres.success") })
-      setForm(emptyForm)
+      setForm(empty)
     } catch {
       setStatus({ type: "error", message: t("infoPages.centres.error") })
     } finally {
@@ -101,128 +102,112 @@ export function CentreRequestForm() {
   }
 
   const field =
-    "h-11 w-full rounded-xl border border-[#ebebeb] bg-white px-4 text-sm text-ink placeholder:text-shade-400 focus:border-[#0abab5] focus:outline-none focus:ring-2 focus:ring-[#0abab5]/20"
+    "h-12 w-full rounded-2xl border border-[#e6e6e6] bg-white px-4 text-[16px] text-[#18191b] placeholder:text-[#9a9a9a] focus:border-[#0abab5] focus:outline-none"
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5 rounded-3xl border border-[#ebebeb] bg-white p-6 shadow-[0_16px_50px_rgba(0,0,0,0.06)] md:p-8">
-      <div className="text-center">
-        <h3 className="text-2xl font-semibold tracking-[-0.03em] text-ink md:text-3xl">
-          {t("infoPages.centres.formTitle")}
-        </h3>
-        <p className="mt-2 text-sm text-shade-500">{t("infoPages.centres.formBody")}</p>
-      </div>
-
+    <form onSubmit={onSubmit} className="mt-8 space-y-5">
       {status ? (
         <p
-          className={`rounded-xl px-4 py-3 text-sm ${
-            status.type === "success"
-              ? "border border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border border-red-200 bg-red-50 text-red-800"
+          className={`rounded-2xl px-4 py-3 text-sm ${
+            status.type === "success" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-800"
           }`}
         >
           {status.message}
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-medium text-ink">
-          {t("infoPages.centres.name")}
-          <input className={`${field} mt-1.5`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-        </label>
-        <label className="block text-sm font-medium text-ink">
-          {t("infoPages.centres.email")}
-          <input type="email" className={`${field} mt-1.5`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-        </label>
-        <label className="block text-sm font-medium text-ink">
-          {t("infoPages.centres.phone")}
-          <input className={`${field} mt-1.5`} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
-        </label>
-        <label className="block text-sm font-medium text-ink">
-          {t("infoPages.centres.centreName")}
-          <input className={`${field} mt-1.5`} value={form.centreName} onChange={(e) => setForm({ ...form, centreName: e.target.value })} required />
-        </label>
-        <label className="block text-sm font-medium text-ink sm:col-span-2">
-          {t("infoPages.centres.address")}
-          <input className={`${field} mt-1.5`} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-        </label>
-      </div>
-
-      <fieldset>
-        <legend className="text-sm font-medium text-ink">{t("infoPages.centres.classTypesTitle")}</legend>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {CLASS_TYPES.map((svc) => (
-            <label key={svc.id} className="flex items-center gap-2 rounded-xl border border-[#ebebeb] px-3 py-2.5 text-sm text-ink">
-              <input
-                type="checkbox"
-                className="accent-[#0abab5]"
-                checked={form.services.includes(svc.id)}
-                onChange={(e) => toggleService(svc.id, e.target.checked)}
-              />
-              {t(svc.key)}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend className="text-sm font-medium text-ink">{t("infoPages.centres.roleTitle")}</legend>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {ROLES.map((role) => (
-            <label
-              key={role.id}
-              className={`cursor-pointer rounded-full border px-4 py-2 text-sm ${
-                form.role === role.id ? "border-[#0abab5] bg-[#d7f4f3] text-ink" : "border-[#ebebeb] text-shade-500"
-              }`}
-            >
-              <input
-                type="radio"
-                name="centre-role"
-                className="sr-only"
-                checked={form.role === role.id}
-                onChange={() => setForm({ ...form, role: role.id })}
-              />
-              {t(role.key)}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend className="text-sm font-medium text-ink">{t("infoPages.centres.sizeTitle")}</legend>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {SIZES.map((size) => (
-            <label
-              key={size.id}
-              className={`cursor-pointer rounded-full border px-4 py-2 text-sm ${
-                form.size === size.id ? "border-[#0abab5] bg-[#d7f4f3] text-ink" : "border-[#ebebeb] text-shade-500"
-              }`}
-            >
-              <input
-                type="radio"
-                name="centre-size"
-                className="sr-only"
-                checked={form.size === size.id}
-                onChange={() => setForm({ ...form, size: size.id })}
-              />
-              {t(size.key)}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <label className="block text-sm font-medium text-ink">
-        {t("infoPages.centres.message")}
-        <textarea
-          className="mt-1.5 min-h-[120px] w-full rounded-xl border border-[#ebebeb] bg-white px-4 py-3 text-sm text-ink focus:border-[#0abab5] focus:outline-none focus:ring-2 focus:ring-[#0abab5]/20"
-          value={form.message}
-          onChange={(e) => setForm({ ...form, message: e.target.value })}
+      <label className="block">
+        <span className="mb-2 block text-[16px] leading-6">{t("infoPages.centres.name")}</span>
+        <input className={field} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      </label>
+      <label className="block">
+        <span className="mb-2 block text-[16px] leading-6">{t("infoPages.centres.centreName")}</span>
+        <input
+          className={field}
+          value={form.centreName}
+          onChange={(e) => setForm({ ...form, centreName: e.target.value })}
         />
       </label>
+
+      <fieldset>
+        <legend className="mb-3 text-[14px] leading-5">{t("infoPages.centres.statusTitle")}</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {STATUSES.map((item) => (
+            <label key={item.id} className="flex items-start gap-3 text-[14px] leading-5">
+              <input
+                type="radio"
+                name="centre-status"
+                className="mt-1 accent-[#18191b]"
+                checked={form.status === item.id}
+                onChange={() => setForm({ ...form, status: item.id })}
+              />
+              {t(item.key)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <label className="block">
+        <span className="mb-2 block text-[16px] leading-6">{t("infoPages.centres.email")}</span>
+        <input
+          type="email"
+          className={field}
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+      </label>
+      <label className="block">
+        <span className="mb-2 block text-[16px] leading-6">{t("infoPages.centres.phone")}</span>
+        <input className={field} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+      </label>
+      <label className="block">
+        <span className="mb-2 block text-[16px] leading-6">{t("infoPages.centres.webpage")}</span>
+        <input
+          className={field}
+          value={form.webpage}
+          onChange={(e) => setForm({ ...form, webpage: e.target.value })}
+        />
+      </label>
+
+      <fieldset>
+        <legend className="mb-3 text-[14px] leading-5">{t("infoPages.centres.interestTitle")}</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {INTERESTS.map((item) => (
+            <label key={item.id} className="flex items-start gap-3 text-[14px] leading-5">
+              <input
+                type="checkbox"
+                className="mt-1 accent-[#18191b]"
+                checked={form.interests.includes(item.id)}
+                onChange={(e) => toggleInterest(item.id, e.target.checked)}
+              />
+              {t(item.key)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className="mb-3 text-[14px] leading-5">{t("infoPages.centres.hearTitle")}</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {HEARD.map((item) => (
+            <label key={item.id} className="flex items-start gap-3 text-[14px] leading-5">
+              <input
+                type="radio"
+                name="heard"
+                className="mt-1 accent-[#18191b]"
+                checked={form.heard === item.id}
+                onChange={() => setForm({ ...form, heard: item.id })}
+              />
+              {t(item.key)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <button
         type="submit"
         disabled={submitting}
-        className="h-12 w-full rounded-full bg-[#0abab5] text-sm font-semibold text-white transition hover:bg-[#089591] disabled:opacity-60"
+        className="inline-flex rounded-full bg-[#18191b] px-8 py-3 text-[18px] leading-7 font-medium text-white transition hover:bg-[#2a2b2e] disabled:opacity-60"
       >
         {submitting ? t("infoPages.centres.submitting") : t("infoPages.centres.submit")}
       </button>

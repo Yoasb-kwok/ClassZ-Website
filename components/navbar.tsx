@@ -109,7 +109,7 @@ export function Navbar() {
   const isActive = (href: string, extra: string[] = []) =>
     [href, ...extra].some((path) => {
       const p = pathOf(path);
-      if (p === "/") return pathname === p;
+      if (p === "/" || p === "/school") return pathname === p;
       return pathname === p || Boolean(pathname?.startsWith(`${p}/`));
     });
 
@@ -258,25 +258,32 @@ export function Navbar() {
                 />
               ))}
           </div>
-          <LanguageMenu
-            label={t("nav.language")}
-            englishLabel={t("english")}
-            chineseLabel={t("chinese")}
-            locale={locale}
-            onSelect={setLocale}
-          />
-          {links
-            .filter((link) => link.cta)
-            .map((link) => (
+          <div className="flex shrink-0 items-center gap-3">
+            <LanguageMenu
+              label={t("nav.language")}
+              englishLabel={t("english")}
+              chineseLabel={t("chinese")}
+              locale={locale}
+              onSelect={setLocale}
+            />
+            {surface === "school" ? (
               <Link
-                key={`${surface}-${link.key}`}
-                href={link.href}
+                href="/"
+                onClick={() => rememberSurface("info")}
                 className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
               >
-                {t(link.key)}
+                {t("nav.classz")}
               </Link>
-            ))}
-          {session ? (
+            ) : (
+              <Link
+                href="/school"
+                onClick={() => rememberSurface("school")}
+                className="flex h-9 shrink-0 items-center rounded-full bg-[#222] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-opacity hover:opacity-90"
+              >
+                {t("nav.classzSchool")}
+              </Link>
+            )}
+            {session ? (
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <button
@@ -333,12 +340,13 @@ export function Navbar() {
           ) : (
             <button
               type="button"
-              onClick={() => openAuth("login")}
+              onClick={() => openAuth(surface === "info" ? "register" : "login")}
               className="flex h-9 shrink-0 items-center rounded-full bg-[#0abab5] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-colors hover:bg-[#089591]"
             >
-              {t("nav.login")}
+              {surface === "info" ? t("landing.joinEarly") : t("nav.login")}
             </button>
           )}
+          </div>
         </div>
       </div>
     </nav>

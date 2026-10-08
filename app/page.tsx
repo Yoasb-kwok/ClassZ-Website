@@ -1,46 +1,13 @@
 import { generateMetadata } from "@/lib/metadata";
-import { isRegularCourseType, isWorkshopCourseType } from "@/lib/course-types";
-import { getPublicCourses, getPublicCourse } from "@/lib/public-courses";
-import { fetchSitePage, landingOverridesFromBlocks } from "@/lib/site-pages";
-import { MarketplaceLanding } from "@/components/programs/marketplace-landing";
+import { LandingPage } from "@/components/programs/landing-page";
 
 export const metadata = generateMetadata({
-  title: "ClassZ - Discover, Book & Track Classes",
+  title: "ClassZ - One connected learning journey",
   description:
-    "Browse enrichment classes, book sessions, and follow your child's learning progress on ClassZ.",
+    "Discover insights into every child’s growth and learning through a unified platform that connects parents, educators, and centres.",
   url: "/",
 });
 
-export const revalidate = 60;
-
-export default async function Home() {
-  const [courses, landingPage] = await Promise.all([
-    getPublicCourses(),
-    fetchSitePage("landing"),
-  ]);
-  const programs = courses.filter((c) => isRegularCourseType(c.course_type));
-  const workshops = courses.filter((c) => isWorkshopCourseType(c.course_type));
-
-  const featured = [...programs.slice(0, 3), ...workshops.slice(0, 3)].filter(
-    (c) => c.price == null,
-  );
-  const details = await Promise.all(featured.map((c) => getPublicCourse(c.id)));
-  const prices: Record<number, number> = {};
-  for (const d of details) {
-    if (d?.price != null && !Number.isNaN(Number(d.price))) {
-      prices[d.id] = Number(d.price);
-    }
-  }
-
-  return (
-    <MarketplaceLanding
-      programs={programs}
-      workshops={workshops}
-      prices={prices}
-      cms={{
-        en: landingOverridesFromBlocks(landingPage.blocks, "en"),
-        zhTw: landingOverridesFromBlocks(landingPage.blocks, "zh-TW"),
-      }}
-    />
-  );
+export default function Page() {
+  return <LandingPage />;
 }

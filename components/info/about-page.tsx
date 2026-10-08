@@ -1,148 +1,204 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { Heart, Home, Search, TrendingUp } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useLanguage } from "@/components/language-provider"
-import { DarkCta, InfoGlow, InfoSection, MiniChart, ObservationCard } from "@/components/info/info-ui"
+import { useAuthModal } from "@/components/auth-modal"
 
-export function AboutPage() {
-  const { t } = useLanguage()
+const FONT =
+  '"SF Pro", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 
-  const audience = [
-    { icon: Home, title: t("infoPages.about.familiesTitle"), body: t("infoPages.about.familiesBody"), glow: "bg-[#fff4cc]" },
-    { icon: Heart, title: t("infoPages.about.childrenTitle"), body: t("infoPages.about.childrenBody"), glow: "bg-[#f3e8ff]" },
-    { icon: TrendingUp, title: t("infoPages.about.centresTitle"), body: t("infoPages.about.centresBody"), glow: "bg-[#d7f4f3]" },
-  ]
-
+function ArrowIcon() {
   return (
-    <main className="min-h-screen bg-white text-ink">
-      <Navbar />
-
-      <section className="relative overflow-hidden px-6 pb-8 pt-10 md:px-16 md:pt-16">
-        <InfoGlow />
-        <div className="relative mx-auto max-w-[860px] text-center">
-          <h1 className="text-4xl font-semibold leading-[1.12] tracking-[-0.04em] md:text-[52px]">
-            {t("infoPages.about.heroTitle")}
-          </h1>
-        </div>
-      </section>
-
-      <InfoSection className="pb-20">
-        <div className="grid gap-5 md:grid-cols-3">
-          {audience.map((card) => (
-            <article key={card.title} className="relative overflow-hidden rounded-3xl border border-[#f0f0f0] bg-white p-6 shadow-[0_12px_40px_rgba(0,0,0,0.05)]">
-              <div className={`pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full ${card.glow} blur-2xl`} />
-              <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#d7f4f3] text-[#0abab5]">
-                <card.icon className="h-5 w-5" strokeWidth={1.75} />
-              </span>
-              <h2 className="relative mt-5 text-lg font-semibold">{card.title}</h2>
-              <p className="relative mt-2 text-sm leading-6 text-shade-500">{card.body}</p>
-            </article>
-          ))}
-        </div>
-      </InfoSection>
-
-      <InfoSection className="pb-10 text-center">
-        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#d7f4f3] text-[#0abab5]">
-          <Search className="h-5 w-5" />
-        </span>
-        <h2 className="mx-auto mt-5 max-w-2xl text-3xl font-semibold tracking-[-0.03em] md:text-4xl">
-          {t("infoPages.about.philosophyTitle")}
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-shade-500">
-          {t("infoPages.about.philosophyBody")}
-        </p>
-      </InfoSection>
-
-      <InfoSection className="pb-20">
-        <div className="grid gap-8 md:grid-cols-2">
-          <Principle
-            title={t("infoPages.about.p1Title")}
-            body={t("infoPages.about.p1Body")}
-            visual={
-              <div className="relative h-56">
-                <div className="absolute left-4 top-8 w-[70%] -rotate-6">
-                  <ObservationCard photo="/kid-science.jpg" name="STEM Lab" note="Noticed careful trial-and-error with the circuit." />
-                </div>
-                <div className="absolute bottom-0 right-2 w-[68%] rotate-3">
-                  <div className="rounded-2xl bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.1)]">
-                    <p className="text-xs font-semibold text-[#0abab5]">Post-class summary</p>
-                    <MiniChart className="mt-2 h-16 w-full" />
-                  </div>
-                </div>
-              </div>
-            }
-          />
-          <Principle
-            title={t("infoPages.about.p2Title")}
-            body={t("infoPages.about.p2Body")}
-            visual={<img src="/kid-reading.jpg" alt="" className="h-56 w-full rounded-3xl object-cover" />}
-          />
-          <Principle
-            title={t("infoPages.about.p3Title")}
-            body={t("infoPages.about.p3Body")}
-            visual={<img src="/images/hosted-by-centre.jpg" alt="" className="h-56 w-full rounded-3xl object-cover" />}
-          />
-          <Principle
-            title={t("infoPages.about.p4Title")}
-            body={t("infoPages.about.p4Body")}
-            visual={
-              <div className="relative h-56">
-                <div className="absolute left-2 top-4 w-[62%] -rotate-3 rounded-2xl bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.1)]">
-                  <div className="flex items-center gap-3">
-                    <img src="/images/profile-charlie.jpg" alt="" className="h-10 w-10 rounded-full object-cover" />
-                    <div>
-                      <p className="text-sm font-semibold">Charlie Chan</p>
-                      <p className="text-[11px] text-shade-400">3 records · emerging</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute bottom-2 right-2 w-[70%] rotate-2 rounded-2xl bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.1)]">
-                  <p className="text-xs font-semibold text-ink">Evidence from last lesson</p>
-                  <p className="mt-1 text-xs leading-5 text-shade-500">Asked a follow-up question before trying again.</p>
-                </div>
-              </div>
-            }
-          />
-        </div>
-        <p className="mt-10 text-center text-xs text-shade-400">{t("infoPages.about.disclaimer")}</p>
-      </InfoSection>
-
-      <DarkCta
-        title={t("infoPages.about.ctaTitle")}
-        body={t("infoPages.about.ctaBody")}
-        primary={t("infoPages.ctaZpassport")}
-        primaryHref="/zpassport"
-        secondary={t("infoPages.about.ctaLearnSchool")}
-        secondaryHref="/"
-        visual={
-          <div className="mx-auto max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <img src="/landing/zpassport-phone.jpg" alt="" className="w-full object-cover" />
-          </div>
-        }
+    <svg width="28" height="29" viewBox="0 0 28 29" fill="none" aria-hidden className="shrink-0">
+      <path
+        d="M4 14.5h18M15.5 7.5 23 14.5l-7.5 7"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-
-      <Footer />
-    </main>
+    </svg>
   )
 }
 
-function Principle({
+function HeartIcon() {
+  return (
+    <span className="relative block size-[50px]" aria-hidden>
+      <img
+        src="/about/icon-heart-a.svg"
+        alt=""
+        width={39}
+        height={35}
+        className="absolute top-[6px] left-[4px]"
+      />
+      <img
+        src="/about/icon-heart-b.svg"
+        alt=""
+        width={30}
+        height={27}
+        className="absolute top-[19px] left-[18px]"
+      />
+    </span>
+  )
+}
+
+function AudienceCard({
+  icon,
   title,
   body,
-  visual,
 }: {
+  icon: ReactNode
   title: string
   body: string
-  visual: ReactNode
 }) {
   return (
-    <article>
-      <div className="overflow-hidden rounded-3xl bg-[#f7fafa] p-4">{visual}</div>
-      <h3 className="mt-5 text-xl font-semibold tracking-[-0.02em]">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-shade-500">{body}</p>
+    <article className="flex min-h-[343px] flex-col gap-4 rounded-[24px] bg-white px-8 py-16 shadow-[0_16px_50px_rgba(15,23,42,0.06)]">
+      {icon}
+      <h2 className="text-[32px] leading-[60px] font-medium tracking-[-1.5px] text-[#18191b] md:text-[36px]">
+        {title}
+      </h2>
+      <p className="text-[16px] leading-6 text-[#404040]">{body}</p>
     </article>
+  )
+}
+
+function PrincipleCard({
+  image,
+  imageClassName,
+  title,
+  body,
+}: {
+  image: string
+  imageClassName: string
+  title: string
+  body: string
+}) {
+  return (
+    <article className="overflow-hidden rounded-[24px] bg-white">
+      <div className="flex h-[240px] items-center justify-center overflow-hidden bg-white md:h-[328px]">
+        <img src={image} alt="" className={imageClassName} />
+      </div>
+      <div className="flex flex-col gap-4 px-8 pt-8 pb-16">
+        <h3 className="text-[28px] leading-tight font-medium tracking-[-1.5px] text-[#18191b] md:text-[36px] md:leading-[60px]">
+          {title}
+        </h3>
+        <p className="text-[16px] leading-6 text-[#404040]">{body}</p>
+      </div>
+    </article>
+  )
+}
+
+export function AboutPage() {
+  const { t } = useLanguage()
+  const { openAuth } = useAuthModal()
+
+  return (
+    <main className="min-h-screen bg-white text-[#18191b]" style={{ fontFamily: FONT }}>
+      <Navbar />
+
+      <section className="relative overflow-hidden px-4 pt-16 pb-16 md:px-8 md:pt-36 md:pb-24">
+        <div className="pointer-events-none absolute top-[46%] left-[6%] h-[380px] w-[380px] rounded-full bg-[#fff4b0] blur-[90px]" />
+        <div className="pointer-events-none absolute top-[38%] right-[4%] h-[440px] w-[440px] rounded-full bg-[#b7f6f2] blur-[100px]" />
+        <div className="relative mx-auto max-w-[980px] text-center">
+          <h1 className="text-[40px] leading-[1.05] font-medium tracking-[-1.5px] md:text-[72px] md:leading-[60px]">
+            {t("infoPages.about.heroTitle")}
+          </h1>
+        </div>
+        <div className="relative mx-auto mt-16 grid max-w-[1100px] gap-8 md:mt-20 lg:grid-cols-3">
+          <AudienceCard
+            icon={<img src="/about/icon-house.svg" alt="" width={50} height={50} />}
+            title={t("infoPages.about.familiesTitle")}
+            body={t("infoPages.about.familiesBody")}
+          />
+          <AudienceCard
+            icon={<HeartIcon />}
+            title={t("infoPages.about.childrenTitle")}
+            body={t("infoPages.about.childrenBody")}
+          />
+          <AudienceCard
+            icon={<img src="/about/icon-people.svg" alt="" width={50} height={50} />}
+            title={t("infoPages.about.centresTitle")}
+            body={t("infoPages.about.centresBody")}
+          />
+        </div>
+      </section>
+
+      <section className="px-4 py-8 md:px-8 md:py-16">
+        <div className="mx-auto flex max-w-[1248px] flex-col items-center px-4 text-center md:px-20">
+          <img src="/landing/figma/icon-search.png" alt="" className="size-[51px] object-contain" />
+          <h2 className="mt-6 text-[32px] leading-10 font-medium md:text-[36px]">
+            <span className="block">{t("infoPages.about.philosophyLine1")}</span>
+            <span className="block">{t("infoPages.about.philosophyLine2")}</span>
+          </h2>
+          <p className="mt-6 max-w-[1248px] text-[18px] leading-7 text-[#404040]">
+            {t("infoPages.about.philosophyBody")}
+          </p>
+        </div>
+
+        <div className="mx-auto mt-16 flex max-w-[1248px] flex-col gap-16 md:mt-20">
+          <div className="grid items-stretch gap-8 lg:grid-cols-[490fr_694fr] lg:gap-16">
+            <PrincipleCard
+              image="/about/observations.png"
+              imageClassName="h-full w-full object-contain"
+              title={t("infoPages.about.p1Title")}
+              body={t("infoPages.about.p1Body")}
+            />
+            <PrincipleCard
+              image="/about/differences.png"
+              imageClassName="h-full w-full object-cover"
+              title={t("infoPages.about.p2Title")}
+              body={t("infoPages.about.p2Body")}
+            />
+          </div>
+          <div className="grid items-stretch gap-8 lg:grid-cols-[649fr_490fr] lg:gap-16">
+            <PrincipleCard
+              image="/about/language.png"
+              imageClassName="h-full w-full object-cover"
+              title={t("infoPages.about.p3Title")}
+              body={t("infoPages.about.p3Body")}
+            />
+            <PrincipleCard
+              image="/about/evidence.png"
+              imageClassName="max-h-full max-w-full object-contain"
+              title={t("infoPages.about.p4Title")}
+              body={t("infoPages.about.p4Body")}
+            />
+          </div>
+        </div>
+
+        <p className="mx-auto mt-10 max-w-[1248px] text-center text-[16px] leading-7 text-[#404040]">
+          {t("infoPages.about.disclaimer")}
+        </p>
+      </section>
+
+      <section className="bg-[#18191b] text-white">
+        <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-6 py-16 md:px-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+          <div className="max-w-[650px]">
+            <h2 className="text-[40px] leading-none font-bold tracking-[-1.5px] md:text-[60px] md:leading-[60px]">
+              {t("infoPages.about.ctaTitle")}
+            </h2>
+            <p className="mt-5 text-[18px] leading-7">{t("infoPages.about.ctaBody")}</p>
+            <button
+              type="button"
+              onClick={() => openAuth("register")}
+              className="mt-10 inline-flex items-center gap-6 rounded-full bg-white px-8 py-4 text-[18px] leading-7 font-medium text-[#18191b] transition hover:bg-[#F6F3F3]"
+            >
+              {t("landing.joinEarly")}
+              <ArrowIcon />
+            </button>
+            <p className="mt-5 text-[14px] leading-5">{t("landing.noCard")}</p>
+          </div>
+          <img
+            src="/landing/figma/cta-card.png"
+            alt=""
+            className="w-full [mask-image:linear-gradient(to_right,#000_68%,transparent_100%)]"
+          />
+        </div>
+      </section>
+
+      <Footer />
+    </main>
   )
 }

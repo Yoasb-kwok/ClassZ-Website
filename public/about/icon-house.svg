@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="house">
+<path id="Vector" d="M4.16687 45.8331H45.8335" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" stroke="#222222"/>
+<path id="Vector_2" d="M6.14594 45.8332L6.2501 20.7706C6.2501 19.4998 6.85427 18.2916 7.85427 17.4999L22.4376 6.14569C23.9376 4.97902 26.0418 4.97902 27.5626 6.14569L42.1459 17.479C43.1668 18.2707 43.7501 19.4789 43.7501 20.7706V45.8332" stroke-width="2" stroke-miterlimit="10" stroke-linejoin="round" stroke="#222222"/>
+<path id="Vector_3" d="M27.0832 35.4169H22.9166C21.1874 35.4169 19.7916 36.8127 19.7916 38.5419V45.8335H30.2082V38.5419C30.2082 36.8127 28.8124 35.4169 27.0832 35.4169Z" stroke-width="2" stroke-miterlimit="10" stroke-linejoin="round" stroke="#222222"/>
+<path id="Vector_4" d="M19.7919 28.6463H15.6252C14.4794 28.6463 13.5419 27.7088 13.5419 26.563V23.438C13.5419 22.2922 14.4794 21.3547 15.6252 21.3547H19.7919C20.9377 21.3547 21.8752 22.2922 21.8752 23.438V26.563C21.8752 27.7088 20.9377 28.6463 19.7919 28.6463Z" stroke-width="2" stroke-miterlimit="10" stroke-linejoin="round" stroke="#222222"/>
+<path id="Vector_5" d="M34.3753 28.6463H30.2086C29.0628 28.6463 28.1253 27.7088 28.1253 26.563V23.438C28.1253 22.2922 29.0628 21.3547 30.2086 21.3547H34.3753C35.5211 21.3547 36.4586 22.2922 36.4586 23.438V26.563C36.4586 27.7088 35.5211 28.6463 34.3753 28.6463Z" stroke-width="2" stroke-miterlimit="10" stroke-linejoin="round" stroke="#222222"/>
+<path id="Vector_6" d="M39.5832 14.5837L39.5207 8.33374H30.354" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" stroke="#222222"/>
+<path id="Vector_7" opacity="0" d="M1 1H49V49H1V1Z" stroke-width="2" stroke="#222222"/>
+</g>
+</svg>
