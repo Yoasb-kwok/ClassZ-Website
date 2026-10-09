@@ -9,6 +9,11 @@ import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiDelete, apiPatch, apiPost } from "@/lib/classz-api-client"
 import { useCenterApiList } from "@/components/admin/use-center-api-list"
+import { classesRangePath, listModeClassRange, mergeSchedulePreviews, type SchedulePreview } from "@/lib/center-schedule"
+import { previewScheduleConflict } from "@/lib/center-schedule-api"
+import { ScheduleConflictPanel, fillScheduleText } from "@/components/admin/schedule-conflict-panel"
+import { ScheduleBulkDialog } from "@/components/admin/schedule-bulk-dialog"
+import { ScheduleSubstituteDialog } from "@/components/admin/schedule-substitute-dialog"
 import { adminFlowHref } from "@/lib/center-crm-scope"
 import {
   CALENDAR_COLOR_OPTIONS,
@@ -44,6 +49,7 @@ function mapClass(r: Record<string, unknown>): ClassRow {
     class_code: String(r.class_code || r.program_code || ""),
     calendar_color: r.calendar_color ? String(r.calendar_color) : null,
     instructor: String(r.instructor || ""),
+    instructor_id: r.instructor_id == null || r.instructor_id === "" ? null : String(r.instructor_id),
     start_time: String(r.start_time || ""),
     end_time: String(r.end_time || ""),
     capacity: Number(r.capacity) || 10,
@@ -112,13 +118,25 @@ function SessionListWithTabs({
   zh,
   onEdit,
   onRemove,
+  onSubstitute,
   attendanceHref,
+  selectedIds,
+  onToggle,
+  onToggleAll,
+  selectAllLabel,
+  selectSessionLabel,
 }: {
   rows: ClassRow[]
   zh: boolean
   onEdit: (c: ClassRow) => void
   onRemove: (id: string) => void
+  onSubstitute: (c: ClassRow) => void
   attendanceHref: (classId: string) => string
+  selectedIds: string[]
+  onToggle: (id: string) => void
+  onToggleAll: (ids: string[], selected: boolean) => void
+  selectAllLabel: string
+  selectSessionLabel: (name: string) => string
 }) {
   const [tab, setTab] = useState<ListTab>("today")
   const buckets = useMemo(() => bucketSessions(rows), [rows])
@@ -173,8 +191,14 @@ function SessionListWithTabs({
         zh={zh}
         onEdit={onEdit}
         onRemove={onRemove}
+        onSubstitute={onSubstitute}
         emptyLabel={active.empty}
         attendanceHref={attendanceHref}
+        selectedIds={selectedIds}
+        onToggle={onToggle}
+        onToggleAll={onToggleAll}
+        selectAllLabel={selectAllLabel}
+        selectSessionLabel={selectSessionLabel}
       />
     </div>
   )
@@ -185,21 +209,43 @@ function SessionListTable({
   zh,
   onEdit,
   onRemove,
+  onSubstitute,
   emptyLabel,
   attendanceHref,
+  selectedIds,
+  onToggle,
+  onToggleAll,
+  selectAllLabel,
+  selectSessionLabel,
 }: {
   rows: ClassRow[]
   zh: boolean
   onEdit: (c: ClassRow) => void
   onRemove: (id: string) => void
+  onSubstitute: (c: ClassRow) => void
   emptyLabel: string
   attendanceHref: (classId: string) => string
+  selectedIds: string[]
+  onToggle: (id: string) => void
+  onToggleAll: (ids: string[], selected: boolean) => void
+  selectAllLabel: string
+  selectSessionLabel: (name: string) => string
 }) {
+  const allSelected = rows.length > 0 && rows.every((row) => selectedIds.includes(row.id))
   return (
     <AdminTableShell>
       <AdminTable>
         <thead className="bg-classz-100">
           <tr>
+            <th className="px-3 py-3 text-left">
+              <input
+                type="checkbox"
+                data-testid="schedule-select-all"
+                aria-label={selectAllLabel}
+                checked={allSelected}
+                onChange={(e) => onToggleAll(rows.map((row) => row.id), e.target.checked)}
+              />
+            </th>
             <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">{zh ? "課堂" : "Session"}</th>
             <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">{zh ? "時間" : "When"}</th>
             <th className="px-3 py-3 text-left text-base font-semibold text-classz-600 uppercase">{zh ? "導師" : "Instructor"}</th>
@@ -210,6 +256,15 @@ function SessionListTable({
         <tbody className="divide-y divide-classz-100">
           {rows.map((c) => (
             <tr key={c.id} className="bg-white">
+              <td className="px-3 py-2">
+                <input
+                  type="checkbox"
+                  data-testid={`schedule-select-${c.id}`}
+                  aria-label={selectSessionLabel(c.name)}
+                  checked={selectedIds.includes(c.id)}
+                  onChange={() => onToggle(c.id)}
+                />
+              </td>
               <td className="px-3 py-2 font-medium text-classz-800">{c.name}</td>
               <td className="px-3 py-2 text-classz-600 text-sm">{formatWhen(c.start_time, zh)}</td>
               <td className="px-3 py-2 text-classz-600">{c.instructor || "—"}</td>
@@ -221,6 +276,9 @@ function SessionListTable({
                 <button type="button" className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onEdit(c)}>
                   {zh ? "編輯" : "Edit"}
                 </button>
+                <button type="button" data-testid={`schedule-substitute-${c.id}`} className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onSubstitute(c)}>
+                  {zh ? "代課" : "Substitute"}
+                </button>
                 <button type="button" className="ml-2 text-sm text-brand-coral hover:underline" onClick={() => onRemove(c.id)}>
                   {zh ? "刪除" : "Delete"}
                 </button>
@@ -229,7 +287,7 @@ function SessionListTable({
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={5} className="px-3 py-8 text-center text-classz-500">
+              <td colSpan={6} className="px-3 py-8 text-center text-classz-500">
                 {emptyLabel}
               </td>
             </tr>
@@ -268,13 +326,36 @@ function HolidayListTable({ rows, zh }: { rows: ScheduleHoliday[]; zh: boolean }
   )
 }
 
+const EMPTY_FORM = {
+  name: "",
+  class_code: "",
+  calendar_color: CALENDAR_COLOR_OPTIONS[0],
+  instructor: "",
+  instructor_id: "",
+  start_time: "",
+  end_time: "",
+  capacity: "10",
+  location: "",
+  lesson_count: "1",
+}
+
 export function ScheduleManager() {
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
   const zh = locale === "zh-TW"
   const pathname = usePathname() || ""
   const attendanceHref = (classId: string) => adminFlowHref(pathname, "attendance", { classId })
   const demo = isDemoSession()
-  const { rows, ready, reload, error: listError } = useCenterApiList("/classes", mapClass)
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("month")
+  const [anchorDate, setAnchorDate] = useState(() => new Date())
+  const classRange = useMemo(() => {
+    if (displayMode === "list") return listModeClassRange(anchorDate)
+    return getCalendarVisibleRange(anchorDate, displayMode)
+  }, [displayMode, anchorDate])
+  const classesPath = useMemo(
+    () => classesRangePath(classRange.start, classRange.end),
+    [classRange]
+  )
+  const { rows, ready, reload, error: listError } = useCenterApiList(classesPath, mapClass)
   const { rows: holidays, reload: reloadHolidays } = useCenterApiList("/holidays", mapHoliday)
   const { rows: catalogCourses } = useCenterApiList("/courses", (r) => ({
     id: String(r.id),
@@ -283,24 +364,23 @@ export function ScheduleManager() {
     instructor: String(r.instructor || ""),
     location: String(r.location || ""),
   }))
+  const { rows: instructors } = useCenterApiList("/instructors", (r) => ({
+    id: String(r.id),
+    name: String(r.name || r.display_name || ""),
+  }))
   const [search, setSearch] = useState("")
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("month")
-  const [anchorDate, setAnchorDate] = useState(() => new Date())
   const [modal, setModal] = useState<"create" | "edit" | null>(null)
   const [editing, setEditing] = useState<ClassRow | null>(null)
   const [saving, setSaving] = useState(false)
+  const [checking, setChecking] = useState(false)
   const [syncingHolidays, setSyncingHolidays] = useState(false)
-  const [form, setForm] = useState({
-    name: "",
-    class_code: "",
-    calendar_color: CALENDAR_COLOR_OPTIONS[0],
-    instructor: "",
-    start_time: "",
-    end_time: "",
-    capacity: "10",
-    location: "",
-    lesson_count: "1",
-  })
+  const [strictHolidays, setStrictHolidays] = useState(false)
+  const [conflictPreview, setConflictPreview] = useState<SchedulePreview | null>(null)
+  const [conflictKey, setConflictKey] = useState("")
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [bulkOpen, setBulkOpen] = useState(false)
+  const [substituteFor, setSubstituteFor] = useState<ClassRow | null>(null)
+  const [form, setForm] = useState(EMPTY_FORM)
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -353,32 +433,77 @@ export function ScheduleManager() {
       : `Sessions ${format(periodRange.start, "MMM d")} – ${format(periodRange.end, "MMM d, yyyy")}`
   }, [periodRange, displayMode, anchorDate, zh])
 
+  const selectedSessions = useMemo(
+    () => rows.filter((row) => selectedIds.includes(row.id)),
+    [rows, selectedIds]
+  )
+
+  function clearConflictPreview() {
+    setConflictPreview(null)
+    setConflictKey("")
+  }
+
+  function conflictFingerprint() {
+    const lessonCount = modal === "create" ? form.lesson_count : "1"
+    return JSON.stringify({
+      id: editing?.id || "",
+      instructor_id: form.instructor_id,
+      instructor: form.instructor.trim(),
+      start_time: form.start_time,
+      end_time: form.end_time,
+      location: form.location.trim(),
+      lessonCount,
+      strictHolidays,
+    })
+  }
+
+  function proposedSlots() {
+    const lessonCount = modal === "create" ? Math.min(99, Math.max(1, parseInt(form.lesson_count, 10) || 1)) : 1
+    const start = parseSessionDate(form.start_time)
+    const end = parseSessionDate(form.end_time)
+    const slots = []
+    for (let index = 0; index < lessonCount; index += 1) {
+      const shift = index * 7 * 24 * 60 * 60 * 1000
+      slots.push({
+        classId: modal === "edit" ? editing?.id : null,
+        instructorId: form.instructor_id || null,
+        instructorName: form.instructor,
+        startTime: toDatetimeLocal(new Date(start.getTime() + shift)),
+        endTime: toDatetimeLocal(new Date(end.getTime() + shift)),
+        location: form.location,
+        strictHolidays,
+      })
+    }
+    return slots
+  }
+
   function openCreateAt(day?: Date) {
     const base = day ? new Date(day) : new Date()
     if (day) base.setHours(10, 0, 0, 0)
     const end = new Date(base.getTime() + 3600000)
     setEditing(null)
+    clearConflictPreview()
     setForm({
-      name: "",
-      class_code: "",
+      ...EMPTY_FORM,
       calendar_color: CALENDAR_COLOR_OPTIONS[0],
-      instructor: "",
       start_time: toDatetimeLocal(base),
       end_time: toDatetimeLocal(end),
-      capacity: "10",
-      location: "",
-      lesson_count: "1",
     })
     setModal("create")
   }
 
   function openEdit(c: ClassRow) {
+    const match =
+      instructors.find((item) => c.instructor_id && item.id === c.instructor_id) ||
+      instructors.find((item) => item.name && item.name === c.instructor)
     setEditing(c)
+    clearConflictPreview()
     setForm({
       name: c.name,
       class_code: c.class_code,
-      calendar_color: c.calendar_color || CALENDAR_COLOR_OPTIONS[0],
-      instructor: c.instructor,
+      calendar_color: (c.calendar_color || CALENDAR_COLOR_OPTIONS[0]) as (typeof CALENDAR_COLOR_OPTIONS)[number],
+      instructor: match?.name || c.instructor,
+      instructor_id: match?.id || c.instructor_id || "",
       start_time: c.start_time.slice(0, 16).replace(" ", "T"),
       end_time: c.end_time.slice(0, 16).replace(" ", "T"),
       capacity: String(c.capacity),
@@ -388,12 +513,38 @@ export function ScheduleManager() {
     setModal("edit")
   }
 
-  async function save() {
+  async function runConflictCheck() {
+    const key = conflictFingerprint()
+    setChecking(true)
+    try {
+      const parts = await Promise.all(proposedSlots().map((slot) => previewScheduleConflict(slot)))
+      setConflictPreview(mergeSchedulePreviews(parts))
+      setConflictKey(key)
+    } catch (e) {
+      clearConflictPreview()
+      alert(e instanceof Error ? e.message : "Preview failed")
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  async function onSaveClick() {
     if (!form.name.trim() || !form.start_time || !form.end_time) return
     if (demo) {
       alert(zh ? "請用中心帳號登入以儲存排程" : "Sign in with a centre account to save schedules")
       return
     }
+    const key = conflictFingerprint()
+    if (!conflictPreview || conflictKey !== key) {
+      await runConflictCheck()
+      return
+    }
+    if (conflictPreview.blocks.length > 0) return
+    await save()
+  }
+
+  async function save() {
+    if (!form.name.trim() || !form.start_time || !form.end_time) return
     setSaving(true)
     try {
       const lessonCount = Math.min(99, Math.max(1, parseInt(form.lesson_count, 10) || 1))
@@ -403,6 +554,9 @@ export function ScheduleManager() {
         program_code: form.class_code.trim() || undefined,
         calendar_color: form.calendar_color || undefined,
         instructor: form.instructor.trim(),
+        ...(form.instructor_id && Number.isFinite(Number(form.instructor_id))
+          ? { instructor_id: Number(form.instructor_id) }
+          : {}),
         start_time: form.start_time,
         end_time: form.end_time,
         capacity: Number(form.capacity) || 10,
@@ -423,6 +577,7 @@ export function ScheduleManager() {
         })
         setModal(null)
         setEditing(null)
+        clearConflictPreview()
         await reload()
         alert(
           zh
@@ -432,6 +587,7 @@ export function ScheduleManager() {
       } else if (modal === "create") {
         const created = await apiPost<Record<string, unknown>>("/classes", body)
         const newId = String(created?.id ?? "")
+        clearConflictPreview()
         await reload()
         if (newId) {
           setEditing({
@@ -440,6 +596,7 @@ export function ScheduleManager() {
             class_code: body.class_code || "",
             calendar_color: typeof body.calendar_color === "string" ? body.calendar_color : null,
             instructor: body.instructor || "",
+            instructor_id: form.instructor_id || null,
             start_time: form.start_time,
             end_time: form.end_time,
             capacity: body.capacity,
@@ -454,6 +611,7 @@ export function ScheduleManager() {
         await apiPatch(`/classes/${editing.id}`, body)
         setModal(null)
         setEditing(null)
+        clearConflictPreview()
         await reload()
       }
     } catch (e) {
@@ -462,6 +620,38 @@ export function ScheduleManager() {
       setSaving(false)
     }
   }
+
+  function toggleSelected(id: string) {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  function toggleAll(ids: string[], selected: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      for (const id of ids) {
+        if (selected) next.add(id)
+        else next.delete(id)
+      }
+      return [...next]
+    })
+  }
+
+  function refreshAfterWrite(focus?: Date) {
+    if (focus && !Number.isNaN(focus.getTime())) setAnchorDate(focus)
+    void reload()
+  }
+
+  const previewFresh = Boolean(conflictPreview && conflictKey === conflictFingerprint())
+  const saveBlocked = Boolean(previewFresh && conflictPreview && conflictPreview.blocks.length > 0)
+  const saveLabel = checking
+    ? t("classzAdmin.schedule.checking")
+    : saving
+      ? t("classzAdmin.schedule.saving")
+      : saveBlocked
+        ? t("classzAdmin.schedule.blockedCannotSave")
+        : previewFresh
+          ? t("classzAdmin.schedule.confirmSave")
+          : t("classzAdmin.schedule.checkConflicts")
 
   async function remove(id: string) {
     if (!confirm(zh ? "刪除此課堂？" : "Delete this class session?")) return
@@ -556,14 +746,39 @@ export function ScheduleManager() {
           {syncingHolidays ? (zh ? "同步中…" : "Syncing…") : zh ? "同步香港假期" : "Sync HK holidays"}
         </button>
 
-        <AdminPrimaryButton type="button" className="w-full sm:w-auto sm:ml-auto shrink-0 justify-center" onClick={() => openCreateAt()}>
+        <button
+          type="button"
+          data-testid="schedule-bulk-open"
+          disabled={selectedSessions.length === 0}
+          onClick={() => setBulkOpen(true)}
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-classz-200 bg-white text-classz-700 hover:bg-classz-50 disabled:opacity-50 shrink-0 min-h-[2.75rem]"
+        >
+          {t("classzAdmin.schedule.bulkAction")}
+          {selectedSessions.length > 0
+            ? ` · ${fillScheduleText(t("classzAdmin.schedule.selectedCount"), { n: selectedSessions.length })}`
+            : ""}
+        </button>
+
+        <AdminPrimaryButton type="button" data-testid="schedule-add" className="w-full sm:w-auto sm:ml-auto shrink-0 justify-center" onClick={() => openCreateAt()}>
           <Plus className="h-4 w-4" />
           {zh ? "新增課堂" : "Add session"}
         </AdminPrimaryButton>
       </AdminToolbar>
 
       {displayMode === "list" ? (
-        <SessionListWithTabs rows={filtered} zh={zh} onEdit={openEdit} onRemove={remove} attendanceHref={attendanceHref} />
+        <SessionListWithTabs
+          rows={filtered}
+          zh={zh}
+          onEdit={openEdit}
+          onRemove={remove}
+          onSubstitute={setSubstituteFor}
+          attendanceHref={attendanceHref}
+          selectedIds={selectedIds}
+          onToggle={toggleSelected}
+          onToggleAll={toggleAll}
+          selectAllLabel={t("classzAdmin.schedule.selectAll")}
+          selectSessionLabel={(name) => fillScheduleText(t("classzAdmin.schedule.selectSession"), { name })}
+        />
       ) : (
         <div className="space-y-6">
           <ScheduleCalendar
@@ -580,7 +795,19 @@ export function ScheduleManager() {
 
           <section>
             <h3 className="text-base font-semibold text-classz-800 mb-3">{periodListTitle}</h3>
-            <SessionListWithTabs rows={periodSessions} zh={zh} onEdit={openEdit} onRemove={remove} attendanceHref={attendanceHref} />
+            <SessionListWithTabs
+              rows={periodSessions}
+              zh={zh}
+              onEdit={openEdit}
+              onRemove={remove}
+              onSubstitute={setSubstituteFor}
+              attendanceHref={attendanceHref}
+              selectedIds={selectedIds}
+              onToggle={toggleSelected}
+              onToggleAll={toggleAll}
+              selectAllLabel={t("classzAdmin.schedule.selectAll")}
+              selectSessionLabel={(name) => fillScheduleText(t("classzAdmin.schedule.selectSession"), { name })}
+            />
             {periodHolidays.length > 0 && (
               <>
                 <h4 className="text-sm font-semibold text-brand-orange mt-6 mb-2">{zh ? "期內公眾假期" : "Public holidays in this period"}</h4>
@@ -604,8 +831,8 @@ export function ScheduleManager() {
             <button type="button" className="px-4 py-2.5 text-base rounded-md border border-classz-200 text-classz-700" onClick={() => setModal(null)}>
               {zh ? "取消" : "Cancel"}
             </button>
-            <AdminPrimaryButton type="button" disabled={saving} onClick={save}>
-              {saving ? (zh ? "儲存中…" : "Saving…") : zh ? "儲存" : "Save"}
+            <AdminPrimaryButton type="button" data-testid="schedule-save" disabled={saving || checking || saveBlocked} onClick={onSaveClick}>
+              {saveLabel}
             </AdminPrimaryButton>
           </>
         }
@@ -645,7 +872,7 @@ export function ScheduleManager() {
           ) : null}
           <div>
             <AdminLabel>{zh ? "名稱" : "Name"}</AdminLabel>
-            <AdminInput value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+            <AdminInput data-testid="schedule-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
@@ -681,8 +908,31 @@ export function ScheduleManager() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <AdminLabel>{zh ? "導師" : "Instructor"}</AdminLabel>
-              <AdminInput value={form.instructor} onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value }))} />
+              <AdminLabel>{t("classzAdmin.schedule.instructor")}</AdminLabel>
+              {instructors.length > 0 ? (
+                <AdminSelect
+                  data-testid="schedule-instructor"
+                  value={form.instructor_id}
+                  onChange={(e) => {
+                    const id = e.target.value
+                    const match = instructors.find((item) => item.id === id)
+                    setForm((f) => ({ ...f, instructor_id: id, instructor: match?.name || "" }))
+                  }}
+                >
+                  <option value="">{t("classzAdmin.schedule.chooseInstructor")}</option>
+                  {instructors.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              ) : (
+                <AdminInput
+                  data-testid="schedule-instructor-name"
+                  value={form.instructor}
+                  onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value, instructor_id: "" }))}
+                />
+              )}
             </div>
             <div className="flex items-end">
               <div className="w-full rounded-lg border border-classz-100 bg-white px-3 py-2.5">
@@ -706,11 +956,11 @@ export function ScheduleManager() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
               <AdminLabel>{zh ? "開始" : "Start"}</AdminLabel>
-              <AdminInput type="datetime-local" value={form.start_time} onChange={(e) => setForm((f) => ({ ...f, start_time: e.target.value }))} />
+              <AdminInput data-testid="schedule-start" type="datetime-local" value={form.start_time} onChange={(e) => setForm((f) => ({ ...f, start_time: e.target.value }))} />
             </div>
             <div>
               <AdminLabel>{zh ? "結束" : "End"}</AdminLabel>
-              <AdminInput type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} />
+              <AdminInput data-testid="schedule-end" type="datetime-local" value={form.end_time} onChange={(e) => setForm((f) => ({ ...f, end_time: e.target.value }))} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -738,11 +988,54 @@ export function ScheduleManager() {
               </p>
             </div>
           ) : null}
+          <label className="flex items-start gap-2 text-sm text-classz-700">
+            <input
+              data-testid="schedule-form-strict-holidays"
+              type="checkbox"
+              className="mt-1"
+              checked={strictHolidays}
+              onChange={(e) => setStrictHolidays(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium">{t("classzAdmin.schedule.strictHolidays")}</span>
+              <span className="block text-classz-500">{t("classzAdmin.schedule.strictHolidaysHelp")}</span>
+            </span>
+          </label>
+          {previewFresh && conflictPreview ? (
+            <ScheduleConflictPanel preview={conflictPreview} slotsChecked={proposedSlots().length} />
+          ) : null}
           {modal === "edit" && editing?.id && !demo ? (
-            <ScheduleClassEnrollments classId={editing.id} zh={zh} onChanged={reload} />
+            <>
+              <button
+                type="button"
+                data-testid="schedule-substitute-open"
+                className="text-sm text-classz-600 hover:underline"
+                onClick={() => editing && setSubstituteFor(editing)}
+              >
+                {t("classzAdmin.schedule.substitute")}
+              </button>
+              <ScheduleClassEnrollments classId={editing.id} zh={zh} onChanged={reload} />
+            </>
           ) : null}
         </div>
       </AdminModal>
+      <ScheduleBulkDialog
+        key={bulkOpen ? selectedSessions.map((session) => session.id).join(",") : "closed"}
+        open={bulkOpen}
+        sessions={selectedSessions}
+        onClose={() => setBulkOpen(false)}
+        onApplied={(focus) => {
+          setSelectedIds([])
+          refreshAfterWrite(focus)
+        }}
+      />
+      <ScheduleSubstituteDialog
+        key={substituteFor?.id || "none"}
+        session={substituteFor}
+        instructors={instructors}
+        onClose={() => setSubstituteFor(null)}
+        onApplied={() => refreshAfterWrite()}
+      />
     </AdminPageFrame>
   )
 }

@@ -24,6 +24,7 @@ export type ScheduleCalendarEvent = {
   class_code: string
   calendar_color?: string | null
   instructor: string
+  instructor_id?: string | null
   start_time: string
   end_time: string
   capacity: number
