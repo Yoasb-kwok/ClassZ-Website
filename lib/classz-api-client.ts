@@ -1,7 +1,27 @@
 import { getClasszSession, isDemoTokenSession, type ClasszPortalRole } from "@/lib/classz-auth"
 import { getCenterCrmScope, isOnCenterCrmScopedPage } from "@/lib/center-crm-scope"
 
-export type ApiResult<T> = { success: boolean; data?: T; msg?: string }
+export type ApiResult<T> = { success: boolean; data?: T; msg?: string; message?: string }
+
+export class ClasszApiError extends Error {
+  status: number
+  payload: unknown
+
+  constructor(message: string, status: number, payload: unknown) {
+    super(message)
+    this.name = "ClasszApiError"
+    this.status = status
+    this.payload = payload
+  }
+}
+
+export type ApiSendResult<T> = {
+  ok: boolean
+  status: number
+  data: T | undefined
+  payload: unknown
+  message: string
+}
 
 function apiBase(): string {
   if (typeof window !== "undefined") return "/api"
@@ -70,11 +90,49 @@ async function parseJson<T>(res: Response): Promise<ApiResult<T>> {
   if (!res.ok) {
     const msg = body.msg || body.message || `HTTP ${res.status}`
     if (res.status === 422 && /provide token/i.test(msg) && isDemoTokenSession()) {
-      throw new Error("Session has no API token. Log out, ensure classz-api is running, then sign in again.")
+      throw new ClasszApiError(
+        "Session has no API token. Log out, ensure classz-api is running, then sign in again.",
+        res.status,
+        body
+      )
     }
-    throw new Error(msg)
+    throw new ClasszApiError(msg, res.status, body)
   }
   return body
+}
+
+/**
+ * Same auth and centre scope as apiPost, but returns 4xx bodies (including
+ * bulk-reschedule 409 abort-all) instead of throwing.
+ * `clientSource` is sent only when the caller is an agent (`agent`) or an
+ * explicit UI (`ui`). Centre screens omit it.
+ */
+export async function apiSend<T>(
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
+  path: string,
+  body?: unknown,
+  role?: ClasszPortalRole,
+  opts?: { clientSource?: "agent" | "ui" }
+): Promise<ApiSendResult<T>> {
+  const { prefix, path: scopedPath, scopeId } = resolveRequest(path, role)
+  const headers = new Headers(authHeaders(scopeId))
+  if (opts?.clientSource) headers.set("X-Client-Source", opts.clientSource)
+  const res = await fetch(`${apiBase()}${prefix}${scopedPath}`, {
+    method,
+    headers,
+    body:
+      body === undefined || method === "GET" || method === "DELETE" ? undefined : JSON.stringify(body),
+  })
+  const payload = (await res.json().catch(() => ({}))) as ApiResult<T>
+  const message = payload.msg || payload.message || `HTTP ${res.status}`
+  if (!res.ok && res.status === 422 && /provide token/i.test(message) && isDemoTokenSession()) {
+    throw new ClasszApiError(
+      "Session has no API token. Log out, ensure classz-api is running, then sign in again.",
+      res.status,
+      payload
+    )
+  }
+  return { ok: res.ok, status: res.status, data: payload.data, payload, message }
 }
 
 export async function apiGet<T>(path: string, role?: ClasszPortalRole): Promise<T> {
