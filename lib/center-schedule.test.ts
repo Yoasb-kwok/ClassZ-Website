@@ -20,11 +20,21 @@ test("conflict preview is a single slot", () => {
     strictHolidays: true,
   })
   assert.equal(Array.isArray(body.slots), false)
-  assert.equal(body.class_id, "12")
+  assert.equal(body.exclude_class_id, "12")
+  assert.equal("class_id" in body, false)
   assert.equal(body.instructor_id, 4)
   assert.equal(body.instructor, "Ada Wong")
   assert.equal(body.strict_holidays, true)
   assert.equal("items" in body, false)
+})
+
+test("a new session preview does not exclude a class", () => {
+  const body = buildConflictPreviewBody({
+    startTime: "2026-10-16T10:00",
+    endTime: "2026-10-16T11:00",
+  })
+  assert.equal("exclude_class_id" in body, false)
+  assert.equal("class_id" in body, false)
 })
 
 test("new_start_times keys are class id strings and can be sent with delta", () => {
