@@ -10,6 +10,7 @@ import {
   BookOpen,
   ClipboardList,
   Receipt,
+  FileText,
   Tag,
   Undo2,
   Contact,
@@ -100,6 +101,12 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
           labelEn: "Schedule",
           icon: CalendarCheck,
           moduleKey: "schedule",
+        },
+        {
+          path: "/admin/audit-log",
+          labelZh: "審計日誌",
+          labelEn: "Audit log",
+          icon: FileText,
         },
         {
           path: "/admin/bookings",

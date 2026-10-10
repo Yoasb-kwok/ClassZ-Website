@@ -30,7 +30,12 @@ export function getAdminNavGroupsForRole(role: ClasszPortalRole): AdminNavGroup[
     const centerNav = getCenterAdminNavGroups()
       .map((g) => ({
         ...g,
-        items: g.items.filter((item) => item.moduleKey !== "centre_profile" && item.moduleKey !== "centre_members"),
+        items: g.items.filter(
+          (item) =>
+            item.moduleKey !== "centre_profile" &&
+            item.moduleKey !== "centre_members" &&
+            item.path !== "/admin/audit-log"
+        ),
       }))
       .filter((g) => g.items.length > 0)
     // The CMS pages live in the Content group, which otherwise only reaches the

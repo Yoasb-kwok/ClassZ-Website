@@ -117,15 +117,36 @@ async function installApi(page: Page, recorded: Recorded[]) {
       await fulfill(route, { success: true, data: [] })
       return
     }
+    if (path.includes("/audit-log")) {
+      await fulfill(route, {
+        success: true,
+        data: [
+          {
+            id: 4,
+            created_at: "2026-10-09T04:00:00.000Z",
+            actor_email: "center@demo.com",
+            action: "class.substitute",
+            class_id: 12,
+            class_name: "Piano basics",
+            message: "Instructor changed to Bo Cheung",
+          },
+        ],
+      })
+      return
+    }
     if (path.includes("/schedule/conflicts")) {
-      const slot = (body || {}) as { strict_holidays?: boolean; instructor_id?: number; class_id?: string }
+      const slot = (body || {}) as {
+        strict_holidays?: boolean
+        instructor_id?: number
+        exclude_class_id?: string
+      }
       if (slot.instructor_id === 8) {
         await fulfill(route, {
           success: true,
           data: {
             blocks: [
               {
-                class_id: slot.class_id || "",
+                class_id: slot.exclude_class_id || "",
                 class_name: "Piano basics",
                 type: "instructor",
                 severity: "block",
@@ -138,7 +159,7 @@ async function installApi(page: Page, recorded: Recorded[]) {
         })
         return
       }
-      if (slot.class_id) {
+      if (slot.exclude_class_id) {
         await fulfill(route, { success: true, data: { blocks: [], warnings: [] } })
         return
       }
@@ -356,6 +377,11 @@ test("E29 substitute uses instructor id and sends notify only when opted in", as
   await page.getByTestId("schedule-substitute-preview").click()
   await page.getByTestId("schedule-substitute-confirm").click()
 
+  const conflictPreviews = recorded.filter((entry) => entry.path.includes("/schedule/conflicts"))
+  const substitutePreview = conflictPreviews[0]?.body as { exclude_class_id?: string; class_id?: string }
+  expect(substitutePreview.exclude_class_id).toBe("12")
+  expect("class_id" in substitutePreview).toBe(false)
+
   const substituteCalls = recorded.filter((entry) => entry.path.includes("/substitute"))
   expect(substituteCalls).toHaveLength(2)
   const skippedNotify = substituteCalls[0].body as { instructor_id: number; instructor: string; notify?: boolean }
@@ -369,4 +395,46 @@ test("E29 substitute uses instructor id and sends notify only when opted in", as
   expect(
     recorded.slice(firstPost + 1).some((entry) => entry.method === "GET" && /\/classes\?from=.*to=/.test(entry.path))
   ).toBeTruthy()
+})
+
+test("edit conflict preview excludes the class being edited", async ({ page }) => {
+  const recorded: Recorded[] = []
+  await installApi(page, recorded)
+  await openSchedule(page, "en")
+  await page.getByTestId("schedule-edit-12").click()
+  await page.getByTestId("schedule-save").click()
+  await expect(page.getByTestId("schedule-no-conflicts")).toBeVisible()
+  await expect(page.getByTestId("schedule-save")).toBeEnabled()
+  await page.getByTestId("schedule-no-conflicts").scrollIntoViewIfNeeded()
+  await page.screenshot({ path: "/opt/cursor/artifacts/screenshots/edit-exclude-class-id-en.png" })
+
+  const preview = recorded.find((entry) => entry.path.includes("/schedule/conflicts"))
+  const body = preview?.body as { exclude_class_id?: string; class_id?: string }
+  expect(body.exclude_class_id).toBe("12")
+  expect("class_id" in body).toBe(false)
+  expect(preview?.path).toContain("/schedule/conflicts")
+})
+
+test("centre admin audit log lists scheduling rows from the centre API", async ({ page }) => {
+  const recorded: Recorded[] = []
+  await installApi(page, recorded)
+  await openSchedule(page, "en")
+  await expect(page.getByRole("link", { name: "Audit log" }).first()).toBeVisible()
+  await page.getByTestId("schedule-audit-log").click()
+  await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible()
+  await expect(page.getByTestId("audit-row")).toContainText("class.substitute")
+  await expect(page.getByTestId("audit-row")).toContainText("Piano basics")
+  await expect(page.getByTestId("audit-row")).toContainText("Instructor changed to Bo Cheung")
+  await page.getByTestId("audit-row").scrollIntoViewIfNeeded()
+  await page.screenshot({ path: "/opt/cursor/artifacts/screenshots/centre-audit-log-en.png" })
+
+  const loads = recorded.filter((entry) => entry.method === "GET" && entry.path.includes("/audit-log"))
+  expect(loads.length).toBeGreaterThan(0)
+  expect(loads[0].path).toContain("/center/audit-log")
+
+  await page.getByTestId("audit-from").fill("2026-10-10")
+  await expect(page.getByTestId("audit-empty")).toBeVisible()
+  await expect
+    .poll(() => recorded.filter((entry) => entry.method === "GET" && entry.path.includes("from=2026-10-10")).length)
+    .toBeGreaterThan(0)
 })

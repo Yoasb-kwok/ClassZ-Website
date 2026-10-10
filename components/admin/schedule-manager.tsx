@@ -273,7 +273,7 @@ function SessionListTable({
                 <Link href={attendanceHref(c.id)} className="text-sm text-classz-600 hover:underline">
                   {zh ? "點名" : "Attendance"}
                 </Link>
-                <button type="button" className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onEdit(c)}>
+                <button type="button" data-testid={`schedule-edit-${c.id}`} className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onEdit(c)}>
                   {zh ? "編輯" : "Edit"}
                 </button>
                 <button type="button" data-testid={`schedule-substitute-${c.id}`} className="ml-2 text-sm text-classz-600 hover:underline" onClick={() => onSubstitute(c)}>
@@ -699,7 +699,16 @@ export function ScheduleManager() {
 
   return (
     <AdminPageFrame>
-      <AdminPageHeader title={zh ? "排程" : "Scheduling"} Icon={CalendarCheck} />
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <AdminPageHeader title={zh ? "排程" : "Scheduling"} Icon={CalendarCheck} />
+        <Link
+          href="/admin/audit-log"
+          data-testid="schedule-audit-log"
+          className="text-sm text-classz-600 hover:underline min-h-[2.75rem] inline-flex items-center"
+        >
+          {zh ? "審計日誌" : "Audit log"}
+        </Link>
+      </div>
 
       <AdminToolbar>
         {listError && !demo ? (

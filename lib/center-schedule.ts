@@ -2,6 +2,8 @@
  * Centre scheduling contract (ClassZ-api#1, docs/center-scheduling-api.md).
  *
  * POST /schedule/conflicts — single-slot preview only. Does not write.
+ *   Edit and substitute previews send `exclude_class_id` (not `class_id`) so
+ *   the session being changed is not reported as a self-overlap.
  * POST /classes/bulk-reschedule — default skip-blocked (`skip_conflicts: true`).
  *   Abort-all is `abort_all: true` or `skip_conflicts: false`. Preview with
  *   `dry_run: true`. Blocks still return HTTP 409 and nothing is applied.
@@ -227,7 +229,9 @@ export function buildConflictPreviewBody(slot: ConflictSlot): Record<string, unk
     start_time: slot.startTime,
     end_time: slot.endTime,
   }
-  if (slot.classId) body.class_id = String(slot.classId)
+  // Contract field. `class_id` is ignored by the conflicts API, so an edit or
+  // substitute preview overlaps the class it is changing and Save stays blocked.
+  if (slot.classId) body.exclude_class_id = String(slot.classId)
   const instructorId = instructorField(slot.instructorId)
   if (instructorId != null) body.instructor_id = instructorId
   const name = text(slot.instructorName)
