@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { FileText } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
@@ -32,34 +32,37 @@ export function CenterAuditLog() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    if (demo) {
-      setRows([])
-      setError(zh ? "請用中心帳號登入以載入審計日誌" : "Sign in with a centre account to load the audit log")
-      setLoading(false)
-      return
-    }
-    setLoading(true)
-    setError(null)
-    try {
-      const result = await apiSend<unknown>("GET", centerAuditLogPath(from, to), undefined, "center_admin")
-      if (!result.ok) {
-        throw new ClasszApiError(result.message, result.status, result.payload)
-      }
-      setRows(filterAuditRowsByDate(parseCenterAuditLog(result.payload), from, to))
-    } catch (e) {
-      setRows([])
-      setError(e instanceof Error ? e.message : "Load failed")
-    } finally {
-      setLoading(false)
-    }
-  }, [demo, from, to, zh])
-
   useEffect(() => {
-    load()
-  }, [load])
+    if (demo) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const result = await apiSend<unknown>("GET", centerAuditLogPath(from, to), undefined, "center_admin")
+        if (cancelled) return
+        if (!result.ok) {
+          throw new ClasszApiError(result.message, result.status, result.payload)
+        }
+        setRows(filterAuditRowsByDate(parseCenterAuditLog(result.payload), from, to))
+        setError(null)
+      } catch (e) {
+        if (cancelled) return
+        setRows([])
+        setError(e instanceof Error ? e.message : "Load failed")
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [demo, from, to])
 
   const visible = rows.slice(0, 100)
+  const notice = demo
+    ? zh
+      ? "請用中心帳號登入以載入審計日誌"
+      : "Sign in with a centre account to load the audit log"
+    : error
 
   return (
     <AdminPageFrame>
@@ -72,12 +75,12 @@ export function CenterAuditLog() {
         }
         Icon={FileText}
       />
-      {error ? (
+      {notice ? (
         <div
           role="alert"
           className="text-sm text-brand-coral bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] rounded-lg px-3 py-2"
         >
-          {error}
+          {notice}
         </div>
       ) : null}
       <AdminCard>
@@ -88,15 +91,26 @@ export function CenterAuditLog() {
               data-testid="audit-from"
               type="date"
               value={from}
-              onChange={(e) => setFrom(e.target.value)}
+              onChange={(e) => {
+                setLoading(true)
+                setFrom(e.target.value)
+              }}
             />
           </div>
           <div>
             <AdminLabel>{zh ? "至" : "To"}</AdminLabel>
-            <AdminInput data-testid="audit-to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+            <AdminInput
+              data-testid="audit-to"
+              type="date"
+              value={to}
+              onChange={(e) => {
+                setLoading(true)
+                setTo(e.target.value)
+              }}
+            />
           </div>
         </AdminToolbar>
-        {loading ? (
+        {demo ? null : loading ? (
           <div className="flex justify-center py-10">
             <div className="h-8 w-8 rounded-full border-2 border-classz-100 border-t-classz-400 animate-spin" />
           </div>
