@@ -17,6 +17,7 @@ import { ScheduleSubstituteDialog } from "@/components/admin/schedule-substitute
 import { adminFlowHref } from "@/lib/center-crm-scope"
 import {
   CALENDAR_COLOR_OPTIONS,
+  HOLIDAY_COLOR,
   ScheduleCalendar,
   getCalendarVisibleRange,
   parseSessionDate,
@@ -304,19 +305,19 @@ function HolidayListTable({ rows, zh }: { rows: ScheduleHoliday[]; zh: boolean }
     <div className="mt-4">
       <AdminTableShell>
       <AdminTable>
-        <thead className="bg-[color-mix(in_srgb,var(--brand-orange)_12%,white)]">
+        <thead className="bg-[color-mix(in_srgb,var(--holiday)_12%,white)]">
           <tr>
-            <th className="px-3 py-3 text-left text-base font-semibold text-brand-orange uppercase">{zh ? "日期" : "Date"}</th>
-            <th className="px-3 py-3 text-left text-base font-semibold text-brand-orange uppercase">{zh ? "公眾假期" : "Public holiday"}</th>
+            <th className="px-3 py-3 text-left text-base font-semibold uppercase" style={{ color: HOLIDAY_COLOR }}>{zh ? "日期" : "Date"}</th>
+            <th className="px-3 py-3 text-left text-base font-semibold uppercase" style={{ color: HOLIDAY_COLOR }}>{zh ? "公眾假期" : "Public holiday"}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[color-mix(in_srgb,var(--brand-orange)_20%,white)]">
+        <tbody className="divide-y divide-[color-mix(in_srgb,var(--holiday)_20%,white)]">
           {rows.map((h) => (
             <tr key={h.id} className="bg-white">
               <td className="px-3 py-2 text-classz-600 text-sm">
                 {format(parseSessionDate(h.date), zh ? "yyyy年M月d日" : "MMM d, yyyy")}
               </td>
-              <td className="px-3 py-2 font-medium text-brand-orange">{h.name}</td>
+              <td className="px-3 py-2 font-medium" style={{ color: HOLIDAY_COLOR }}>{h.name}</td>
             </tr>
           ))}
         </tbody>
@@ -819,7 +820,7 @@ export function ScheduleManager() {
             />
             {periodHolidays.length > 0 && (
               <>
-                <h4 className="text-sm font-semibold text-brand-orange mt-6 mb-2">{zh ? "期內公眾假期" : "Public holidays in this period"}</h4>
+                <h4 className="text-sm font-semibold mt-6 mb-2" style={{ color: HOLIDAY_COLOR }}>{zh ? "期內公眾假期" : "Public holidays in this period"}</h4>
                 <HolidayListTable rows={periodHolidays} zh={zh} />
               </>
             )}

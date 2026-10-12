@@ -71,7 +71,11 @@ async function fulfill(route: Route, body: unknown, status = 200) {
   })
 }
 
-async function installApi(page: Page, recorded: Recorded[]) {
+async function installApi(
+  page: Page,
+  recorded: Recorded[],
+  options?: { holidays?: unknown[]; classes?: unknown[] },
+) {
   let conflictCalls = 0
   await page.route("**/api/**", async (route) => {
     const request = route.request()
@@ -100,7 +104,7 @@ async function installApi(page: Page, recorded: Recorded[]) {
       return
     }
     if (request.method() === "GET" && /\/classes(\?|$)/.test(path)) {
-      await fulfill(route, { success: true, data: classes() })
+      await fulfill(route, { success: true, data: options?.classes ?? classes() })
       return
     }
     if (path.includes("/instructors")) {
@@ -113,7 +117,11 @@ async function installApi(page: Page, recorded: Recorded[]) {
       })
       return
     }
-    if (path.includes("/holidays") || path.includes("/courses") || path.includes("/enrollments")) {
+    if (path.includes("/holidays")) {
+      await fulfill(route, { success: true, data: options?.holidays ?? [] })
+      return
+    }
+    if (path.includes("/courses") || path.includes("/enrollments")) {
       await fulfill(route, { success: true, data: [] })
       return
     }
@@ -437,4 +445,59 @@ test("centre admin audit log lists scheduling rows from the centre API", async (
   await expect
     .poll(() => recorded.filter((entry) => entry.method === "GET" && entry.path.includes("from=2026-10-10")).length)
     .toBeGreaterThan(0)
+})
+
+const HOLIDAY_GRAY = "rgb(107, 114, 128)"
+
+test("public holidays render in reserved gray and that gray is not a course color", async ({ page }) => {
+  const holidayDate = todayAt(0).slice(0, 10)
+  const recorded: Recorded[] = []
+  await installApi(page, recorded, {
+    holidays: [{ id: 3, name: "National Day", date: holidayDate }],
+    classes: [
+      {
+        id: 12,
+        name: "Piano basics",
+        class_code: "PNO",
+        calendar_color: "#FF8400",
+        instructor: "Ada Wong",
+        instructor_id: 4,
+        start_time: todayAt(10),
+        end_time: todayAt(11),
+        capacity: 8,
+        enrolled_count: 3,
+        location: "Room A",
+      },
+    ],
+  })
+  await openSchedule(page, "en")
+
+  const holiday = page.getByTestId("schedule-holiday").first()
+  await expect(holiday).toBeVisible()
+  await expect(holiday).toHaveCSS("color", HOLIDAY_GRAY)
+  await expect(holiday).toHaveCSS("border-left-color", HOLIDAY_GRAY)
+
+  const session = page.getByTitle("PNO · Piano basics").first()
+  await expect(session).toBeVisible()
+  await expect(session).toHaveCSS("border-left-color", "rgb(255, 132, 0)")
+  await expect(session).not.toHaveCSS("color", HOLIDAY_GRAY)
+
+  await expect(page.getByRole("heading", { name: "Public holidays in this period" })).toHaveCSS("color", HOLIDAY_GRAY)
+  await expect(page.getByRole("cell", { name: "National Day" })).toHaveCSS("color", HOLIDAY_GRAY)
+
+  await holiday.scrollIntoViewIfNeeded()
+  await page.screenshot({ path: "/opt/cursor/artifacts/screenshots/holiday-gray-calendar-en.png" })
+
+  await page.getByRole("button", { name: "Week" }).click()
+  await expect(page.getByTestId("schedule-holiday").first()).toHaveCSS("color", HOLIDAY_GRAY)
+  const weekSession = page.getByRole("button", { name: /Piano basics/ })
+  await expect(weekSession).toHaveCSS("border-left-color", "rgb(255, 132, 0)")
+  await expect(weekSession.getByText("Piano basics")).not.toHaveCSS("color", HOLIDAY_GRAY)
+
+  await page.getByTestId("schedule-add").click()
+  const swatches = page.locator('[aria-label^="Choose color"]')
+  await expect(swatches).toHaveCount(10)
+  const labels = await swatches.evaluateAll((els) => els.map((el) => el.getAttribute("aria-label") || ""))
+  expect(labels.some((label) => label.toUpperCase().includes("#6B7280"))).toBe(false)
+  expect(labels.some((label) => label.toUpperCase().includes("#FF8400"))).toBe(true)
 })

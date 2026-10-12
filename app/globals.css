@@ -63,6 +63,8 @@
     --brand-magenta: #bf07d0;
     --brand-orange: #ff8400;
     --brand-coral: #db5461;
+    /* Public holidays only. Not a course swatch — see HOLIDAY_COLOR. */
+    --holiday: #6B7280;
 
     --classz-50: #d7f4f3;
     --classz-100: #c9efed;
@@ -185,6 +187,7 @@
     --color-brand-magenta: var(--brand-magenta);
     --color-brand-orange: var(--brand-orange);
     --color-brand-coral: var(--brand-coral);
+    --color-holiday: var(--holiday);
     --color-ink: var(--ink);
     --color-shade-50: var(--shade-50);
     --color-shade-100: var(--shade-100);
