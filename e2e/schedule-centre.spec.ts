@@ -447,7 +447,7 @@ test("centre admin audit log lists scheduling rows from the centre API", async (
     .toBeGreaterThan(0)
 })
 
-const HOLIDAY_GRAY = "rgb(107, 116, 128)"
+const HOLIDAY_GRAY = "rgb(107, 114, 128)"
 
 test("public holidays render in reserved gray and that gray is not a course color", async ({ page }) => {
   const holidayDate = todayAt(0).slice(0, 10)
@@ -490,7 +490,9 @@ test("public holidays render in reserved gray and that gray is not a course colo
 
   await page.getByRole("button", { name: "Week" }).click()
   await expect(page.getByTestId("schedule-holiday").first()).toHaveCSS("color", HOLIDAY_GRAY)
-  await expect(page.getByTitle("PNO · Piano basics").first()).toHaveCSS("border-left-color", "rgb(255, 132, 0)")
+  const weekSession = page.getByRole("button", { name: /Piano basics/ })
+  await expect(weekSession).toHaveCSS("border-left-color", "rgb(255, 132, 0)")
+  await expect(weekSession.getByText("Piano basics")).not.toHaveCSS("color", HOLIDAY_GRAY)
 
   await page.getByTestId("schedule-add").click()
   const swatches = page.locator('[aria-label^="Choose color"]')
