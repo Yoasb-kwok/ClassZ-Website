@@ -17,6 +17,9 @@ import {
 } from "date-fns"
 import { zhTW, enUS } from "date-fns/locale"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { getCourseColor, HOLIDAY_COLOR } from "@/lib/schedule-colors"
+
+export { CALENDAR_COLOR_OPTIONS, getCourseColor, HOLIDAY_COLOR } from "@/lib/schedule-colors"
 
 export type ScheduleCalendarEvent = {
   id: string
@@ -42,41 +45,14 @@ export type ScheduleHoliday = {
 
 const weekStartsOn = 0 as const
 
-/** Palette from system 5 tones + readable variants — same course always maps to same color */
-const COURSE_COLORS = [
-  { bar: "#0ABAB5", bg: "#E7F8F7", border: "#8FDFDB", text: "#06706D" },
-  { bar: "#BF07D0", bg: "#F9E8FB", border: "#E4A0ED", text: "#8A0596" },
-  { bar: "#FF8400", bg: "#FFF3E6", border: "#FFC280", text: "#B85E00" },
-  { bar: "#DB5461", bg: "#FCECEE", border: "#F0A8AF", text: "#A83A46" },
-  { bar: "#525252", bg: "#F5F5F5", border: "#D4D4D4", text: "#292929" },
-  { bar: "#089591", bg: "#E0F4F3", border: "#6CD6D3", text: "#044A48" },
-  { bar: "#9B2DB0", bg: "#F5E6F8", border: "#D49BE0", text: "#6E1F7D" },
-  { bar: "#E67A00", bg: "#FFF0DB", border: "#FFB84D", text: "#9A5200" },
-  { bar: "#C93D4A", bg: "#FBE8EA", border: "#E88B94", text: "#8F2A35" },
-  { bar: "#1A9BAA", bg: "#E4F5F7", border: "#7DCDD6", text: "#0F5C65" },
-] as const
-
-export const CALENDAR_COLOR_OPTIONS = COURSE_COLORS.map((c) => c.bar)
-
-function hashCourseKey(key: string): number {
-  let h = 2166136261
-  for (let i = 0; i < key.length; i++) {
-    h ^= key.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
-
-/** Stable color for a course — prefer class_code, then name */
-export function getCourseColor(ev: Pick<ScheduleCalendarEvent, "class_code" | "name" | "id" | "calendar_color">) {
-  const chosen = String(ev.calendar_color || "").trim().toUpperCase()
-  if (chosen) {
-    const match = COURSE_COLORS.find((c) => c.bar.toUpperCase() === chosen)
-    if (match) return match
-  }
-  const key = (ev.class_code || ev.name || ev.id || "course").trim().toLowerCase()
-  return COURSE_COLORS[hashCourseKey(key) % COURSE_COLORS.length]
-}
+/** Holiday chip: text and accent bar are the reserved gray; wash is a tint of the same hex. */
+const HOLIDAY_CHIP_STYLE = {
+  color: HOLIDAY_COLOR,
+  backgroundColor: `color-mix(in srgb, ${HOLIDAY_COLOR} 12%, white)`,
+  borderColor: `color-mix(in srgb, ${HOLIDAY_COLOR} 35%, white)`,
+  borderLeftWidth: 3,
+  borderLeftColor: HOLIDAY_COLOR,
+} as const
 
 export function getCalendarVisibleRange(anchorDate: Date, view: ScheduleCalendarView) {
   if (view === "month") {
@@ -112,6 +88,35 @@ const PAST_EVENT_COLOR = { bar: "#A3A3A3", bg: "#F5F5F5", border: "#E5E5E5", tex
 
 function startOfLocalDay(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+
+function HolidayMark({
+  holidays,
+  zh,
+  variant,
+}: {
+  holidays: ScheduleHoliday[]
+  zh: boolean
+  variant: "month" | "week"
+}) {
+  const title = holidays.map((h) => h.name).join(", ")
+  if (variant === "week") {
+    return (
+      <p data-testid="schedule-holiday" className="text-[10px] px-1 truncate" style={{ color: HOLIDAY_COLOR }} title={title}>
+        {holidays[0].name}
+      </p>
+    )
+  }
+  return (
+    <p
+      data-testid="schedule-holiday"
+      className="text-[10px] leading-tight rounded px-1 mb-1 truncate border"
+      style={HOLIDAY_CHIP_STYLE}
+      title={title}
+    >
+      {zh ? "公眾假期" : "Public holiday"}
+    </p>
+  )
 }
 
 export function isPastCalendarDay(day: Date) {
@@ -266,7 +271,7 @@ export function ScheduleCalendar({
                 onClick={() => onDayClick(day)}
                 className={`min-h-[6.5rem] border-r border-b border-classz-100 p-1.5 text-left align-top hover:bg-classz-50/80 transition-colors ${
                   isPast ? "bg-classz-50/70" : inMonth ? "bg-white" : "bg-classz-50/40"
-                } ${dayHolidays.length ? "ring-1 ring-inset ring-[color-mix(in_srgb,var(--brand-orange)_40%,white)]" : ""}`}
+                } ${dayHolidays.length ? "ring-1 ring-inset ring-[color-mix(in_srgb,var(--holiday)_40%,white)]" : ""}`}
               >
                 <div
                   className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium mb-1 ${
@@ -275,11 +280,7 @@ export function ScheduleCalendar({
                 >
                   {format(day, "d")}
                 </div>
-                {dayHolidays.length > 0 && (
-                  <p className="text-[10px] leading-tight text-brand-orange bg-[color-mix(in_srgb,var(--brand-orange)_12%,white)] border border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] rounded px-1 mb-1 truncate" title={dayHolidays.map((h) => h.name).join(", ")}>
-                    {zh ? "公眾假期" : "Public holiday"}
-                  </p>
-                )}
+                {dayHolidays.length > 0 && <HolidayMark holidays={dayHolidays} zh={zh} variant="month" />}
                 <div className="space-y-1">
                   {dayEvents.slice(0, 3).map((ev) => {
                     const color = isPast ? PAST_EVENT_COLOR : getCourseColor(ev)
@@ -333,7 +334,7 @@ export function ScheduleCalendar({
             const isToday = isSameDay(day, new Date())
             const isPast = mutePastDays && isPastCalendarDay(day)
             return (
-              <div key={key} className={`flex flex-col min-w-0 ${isPast ? "bg-classz-50/80" : "bg-white"} ${dayHolidays.length ? "bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)]" : ""}`}>
+              <div key={key} className={`flex flex-col min-w-0 ${isPast ? "bg-classz-50/80" : "bg-white"} ${dayHolidays.length ? "bg-[color-mix(in_srgb,var(--holiday)_8%,white)]" : ""}`}>
                 <button
                   type="button"
                   ref={isToday ? (el) => { todayRef.current = el } : undefined}
@@ -342,11 +343,7 @@ export function ScheduleCalendar({
                 >
                   <div className="text-xs uppercase text-classz-500">{format(day, "EEE", { locale })}</div>
                   <div className={`text-lg font-semibold ${isToday ? "text-classz-600" : isPast ? "text-classz-400" : "text-classz-800"}`}>{format(day, "d")}</div>
-                  {dayHolidays.length > 0 && (
-                    <p className="text-[10px] text-brand-orange px-1 truncate" title={dayHolidays.map((h) => h.name).join(", ")}>
-                      {dayHolidays[0].name}
-                    </p>
-                  )}
+                  {dayHolidays.length > 0 && <HolidayMark holidays={dayHolidays} zh={zh} variant="week" />}
                 </button>
                 <div className="flex-1 overflow-y-auto p-2 space-y-2">
                   {dayEvents.length === 0 ? (
