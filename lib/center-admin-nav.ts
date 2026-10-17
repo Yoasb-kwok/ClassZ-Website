@@ -25,6 +25,7 @@ import {
   UserCog,
   Sparkles,
   UserPlus,
+  Bot,
 } from "lucide-react";
 
 export type CenterAdminNavItem = {
@@ -54,6 +55,12 @@ export function getCenterAdminNavGroups(): CenterAdminNavGroup[] {
           labelEn: "Dashboard",
           icon: LayoutDashboard,
           moduleKey: "dashboard",
+        },
+        {
+          path: "/admin/assistant",
+          labelZh: "AI 助手",
+          labelEn: "AI assistant",
+          icon: Bot,
         },
         {
           path: "/admin/centre-profile",
