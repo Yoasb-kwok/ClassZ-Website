@@ -107,8 +107,20 @@ export const DEFAULT_GOALS: GoalConfig[] = [
   { id: "fill", metric: "fill", target: 80 },
 ]
 
+/** CRM dashboard frame (Figma 5520:16583): KPI row, overview + goals, mix + conversion. */
+export const FIGMA_DASHBOARD_WIDGETS: WidgetConfig[] = [
+  { id: "revenue", x: 0, y: 0, w: 6, h: 2 },
+  { id: "students", x: 6, y: 0, w: 6, h: 2 },
+  { id: "attendance", x: 0, y: 2, w: 6, h: 2 },
+  { id: "teachers", x: 6, y: 2, w: 6, h: 2 },
+  { id: "overview", x: 0, y: 4, w: 8, h: 5 },
+  { id: "goals", x: 8, y: 4, w: 4, h: 5 },
+  { id: "mix", x: 0, y: 9, w: 6, h: 4 },
+  { id: "conversion", x: 6, y: 9, w: 6, h: 4 },
+]
+
 export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
-  widgets: [],
+  widgets: FIGMA_DASHBOARD_WIDGETS.map((widget) => ({ ...widget })),
   goals: DEFAULT_GOALS.map((g) => ({ ...g })),
 }
 

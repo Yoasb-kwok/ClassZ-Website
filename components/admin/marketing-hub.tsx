@@ -39,7 +39,7 @@ export function MarketingHub() {
             type="button"
             onClick={() => setTab(k)}
             className={`px-4 py-2 rounded-md text-sm font-medium border ${
-              tab === k ? "bg-classz-100 border-classz-400" : "bg-white border-classz-200"
+              tab === k ? "bg-classz-100 border-classz-400" : "bg-white border-admin-frame"
             }`}
           >
             {label}

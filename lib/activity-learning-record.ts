@@ -7,6 +7,7 @@ export const PROGRESS_LEVELS = [
   { value: "guided", tier: "Guided", description: "Completed with demonstration or prompts" },
   { value: "developing", tier: "Developing", description: "Completed with light support" },
   { value: "independent", tier: "Independent", description: "Completed mostly independently" },
+  { value: "unclear", tier: "Unclear", description: "Unable to determine clearly" },
 ] as const
 
 export const CLASS_FOCUS_OPTIONS = [

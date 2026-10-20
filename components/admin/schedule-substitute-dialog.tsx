@@ -100,13 +100,13 @@ export function ScheduleSubstituteDialog({
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="px-4 py-2.5 text-base rounded-md border border-classz-200 text-classz-700" onClick={onClose}>
+          <button type="button" className="px-4 py-2.5 text-base rounded-md admin-frame-border text-classz-700" onClick={onClose}>
             {zh ? "取消" : "Cancel"}
           </button>
           <button
             type="button"
             data-testid="schedule-substitute-preview"
-            className="px-4 py-2.5 text-base rounded-md border border-classz-200 text-classz-700 disabled:opacity-50"
+            className="px-4 py-2.5 text-base rounded-md admin-frame-border text-classz-700 disabled:opacity-50"
             disabled={busy}
             onClick={review}
           >

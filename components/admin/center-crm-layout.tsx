@@ -47,7 +47,7 @@ export function CenterCrmLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-classz-200 bg-white px-4 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg admin-frame-border bg-white px-4 py-3 shadow-sm">
         <Link
           href="/admin/center-crm"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-classz-600 hover:text-classz-700"
@@ -73,7 +73,7 @@ export function CenterCrmLayout({ children }: { children: React.ReactNode }) {
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium border transition-colors ${
                 active
                   ? "bg-classz-100 border-classz-300 text-classz-700"
-                  : "bg-white border-classz-200 text-classz-600 hover:bg-classz-50"
+                  : "bg-white border-admin-frame text-classz-600 hover:bg-classz-50"
               }`}
             >
               <Icon className="h-4 w-4" />

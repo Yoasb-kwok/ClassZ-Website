@@ -292,7 +292,7 @@ export function ActivityLearningRecordSection({
               type="button"
               aria-label={zh ? "上傳課堂照片" : "Upload class photo"}
               onClick={() => fileRef.current?.click()}
-              className="w-full h-40 rounded-xl border-2 border-dashed border-classz-200 bg-classz-50/80 flex flex-col items-center justify-center gap-2 text-classz-500 hover:border-classz-400 overflow-hidden transition-colors"
+              className="w-full h-40 rounded-xl admin-frame-border border-dashed bg-classz-50/80 flex flex-col items-center justify-center gap-2 text-classz-500 hover:border-classz-400 overflow-hidden transition-colors"
             >
               {photoPreviewSrc ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -343,7 +343,7 @@ export function ActivityLearningRecordSection({
             <div className="h-8 w-8 rounded-full border-2 border-classz-400 border-t-transparent animate-spin" />
           </div>
         ) : (
-          <ul className="divide-y divide-classz-100 border border-classz-200 rounded-lg overflow-hidden bg-white">
+          <ul className="divide-y divide-classz-100 admin-frame-border rounded-lg overflow-hidden bg-white">
             {records.map((r) => (
               <li key={r.id} className="px-4 py-4 bg-classz-50/30">
                 <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
@@ -365,7 +365,7 @@ export function ActivityLearningRecordSection({
                     ) : null}
                     {r.photo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={resolveUploadUrl(r.photo_url)} alt="" className="mt-2 h-24 w-auto rounded-lg border border-classz-200" />
+                      <img src={resolveUploadUrl(r.photo_url)} alt="" className="mt-2 h-24 w-auto rounded-lg admin-frame-border" />
                     ) : null}
                     <pre className="mt-2 text-sm text-classz-800 whitespace-pre-wrap font-sans">{formatRecordSummary(r)}</pre>
                     <p className="mt-1 text-xs text-classz-500">{new Date(r.created_at).toLocaleString(zh ? "zh-HK" : "en-HK")}</p>

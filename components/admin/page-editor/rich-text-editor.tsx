@@ -118,7 +118,7 @@ export function RichTextEditor({
   if (!editor) {
     return (
       <div
-        className="min-h-[180px] rounded-lg border border-classz-100 bg-white"
+        className="min-h-[180px] rounded-lg admin-frame-border bg-white"
         style={{ minHeight }}
       />
     );
@@ -165,7 +165,7 @@ export function RichTextEditor({
   };
 
   return (
-    <div className="rounded-lg border border-classz-100 bg-white focus-within:ring-2 focus-within:ring-classz-200">
+    <div className="rounded-lg admin-frame-border bg-white focus-within:ring-2 focus-within:ring-classz-200">
       <input
         ref={fileInputRef}
         type="file"

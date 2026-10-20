@@ -228,7 +228,7 @@ export function ScheduleCalendar({
     : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
   return (
-    <div className="bg-white rounded-lg border border-classz-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-lg admin-frame-border shadow-sm overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-classz-100 bg-classz-50/60">
         <div className="flex items-center gap-2">
           <button type="button" onClick={goPrev} className="p-2 rounded-md hover:bg-classz-100 text-classz-700" aria-label="Previous">
@@ -239,7 +239,7 @@ export function ScheduleCalendar({
           </button>
           <h2 className="text-lg font-semibold text-classz-800 min-w-[10rem]">{headerLabel}</h2>
         </div>
-        <button type="button" onClick={goToday} className="px-3 py-1.5 text-sm rounded-md border border-classz-200 text-classz-700 hover:bg-white">
+        <button type="button" onClick={goToday} className="px-3 py-1.5 text-sm rounded-md admin-frame-border text-classz-700 hover:bg-white">
           {zh ? "今天" : "Today"}
         </button>
       </div>
@@ -356,7 +356,7 @@ export function ScheduleCalendar({
                           key={ev.id}
                           type="button"
                           onClick={() => onEventClick(ev)}
-                          className={`w-full text-left rounded-lg border p-2 shadow-sm hover:brightness-95 transition-[filter] ${isPast ? "opacity-60" : ""}`}
+                          className={`w-full text-left rounded-lg border-2 p-2 shadow-sm hover:brightness-95 transition-[filter] ${isPast ? "opacity-60" : ""}`}
                           style={{
                             backgroundColor: color.bg,
                             borderColor: color.border,

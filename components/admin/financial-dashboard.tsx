@@ -63,13 +63,13 @@ export function FinancialDashboard() {
             <BarChart3 className="h-5 w-5 text-classz-500" />
             {zh ? "收入趨勢（示範）" : "Revenue trend (demo)"}
           </h2>
-          <div className="h-56 rounded-md bg-classz-50 border border-dashed border-classz-200 flex items-center justify-center text-base text-classz-500">
+          <div className="h-56 rounded-md bg-classz-50 admin-frame-border border-dashed flex items-center justify-center text-base text-classz-500">
             {zh ? "圖表區 — 接上 API 後可換 recharts" : "Chart area — wire API later"}
           </div>
         </AdminCard>
         <AdminCard>
           <h2 className="text-xl font-semibold text-classz-700 mb-4">{zh ? "分項（示範）" : "Breakdown (demo)"}</h2>
-          <div className="h-56 rounded-md bg-classz-50 border border-dashed border-classz-200 flex items-center justify-center text-base text-classz-500">
+          <div className="h-56 rounded-md bg-classz-50 admin-frame-border border-dashed flex items-center justify-center text-base text-classz-500">
             {zh ? "套餐／付款方式分佈" : "Package / payment split"}
           </div>
         </AdminCard>

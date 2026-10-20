@@ -845,7 +845,7 @@ export function CoursesManager({
           <>
             <button
               type="button"
-              className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md border border-classz-200"
+              className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md admin-frame-border"
               onClick={() => setModal(null)}
             >
               {zh ? "取消" : "Cancel"}
@@ -953,10 +953,10 @@ export function CoursesManager({
                 <img
                   src={resolveUploadUrl(form.image_url)}
                   alt=""
-                  className="h-20 w-28 rounded-md object-cover border border-classz-100"
+                  className="h-20 w-28 rounded-md object-cover admin-frame-border"
                 />
               ) : (
-                <div className="h-20 w-28 rounded-md border border-dashed border-classz-200 bg-classz-50" />
+                <div className="h-20 w-28 rounded-md admin-frame-border border-dashed bg-classz-50" />
               )}
               <div className="space-y-1">
                 <input

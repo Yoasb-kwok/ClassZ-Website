@@ -133,15 +133,15 @@ export function LearningCompanionPanel() {
 
         {data ? (
           <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="rounded-lg border border-classz-100 bg-classz-50 px-3 py-2">
+            <div className="rounded-lg admin-frame-border bg-classz-50 px-3 py-2">
               <p className="text-xs text-classz-500">{zh ? "學員" : "Students"}</p>
               <p className="text-xl font-semibold text-classz-800">{data.summary.students}</p>
             </div>
-            <div className="rounded-lg border border-classz-100 bg-classz-50 px-3 py-2">
+            <div className="rounded-lg admin-frame-border bg-classz-50 px-3 py-2">
               <p className="text-xs text-classz-500">{zh ? "已解鎖" : "Unlocked"}</p>
               <p className="text-xl font-semibold text-[#044A48]">{data.summary.unlocked}</p>
             </div>
-            <div className="rounded-lg border border-classz-100 bg-classz-50 px-3 py-2">
+            <div className="rounded-lg admin-frame-border bg-classz-50 px-3 py-2">
               <p className="text-xs text-classz-500">{zh ? "未達門檻" : "Locked"}</p>
               <p className="text-xl font-semibold text-classz-600">{data.summary.locked}</p>
             </div>
@@ -158,7 +158,7 @@ export function LearningCompanionPanel() {
 
         {companions.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-[14rem_1fr] gap-4">
-            <ul className="space-y-1 max-h-[28rem] overflow-y-auto border border-classz-100 rounded-lg p-2 bg-white">
+            <ul className="space-y-1 max-h-[28rem] overflow-y-auto admin-frame-border rounded-lg p-2 bg-white">
               {companions.map((c) => {
                 const active = selected?.student_key === c.student_key
                 return (
@@ -190,7 +190,7 @@ export function LearningCompanionPanel() {
             </ul>
 
             {selected ? (
-              <div className="rounded-xl border border-classz-100 bg-white p-4 space-y-4 min-h-[16rem]">
+              <div className="rounded-xl admin-frame-border bg-white p-4 space-y-4 min-h-[16rem]">
                 {selected.report_status === "locked" ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-classz-700">

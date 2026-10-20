@@ -89,6 +89,11 @@
     --admin-ink: #222222;
     --admin-sidebar: #222222;
     --admin-canvas: #f5f5f5;
+
+    /* Shared admin box/frame. 2px solid Neutral 06 — thicker and more solid than
+       the previous 1px classz-100 / classz-100/80 mix. */
+    --admin-frame-border-width: 2px;
+    --admin-frame-border-color: #b0b0b0;
 }
 
 .dark {
@@ -188,6 +193,7 @@
     --color-brand-orange: var(--brand-orange);
     --color-brand-coral: var(--brand-coral);
     --color-holiday: var(--holiday);
+    --color-admin-frame: var(--admin-frame-border-color);
     --color-ink: var(--ink);
     --color-shade-50: var(--shade-50);
     --color-shade-100: var(--shade-100);
@@ -356,6 +362,12 @@ input[type="checkbox"]:checked::after {
 .classz-admin-theme {
     color: var(--admin-ink);
     background-color: var(--admin-bg);
+}
+
+/* One frame treatment for admin cards, panels, and form controls. */
+@utility admin-frame-border {
+    border-width: var(--admin-frame-border-width);
+    border-color: var(--admin-frame-border-color);
 }
 
 .crm-theme {

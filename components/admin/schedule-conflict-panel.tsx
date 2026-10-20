@@ -32,7 +32,7 @@ function ConflictList({
       : "border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] bg-[color-mix(in_srgb,var(--brand-orange)_10%,white)]"
   const heading = tone === "block" ? "text-brand-coral" : "text-brand-orange"
   return (
-    <div data-testid={testId} className={`rounded-lg border px-3 py-2 ${box}`}>
+    <div data-testid={testId} className={`rounded-lg border-2 px-3 py-2 ${box}`}>
       <p className={`text-sm font-semibold ${heading}`}>{title}</p>
       <ul className="mt-1 space-y-1 text-sm text-classz-700">
         {items.map((item, index) => (
@@ -49,7 +49,7 @@ function ConflictList({
 function ChangeList({ title, items, testId }: { title: string; items: ScheduleChange[]; testId: string }) {
   if (items.length === 0) return null
   return (
-    <div data-testid={testId} className="rounded-lg border border-classz-200 bg-white px-3 py-2">
+    <div data-testid={testId} className="rounded-lg admin-frame-border bg-white px-3 py-2">
       <p className="text-sm font-semibold text-classz-700">
         {title} ({items.length})
       </p>
@@ -91,7 +91,7 @@ export function ScheduleConflictPanel({
       {preview.nothingApplied ? (
         <div
           data-testid="schedule-nothing-applied"
-          className="rounded-lg border border-[color-mix(in_srgb,var(--brand-coral)_40%,white)] bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] px-3 py-2"
+          className="rounded-lg border-2 border-[color-mix(in_srgb,var(--brand-coral)_40%,white)] bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] px-3 py-2"
         >
           <p className="text-sm font-semibold text-brand-coral">{t("classzAdmin.schedule.nothingApplied")}</p>
           <p className="text-sm text-classz-700">{t("classzAdmin.schedule.nothingAppliedDetail")}</p>

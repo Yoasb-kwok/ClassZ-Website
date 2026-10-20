@@ -468,7 +468,7 @@ export function LearningCompanionReportView({
                   }
                   if (typeof s === "string") {
                     return (
-                      <li key={i} className="rounded-lg border border-white/70 bg-white/90 px-3 py-2">
+                      <li key={i} className="rounded-lg border-2 border-white/70 bg-white/90 px-3 py-2">
                         {s}
                       </li>
                     )
@@ -478,7 +478,7 @@ export function LearningCompanionReportView({
                   return (
                     <li
                       key={i}
-                      className="rounded-xl border bg-white/95 px-3 py-2"
+                      className="rounded-xl border-2 bg-white/95 px-3 py-2"
                       style={{
                         borderColor: `${supportAnimal?.accent || accent}40`,
                         background: `linear-gradient(135deg, ${supportAnimal?.accentSoft || soft} 0%, #ffffff 70%)`,

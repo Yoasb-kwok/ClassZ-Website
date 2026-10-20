@@ -67,7 +67,7 @@ export function CmsPageForm({ pageKey }: { pageKey: string }) {
   return (
     <AdminPageFrame>
       <AdminPageHeader title={zh ? head.zh : head.en} />
-      {saved ? <p className="text-base text-classz-600 border border-classz-200 bg-classz-50 px-3 py-2 rounded-md">{zh ? "已儲存到本機" : "Saved locally"}</p> : null}
+      {saved ? <p className="text-base text-classz-600 admin-frame-border bg-classz-50 px-3 py-2 rounded-md">{zh ? "已儲存到本機" : "Saved locally"}</p> : null}
       <AdminCard>
         <div className="space-y-4">
           <div>

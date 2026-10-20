@@ -96,7 +96,7 @@ export function ReportsHub() {
             <Link
               key={r.href}
               href={r.href}
-              className={`group block rounded-xl border border-classz-100 bg-white p-4 shadow-[0_1px_2px_rgba(10,186,181,0.05)] hover:bg-classz-50/40 transition-colors ${TONE_BORDER[r.tone]}`}
+              className={`group block rounded-xl admin-frame-border bg-white p-4 shadow-[0_1px_2px_rgba(10,186,181,0.05)] hover:bg-classz-50/40 transition-colors ${TONE_BORDER[r.tone]}`}
             >
               <div className="flex items-start gap-3">
                 <span

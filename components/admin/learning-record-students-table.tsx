@@ -1335,7 +1335,7 @@ export function LearningRecordStudentsTable({
                               <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap">
                                 {r.record_count >= MIN_RECORDS_FOR_REPORT ? (
                                   <>
-                                    <div className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5">
+                                    <div className="inline-flex items-center rounded-lg admin-frame-border bg-white p-0.5">
                                       <button
                                         type="button"
                                         className={`inline-flex items-center justify-center rounded-md px-1.5 py-1 text-base leading-none transition-colors ${
@@ -1407,7 +1407,7 @@ export function LearningRecordStudentsTable({
                                   <>
                                     <button
                                       type="button"
-                                      className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                      className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 admin-frame-border disabled:opacity-40"
                                       disabled={demo}
                                       onClick={(e) => viewLatestReport(r.profile_id, e)}
                                       title={zh ? "查看報告" : "View report"}
@@ -1417,7 +1417,7 @@ export function LearningRecordStudentsTable({
                                     </button>
                                     <button
                                       type="button"
-                                      className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                      className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 admin-frame-border disabled:opacity-40"
                                       disabled={demo}
                                       onClick={(e) => exportPdfForProfile(r.profile_id, e)}
                                       title={zh ? "下載 PDF" : "Download PDF"}
@@ -1451,7 +1451,7 @@ export function LearningRecordStudentsTable({
                               <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap">
                                 <button
                                   type="button"
-                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 border border-classz-200 disabled:opacity-40"
+                                  className="inline-flex p-1.5 rounded-md text-brand-slate hover:bg-classz-50 admin-frame-border disabled:opacity-40"
                                   disabled={demo || saving}
                                   title={zh ? "編輯學生資料" : "Edit student"}
                                   onClick={(e) => openEditModal(r, e)}
@@ -1498,7 +1498,7 @@ export function LearningRecordStudentsTable({
                                 {(history[r.profile_id] || []).map((rec) => (
                                   <li
                                     key={rec.id}
-                                    className="rounded-lg border border-classz-100 bg-white px-3 py-2 text-sm"
+                                    className="rounded-lg admin-frame-border bg-white px-3 py-2 text-sm"
                                   >
                                     <div className="flex flex-wrap items-center gap-2 mb-1">
                                       <span className="font-semibold text-brand-slate">
@@ -1520,7 +1520,7 @@ export function LearningRecordStudentsTable({
                                       <div className="ml-auto inline-flex items-center gap-1.5">
                                         <Link
                                           href={learningRecordFillPath(r.profile_id, { mode, recordId: rec.id })}
-                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-classz-200 text-xs text-brand-slate hover:bg-classz-50"
+                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md admin-frame-border text-xs text-brand-slate hover:bg-classz-50"
                                           title={zh ? "編輯這份紀錄" : "Edit this record"}
                                           onClick={(e) => e.stopPropagation()}
                                         >
@@ -1529,7 +1529,7 @@ export function LearningRecordStudentsTable({
                                         </Link>
                                         <button
                                           type="button"
-                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-brand-coral/30 text-xs text-brand-coral hover:bg-brand-coral/10 disabled:opacity-40"
+                                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md border-2 border-brand-coral/30 text-xs text-brand-coral hover:bg-brand-coral/10 disabled:opacity-40"
                                           disabled={demo || deletingRecordId === rec.id}
                                           title={zh ? "刪除這份紀錄" : "Delete this record"}
                                           onClick={(e) => deleteSingleLearningRecord(r.profile_id, rec.id, e)}
@@ -1643,7 +1643,7 @@ export function LearningRecordStudentsTable({
         </div>
 
         {mode === "admin" && selectedRows.length > 0 ? (
-          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-classz-200 bg-classz-50/70 px-3 py-3">
+          <div className="mb-4 flex flex-col gap-3 rounded-xl admin-frame-border bg-classz-50/70 px-3 py-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm font-medium text-brand-slate">
                 {zh ? `已選 ${selectedRows.length} 位` : `${selectedRows.length} selected`}
@@ -1721,7 +1721,7 @@ export function LearningRecordStudentsTable({
               <div>
                 <AdminLabel>{zh ? "批次產生報告" : "Bulk generate reports"}</AdminLabel>
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5">
+                  <div className="inline-flex items-center rounded-lg admin-frame-border bg-white p-0.5">
                     <button
                       type="button"
                       className={`inline-flex items-center justify-center rounded-md px-1.5 py-1 text-base leading-none transition-colors ${

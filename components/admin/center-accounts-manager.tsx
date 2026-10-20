@@ -263,7 +263,7 @@ export function CenterAccountsManager() {
             className={`text-xs px-2 py-0.5 rounded-full border ${
               account.account_type === "primary"
                 ? "bg-classz-100 border-classz-300 text-classz-700"
-                : "bg-white border-classz-200 text-classz-600"
+                : "bg-white border-admin-frame text-classz-600"
             }`}
           >
             {account.account_type === "primary" ? (zh ? "主帳戶" : "Primary") : zh ? "副帳戶" : "Sub"}

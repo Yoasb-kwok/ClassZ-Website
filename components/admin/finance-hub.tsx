@@ -81,7 +81,7 @@ export function FinanceHub() {
                     : tone === "magenta"
                       ? "bg-[color-mix(in_srgb,var(--brand-magenta)_12%,white)] border-brand-magenta text-brand-magenta"
                       : "bg-[color-mix(in_srgb,var(--brand-slate)_10%,white)] border-brand-slate text-brand-slate"
-                : "bg-white border-classz-200 text-brand-slate"
+                : "bg-white border-admin-frame text-brand-slate"
             }`}
           >
             {label}

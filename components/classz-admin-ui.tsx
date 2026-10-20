@@ -5,6 +5,9 @@ import type { LucideIcon } from "lucide-react";
 /** Admin canvas — teal surfaces + slate ink (system 5-tone). */
 export const adminSurface = "bg-white text-brand-slate";
 
+/** 2px solid #b0b0b0 frame shared by admin cards, panels, and fields. */
+export const adminFrameBorder = "admin-frame-border";
+
 export function AdminPageFrame({ children }: { children: React.ReactNode }) {
   return <div className="space-y-3 text-sm text-classz-700">{children}</div>;
 }
@@ -44,7 +47,7 @@ export function AdminCard({
 }) {
   return (
     <div
-      className={`bg-white rounded-xl border border-classz-100/80 p-3.5 md:p-4 text-brand-slate shadow-[0_1px_2px_rgba(10,186,181,0.06)] ${className}`.trim()}
+      className={`bg-white rounded-xl ${adminFrameBorder} p-3.5 md:p-4 text-brand-slate shadow-[0_1px_2px_rgba(10,186,181,0.06)] ${className}`.trim()}
     >
       {children}
     </div>
@@ -57,7 +60,7 @@ export function AdminInput({
 }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full px-3.5 py-2.5 border border-classz-100 rounded-lg text-base text-classz-700 placeholder:text-classz-600/40 bg-white focus:outline-none focus:ring-2 focus:ring-classz-200 focus:border-classz-300 ${className}`.trim()}
+      className={`w-full px-3.5 py-2.5 ${adminFrameBorder} rounded-lg text-base text-classz-700 placeholder:text-classz-600/40 bg-white focus:outline-none focus:ring-2 focus:ring-classz-200 focus:border-classz-300 ${className}`.trim()}
       {...props}
     />
   );
@@ -70,7 +73,7 @@ export function AdminSelect({
 }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`w-full max-w-full border border-classz-100 rounded-lg px-3.5 py-2.5 text-base text-classz-700 bg-white focus:outline-none focus:ring-2 focus:ring-classz-200 min-h-[2.75rem] ${className}`.trim()}
+      className={`w-full max-w-full ${adminFrameBorder} rounded-lg px-3.5 py-2.5 text-base text-classz-700 bg-white focus:outline-none focus:ring-2 focus:ring-classz-200 min-h-[2.75rem] ${className}`.trim()}
       {...props}
     >
       {children}
@@ -84,7 +87,7 @@ export function AdminTextarea({
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`w-full min-h-[200px] px-3.5 py-3 border border-classz-100 rounded-lg text-base text-classz-700 font-sans leading-relaxed bg-white placeholder:text-classz-600/40 focus:outline-none focus:ring-2 focus:ring-classz-200 ${className}`.trim()}
+      className={`w-full min-h-[200px] px-3.5 py-3 ${adminFrameBorder} rounded-lg text-base text-classz-700 font-sans leading-relaxed bg-white placeholder:text-classz-600/40 focus:outline-none focus:ring-2 focus:ring-classz-200 ${className}`.trim()}
       {...props}
     />
   );
@@ -120,7 +123,7 @@ export function AdminGhostButton({
   return (
     <button
       type="button"
-      className={`inline-flex shrink-0 items-center border border-classz-200 rounded-lg font-medium text-classz-700 hover:bg-classz-50 transition-colors ${ADMIN_BTN_SIZE[size]} ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center ${adminFrameBorder} rounded-lg font-medium text-classz-700 hover:bg-classz-50 transition-colors ${ADMIN_BTN_SIZE[size]} ${className}`.trim()}
       {...props}
     >
       {children}
@@ -333,7 +336,7 @@ export function AdminModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="admin-modal-title"
-        className={`relative bg-white rounded-t-xl sm:rounded-xl shadow-xl border border-classz-100 ${widthClass} w-full max-h-[92vh] overflow-y-auto text-base text-classz-700`}
+        className={`relative bg-white rounded-t-xl sm:rounded-xl shadow-xl ${adminFrameBorder} ${widthClass} w-full max-h-[92vh] overflow-y-auto text-base text-classz-700`}
       >
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-4 border-b border-classz-100 bg-classz-50">
           <h2

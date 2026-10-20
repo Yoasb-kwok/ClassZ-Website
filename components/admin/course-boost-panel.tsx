@@ -236,13 +236,13 @@ export function CourseBoostPanel({ listing = "course" }: { listing?: "course" | 
       </AdminCard>
 
       {notice ? (
-        <p className="rounded-md border border-classz-200 bg-classz-50 px-3 py-2 text-sm text-classz-700">{notice}</p>
+        <p className="rounded-md admin-frame-border bg-classz-50 px-3 py-2 text-sm text-classz-700">{notice}</p>
       ) : null}
       {error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-md border-2 border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       ) : null}
       {demo ? (
-        <p className="rounded-md border border-classz-200 bg-classz-50 px-3 py-2 text-sm text-classz-600">
+        <p className="rounded-md admin-frame-border bg-classz-50 px-3 py-2 text-sm text-classz-600">
           {zh ? "示範模式無法付款。請用中心帳號登入。" : "Demo session cannot pay. Sign in with a centre account."}
         </p>
       ) : null}
@@ -255,8 +255,8 @@ export function CourseBoostPanel({ listing = "course" }: { listing?: "course" | 
               key={p.plan_days}
               type="button"
               onClick={() => setPlanDays(p.plan_days === 14 ? 14 : 7)}
-              className={`rounded-xl border p-4 text-left transition ${
-                on ? "border-classz-400 bg-classz-50" : "border-classz-100 bg-white hover:border-classz-300"
+              className={`rounded-xl border-2 p-4 text-left transition ${
+                on ? "border-classz-400 bg-classz-50" : "border-admin-frame bg-white hover:border-classz-300"
               }`}
             >
               <p className="text-sm font-medium text-classz-500">{zh ? p.label_zh : p.label_en}</p>

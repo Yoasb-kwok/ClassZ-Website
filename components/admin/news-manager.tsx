@@ -186,7 +186,7 @@ export function NewsManager() {
           <>
             <button
               type="button"
-              className="px-4 py-2.5 text-base text-classz-700 border border-classz-200 rounded-md hover:bg-classz-50"
+              className="px-4 py-2.5 text-base text-classz-700 admin-frame-border rounded-md hover:bg-classz-50"
               onClick={() => setModal(false)}
             >
               {zh ? "取消" : "Cancel"}

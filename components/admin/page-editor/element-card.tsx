@@ -95,8 +95,8 @@ export function ElementCard({
 
   return (
     <section
-      className={`overflow-hidden rounded-xl border bg-white shadow-[0_1px_2px_rgba(10,186,181,0.06)] ${
-        highlight ? "border-brand-coral" : "border-classz-100/80"
+      className={`overflow-hidden rounded-xl border-2 bg-white shadow-[0_1px_2px_rgba(10,186,181,0.06)] ${
+        highlight ? "border-brand-coral" : "border-admin-frame"
       }`}
     >
       <div className="flex items-start gap-2 p-2.5">

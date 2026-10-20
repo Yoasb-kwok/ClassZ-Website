@@ -36,20 +36,20 @@ export function SaveBar({
   const zh = locale === "zh-TW"
 
   return (
-    <div className="sticky bottom-0 z-30 -mx-1 mt-1 rounded-xl border border-classz-100 bg-white/95 px-3 py-2.5 shadow-[0_-2px_10px_rgba(10,186,181,0.10)] backdrop-blur">
+    <div className="sticky bottom-0 z-30 -mx-1 mt-1 rounded-xl admin-frame-border bg-white/95 px-3 py-2.5 shadow-[0_-2px_10px_rgba(10,186,181,0.10)] backdrop-blur">
       {note ? <div className="mb-2 text-xs leading-snug text-classz-600/80">{note}</div> : null}
 
       {error ? (
         <div
           role="alert"
-          className="mb-2 rounded-md border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] px-3 py-2 text-sm text-brand-coral"
+          className="mb-2 rounded-md border-2 border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] px-3 py-2 text-sm text-brand-coral"
         >
           {error}
         </div>
       ) : null}
 
       {success && !error ? (
-        <div className="mb-2 flex items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--brand-teal)_35%,white)] bg-[color-mix(in_srgb,var(--brand-teal)_10%,white)] px-3 py-2 text-sm text-brand-teal">
+        <div className="mb-2 flex items-center gap-1.5 rounded-md border-2 border-[color-mix(in_srgb,var(--brand-teal)_35%,white)] bg-[color-mix(in_srgb,var(--brand-teal)_10%,white)] px-3 py-2 text-sm text-brand-teal">
           <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
           {success}
         </div>

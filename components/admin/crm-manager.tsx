@@ -231,7 +231,7 @@ export function CrmManager() {
           {byStage.map(({ stage, items }) => {
             const style = STAGE_STYLE[stage]
             return (
-              <div key={stage} className={`rounded-lg border p-2 min-h-[12rem] ${style.tint}`}>
+              <div key={stage} className={`rounded-lg border-2 p-2 min-h-[12rem] ${style.tint}`}>
                 <div className={`mb-2 h-0.5 w-full rounded-full ${style.bar}`} />
                 <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${style.label}`}>
                   {stageLabel(stage, zh)} ({items.length})
@@ -242,7 +242,7 @@ export function CrmManager() {
                       <button
                         type="button"
                         onClick={() => openLead(l)}
-                        className={`w-full text-left text-sm px-2 py-2 rounded-md border bg-white transition-shadow ${
+                        className={`w-full text-left text-sm px-2 py-2 rounded-md border-2 bg-white transition-shadow ${
                           selected?.id === l.id
                             ? "border-crm-teal shadow-[0_0_0_1px_var(--crm-teal)]"
                             : "border-white/80 hover:border-crm-slate/20"

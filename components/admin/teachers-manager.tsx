@@ -835,7 +835,7 @@ export function TeachersManager() {
                     <div className="flex justify-end items-center gap-1">
                     <button
                       type="button"
-                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded border border-classz-200 disabled:opacity-40"
+                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded admin-frame-border disabled:opacity-40"
                       onClick={() => openLogin(i)}
                       disabled={demo}
                       title={coach ? (zh ? "登入帳號" : "Login") : zh ? "建立登入" : "Create login"}
@@ -845,7 +845,7 @@ export function TeachersManager() {
                     </button>
                     <button
                       type="button"
-                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded border border-classz-200"
+                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded admin-frame-border"
                       onClick={() => openEdit(i)}
                       title={zh ? "編輯" : "Edit"}
                       aria-label={zh ? "編輯" : "Edit"}
@@ -854,7 +854,7 @@ export function TeachersManager() {
                     </button>
                     <button
                       type="button"
-                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded border border-classz-200"
+                      className="inline-flex items-center justify-center p-1.5 text-classz-600 hover:bg-classz-50 rounded admin-frame-border"
                       onClick={() => openManage(i)}
                       title={zh ? "管理" : "Manage"}
                       aria-label={zh ? "管理" : "Manage"}
@@ -904,7 +904,7 @@ export function TeachersManager() {
       >
         <div className="space-y-4">
           <ProfileFormFields form={form} setForm={setForm} zh={zh} demo={demo} />
-          <div className="rounded-lg border border-classz-100 p-3">
+          <div className="rounded-lg admin-frame-border p-3">
             <label className="inline-flex items-center gap-2 text-sm text-classz-700">
               <input
                 type="checkbox"
@@ -1067,8 +1067,8 @@ export function TeachersManager() {
                 key={k}
                 type="button"
                 onClick={() => setTab(k)}
-                className={`px-3 py-1.5 text-xs rounded-md border ${
-                  tab === k ? "bg-classz-100 border-classz-400" : "border-classz-200"
+                className={`px-3 py-1.5 text-xs rounded-md border-2 ${
+                  tab === k ? "bg-classz-100 border-classz-400" : "border-admin-frame"
                 }`}
               >
                 {label}
