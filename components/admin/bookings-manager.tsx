@@ -161,7 +161,7 @@ export function BookingsManager({ embedded = false }: { embedded?: boolean }) {
             className={`px-4 py-2 rounded-md text-sm font-medium border ${
               tab === k
                 ? "bg-classz-100 border-classz-400"
-                : "bg-white border-classz-200"
+                : "bg-white border-admin-frame"
             }`}
           >
             {label}
@@ -173,7 +173,7 @@ export function BookingsManager({ embedded = false }: { embedded?: boolean }) {
         <div
           role="alert"
           data-testid="bookings-row-error"
-          className="rounded-lg border border-brand-coral/40 bg-brand-coral/10 px-3 py-2 text-sm text-brand-coral"
+          className="rounded-lg border-2 border-brand-coral/40 bg-brand-coral/10 px-3 py-2 text-sm text-brand-coral"
         >
           {rowError}
         </div>

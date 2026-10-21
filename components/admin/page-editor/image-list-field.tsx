@@ -51,7 +51,7 @@ function ImageThumb({
   if (!src || failed) {
     return (
       <div
-        className={`${boxClass} flex shrink-0 flex-col items-center justify-center gap-0.5 border border-classz-200 bg-white`}
+        className={`${boxClass} flex shrink-0 flex-col items-center justify-center gap-0.5 admin-frame-border bg-white`}
         style={CHECKER_STYLE}
       >
         <ImageIcon className={`${iconClass} text-classz-300`} />
@@ -65,7 +65,7 @@ function ImageThumb({
   }
   return (
     <div
-      className={`${boxClass} shrink-0 overflow-hidden border border-classz-200 bg-white`}
+      className={`${boxClass} shrink-0 overflow-hidden admin-frame-border bg-white`}
       style={CHECKER_STYLE}
     >
       <img
@@ -229,7 +229,7 @@ export function ImageListField({
           </span>
         </AdminLabel>
         <div className="flex items-center gap-1.5">
-          <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-classz-200 px-2 py-1 text-xs font-medium text-classz-700 hover:bg-classz-50">
+          <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg admin-frame-border px-2 py-1 text-xs font-medium text-classz-700 hover:bg-classz-50">
             {busy ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
@@ -255,7 +255,7 @@ export function ImageListField({
       </div>
 
       {images.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-classz-200 px-3 py-2 text-xs text-classz-600/80">
+        <p className="rounded-lg admin-frame-border border-dashed px-3 py-2 text-xs text-classz-600/80">
           No images. Upload a screenshot to add one.
         </p>
       ) : (
@@ -263,7 +263,7 @@ export function ImageListField({
           {images.map((image, index) => (
             <li
               key={index}
-              className="rounded-lg border border-classz-100 bg-classz-50/40 p-2"
+              className="rounded-lg admin-frame-border bg-classz-50/40 p-2"
             >
               <div className="flex items-start gap-2">
                 <ImageThumb

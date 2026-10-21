@@ -29,14 +29,14 @@ export function PreviewPane({
 
   return (
     <aside className="space-y-2 lg:sticky lg:top-0 lg:self-start">
-      <div className="overflow-hidden rounded-xl border border-classz-100 bg-white shadow-[0_1px_2px_rgba(10,186,181,0.06)]">
+      <div className="overflow-hidden rounded-xl admin-frame-border bg-white shadow-[0_1px_2px_rgba(10,186,181,0.06)]">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-classz-100 bg-classz-50/70 px-3 py-2">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-classz-600">
             <Eye className="h-3.5 w-3.5" aria-hidden />
             Preview
           </span>
           <span className="flex items-center gap-2">
-            <span className="rounded-full border border-classz-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-classz-700">
+            <span className="rounded-full admin-frame-border bg-white px-2 py-0.5 text-[10px] font-semibold text-classz-700">
               {languageLabel}
             </span>
             {publicPath ? (

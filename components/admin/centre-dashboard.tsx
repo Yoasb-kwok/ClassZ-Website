@@ -2,19 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import {
-  DollarSign,
-  Users,
-  UserPlus,
-  ClipboardCheck,
-  AlertCircle,
-  GraduationCap,
-  Plus,
-  X,
-  ListTodo,
-  GripHorizontal,
-  Pencil,
-} from "lucide-react"
+import { Plus, X, GripHorizontal, Pencil } from "lucide-react"
 import {
   Area,
   AreaChart,
@@ -41,6 +29,7 @@ import {
 import {
   CATALOG_GROUPS,
   DEFAULT_DASHBOARD_LAYOUT,
+  FIGMA_DASHBOARD_WIDGETS,
   GOAL_METRICS,
   GRID_COLS,
   GRID_GAP,
@@ -117,7 +106,6 @@ type ExtraData = {
 const ACCENT = "#0ABAB5"
 const ACCENT_MAGENTA = "#BF07D0"
 const ACCENT_ORANGE = "#FF8400"
-const ACCENT_CORAL = "#DB5461"
 const MUTED = "#717171"
 const MONTH_COUNT = 12
 const YEAR_LOOKBACK = 4
@@ -180,41 +168,36 @@ function goalMetricLabel(metric: GoalMetric, zh: boolean) {
   return zh ? map[metric][0] : map[metric][1]
 }
 
+function withFigmaPreset(layout: DashboardLayout): DashboardLayout {
+  if (layout.widgets.length) return layout
+  return { ...layout, widgets: FIGMA_DASHBOARD_WIDGETS.map((widget) => ({ ...widget })) }
+}
+
 function MetricCard({
   label,
   value,
   hint,
-  Icon,
   href,
   changePct,
   zh,
-  accent = ACCENT,
 }: {
   label: string
   value: string | number
   hint?: string
-  Icon: React.ComponentType<{ className?: string }>
   href?: string
   changePct?: number
   zh: boolean
-  accent?: string
 }) {
   const mom = formatMomChange(changePct, zh)
-  const momColor = mom.up === true ? ACCENT : mom.up === false ? ACCENT_CORAL : MUTED
+  const momColor = mom.up === true ? ACCENT : mom.up === false ? "#222222" : MUTED
   const inner = (
-    <AdminCard className="h-full hover:border-classz-200 transition-colors !p-3 flex flex-col justify-between">
-      <div className="flex items-start justify-between gap-1.5">
-        <p className="text-xs text-classz-600/80">{label}</p>
-        <div className="rounded-md bg-classz-50 p-1.5">
-          <Icon className="h-3.5 w-3.5" style={{ color: accent }} />
-        </div>
-      </div>
-      <p className="mt-2 text-xl font-bold tracking-tight text-classz-700 leading-none">{value}</p>
-      <div className="mt-2 flex items-end justify-between gap-2">
-        <p className="text-[11px] font-medium leading-tight" style={{ color: accent }}>{hint}</p>
+    <AdminCard className="flex h-full min-h-[144px] flex-col justify-between !p-4 shadow-[0_6px_8px_rgba(0,0,0,0.12)]">
+      <p className="text-sm tracking-wide text-[#222]">{label}</p>
+      <p className="text-lg font-semibold leading-none text-[#222]">{value}</p>
+      <div className="flex items-end justify-between gap-2">
+        <p className="text-sm font-semibold leading-tight text-[#222]">{hint}</p>
         {changePct != null ? (
-          <p className="text-[11px] font-semibold leading-tight text-right shrink-0" style={{ color: momColor }}>
-            {mom.up === true ? "↑ " : mom.up === false ? "↓ " : ""}
+          <p className="shrink-0 text-right text-sm font-semibold leading-tight" style={{ color: momColor }}>
             {mom.text}
           </p>
         ) : null}
@@ -240,7 +223,7 @@ function PeriodSelect({
     return Array.from({ length: YEAR_LOOKBACK + 1 }, (_, i) => now - i)
   }, [])
   const selectClass =
-    "rounded-lg border border-classz-100 bg-white px-2 py-1.5 text-xs text-classz-700 focus:border-classz-300 focus:outline-none focus:ring-1 focus:ring-classz-300/30"
+    "admin-frame-border rounded-lg bg-white px-3 py-1 text-sm text-[#222] focus:border-[#222] focus:outline-none"
   return (
     <div className="flex flex-wrap items-center gap-1.5 shrink-0">
       <select className={selectClass} value={month} onChange={(e) => onChange(year, Number(e.target.value))}>
@@ -358,12 +341,12 @@ export function CentreDashboard() {
     if (typeof window === "undefined") return
     try {
       const cached = window.localStorage.getItem(LAYOUT_STORAGE_KEY)
-      if (cached) setLayout(sanitizeDashboardLayout(JSON.parse(cached)))
+      if (cached) setLayout(withFigmaPreset(sanitizeDashboardLayout(JSON.parse(cached))))
     } catch { /* ignore */ }
     if (demo) return
     apiGet<DashboardLayout>("/dashboard/layout")
       .then((data) => {
-        const next = sanitizeDashboardLayout(data)
+        const next = withFigmaPreset(sanitizeDashboardLayout(data))
         setLayout(next)
         window.localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(next))
       })
@@ -705,16 +688,16 @@ export function CentreDashboard() {
 
   function renderBody(id: WidgetId) {
     if (id === "revenue") {
-      return <MetricCard label={zh ? "本月收入" : "Total Revenue"} value={`HK$${Number(k?.monthRevenue || 0).toLocaleString()}`} hint={period} Icon={DollarSign} href="/admin/payments" changePct={k?.monthRevenueChangePct} zh={zh} />
+      return <MetricCard label={zh ? "本月收入" : "Total Revenue"} value={`HK$${Number(k?.monthRevenue || 0).toLocaleString()}`} hint={period} href="/admin/payments" changePct={k?.monthRevenueChangePct} zh={zh} />
     }
     if (id === "outstanding") {
-      return <MetricCard label={zh ? "未付款項" : "Outstanding"} value={k?.outstandingPayments ?? 0} hint={zh ? "待付／失敗訂單" : "Unpaid / failed"} Icon={AlertCircle} href="/admin/payments" zh={zh} accent={ACCENT_ORANGE} />
+      return <MetricCard label={zh ? "未付款項" : "Outstanding"} value={k?.outstandingPayments ?? 0} hint={zh ? "待付／失敗訂單" : "Unpaid / failed"} href="/admin/payments" zh={zh} />
     }
     if (id === "students") {
-      return <MetricCard label={zh ? "活躍學員" : "Active Students"} value={k?.activeStudents ?? 0} hint={period} Icon={Users} href="/admin/students" changePct={k?.activeStudentsChangePct} zh={zh} />
+      return <MetricCard label={zh ? "活躍學員" : "Active Students"} value={k?.activeStudents ?? 0} hint={period} href="/admin/students" changePct={k?.activeStudentsChangePct} zh={zh} />
     }
     if (id === "teachers") {
-      return <MetricCard label={zh ? "導師人數" : "Teachers"} value={extra.teachers} hint={zh ? "中心導師" : "Centre teachers"} Icon={GraduationCap} href="/admin/teachers" zh={zh} />
+      return <MetricCard label={zh ? "導師人數" : "Teachers"} value={extra.teachers} hint={zh ? "中心導師" : "Centre teachers"} href="/admin/teachers" zh={zh} />
     }
     if (id === "attendance") {
       return (
@@ -722,22 +705,20 @@ export function CentreDashboard() {
           label={zh ? "本月出席" : "Attendance"}
           value={k && k.monthAttendanceScheduled > 0 ? `${k.monthAttendancePresent}/${k.monthAttendanceScheduled}` : "0"}
           hint={zh ? `出席率 ${attRate}%` : `${attRate}% rate`}
-          Icon={ClipboardCheck}
           href="/admin/attendance"
           changePct={k?.attendanceChangePct}
           zh={zh}
-          accent={ACCENT_ORANGE}
         />
       )
     }
     if (id === "utilization") {
-      return <MetricCard label={zh ? "導師使用率" : "Utilization"} value={`${utilRate}%`} hint={period} Icon={GraduationCap} href="/admin/schedule" zh={zh} />
+      return <MetricCard label={zh ? "導師使用率" : "Utilization"} value={`${utilRate}%`} hint={period} href="/admin/schedule" zh={zh} />
     }
     if (id === "leads") {
-      return <MetricCard label={zh ? "新 Leads" : "New Leads"} value={k?.newLeads ?? 0} hint={period} Icon={UserPlus} href="/admin/crm" changePct={k?.newLeadsChangePct} zh={zh} accent={ACCENT_MAGENTA} />
+      return <MetricCard label={zh ? "新 Leads" : "New Leads"} value={k?.newLeads ?? 0} hint={period} href="/admin/crm" changePct={k?.newLeadsChangePct} zh={zh} />
     }
     if (id === "trials_pending") {
-      return <MetricCard label={zh ? "待處理試堂" : "Pending trials"} value={extra.pendingTrials} hint={zh ? "試堂申請" : "Trial applications"} Icon={UserPlus} href="/admin/trials" zh={zh} accent={ACCENT_MAGENTA} />
+      return <MetricCard label={zh ? "待處理試堂" : "Pending trials"} value={extra.pendingTrials} hint={zh ? "試堂申請" : "Trial applications"} href="/admin/trials" zh={zh} />
     }
     if (id === "courses") {
       return (
@@ -803,7 +784,7 @@ export function CentreDashboard() {
       )
     }
     if (id === "waitlist") {
-      return <MetricCard label={zh ? "候補名單" : "Waitlist"} value={extra.waitlistCount} hint={zh ? "目前候補人數" : "People waiting"} Icon={ListTodo} href="/admin/crm" zh={zh} />
+      return <MetricCard label={zh ? "候補名單" : "Waitlist"} value={extra.waitlistCount} hint={zh ? "目前候補人數" : "People waiting"} href="/admin/crm" zh={zh} />
     }
     if (id === "overview") {
       return (
@@ -813,9 +794,9 @@ export function CentreDashboard() {
               <h2 className="text-sm font-semibold text-classz-700">{zh ? "營運概覽" : "Overview"}</h2>
               <p className="text-[11px] text-classz-600/65">{zh ? `${period} 每日課堂表現` : `Daily class performance for ${period}`}</p>
             </div>
-            <div className="flex rounded-lg bg-classz-50 p-0.5 border border-classz-100">
+            <div className="flex rounded-full bg-[#ebebeb] p-1">
               {([{ id: "enrolled" as const, labelZh: "報名人數", labelEn: "Enrolled" }, { id: "classes" as const, labelZh: "課堂數", labelEn: "Classes" }] as const).map((tab) => (
-                <button key={tab.id} type="button" onClick={() => setChartTab(tab.id)} className={`px-2.5 py-1 text-[11px] font-medium rounded-md ${chartTab === tab.id ? "bg-white text-classz-700 shadow-sm" : "text-classz-600/70"}`}>
+                <button key={tab.id} type="button" onClick={() => setChartTab(tab.id)} className={`rounded-full px-3 py-1.5 text-sm font-semibold ${chartTab === tab.id ? "bg-white text-[#222] shadow-[0_6px_8.5px_rgba(0,0,0,0.08)]" : "text-[#222]"}`}>
                   {zh ? tab.labelZh : tab.labelEn}
                 </button>
               ))}
@@ -844,9 +825,9 @@ export function CentreDashboard() {
     if (id === "mix") {
       return (
         <AdminCard className="h-full !p-3 overflow-auto">
-          <div className="flex items-baseline justify-between mb-1">
-            <h2 className="text-sm font-semibold text-classz-700">{zh ? "營運組成" : "Ops mix"}</h2>
-            <p className="text-[11px] text-classz-600/65">{period}</p>
+          <div className="mb-1 flex items-baseline justify-between">
+            <h2 className="text-lg font-semibold text-[#222]">{zh ? "營運組成" : "Ops mix"}</h2>
+            <p className="text-sm text-[#222]">{period}</p>
           </div>
           <div className="h-28 relative">
             <ResponsiveContainer width="100%" height="100%">
@@ -897,7 +878,7 @@ export function CentreDashboard() {
                   </div>
                   <div className="flex items-center gap-2 mb-1">
                     <select
-                      className="flex-1 rounded-md border border-classz-100 px-2 py-1 text-[11px]"
+                      className="flex-1 rounded-md admin-frame-border px-2 py-1 text-[11px]"
                       value={g.metric}
                       onChange={(e) => {
                         const metric = e.target.value as GoalMetric
@@ -917,7 +898,7 @@ export function CentreDashboard() {
                       type="number"
                       min={1}
                       max={goalIsPercent(g.metric) ? 100 : undefined}
-                      className="w-16 rounded-md border border-classz-100 px-2 py-1 text-[11px]"
+                      className="w-16 rounded-md admin-frame-border px-2 py-1 text-[11px]"
                       value={g.target}
                       onChange={(e) => {
                         const target = Number(e.target.value)
@@ -933,8 +914,8 @@ export function CentreDashboard() {
                       {zh ? "刪" : "Del"}
                     </button>
                   </div>
-                  <div className="h-1.5 rounded-full bg-classz-50 overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: met ? ACCENT : `linear-gradient(90deg, ${ACCENT_ORANGE}, ${ACCENT})` }} />
+                  <div className="h-1.5 overflow-hidden rounded-full bg-[#ebebeb]">
+                    <div className="h-full rounded-full bg-brand-teal transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               )
@@ -950,8 +931,7 @@ export function CentreDashboard() {
                 persistLayout({ ...layout, goals: [...layout.goals, row] })
               }}
             >
-              <Plus className="h-3 w-3" />
-              {zh ? "新增目標" : "Add goal"}
+              {zh ? "+ 新增目標" : "+ Add goal"}
             </button>
           ) : null}
         </AdminCard>
@@ -981,10 +961,13 @@ export function CentreDashboard() {
     }
     if (id === "conversion") {
       return (
-        <AdminCard className="h-full !p-3">
-          <h2 className="text-sm font-semibold text-classz-700 mb-2">{zh ? "試堂轉換" : "Trial conversion"}</h2>
-          <p className="text-2xl font-bold text-classz-700">{extra.conversionRate}%</p>
-          <p className="mt-1 text-[11px] text-classz-500">
+        <AdminCard className="flex h-full flex-col justify-between !p-4 shadow-[0_6px_8px_rgba(0,0,0,0.12)]">
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="text-lg font-semibold text-[#222]">{zh ? "試堂轉換" : "Trial conversion"}</h2>
+            <p className="text-sm text-[#222]">{period}</p>
+          </div>
+          <p className="text-lg font-semibold text-[#222]">{extra.conversionRate}%</p>
+          <p className="text-sm font-semibold text-brand-teal">
             {zh ? `${extra.trialCount} 宗試堂 → ${extra.enrollmentCount} 報名` : `${extra.trialCount} trials → ${extra.enrollmentCount} enrolments`}
           </p>
         </AdminCard>
@@ -1139,8 +1122,7 @@ export function CentreDashboard() {
                   {zh ? "編輯版面" : "Edit layout"}
                 </AdminGhostButton>
               ) : null}
-              <AdminPrimaryButton size="sm" onClick={openPicker}>
-                <Plus className="h-3.5 w-3.5" />
+              <AdminPrimaryButton size="sm" onClick={openPicker} className="!rounded-lg !bg-[#222] hover:!brightness-125">
                 {zh ? "新增" : "Add"}
               </AdminPrimaryButton>
             </>
@@ -1155,7 +1137,7 @@ export function CentreDashboard() {
       ) : null}
 
       {customizing && layout.widgets.length ? (
-        <div className="sticky top-2 z-30 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-brand-teal/40 bg-white px-3 py-2 shadow-sm">
+        <div className="sticky top-2 z-30 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-brand-teal/40 bg-white px-3 py-2 shadow-sm">
           <p className="text-xs sm:text-sm text-classz-700">
             {zh ? "拖曳頂部移動位置，拉右下角改大小，排好後按完成。" : "Drag the top to move, pull the corner to resize, then tap Done."}
           </p>
@@ -1174,7 +1156,7 @@ export function CentreDashboard() {
         <button
           type="button"
           onClick={openPicker}
-          className="flex min-h-[280px] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-classz-200 bg-white/70 text-classz-600 hover:border-classz-300 hover:text-classz-700"
+          className="flex min-h-[280px] w-full flex-col items-center justify-center gap-3 rounded-2xl admin-frame-border border-dashed bg-white/70 text-classz-600 hover:border-classz-300 hover:text-classz-700"
         >
           <Plus className="h-8 w-8 text-classz-400" />
           <span className="text-sm font-medium">{zh ? "Dashboard 是空白的 — 點擊新增模塊" : "Dashboard is empty — add a module"}</span>
@@ -1206,7 +1188,7 @@ export function CentreDashboard() {
                   onPointerDown={(e) => startMove(e, widget)}
                   title={zh ? "拖曳移動位置" : "Drag to move"}
                 >
-                  <span className="flex h-5 w-12 items-center justify-center rounded-full bg-white/90 shadow-sm border border-classz-100 opacity-70 group-hover:opacity-100">
+                  <span className="flex h-5 w-12 items-center justify-center rounded-full bg-white/90 shadow-sm admin-frame-border opacity-70 group-hover:opacity-100">
                     <GripHorizontal className="h-3.5 w-3.5" />
                   </span>
                 </div>
@@ -1214,7 +1196,7 @@ export function CentreDashboard() {
               {customizing ? (
                 <button
                   type="button"
-                  className="absolute top-1.5 right-1.5 z-10 rounded-md bg-white/90 p-1 text-classz-500 shadow-sm border border-classz-100"
+                  className="absolute top-1.5 right-1.5 z-10 rounded-md bg-white/90 p-1 text-classz-500 shadow-sm admin-frame-border"
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={() => removeWidget(widget.id)}
                   aria-label={zh ? "移除" : "Remove"}
@@ -1248,7 +1230,7 @@ export function CentreDashboard() {
           <>
             <button
               type="button"
-              className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md border border-classz-200"
+              className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md admin-frame-border"
               onClick={cancelPicker}
             >
               {zh ? "取消" : "Cancel"}
@@ -1274,7 +1256,7 @@ export function CentreDashboard() {
                       key={item.id}
                       type="button"
                       onClick={() => addWidget(item.id)}
-                      className={`text-left rounded-xl border px-3 py-2.5 ${added ? "border-brand-teal bg-[color-mix(in_srgb,var(--brand-teal)_8%,white)]" : "border-classz-100 bg-white hover:border-classz-300"}`}
+                      className={`text-left rounded-xl border-2 px-3 py-2.5 ${added ? "border-brand-teal bg-[color-mix(in_srgb,var(--brand-teal)_8%,white)]" : "border-admin-frame bg-white hover:border-classz-300"}`}
                     >
                       <p className="text-sm font-semibold text-classz-700">{zh ? item.labelZh : item.labelEn}</p>
                       <p className="text-[11px] text-classz-500 mt-0.5">{zh ? item.descZh : item.descEn}</p>

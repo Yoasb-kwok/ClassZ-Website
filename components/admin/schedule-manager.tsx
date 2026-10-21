@@ -170,10 +170,10 @@ function SessionListWithTabs({
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-md border-2 px-3 py-1.5 text-sm font-medium transition-colors ${
               tab === t.id
                 ? "border-brand-teal bg-[color-mix(in_srgb,var(--brand-teal)_14%,white)] text-brand-teal"
-                : "border-classz-200 bg-white text-classz-700 hover:bg-classz-50"
+                : "border-admin-frame bg-white text-classz-700 hover:bg-classz-50"
             }`}
           >
             {t.label}
@@ -725,7 +725,7 @@ export function ScheduleManager() {
           />
         </div>
 
-        <div className="flex w-full sm:w-auto rounded-lg border border-classz-200 overflow-hidden bg-white">
+        <div className="flex w-full sm:w-auto rounded-lg admin-frame-border overflow-hidden bg-white">
           {(
             [
               ["month", zh ? "月" : "Month"],
@@ -750,7 +750,7 @@ export function ScheduleManager() {
           type="button"
           onClick={syncHkHolidays}
           disabled={syncingHolidays}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-classz-200 bg-white text-classz-700 hover:bg-classz-50 disabled:opacity-60 shrink-0 min-h-[2.75rem]"
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md admin-frame-border bg-white text-classz-700 hover:bg-classz-50 disabled:opacity-60 shrink-0 min-h-[2.75rem]"
         >
           <RefreshCw className={`h-4 w-4 ${syncingHolidays ? "animate-spin" : ""}`} />
           {syncingHolidays ? (zh ? "同步中…" : "Syncing…") : zh ? "同步香港假期" : "Sync HK holidays"}
@@ -761,7 +761,7 @@ export function ScheduleManager() {
           data-testid="schedule-bulk-open"
           disabled={selectedSessions.length === 0}
           onClick={() => setBulkOpen(true)}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md border border-classz-200 bg-white text-classz-700 hover:bg-classz-50 disabled:opacity-50 shrink-0 min-h-[2.75rem]"
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md admin-frame-border bg-white text-classz-700 hover:bg-classz-50 disabled:opacity-50 shrink-0 min-h-[2.75rem]"
         >
           {t("classzAdmin.schedule.bulkAction")}
           {selectedSessions.length > 0
@@ -838,7 +838,7 @@ export function ScheduleManager() {
         size="lg"
         footer={
           <>
-            <button type="button" className="px-4 py-2.5 text-base rounded-md border border-classz-200 text-classz-700" onClick={() => setModal(null)}>
+            <button type="button" className="px-4 py-2.5 text-base rounded-md admin-frame-border text-classz-700" onClick={() => setModal(null)}>
               {zh ? "取消" : "Cancel"}
             </button>
             <AdminPrimaryButton type="button" data-testid="schedule-save" disabled={saving || checking || saveBlocked} onClick={onSaveClick}>
@@ -891,7 +891,7 @@ export function ScheduleManager() {
             </div>
             <div>
               <AdminLabel>{zh ? "日曆顏色" : "Calendar color"}</AdminLabel>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 rounded-lg border border-classz-100 bg-classz-50/40 p-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 rounded-lg admin-frame-border bg-classz-50/40 p-2">
                 {CALENDAR_COLOR_OPTIONS.map((hex) => {
                   const active = form.calendar_color === hex
                   return (
@@ -899,8 +899,8 @@ export function ScheduleManager() {
                       key={hex}
                       type="button"
                       onClick={() => setForm((f) => ({ ...f, calendar_color: hex }))}
-                      className={`group flex h-10 items-center justify-center rounded-lg border transition-all ${
-                        active ? "border-brand-slate bg-white shadow-sm scale-[1.03]" : "border-white/70 bg-white/80 hover:border-classz-200"
+                      className={`group flex h-10 items-center justify-center rounded-lg border-2 transition-all ${
+                        active ? "border-brand-slate bg-white shadow-sm scale-[1.03]" : "border-white/70 bg-white/80 hover:border-admin-frame"
                       }`}
                       title={hex}
                       aria-label={`${zh ? "選擇顏色" : "Choose color"} ${hex}`}
@@ -945,12 +945,12 @@ export function ScheduleManager() {
               )}
             </div>
             <div className="flex items-end">
-              <div className="w-full rounded-lg border border-classz-100 bg-white px-3 py-2.5">
+              <div className="w-full rounded-lg admin-frame-border bg-white px-3 py-2.5">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-slate/55 mb-1">
                   {zh ? "預覽" : "Preview"}
                 </p>
                 <div
-                  className="rounded-md border px-2 py-1.5 text-sm font-medium"
+                  className="rounded-md border-2 px-2 py-1.5 text-sm font-medium"
                   style={{
                     borderColor: form.calendar_color,
                     borderLeftWidth: 4,

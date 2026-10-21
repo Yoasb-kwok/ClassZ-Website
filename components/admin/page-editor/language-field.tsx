@@ -40,7 +40,7 @@ export function LanguageTabs({
     <div
       role="group"
       aria-label="Content language"
-      className={`inline-flex shrink-0 items-center gap-0.5 rounded-lg border border-classz-100 bg-classz-50/60 p-0.5 ${className}`.trim()}
+      className={`inline-flex shrink-0 items-center gap-0.5 rounded-lg admin-frame-border bg-classz-50/60 p-0.5 ${className}`.trim()}
     >
       {LANGUAGES.map((option) => {
         const active = option.id === language;

@@ -545,7 +545,7 @@ export function AddElementPicker({
   const zh = locale === "zh-TW";
 
   return (
-    <div className="rounded-xl border border-dashed border-classz-200 bg-classz-50/40 p-3">
+    <div className="rounded-xl admin-frame-border border-dashed bg-classz-50/40 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm font-medium text-classz-700">
@@ -575,7 +575,7 @@ export function AddElementPicker({
                 key={type}
                 type="button"
                 onClick={() => onPick(type)}
-                className="rounded-lg border border-classz-100 bg-white p-3 text-left transition-colors hover:border-brand-teal hover:bg-[color-mix(in_srgb,var(--brand-teal)_5%,white)]"
+                className="rounded-lg admin-frame-border bg-white p-3 text-left transition-colors hover:border-brand-teal hover:bg-[color-mix(in_srgb,var(--brand-teal)_5%,white)]"
               >
                 <AdminStatusChip tone={meta.tone}>
                   {zh ? meta.labelZh : meta.label}

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LogOut, Menu, X, PanelLeft, Search, Bell, Plus } from "lucide-react"
+import { LogOut, Menu, X, PanelLeft, Search, Bell } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { clearClasszSession, getClasszSession, readCachedModules, writeCachedModules } from "@/lib/classz-auth"
 import { useLanguage } from "@/components/language-provider"
@@ -175,31 +175,31 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={zh ? "搜尋…" : "Search…"}
-              className="w-full rounded-lg border border-classz-100 bg-classz-50/50 py-1.5 pl-8 pr-2.5 text-sm text-brand-slate placeholder:text-brand-slate/40 focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-teal/30"
+              placeholder={zh ? "搜尋" : "Search"}
+              className="admin-frame-border w-full rounded-lg bg-white py-2 pl-8 pr-2.5 text-base text-[#222] placeholder:text-[#b0b0b0] focus:border-[#222] focus:outline-none"
             />
           </div>
 
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
             <div
-              className="inline-flex items-center rounded-lg border border-classz-200 bg-white p-0.5"
+              className="inline-flex items-center rounded-full bg-[#ebebeb] p-1"
               role="group"
               aria-label={zh ? "介面語言" : "Interface language"}
             >
               <button
                 type="button"
-                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                  locale === "en" ? "bg-brand-teal text-white" : "text-brand-slate hover:bg-classz-50"
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold text-[#222] transition-colors ${
+                  locale === "en" ? "bg-white shadow-[0_6px_8.5px_rgba(0,0,0,0.08)]" : ""
                 }`}
                 onClick={() => setLocale("en")}
                 aria-pressed={locale === "en"}
               >
-                EN
+                En
               </button>
               <button
                 type="button"
-                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                  locale === "zh-TW" ? "bg-brand-teal text-white" : "text-brand-slate hover:bg-classz-50"
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold text-[#222] transition-colors ${
+                  locale === "zh-TW" ? "bg-white shadow-[0_6px_8.5px_rgba(0,0,0,0.08)]" : ""
                 }`}
                 onClick={() => setLocale("zh-TW")}
                 aria-pressed={locale === "zh-TW"}
@@ -209,9 +209,8 @@ export function ClasszAdminShell({ children }: { children: React.ReactNode }) {
             </div>
             <Link
               href="/admin/trials"
-              className="hidden items-center gap-1 rounded-lg bg-brand-teal px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:brightness-110 md:inline-flex"
+              className="hidden items-center rounded-full bg-white px-3 py-2 text-sm font-semibold text-[#222] shadow-[0_6px_8.5px_rgba(0,0,0,0.15)] md:inline-flex"
             >
-              <Plus className="h-3.5 w-3.5" />
               {zh ? "新增報名" : "New booking"}
             </Link>
             <button

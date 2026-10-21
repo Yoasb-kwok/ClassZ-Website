@@ -366,7 +366,7 @@ export function StudentsManager() {
       return <p className="text-sm text-classz-500 px-2 py-3">{zh ? "尚未加入學員" : "No students yet"}</p>
     }
     return (
-      <div className="overflow-x-auto rounded-md border border-classz-100 bg-white">
+      <div className="overflow-x-auto rounded-md admin-frame-border bg-white">
         <table className="min-w-full text-sm">
           <thead className="bg-classz-50 text-classz-600">
             <tr>
@@ -451,7 +451,7 @@ export function StudentsManager() {
                     <p className="text-xs font-medium text-classz-500 mb-2">
                       {zh ? `副帳戶（${subs.length}）` : `Sub accounts (${subs.length})`}
                     </p>
-                    <div className="overflow-x-auto rounded-md border border-classz-100">
+                    <div className="overflow-x-auto rounded-md admin-frame-border">
                       <AdminTable>
                         <tbody className="divide-y divide-classz-100">
                           {subs.map((sub) => (
@@ -597,8 +597,8 @@ export function StudentsManager() {
                   key={k}
                   type="button"
                   onClick={() => setTab(k)}
-                  className={`px-3 py-1.5 text-xs rounded-md border ${
-                    tab === k ? "bg-classz-100 border-classz-400" : "border-classz-200"
+                  className={`px-3 py-1.5 text-xs rounded-md border-2 ${
+                    tab === k ? "bg-classz-100 border-classz-400" : "border-admin-frame"
                   }`}
                 >
                   {label}
@@ -626,7 +626,7 @@ export function StudentsManager() {
                 <div className="space-y-3">
                   <p className="text-sm font-medium text-classz-700">{zh ? "學員資料" : "Students"}</p>
                   {editKids.map((kid, idx) => (
-                    <div key={String(kid.id)} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded-md border border-classz-100 p-3">
+                    <div key={String(kid.id)} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded-md admin-frame-border p-3">
                       <div>
                         <AdminLabel>{zh ? "學生姓名" : "Name"}</AdminLabel>
                         <AdminInput
@@ -670,7 +670,7 @@ export function StudentsManager() {
                       </div>
                     </div>
                   ))}
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded-md border border-dashed border-classz-200 p-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 rounded-md admin-frame-border border-dashed p-3">
                     <div>
                       <AdminLabel>{zh ? "新增學員姓名" : "New student name"}</AdminLabel>
                       <AdminInput
@@ -718,7 +718,7 @@ export function StudentsManager() {
             {tab === "history" ? (
               <ul className="space-y-2 max-h-80 overflow-y-auto text-sm">
                 {timeline.map((e, i) => (
-                  <li key={i} className="border border-classz-100 rounded-md px-3 py-2">
+                  <li key={i} className="admin-frame-border rounded-md px-3 py-2">
                     <span className="text-xs text-classz-400 uppercase">{e.type}</span>
                     <p className="font-medium">{e.title}</p>
                     <p className="text-classz-500">
@@ -761,7 +761,7 @@ export function StudentsManager() {
                 </AdminPrimaryButton>
                 <ul className="space-y-2 text-sm max-h-48 overflow-y-auto">
                   {notes.map((n) => (
-                    <li key={n.id} className="border border-classz-100 rounded px-3 py-2">
+                    <li key={n.id} className="admin-frame-border rounded px-3 py-2">
                       <p>{n.body}</p>
                       <p className="text-xs text-classz-400 mt-1">{new Date(n.created_at).toLocaleString()}</p>
                     </li>
@@ -832,7 +832,7 @@ export function StudentsManager() {
             <p className="text-sm text-classz-700">
               {zh ? "學員帳戶已建立。請把臨時密碼交給家長，登入後可自行更改。" : "Account created. Share this temporary password with the parent."}
             </p>
-            <p className="font-mono text-base bg-classz-50 border border-classz-100 rounded-md px-3 py-2 select-all">
+            <p className="font-mono text-base bg-classz-50 admin-frame-border rounded-md px-3 py-2 select-all">
               {createdPassword}
             </p>
           </div>

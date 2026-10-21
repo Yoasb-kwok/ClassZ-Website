@@ -477,7 +477,7 @@ export function PageEditor({ pageKey }: { pageKey: PageEditorKey }) {
         <AdminCard>
           <p
             role="alert"
-            className="rounded-md border border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] px-3 py-2 text-sm text-brand-coral"
+            className="rounded-md border-2 border-[color-mix(in_srgb,var(--brand-coral)_35%,white)] bg-[color-mix(in_srgb,var(--brand-coral)_10%,white)] px-3 py-2 text-sm text-brand-coral"
           >
             {loadError}
           </p>
@@ -509,7 +509,7 @@ export function PageEditor({ pageKey }: { pageKey: PageEditorKey }) {
       </AdminCard>
 
       {missingPage ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)] px-3 py-2 text-xs leading-snug text-classz-700">
+        <div className="rounded-md border-2 border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)] px-3 py-2 text-xs leading-snug text-classz-700">
           {zh
             ? "此頁尚未有內容紀錄，儲存後會建立。"
             : "No stored content for this page yet — saving will create it."}
@@ -564,7 +564,7 @@ export function PageEditor({ pageKey }: { pageKey: PageEditorKey }) {
           )}
 
           {meta.itemMode === "faq" ? (
-            <div className="rounded-lg border border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)] px-3 py-2 text-xs leading-snug text-classz-700">
+            <div className="rounded-lg border-2 border-[color-mix(in_srgb,var(--brand-orange)_35%,white)] bg-[color-mix(in_srgb,var(--brand-orange)_8%,white)] px-3 py-2 text-xs leading-snug text-classz-700">
               {zh
                 ? "排序慣例：display_order 小於 100 會出現在「家長」分頁，100 或以上會出現在「中心」分頁。用 ↑↓ 調整次序。"
                 : "Ordering convention: display_order below 100 appears in the “Parents” tab, 100 and above in the “Centres” tab. Use ↑↓ to change it."}
@@ -572,13 +572,13 @@ export function PageEditor({ pageKey }: { pageKey: PageEditorKey }) {
           ) : null}
 
           {meta.mode === "blocks" && blocks.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-classz-200 px-4 py-6 text-center text-sm text-classz-600/80">
+            <p className="rounded-xl admin-frame-border border-dashed px-4 py-6 text-center text-sm text-classz-600/80">
               {zh ? "此頁還沒有元素，請從下方新增。" : "This page has no elements yet — add one below."}
             </p>
           ) : null}
 
           {meta.mode === "items" && rows.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-classz-200 px-4 py-6 text-center text-sm text-classz-600/80">
+            <p className="rounded-xl admin-frame-border border-dashed px-4 py-6 text-center text-sm text-classz-600/80">
               {zh ? "暫時沒有項目。" : "No elements yet."}
             </p>
           ) : null}
@@ -683,7 +683,7 @@ export function PageEditor({ pageKey }: { pageKey: PageEditorKey }) {
               }}
             />
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed border-classz-200 bg-classz-50/40 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl admin-frame-border border-dashed bg-classz-50/40 p-3">
               <p className="text-xs leading-snug text-classz-600/80">
                 {zh ? "新增的項目會即時建立，儲存後才生效。" : "A new element is created immediately and saves on its own."}
               </p>

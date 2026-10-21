@@ -102,7 +102,7 @@ export function NoticesManager() {
 
       <AdminCard>
         <h2 className="text-lg font-semibold text-classz-700 mb-4">{zh ? "通知列表" : "Notices"}</h2>
-        <ul className="divide-y divide-classz-100 border border-classz-200 rounded-lg overflow-hidden bg-white">
+        <ul className="divide-y divide-classz-100 admin-frame-border rounded-lg overflow-hidden bg-white">
           {store.classNotices.map((n) => (
             <li key={n.id} className="px-4 py-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 bg-classz-50/30">
               <div className="flex-1 min-w-0">
@@ -123,7 +123,7 @@ export function NoticesManager() {
                     </AdminPrimaryButton>
                     <button
                       type="button"
-                      className="px-4 py-2.5 text-base rounded-md border border-classz-300 text-classz-700 hover:bg-classz-50"
+                      className="px-4 py-2.5 text-base rounded-md border-2 border-classz-300 text-classz-700 hover:bg-classz-50"
                       onClick={() => setEditing(null)}
                     >
                       {zh ? "取消" : "Cancel"}

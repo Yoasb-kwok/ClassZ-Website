@@ -26,7 +26,6 @@ import {
   latestNextFocus,
   learningRecordDraftKey,
   loadLearningRecordDraft,
-  QUESTIONS,
   saveLearningRecordDraft,
   validateVersion2Form,
   type Version2LearningRecordForm,
@@ -36,7 +35,6 @@ import type { LearningRecordStudent } from "@/components/admin/learning-record-s
 import {
   AdminCard,
   AdminGhostButton,
-  AdminLabel,
   AdminPageFrame,
   AdminPageHeader,
   AdminPrimaryButton,
@@ -45,6 +43,17 @@ import {
 } from "@/components/classz-admin-ui"
 
 const MIN_RECORDS_FOR_REPORT = 3
+
+function ageFromDob(dob?: string | null): number | null {
+  if (!dob) return null
+  const born = new Date(dob)
+  if (Number.isNaN(born.getTime())) return null
+  const now = new Date()
+  let age = now.getFullYear() - born.getFullYear()
+  const monthDelta = now.getMonth() - born.getMonth()
+  if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < born.getDate())) age -= 1
+  return age >= 0 && age < 30 ? age : null
+}
 
 export function TeacherFillLearningRecord() {
   const params = useParams()
@@ -223,27 +232,36 @@ export function TeacherFillLearningRecord() {
   }
 
   const photoSrc = resolveUploadUrl(form.photo_url)
+  const age = ageFromDob(student.date_of_birth)
+  const selectedEnrollment =
+    student.enrollments.find((row) => String(row.class_id) === form.class_id) || student.enrollments[0] || null
+  const initials = student.child_name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("")
 
   return (
     <AdminPageFrame>
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2">
         <Link
           href={listPath}
-          className="inline-flex items-center gap-1 text-sm text-brand-slate/70 hover:text-brand-teal"
+          className="inline-flex items-center gap-1 text-sm text-[#222] hover:text-brand-teal"
         >
           <ArrowLeft className="h-4 w-4" />
-          {zh ? "學員列表" : "Students"}
+          {zh ? "學員列表" : "Student list"}
         </Link>
       </div>
       <AdminPageHeader
         title={
           editingRecordId
             ? zh
-              ? `編輯 Learning Record #${editingRecordId} — ${student.child_name}`
-              : `Edit Learning Record #${editingRecordId} — ${student.child_name}`
+              ? `編輯 Learning Record — ${student.child_name}`
+              : `Edit Learning Record — ${student.child_name}`
             : zh
               ? `填寫 Learning Record — ${student.child_name}`
-              : `Fill Learning Record — ${student.child_name}`
+              : `Learning Record — ${student.child_name}`
         }
         description={
           zh
@@ -252,25 +270,48 @@ export function TeacherFillLearningRecord() {
         }
       />
 
-      <AdminCard className="mb-3">
-        <div className="flex flex-wrap items-start gap-2 text-sm text-brand-slate">
-          <AdminStatusChip tone={student.record_count >= MIN_RECORDS_FOR_REPORT ? "teal" : "orange"}>
-            {student.record_count}/{MIN_RECORDS_FOR_REPORT}+ {zh ? "紀錄" : "records"}
-          </AdminStatusChip>
-          <span className="text-sm">{zh ? `家長：${student.parent_name}` : `Parent: ${student.parent_name}`}</span>
-          <span className="text-sm">{student.contact_number}</span>
-          {student.enrollments.map((e) => (
-            <span key={e.enrollment_id} className="text-xs text-brand-slate/65">
-              {e.class_name}
-            </span>
-          ))}
-        </div>
-      </AdminCard>
+      <div className="grid gap-3 md:grid-cols-2">
+        <AdminCard>
+          <p className="text-sm font-semibold text-[#222]">{zh ? "小朋友資料" : "Child information"}</p>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ebebeb] text-sm font-semibold text-[#222]">
+              {initials || "?"}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-[#222]">{student.child_name}</p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {age != null ? (
+                  <AdminStatusChip tone="teal">{zh ? `${age} 歲` : `Age ${age}`}</AdminStatusChip>
+                ) : null}
+                {student.grade ? <AdminStatusChip tone="slate">{student.grade}</AdminStatusChip> : null}
+              </div>
+            </div>
+          </div>
+        </AdminCard>
+        <AdminCard>
+          <p className="text-sm font-semibold text-[#222]">{zh ? "家長資料" : "Parents information"}</p>
+          <div className="mt-3">
+            <p className="text-sm font-semibold text-[#222]">{student.parent_name || "—"}</p>
+            <p className="mt-1 text-sm text-[#525252]">{student.contact_number || "—"}</p>
+            <p className="mt-2 text-xs text-[#717171]">
+              {student.record_count}/{MIN_RECORDS_FOR_REPORT}+ {zh ? "紀錄" : "records"}
+            </p>
+          </div>
+        </AdminCard>
+      </div>
 
       <AdminCard>
-        <div className="space-y-4">
-          <div>
-            <AdminLabel>{zh ? "課堂" : "Class session"}</AdminLabel>
+        <p className="text-sm font-semibold text-[#222]">{zh ? "課堂資料" : "Class information"}</p>
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+          {photoSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photoSrc} alt="" className="h-24 w-full rounded-lg object-cover sm:w-40" />
+          ) : (
+            <div className="flex h-24 w-full items-center justify-center rounded-lg bg-[#f5f5f5] text-xs text-[#717171] sm:w-40">
+              {zh ? "未有課堂圖片" : "No class photo yet"}
+            </div>
+          )}
+          <div className="min-w-0 flex-1 space-y-2">
             <AdminSelect
               value={form.class_id}
               disabled={Boolean(editingRecordId)}
@@ -297,59 +338,72 @@ export function TeacherFillLearningRecord() {
                 </option>
               ) : null}
             </AdminSelect>
-          </div>
-
-          <Version2LearningRecordFields form={form} onChange={setForm} />
-
-          <div>
-            <AdminLabel>{zh ? "照片（選填）" : "Photo (optional)"}</AdminLabel>
-            <div className="flex items-center gap-3 mt-1">
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-classz-200 text-sm hover:bg-classz-50"
-              >
-                <Camera className="h-4 w-4" />
-                {zh ? "上傳" : "Upload"}
-              </button>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPhotoChange} />
-              {photoSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={photoSrc} alt="" className="h-14 w-14 rounded-md object-cover border border-classz-100" />
-              ) : null}
-            </div>
-          </div>
-
-          <p className="text-xs text-brand-slate/60">
-            {zh ? QUESTIONS.confirmation.zh : QUESTIONS.confirmation.en}
-          </p>
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            <AdminGhostButton type="button" disabled={saving} onClick={() => submit(false)}>
-              {editingRecordId
-                ? zh
-                  ? "更新為草稿"
-                  : "Update as draft"
+            <p className="text-sm text-[#525252]">
+              {selectedEnrollment?.class_start_time
+                ? new Date(selectedEnrollment.class_start_time).toLocaleString(zh ? "zh-HK" : "en-HK", {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                 : zh
-                  ? "儲存草稿"
-                  : "Save draft"}
-            </AdminGhostButton>
-            <AdminPrimaryButton type="button" disabled={saving} onClick={() => submit(true)}>
-              {saving
-                ? zh
-                  ? "儲存中…"
-                  : "Saving…"
-                : editingRecordId
-                  ? zh
-                    ? "確認並更新"
-                    : "Confirm & update"
-                  : zh
-                    ? "確認並儲存"
-                    : "Confirm & save"}
-            </AdminPrimaryButton>
+                  ? "時間未提供"
+                  : "Time not on file"}
+            </p>
+            <p className="text-xs text-[#717171]">{student.child_name}</p>
           </div>
         </div>
       </AdminCard>
+
+      <div className="space-y-4">
+        <h2 className="text-base font-semibold text-[#222]">{zh ? "回饋紀錄" : "Feedback Record"}</h2>
+        <Version2LearningRecordFields form={form} onChange={setForm} />
+
+        <div className="space-y-2">
+          <p className="text-sm font-semibold text-brand-teal">{zh ? "加入照片" : "Add a Moment"}</p>
+          <p className="text-xs text-[#717171]">
+            {zh ? "可選。課堂或小朋友參與時的照片。" : "Optional photo from the lesson."}
+          </p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="admin-frame-border inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm text-[#222] hover:bg-[#f7f7f7]"
+            >
+              <Camera className="h-4 w-4" />
+              {zh ? "加入照片" : "Add photo"}
+            </button>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPhotoChange} />
+            {photoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photoSrc} alt="" className="admin-frame-border h-14 w-14 rounded-md object-cover" />
+            ) : null}
+          </div>
+        </div>
+
+        <p className="text-center text-xs text-[#717171]">
+          {zh
+            ? "提交即確認呢份紀錄係根據你今堂對呢位小朋友嘅直接觀察。"
+            : "By submitting, you confirm that this record is based on your direct observation of this child during the lesson."}
+        </p>
+
+        <AdminGhostButton type="button" disabled={saving} onClick={() => submit(false)} className="w-full justify-center">
+          {editingRecordId ? (zh ? "更新為草稿" : "Update as draft") : zh ? "儲存草稿" : "Save draft"}
+        </AdminGhostButton>
+        <AdminPrimaryButton type="button" disabled={saving} onClick={() => submit(true)} className="w-full justify-center rounded-lg">
+          {saving
+            ? zh
+              ? "儲存中…"
+              : "Saving…"
+            : editingRecordId
+              ? zh
+                ? "確認並更新"
+                : "Confirm and update record"
+              : zh
+                ? "確認並提交"
+                : "Confirm and submit record"}
+        </AdminPrimaryButton>
+      </div>
 
       {history.length ? (
         <AdminCard className="mt-3">

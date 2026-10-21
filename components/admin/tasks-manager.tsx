@@ -295,14 +295,14 @@ export function TasksManager() {
           {(["todo", "in_progress", "done"] as TaskStatus[]).map((col) => {
             const tone = statusTone(col)
             return (
-            <div key={col} className={`rounded-lg border min-h-[12rem] ${brandTonePanel(tone)}`}>
+            <div key={col} className={`rounded-lg border-2 min-h-[12rem] ${brandTonePanel(tone)}`}>
               <div className={`mb-0 h-0.5 w-full rounded-t-lg ${brandToneBar(tone)}`} />
               <div className="px-3 py-2 border-b border-black/5 text-sm font-semibold text-brand-slate">
                 {statusLabel(col, zh)} ({grouped[col].length})
               </div>
               <ul className="p-2 space-y-2">
                 {grouped[col].map((t) => (
-                  <li key={t.id} className="rounded-md border border-white/80 bg-white p-3 shadow-sm">
+                  <li key={t.id} className="rounded-md border-2 border-white/80 bg-white p-3 shadow-sm">
                     <button type="button" className="text-left w-full" onClick={() => openEdit(t)}>
                       <div className="font-medium text-brand-slate">{t.title}</div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -320,7 +320,7 @@ export function TasksManager() {
                         <button
                           key={s}
                           type="button"
-                          className="text-[11px] px-2 py-0.5 rounded border border-classz-200 text-brand-slate/80 hover:bg-classz-50"
+                          className="text-[11px] px-2 py-0.5 rounded admin-frame-border text-brand-slate/80 hover:bg-classz-50"
                           onClick={() => quickStatus(t, s)}
                         >
                           → {statusLabel(s, zh)}

@@ -94,6 +94,13 @@ export const PROGRESS_LEVEL_OPTIONS: BilingualOption[] = [
   { id: "independent", en: "Completed mostly independently", zh: "大部分過程能自行完成" },
 ]
 
+/** Adaptive records only — Figma 5346:15879. Not offered on the baseline form. */
+export const UNABLE_PROGRESS_OPTION: BilingualOption = {
+  id: "unclear",
+  en: "Unable to determine clearly",
+  zh: "未能清楚判斷",
+}
+
 export const OBSERVATION_TYPE_OPTIONS: BilingualOption[] = [
   { id: "strength_progress", en: "A positive performance or improvement", zh: "一項正面表現或進步" },
   { id: "support_need", en: "A situation requiring support or further attention", zh: "一項需要支援或繼續留意嘅情況" },
@@ -360,7 +367,10 @@ export function validateVersion2Form(form: Version2LearningRecordForm, opts?: { 
 
   if (form.availability !== "valid_observation") return "Invalid availability."
   if (!form.progress_level) return "Progress level is required."
-  if (!PROGRESS_LEVEL_OPTIONS.some((o) => o.id === form.progress_level)) return "Invalid progress level."
+  const progressAllowed =
+    PROGRESS_LEVEL_OPTIONS.some((o) => o.id === form.progress_level) ||
+    (form.route_used === "adaptive" && form.progress_level === UNABLE_PROGRESS_OPTION.id)
+  if (!progressAllowed) return "Invalid progress level."
   if (form.learning_approach_ids.length < 1 || form.learning_approach_ids.length > 2) {
     return "Learning approach: choose 1–2."
   }
@@ -396,8 +406,8 @@ export function validateVersion2Form(form: Version2LearningRecordForm, opts?: { 
   }
 
   if (observationRequiresSupport(form, form.primary, true)) {
-    if (!form.primary.support_given.length || form.primary.support_given.length > 2) {
-      return "Support used: choose 1–2."
+    if (!form.primary.support_given.length || form.primary.support_given.length > 3) {
+      return "Support used: choose 1–3."
     }
     if (!form.primary.response_to_support) return "Response to support is required."
     if (form.primary.support_given.includes("other") && !form.primary.support_given_other.trim()) {

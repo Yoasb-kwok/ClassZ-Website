@@ -364,7 +364,7 @@ export function AssistantChat() {
           type="button"
           onClick={startNewConversation}
           disabled={busy || starting}
-          className="m-3 flex items-center justify-center gap-2 rounded-xl border border-[#00A3A0] px-3 py-2 text-sm font-semibold text-[#00A3A0] transition hover:bg-[#E7F8F7] disabled:opacity-50"
+          className="m-3 flex items-center justify-center gap-2 rounded-xl border-2 border-[#00A3A0] px-3 py-2 text-sm font-semibold text-[#00A3A0] transition hover:bg-[#E7F8F7] disabled:opacity-50"
         >
           <MessageSquarePlus className="h-4 w-4" />
           {t("New conversation", "新對話")}
@@ -458,7 +458,7 @@ export function AssistantChat() {
           )}
 
           {sessionError && (
-            <div className="mx-auto max-w-md rounded-xl border border-[#FDE68A] bg-[#FFFBEB] px-4 py-3 text-sm text-[#92400E]">
+            <div className="mx-auto max-w-md rounded-xl border-2 border-[#FDE68A] bg-[#FFFBEB] px-4 py-3 text-sm text-[#92400E]">
               {sessionError}
             </div>
           )}
@@ -516,7 +516,7 @@ export function AssistantChat() {
           )}
 
           {error && (
-            <div className="mx-auto max-w-md rounded-xl border border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+            <div className="mx-auto max-w-md rounded-xl border-2 border-[#FECACA] bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
               {error}
             </div>
           )}

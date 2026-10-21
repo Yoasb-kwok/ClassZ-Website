@@ -238,7 +238,7 @@ export function CouponsManager() {
         onClose={() => setModal(null)}
         footer={
           <>
-            <button type="button" className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md border border-classz-200" onClick={() => setModal(null)}>
+            <button type="button" className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md admin-frame-border" onClick={() => setModal(null)}>
               {zh ? "取消" : "Cancel"}
             </button>
             <AdminPrimaryButton onClick={save}>{zh ? "儲存" : "Save"}</AdminPrimaryButton>

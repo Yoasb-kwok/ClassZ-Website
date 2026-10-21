@@ -166,7 +166,7 @@ export function OrdersManager() {
         onClose={() => setOpen(false)}
         footer={
           <>
-            <button type="button" className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md border border-classz-200" onClick={() => setOpen(false)}>
+            <button type="button" className="px-4 py-2.5 text-base text-classz-700 hover:bg-classz-50 rounded-md admin-frame-border" onClick={() => setOpen(false)}>
               {zh ? "取消" : "Cancel"}
             </button>
             <AdminPrimaryButton onClick={addOrder}>{zh ? "建立" : "Create"}</AdminPrimaryButton>

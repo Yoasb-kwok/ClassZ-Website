@@ -252,7 +252,7 @@ export function UsersManager() {
       <AdminPageHeader title={zh ? "用戶管理" : "User management"} Icon={Users} />
       {apiError ? <div className="text-brand-coral text-sm mb-2">{apiError}</div> : null}
       {bulkMsg ? (
-        <div className="rounded-lg border border-classz-200 bg-classz-50 px-4 py-2 text-base text-classz-700">{bulkMsg}</div>
+        <div className="rounded-lg admin-frame-border bg-classz-50 px-4 py-2 text-base text-classz-700">{bulkMsg}</div>
       ) : null}
 
       <AdminCard>

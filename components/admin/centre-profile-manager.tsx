@@ -236,7 +236,7 @@ export function CentreProfileManager() {
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <div>
             <AdminLabel>{zh ? "Banner 圖" : "Banner image"}</AdminLabel>
-            <div className="overflow-hidden rounded-lg border border-classz-100 bg-classz-50">
+            <div className="overflow-hidden rounded-lg admin-frame-border bg-classz-50">
               {bannerUrl ? (
                 <img src={resolveUploadUrl(bannerUrl)} alt="" className="h-36 w-full object-cover" />
               ) : (
@@ -263,7 +263,7 @@ export function CentreProfileManager() {
           </div>
           <div>
             <AdminLabel>{zh ? "頭像" : "Avatar"}</AdminLabel>
-            <div className="overflow-hidden rounded-lg border border-classz-100 bg-classz-50">
+            <div className="overflow-hidden rounded-lg admin-frame-border bg-classz-50">
               {avatarUrl ? (
                 <img src={resolveUploadUrl(avatarUrl)} alt="" className="h-36 w-full object-cover" />
               ) : (
@@ -296,7 +296,7 @@ export function CentreProfileManager() {
             {ALL_CENTRE_FEATURES.map((key) => (
               <label
                 key={key}
-                className="flex cursor-pointer items-start gap-2 rounded-lg border border-classz-100 px-3 py-2 hover:bg-classz-50"
+                className="flex cursor-pointer items-start gap-2 rounded-lg admin-frame-border px-3 py-2 hover:bg-classz-50"
               >
                 <input
                   type="checkbox"

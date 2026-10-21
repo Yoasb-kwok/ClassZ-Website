@@ -1,6 +1,6 @@
 "use client"
 
-import { AdminInput, AdminLabel, AdminTextarea } from "@/components/classz-admin-ui"
+import { AdminInput, AdminSelect, AdminTextarea } from "@/components/classz-admin-ui"
 import {
   ADAPTIVE_BANK,
   AVAILABILITY_OPTIONS,
@@ -14,6 +14,7 @@ import {
   QUESTIONS,
   RESPONSE_TO_SUPPORT_OPTIONS,
   SUPPORT_GIVEN_OPTIONS,
+  UNABLE_PROGRESS_OPTION,
   observationRequiresSupport,
   nextStepRequired,
   type BilingualOption,
@@ -21,70 +22,112 @@ import {
   type Version2Observation,
 } from "@/lib/version2-learning-record"
 
-function Q({ k, zh }: { k: keyof typeof QUESTIONS; zh: boolean }) {
+const SELECTED = "border-2 border-[#222] bg-[#222] text-white"
+const IDLE = "admin-frame-border bg-white text-[#222] hover:bg-[#f7f7f7]"
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-sm font-semibold text-brand-teal">{children}</h3>
+}
+
+function Q({ k }: { k: keyof typeof QUESTIONS }) {
   const q = QUESTIONS[k]
   return (
-    <AdminLabel>
-      <span className="block">{zh ? q.zh : q.en}</span>
-      <span className="block font-normal text-xs text-brand-slate/55">{zh ? q.en : q.zh}</span>
-    </AdminLabel>
+    <p className="text-sm font-medium text-[#222]">
+      {q.en}
+      <span className="mt-0.5 block text-xs font-normal text-[#717171]">{q.zh}</span>
+    </p>
   )
 }
 
-function ChoiceList({
+function DarkChoice({
+  selected,
+  onClick,
+  children,
+  className = "",
+}: {
+  selected: boolean
+  onClick: () => void
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`rounded-lg px-3 py-2.5 text-left text-sm leading-snug transition-colors ${selected ? SELECTED : IDLE} ${className}`}
+    >
+      {children}
+    </button>
+  )
+}
+
+function OptionLabel({ opt }: { opt: BilingualOption }) {
+  return (
+    <>
+      <span className="block">{opt.en}</span>
+      <span className="block text-[11px] opacity-70">{opt.zh}</span>
+    </>
+  )
+}
+
+function ChoiceGrid({
   options,
   value,
   onChange,
-  name,
+  columns = "grid-cols-1 sm:grid-cols-2",
 }: {
   options: BilingualOption[]
   value: string
   onChange: (id: string) => void
-  name: string
+  columns?: string
 }) {
   return (
-    <ul className="mt-1 space-y-1">
-      {options.map((opt) => {
-        const active = value === opt.id
-        return (
-          <li key={opt.id}>
-            <label
-              className={`flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2 text-sm ${
-                active ? "border-brand-teal bg-brand-teal/10" : "border-classz-100 bg-white hover:border-classz-300"
-              }`}
-            >
-              <input
-                type="radio"
-                name={name}
-                className="mt-1"
-                checked={active}
-                onChange={() => onChange(opt.id)}
-              />
-              <span>
-                <span className="block text-brand-slate">{opt.en}</span>
-                <span className="block text-xs text-brand-slate/55">{opt.zh}</span>
-              </span>
-            </label>
-          </li>
-        )
-      })}
-    </ul>
+    <div className={`grid gap-2 ${columns}`}>
+      {options.map((opt) => (
+        <DarkChoice key={opt.id} selected={value === opt.id} onClick={() => onChange(opt.id)}>
+          <OptionLabel opt={opt} />
+        </DarkChoice>
+      ))}
+    </div>
   )
 }
 
-function MultiChoice({
+function ChoicePills({
+  options,
+  value,
+  onChange,
+}: {
+  options: BilingualOption[]
+  value: string
+  onChange: (id: string) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <DarkChoice key={opt.id} selected={value === opt.id} onClick={() => onChange(opt.id)} className="rounded-full px-3 py-1.5">
+          <span>{opt.en}</span>
+        </DarkChoice>
+      ))}
+    </div>
+  )
+}
+
+function MultiGrid({
   options,
   value,
   onChange,
   max,
+  pills = false,
 }: {
   options: BilingualOption[]
   value: string[]
   onChange: (next: string[]) => void
   max: number
+  pills?: boolean
 }) {
   return (
-    <div className="mt-1 flex flex-wrap gap-1.5">
+    <div className={pills ? "flex flex-wrap gap-2" : "grid gap-2 sm:grid-cols-2"}>
       {options.map((opt) => {
         const selected = value.includes(opt.id)
         const blocked = !selected && value.length >= max
@@ -92,21 +135,17 @@ function MultiChoice({
           <button
             key={opt.id}
             type="button"
+            aria-pressed={selected}
             disabled={blocked}
             onClick={() => {
               if (selected) onChange(value.filter((id) => id !== opt.id))
               else if (!blocked) onChange([...value, opt.id])
             }}
-            className={`max-w-full rounded-lg border px-2.5 py-1.5 text-left text-xs ${
-              selected
-                ? "border-brand-teal bg-brand-teal/15 text-brand-teal"
-                : blocked
-                  ? "cursor-not-allowed border-classz-100 text-classz-300"
-                  : "border-classz-200 bg-white text-brand-slate/80 hover:border-classz-300"
+            className={`${pills ? "rounded-full px-3 py-1.5" : "rounded-lg px-3 py-2.5 text-left"} text-sm leading-snug transition-colors ${
+              selected ? SELECTED : blocked ? "cursor-not-allowed border-2 border-[#e5e5e5] bg-white text-[#b0b0b0]" : IDLE
             }`}
           >
-            <span className="block">{opt.en}</span>
-            <span className="block text-[11px] opacity-70">{opt.zh}</span>
+            {pills ? opt.en : <OptionLabel opt={opt} />}
           </button>
         )
       })}
@@ -114,151 +153,112 @@ function MultiChoice({
   )
 }
 
+function OtherField({
+  show,
+  value,
+  onChange,
+  placeholder,
+}: {
+  show: boolean
+  value: string
+  onChange: (value: string) => void
+  placeholder: string
+}) {
+  if (!show) return null
+  return (
+    <div className="space-y-1">
+      <p className="text-sm text-[#222]">If other, please specify:</p>
+      <AdminInput value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+    </div>
+  )
+}
+
 function ObservationFields({
   obs,
   onChange,
-  prefix,
   showTypeDomainOutcome,
 }: {
   obs: Version2Observation
   onChange: (next: Version2Observation) => void
-  prefix: string
   showTypeDomainOutcome: boolean
 }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {showTypeDomainOutcome ? (
         <>
-          <div>
-            <Q k="observation_type" zh={false} />
-            <ChoiceList
-              name={`${prefix}-type`}
-              options={OBSERVATION_TYPE_OPTIONS}
-              value={obs.observation_type}
-              onChange={(observation_type) => onChange({ ...obs, observation_type })}
-            />
+          <div className="space-y-2">
+            <Q k="observation_type" />
+            <ChoiceGrid options={OBSERVATION_TYPE_OPTIONS} value={obs.observation_type} onChange={(observation_type) => onChange({ ...obs, observation_type })} />
           </div>
-          <div>
-            <Q k="observation_domain" zh={false} />
-            <ChoiceList
-              name={`${prefix}-domain`}
-              options={OBSERVATION_DOMAIN_OPTIONS}
-              value={obs.domain}
-              onChange={(domain) => onChange({ ...obs, domain })}
-            />
-            {obs.domain === "other" ? (
-              <AdminInput
-                className="mt-2"
-                placeholder="Describe the other domain"
-                value={obs.domain_other}
-                onChange={(e) => onChange({ ...obs, domain_other: e.target.value })}
-              />
-            ) : null}
-          </div>
-          <div>
-            <Q k="observation_context" zh={false} />
-            <ChoiceList
-              name={`${prefix}-context`}
-              options={OBSERVATION_CONTEXT_OPTIONS}
-              value={obs.context}
-              onChange={(context) => onChange({ ...obs, context })}
-            />
-            {obs.context === "other" ? (
-              <AdminInput
-                className="mt-2"
-                placeholder="Describe the other context"
-                value={obs.context_other}
-                onChange={(e) => onChange({ ...obs, context_other: e.target.value })}
-              />
-            ) : null}
+          <div className="space-y-2">
+            <Q k="observation_domain" />
+            <ChoicePills options={OBSERVATION_DOMAIN_OPTIONS} value={obs.domain} onChange={(domain) => onChange({ ...obs, domain })} />
+            <OtherField show={obs.domain === "other"} value={obs.domain_other} placeholder="Describe the other area" onChange={(domain_other) => onChange({ ...obs, domain_other })} />
           </div>
         </>
-      ) : (
-        <div>
-          <Q k="observation_context" zh={false} />
-          <ChoiceList
-            name={`${prefix}-context`}
-            options={OBSERVATION_CONTEXT_OPTIONS}
-            value={obs.context}
-            onChange={(context) => onChange({ ...obs, context })}
-          />
-        </div>
-      )}
-      <div>
-        <Q k="factual_evidence" zh={false} />
-        <AdminTextarea
-          className="mt-1 min-h-[4.5rem]"
-          value={obs.evidence}
-          onChange={(e) => onChange({ ...obs, evidence: e.target.value })}
-        />
-        <p className="mt-1 text-xs text-brand-slate/50">{obs.evidence.trim().length} / 10+ characters</p>
+      ) : null}
+      <div className="space-y-2">
+        <Q k="observation_context" />
+        <ChoicePills options={OBSERVATION_CONTEXT_OPTIONS} value={obs.context} onChange={(context) => onChange({ ...obs, context })} />
+        <OtherField show={obs.context === "other"} value={obs.context_other} placeholder="Describe when this happened" onChange={(context_other) => onChange({ ...obs, context_other })} />
+      </div>
+      <div className="space-y-2">
+        <Q k="factual_evidence" />
+        <AdminTextarea className="!min-h-[5.5rem]" value={obs.evidence} onChange={(e) => onChange({ ...obs, evidence: e.target.value })} />
+        <p className="text-xs text-[#717171]">{obs.evidence.trim().length} / 10+ characters</p>
       </div>
       {showTypeDomainOutcome ? (
-        <div>
-          <Q k="outcome" zh={false} />
-          <ChoiceList
-            name={`${prefix}-outcome`}
-            options={OUTCOME_OPTIONS}
-            value={obs.outcome}
-            onChange={(outcome) => onChange({ ...obs, outcome })}
-          />
-          {obs.outcome === "other" ? (
-            <AdminInput
-              className="mt-2"
-              placeholder="Describe the other outcome"
-              value={obs.outcome_other}
-              onChange={(e) => onChange({ ...obs, outcome_other: e.target.value })}
-            />
-          ) : null}
+        <div className="space-y-2">
+          <Q k="outcome" />
+          <ChoiceGrid options={OUTCOME_OPTIONS} value={obs.outcome} onChange={(outcome) => onChange({ ...obs, outcome })} />
+          <OtherField show={obs.outcome === "other"} value={obs.outcome_other} placeholder="Describe what happened" onChange={(outcome_other) => onChange({ ...obs, outcome_other })} />
         </div>
       ) : null}
     </div>
   )
 }
 
-function SupportFields({
+function SupportBlock({
   obs,
   onChange,
+  required,
 }: {
   obs: Version2Observation
   onChange: (next: Version2Observation) => void
+  required: boolean
 }) {
   return (
-    <div className="space-y-3 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
-      <p className="text-xs font-semibold text-amber-800">This observation requires a Support Block.</p>
-      <div>
-        <Q k="support_provided" zh={false} />
-        <MultiChoice
+    <div className="space-y-4">
+      <SectionTitle>Support Used {required ? "(Conditional)" : "(Optional)"}</SectionTitle>
+      <div className="space-y-2">
+        <Q k="support_provided" />
+        <p className="text-xs text-[#717171]">Select 1–3</p>
+        <MultiGrid
           options={SUPPORT_GIVEN_OPTIONS}
           value={obs.support_given}
-          max={2}
+          max={3}
           onChange={(support_given) => onChange({ ...obs, support_given })}
         />
-        {obs.support_given.includes("other") ? (
-          <AdminInput
-            className="mt-2"
-            placeholder="Describe the other support"
-            value={obs.support_given_other}
-            onChange={(e) => onChange({ ...obs, support_given_other: e.target.value })}
-          />
-        ) : null}
+        <OtherField
+          show={obs.support_given.includes("other")}
+          value={obs.support_given_other}
+          placeholder="Describe the other support"
+          onChange={(support_given_other) => onChange({ ...obs, support_given_other })}
+        />
       </div>
-      <div>
-        <Q k="response_to_support" zh={false} />
-        <ChoiceList
-          name={`support-response-${obs.observation_type || "p"}`}
+      <div className="space-y-2">
+        <Q k="response_to_support" />
+        <ChoiceGrid
           options={RESPONSE_TO_SUPPORT_OPTIONS}
           value={obs.response_to_support}
           onChange={(response_to_support) => onChange({ ...obs, response_to_support })}
         />
-        {obs.response_to_support === "other" ? (
-          <AdminInput
-            className="mt-2"
-            placeholder="Describe the other response"
-            value={obs.response_to_support_other}
-            onChange={(e) => onChange({ ...obs, response_to_support_other: e.target.value })}
-          />
-        ) : null}
+        <OtherField
+          show={obs.response_to_support === "other"}
+          value={obs.response_to_support_other}
+          placeholder="Describe the other response"
+          onChange={(response_to_support_other) => onChange({ ...obs, response_to_support_other })}
+        />
       </div>
     </div>
   )
@@ -271,59 +271,73 @@ export function Version2LearningRecordFields({
   form: Version2LearningRecordForm
   onChange: (next: Version2LearningRecordForm) => void
 }) {
-  const adaptiveMeta = form.route_used === "adaptive" ? ADAPTIVE_BANK[form.adaptive_domain] : null
+  const adaptive = form.route_used === "adaptive"
+  const adaptiveMeta = adaptive ? ADAPTIVE_BANK[form.adaptive_domain] : null
+  const valid = form.availability === "valid_observation"
+  const noObs = form.availability === "insufficient_opportunity"
   const needSupport = observationRequiresSupport(form, form.primary, true)
   const needNext = nextStepRequired(form)
-  const valid = form.availability === "valid_observation"
+  const progressOptions = adaptive ? [...PROGRESS_LEVEL_OPTIONS, UNABLE_PROGRESS_OPTION] : PROGRESS_LEVEL_OPTIONS
+  const yes = AVAILABILITY_OPTIONS[0]
+  const no = AVAILABILITY_OPTIONS[1]
+
+  function setAdaptiveDomain(domain: string) {
+    const meta = ADAPTIVE_BANK[domain]
+    const stillValid = meta?.options.some((opt) => opt.id === form.adaptive_answer_id)
+    onChange({
+      ...form,
+      route_used: "adaptive",
+      adaptive_domain: domain,
+      adaptive_q_code: meta?.code || "",
+      adaptive_answer_id: stillValid ? form.adaptive_answer_id : "",
+      adaptive_other_text: stillValid ? form.adaptive_other_text : "",
+    })
+  }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Q k="lesson_focus" zh={false} />
-        <p className="text-xs text-brand-slate/55">
-          {QUESTIONS.lesson_focus_helper.en}
-          <span className="ml-1">{QUESTIONS.lesson_focus_helper.zh}</span>
-        </p>
-        <AdminTextarea
-          className="mt-1 min-h-[3.5rem]"
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <SectionTitle>Lesson Focus</SectionTitle>
+        <Q k="lesson_focus" />
+        <p className="text-xs text-[#717171]">{QUESTIONS.lesson_focus_helper.en}</p>
+        <AdminInput
           value={form.class_focus}
+          placeholder="e.g. Building the car and testing wheel alignment"
           onChange={(e) => onChange({ ...form, class_focus: e.target.value })}
         />
       </div>
 
-      <div>
-        <Q k="availability" zh={false} />
-        <ChoiceList
-          name="availability"
-          options={AVAILABILITY_OPTIONS}
-          value={form.availability}
-          onChange={(availability) => onChange({ ...form, availability })}
-        />
+      <div className="space-y-2">
+        <Q k="availability" />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <DarkChoice selected={form.availability === yes.id} onClick={() => onChange({ ...form, availability: yes.id })}>
+            <OptionLabel opt={yes} />
+          </DarkChoice>
+          <DarkChoice selected={form.availability === no.id} onClick={() => onChange({ ...form, availability: no.id })}>
+            <OptionLabel opt={no} />
+          </DarkChoice>
+        </div>
       </div>
 
-      {form.availability === "insufficient_opportunity" ? (
-        <div className="space-y-3">
-          <div>
-            <Q k="insufficient_reason" zh={false} />
-            <ChoiceList
-              name="insufficient-reason"
-              options={INSUFFICIENT_REASONS}
-              value={form.insufficient_reason}
-              onChange={(insufficient_reason) => onChange({ ...form, insufficient_reason })}
+      {noObs ? (
+        <div className="space-y-4">
+          <SectionTitle>Insufficient Opportunity (Conditional)</SectionTitle>
+          <div className="space-y-2">
+            <Q k="insufficient_reason" />
+            <ChoiceGrid options={INSUFFICIENT_REASONS} value={form.insufficient_reason} onChange={(insufficient_reason) => onChange({ ...form, insufficient_reason })} />
+            <OtherField
+              show={form.insufficient_reason === "Other"}
+              value={form.insufficient_reason_other}
+              placeholder="e.g. The child was called out for another activity"
+              onChange={(insufficient_reason_other) => onChange({ ...form, insufficient_reason_other })}
             />
-            {form.insufficient_reason === "Other" ? (
-              <AdminInput
-                className="mt-2"
-                placeholder="Please specify"
-                value={form.insufficient_reason_other}
-                onChange={(e) => onChange({ ...form, insufficient_reason_other: e.target.value })}
-              />
-            ) : null}
           </div>
-          <div>
-            <Q k="insufficient_explanation" zh={false} />
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-[#222]">Please provide any necessary explanation (Optional)</p>
+            <p className="text-xs text-[#717171]">{QUESTIONS.insufficient_explanation.zh}</p>
             <AdminTextarea
-              className="mt-1 min-h-[3.5rem]"
+              className="!min-h-[5.5rem]"
+              placeholder="e.g. The child joined only the final ten minutes, so the main task could not be observed"
               value={form.insufficient_explanation}
               onChange={(e) => onChange({ ...form, insufficient_explanation: e.target.value })}
             />
@@ -333,55 +347,89 @@ export function Version2LearningRecordFields({
 
       {valid ? (
         <>
-          <div>
-            <Q k="progress_level" zh={false} />
-            <ChoiceList
-              name="progress-level"
-              options={PROGRESS_LEVEL_OPTIONS}
-              value={form.progress_level}
-              onChange={(progress_level) => onChange({ ...form, progress_level })}
-            />
+          <div className="space-y-2">
+            <SectionTitle>Progress Level</SectionTitle>
+            <Q k="progress_level" />
+            <ChoiceGrid options={progressOptions} value={form.progress_level} onChange={(progress_level) => onChange({ ...form, progress_level })} />
           </div>
 
-          {adaptiveMeta ? (
-            <div className="space-y-3 rounded-lg border border-brand-teal/30 bg-brand-teal/5 p-3">
-              <p className="text-xs font-semibold text-brand-teal">
-                Today&apos;s focus was set at the end of the previous lesson: {form.adaptive_domain} [{form.adaptive_q_code}]
-              </p>
-              <AdminLabel>
-                <span className="block">{adaptiveMeta.question}</span>
-                <span className="block font-normal text-xs text-brand-slate/55">{adaptiveMeta.question_zh}</span>
-              </AdminLabel>
-              <ChoiceList
-                name="adaptive-answer"
-                options={adaptiveMeta.options}
-                value={form.adaptive_answer_id}
-                onChange={(adaptive_answer_id) => onChange({ ...form, adaptive_answer_id })}
-              />
-              {form.adaptive_answer_id === "other" ? (
-                <AdminInput
-                  placeholder="Describe what happened"
-                  value={form.adaptive_other_text}
-                  onChange={(e) => onChange({ ...form, adaptive_other_text: e.target.value })}
+          {adaptive && adaptiveMeta ? (
+            <div className="space-y-3">
+              <SectionTitle>Adaptive Observation</SectionTitle>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-[#222]">Adaptive Focus</p>
+                <AdminSelect value={form.adaptive_domain} onChange={(e) => setAdaptiveDomain(e.target.value)}>
+                  {Object.keys(ADAPTIVE_BANK).map((domain) => {
+                    const label = OBSERVATION_DOMAIN_OPTIONS.find((opt) => opt.id === domain)
+                    return (
+                      <option key={domain} value={domain}>
+                        {label?.en || domain}
+                      </option>
+                    )
+                  })}
+                </AdminSelect>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-[#222]">{adaptiveMeta.question}</p>
+                <p className="text-xs text-[#717171]">{adaptiveMeta.question_zh}</p>
+                <ChoiceGrid
+                  options={adaptiveMeta.options}
+                  value={form.adaptive_answer_id}
+                  onChange={(adaptive_answer_id) => onChange({ ...form, adaptive_answer_id })}
                 />
-              ) : null}
+                <OtherField
+                  show={form.adaptive_answer_id === "other"}
+                  value={form.adaptive_other_text}
+                  placeholder="Describe what happened"
+                  onChange={(adaptive_other_text) => onChange({ ...form, adaptive_other_text })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Q k="observation_context" />
+                <ChoicePills
+                  options={OBSERVATION_CONTEXT_OPTIONS}
+                  value={form.primary.context}
+                  onChange={(context) => onChange({ ...form, primary: { ...form.primary, context } })}
+                />
+                <OtherField
+                  show={form.primary.context === "other"}
+                  value={form.primary.context_other}
+                  placeholder="Describe when this happened"
+                  onChange={(context_other) => onChange({ ...form, primary: { ...form.primary, context_other } })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Q k="factual_evidence" />
+                <AdminTextarea
+                  className="!min-h-[5.5rem]"
+                  value={form.primary.evidence}
+                  onChange={(e) => onChange({ ...form, primary: { ...form.primary, evidence: e.target.value } })}
+                />
+              </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="space-y-4">
+              <SectionTitle>Baseline Observation</SectionTitle>
+              <ObservationFields
+                obs={form.primary}
+                showTypeDomainOutcome
+                onChange={(primary) => onChange({ ...form, primary })}
+              />
+            </div>
+          )}
 
-          <ObservationFields
-            prefix="primary"
+          <SupportBlock
             obs={form.primary}
-            showTypeDomainOutcome={form.route_used !== "adaptive"}
+            required={needSupport}
             onChange={(primary) => onChange({ ...form, primary })}
           />
 
-          {needSupport ? (
-            <SupportFields obs={form.primary} onChange={(primary) => onChange({ ...form, primary })} />
-          ) : null}
-
-          <div>
-            <Q k="learning_approach" zh={false} />
-            <MultiChoice
+          <div className="space-y-2">
+            <SectionTitle>Additional Observation</SectionTitle>
+            <Q k="learning_approach" />
+            <p className="text-xs text-[#717171]">Select 1–2</p>
+            <MultiGrid
+              pills
               options={LEARNING_APPROACH_OPTIONS}
               value={form.learning_approach_ids}
               max={2}
@@ -389,34 +437,31 @@ export function Version2LearningRecordFields({
             />
           </div>
 
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.include_observation_2}
-              onChange={(e) => onChange({ ...form, include_observation_2: e.target.checked })}
-            />
-            <span>
+          <div className="space-y-3">
+            <DarkChoice
+              selected={form.include_observation_2}
+              onClick={() => onChange({ ...form, include_observation_2: !form.include_observation_2 })}
+            >
               {QUESTIONS.add_second_observation.en}
-              <span className="ml-1 text-xs text-brand-slate/55">{QUESTIONS.add_second_observation.zh}</span>
-            </span>
-          </label>
-          {form.include_observation_2 ? (
-            <div className="rounded-lg border border-classz-100 p-3">
-              <ObservationFields
-                prefix="obs2"
-                obs={form.observation_2}
-                showTypeDomainOutcome
-                onChange={(observation_2) => onChange({ ...form, observation_2 })}
-              />
-            </div>
-          ) : null}
+              <span className="mt-0.5 block text-xs opacity-70">{QUESTIONS.add_second_observation.zh}</span>
+            </DarkChoice>
+            {form.include_observation_2 ? (
+              <div className="admin-frame-border rounded-xl bg-white p-3">
+                <ObservationFields
+                  obs={form.observation_2}
+                  showTypeDomainOutcome
+                  onChange={(observation_2) => onChange({ ...form, observation_2 })}
+                />
+              </div>
+            ) : null}
+          </div>
 
-          <div>
-            <Q k="next_step" zh={false} />
-            <p className="text-xs text-brand-slate/55">{QUESTIONS.next_step_helper.en}</p>
-            {needNext ? <p className="text-xs text-amber-700">Required for this observation.</p> : null}
+          <div className="space-y-2">
+            <SectionTitle>Next Step {needNext ? "(Conditional)" : "(Optional)"}</SectionTitle>
+            <Q k="next_step" />
+            <p className="text-xs text-[#717171]">{QUESTIONS.next_step_helper.en}</p>
             <AdminTextarea
-              className="mt-1 min-h-[3.5rem]"
+              className="!min-h-[5.5rem]"
               value={form.student_work_on}
               onChange={(e) => onChange({ ...form, student_work_on: e.target.value })}
             />
@@ -424,14 +469,17 @@ export function Version2LearningRecordFields({
         </>
       ) : null}
 
-      <div>
-        <Q k="additional_note" zh={false} />
-        <AdminTextarea
-          className="mt-1 min-h-[3.5rem]"
-          value={form.additional_comment}
-          onChange={(e) => onChange({ ...form, additional_comment: e.target.value })}
-        />
-      </div>
+      {form.availability ? (
+        <div className="space-y-2">
+          <SectionTitle>Additional Note (Optional)</SectionTitle>
+          <Q k="additional_note" />
+          <AdminTextarea
+            className="!min-h-[5.5rem]"
+            value={form.additional_comment}
+            onChange={(e) => onChange({ ...form, additional_comment: e.target.value })}
+          />
+        </div>
+      ) : null}
     </div>
   )
 }

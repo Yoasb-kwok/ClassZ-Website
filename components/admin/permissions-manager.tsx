@@ -596,10 +596,10 @@ export function PermissionsManager() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md border-2 px-4 py-2 text-sm font-medium transition-colors ${
               tab === t.id
                 ? "border-brand-teal bg-[color-mix(in_srgb,var(--brand-teal)_14%,white)] text-brand-teal"
-                : "border-classz-200 bg-white text-brand-slate"
+                : "border-admin-frame bg-white text-brand-slate"
             }`}
           >
             {zh ? t.zh : t.en}
@@ -667,7 +667,7 @@ export function PermissionsManager() {
               {roleGrouped.map((g) => {
                 const allOn = g.items.every((m) => Boolean(roleMatrix[selectedRoleSlug]?.[m.key]))
                 return (
-                  <div key={g.category} className="rounded-xl border border-classz-100">
+                  <div key={g.category} className="rounded-xl admin-frame-border">
                     <div className="flex items-center justify-between gap-2 rounded-t-xl bg-classz-50 px-3 py-2">
                       <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-teal">
                         {categoryLabel(g.category, roleCategories, zh)}
@@ -753,7 +753,7 @@ export function PermissionsManager() {
                 : "Edit the pricing-card copy (caption, discount, features) above. The category switch turns the whole group on or off (you will be asked to confirm)."}
             </p>
             {selectedTier ? (
-              <div className="mb-6 space-y-4 rounded-xl border border-classz-100 p-3">
+              <div className="mb-6 space-y-4 rounded-xl admin-frame-border p-3">
                 <p className="text-sm font-semibold text-classz-700">{zh ? "價錢卡顯示" : "Pricing card copy"}</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div>
@@ -859,7 +859,7 @@ export function PermissionsManager() {
               {planGrouped.map((g) => {
                 const allOn = g.items.every((m) => Boolean(planMatrix[selectedSlug]?.[m.key]))
                 return (
-                  <div key={g.category} className="rounded-xl border border-classz-100">
+                  <div key={g.category} className="rounded-xl admin-frame-border">
                     <div className="flex items-center justify-between gap-2 rounded-t-xl bg-classz-50 px-3 py-2">
                       <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-teal">
                         {categoryLabel(g.category, planCategories, zh)}

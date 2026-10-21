@@ -59,7 +59,7 @@ const LEAVE_STATUSES = new Set<AttendanceStatus>(["personal_leave", "sick_leave"
 const MAX_DOC_BYTES = 5 * 1024 * 1024
 const DOC_ACCEPT = ".pdf,.doc,.docx,image/png,image/jpeg,image/jpg,image/webp,application/pdf"
 const COMPACT_SELECT =
-  "h-8 w-auto max-w-[9rem] rounded-md border border-classz-100 bg-white px-2 text-xs leading-none text-classz-700 focus:outline-none focus:ring-1 focus:ring-classz-200 disabled:opacity-50"
+  "h-8 w-auto max-w-[9rem] rounded-md admin-frame-border bg-white px-2 text-xs leading-none text-classz-700 focus:outline-none focus:ring-1 focus:ring-classz-200 disabled:opacity-50"
 
 function mapClass(r: Record<string, unknown>): ClassOption {
   return {
@@ -408,7 +408,7 @@ export function AttendanceManager() {
         <button
           type="button"
           onClick={openCalendar}
-          className="w-full flex items-center justify-between gap-3 rounded-lg border border-classz-200 bg-white px-3.5 py-2.5 text-left hover:border-classz-400 hover:bg-classz-50 transition-colors"
+          className="w-full flex items-center justify-between gap-3 rounded-lg admin-frame-border bg-white px-3.5 py-2.5 text-left hover:border-classz-400 hover:bg-classz-50 transition-colors"
         >
           <span className="min-w-0">
             {selectedClass ? (
@@ -611,8 +611,8 @@ export function AttendanceManager() {
                   setCalendarView(v)
                   setDayPick(null)
                 }}
-                className={`px-3 py-1.5 rounded-md text-sm border ${
-                  calendarView === v ? "bg-classz-100 border-classz-400 text-classz-800" : "border-classz-200 text-classz-600"
+                className={`px-3 py-1.5 rounded-md text-sm border-2 ${
+                  calendarView === v ? "bg-classz-100 border-classz-400 text-classz-800" : "border-admin-frame text-classz-600"
                 }`}
               >
                 {label}
@@ -641,7 +641,7 @@ export function AttendanceManager() {
             }}
           />
           {dayPick ? (
-            <div className="rounded-lg border border-classz-200 bg-classz-50/80 p-3">
+            <div className="rounded-lg admin-frame-border bg-classz-50/80 p-3">
               <p className="text-sm font-semibold text-classz-800 mb-2">
                 {format(dayPick, zh ? "M月d日 (EEE)" : "EEE, MMM d", { locale: zh ? zhTW : enUS })}
                 {zh ? " 的課堂" : " sessions"}
@@ -657,12 +657,12 @@ export function AttendanceManager() {
                       <button
                         type="button"
                         onClick={() => selectClass(c.id)}
-                        className={`w-full text-left rounded-lg border px-3 py-2 transition-colors ${
+                        className={`w-full text-left rounded-lg border-2 px-3 py-2 transition-colors ${
                           past
-                            ? "border-classz-100 bg-classz-50 text-classz-400 opacity-70"
+                            ? "border-admin-frame bg-classz-50 text-classz-400 opacity-70"
                             : c.id === classId
                             ? "border-classz-400 bg-classz-100"
-                            : "border-classz-200 bg-white hover:border-classz-300 hover:bg-classz-50"
+                            : "border-admin-frame bg-white hover:border-classz-300 hover:bg-classz-50"
                         }`}
                       >
                         <p className={`font-medium ${past ? "text-classz-400" : "text-classz-800"}`}>{c.name}</p>
@@ -725,7 +725,7 @@ export function AttendanceManager() {
                 ? `選擇「${statusLabel(leaveModal.status)}」必須上載證明文件（PDF／DOC／DOCX／圖片，少於 5MB），否則不能確認。`
                 : `Selecting “${statusLabel(leaveModal.status)}” requires a proof document (PDF/DOC/DOCX/image, under 5MB).`}
             </p>
-            <div className="rounded-md border border-classz-100 bg-classz-50 px-3 py-2 text-sm max-h-28 overflow-y-auto">
+            <div className="rounded-md admin-frame-border bg-classz-50 px-3 py-2 text-sm max-h-28 overflow-y-auto">
               <p className="text-xs text-classz-500 mb-1">
                 {zh ? `學員（${leaveModal.ids.length}）` : `Students (${leaveModal.ids.length})`}
               </p>
