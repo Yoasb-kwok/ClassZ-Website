@@ -5,6 +5,7 @@ import { Contact } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
+import { formatAdminJson } from "@/lib/format-admin-json"
 import {
   AdminCard,
   AdminGhostButton,
@@ -166,6 +167,7 @@ export function CrmManager() {
     stage,
     items: leads.filter((l) => l.stage === stage),
   }))
+  const funnelText = formatAdminJson(funnel)
 
   return (
     <AdminPageFrame>
@@ -309,7 +311,7 @@ export function CrmManager() {
         <AdminCard>
           <h3 className="font-semibold text-crm-slate mb-2">{zh ? "銷售漏斗" : "Sales funnel"}</h3>
           <pre className="text-xs bg-[color-mix(in_srgb,var(--crm-slate)_5%,white)] text-crm-slate p-3 rounded-md overflow-auto max-h-48 border border-crm-slate/10">
-            {JSON.stringify(funnel, null, 2)}
+            {funnelText ?? (zh ? "無數據" : "No data")}
           </pre>
         </AdminCard>
       </div>
