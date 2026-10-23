@@ -5,7 +5,7 @@ import { Contact } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import { isDemoSession } from "@/components/admin/use-admin-api"
 import { apiGet, apiPatch, apiPost } from "@/lib/classz-api-client"
-import { formatAdminJson } from "@/lib/format-admin-json"
+import { formatSalesFunnel } from "@/lib/format-admin-json"
 import {
   AdminCard,
   AdminGhostButton,
@@ -167,7 +167,7 @@ export function CrmManager() {
     stage,
     items: leads.filter((l) => l.stage === stage),
   }))
-  const funnelText = formatAdminJson(funnel)
+  const funnelText = formatSalesFunnel(funnel)
 
   return (
     <AdminPageFrame>
