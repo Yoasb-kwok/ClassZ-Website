@@ -9,3 +9,23 @@ export function formatAdminJson(value: unknown): string | null {
   if (text == null || text === "null") return null
   return text
 }
+
+/**
+ * A conversion-funnel payload is meaningful only when some count, rate, or stage
+ * value is non-zero. Channel names and stage labels are not metrics, and an
+ * all-zero object is a valid empty API payload.
+ */
+export function funnelHasMetric(value: unknown): boolean {
+  if (typeof value === "number") return Number.isFinite(value) && value !== 0
+  if (Array.isArray(value)) return value.some(funnelHasMetric)
+  if (value !== null && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).some(funnelHasMetric)
+  }
+  return false
+}
+
+/** Pretty-print a real funnel. Missing and all-zero payloads return null. */
+export function formatSalesFunnel(value: unknown): string | null {
+  if (!funnelHasMetric(value)) return null
+  return formatAdminJson(value)
+}
