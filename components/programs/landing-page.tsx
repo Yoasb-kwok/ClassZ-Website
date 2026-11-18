@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import type { ReactNode } from "react"
+import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { useLanguage } from "@/components/language-provider"
@@ -11,6 +11,72 @@ const FONT =
   '"SF Pro", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 
 const LOGOS = Array.from({ length: 13 }, (_, i) => `/landing/figma/logo-tight-${i + 1}.png`)
+
+// Matches the previous unused 22s loop over one ~1768px set (~80px/s).
+const LOGO_SPEED_PX_PER_SEC = 80
+
+function PartnerLogoSet({ clone = false, setRef }: { clone?: boolean; setRef?: Ref<HTMLDivElement> }) {
+  return (
+    <div
+      ref={setRef}
+      className="logo-marquee-set flex shrink-0 items-center gap-7 pr-7"
+      data-clone={clone ? "true" : undefined}
+      aria-hidden={clone ? true : undefined}
+    >
+      {LOGOS.map((src) => (
+        <div key={src} className="flex h-[58.8px] w-[108px] shrink-0 items-center justify-center">
+          <img src={src} alt="" className="max-h-[49px] max-w-[88px] object-contain" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PartnerLogoRow() {
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const setRef = useRef<HTMLDivElement>(null)
+  const [copies, setCopies] = useState(2)
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current
+    const setEl = setRef.current
+    if (!viewport || !setEl) return
+
+    const sync = () => {
+      const setWidth = setEl.getBoundingClientRect().width
+      const viewWidth = viewport.clientWidth
+      if (setWidth <= 0 || viewWidth <= 0) return
+      // Even count so -50% always lands on an identical copy. Half the track
+      // must cover the viewport, including when one set is narrower than it.
+      const nextCopies = Math.max(2, Math.ceil((viewWidth + 1) / setWidth) * 2)
+      setCopies((prev) => (prev === nextCopies ? prev : nextCopies))
+      const distance = setWidth * (nextCopies / 2)
+      const duration = `${(distance / LOGO_SPEED_PX_PER_SEC).toFixed(2)}s`
+      if (viewport.style.getPropertyValue("--logo-marquee-duration") !== duration) {
+        viewport.style.setProperty("--logo-marquee-duration", duration)
+      }
+    }
+
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(viewport)
+    observer.observe(setEl)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={viewportRef}
+      className="logo-marquee-viewport mt-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      <div className="logo-marquee opacity-40 grayscale">
+        {Array.from({ length: copies }, (_, index) => (
+          <PartnerLogoSet key={index} clone={index > 0} setRef={index === 0 ? setRef : undefined} />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function ArrowIcon() {
   return (
@@ -102,18 +168,7 @@ export function LandingPage() {
         <h2 className="text-center text-[36px] leading-tight font-medium tracking-[-1.8px] md:text-[50px] md:leading-[72px]">
           {t("landing.partnersLabel")}
         </h2>
-        <div className="mt-10 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="mx-auto flex w-max items-center gap-7 opacity-40 grayscale">
-            {LOGOS.map((src) => (
-              <div
-                key={src}
-                className="flex h-[58.8px] w-[108px] shrink-0 items-center justify-center"
-              >
-                <img src={src} alt="" className="max-h-[49px] max-w-[88px] object-contain" />
-              </div>
-            ))}
-          </div>
-        </div>
+        <PartnerLogoRow />
       </section>
 
       <section className="px-4 py-8 md:px-8 md:py-16">
