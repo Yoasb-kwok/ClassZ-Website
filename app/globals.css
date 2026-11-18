@@ -253,25 +253,52 @@
     }
 }
 
-/* Logo marquee animation for partners strip */
+/* Partner logo conveyor. Each .logo-marquee-set repeats the same logos and
+   includes a trailing gap (padding-right = the flex gap) so the two halves
+   of the track are identical. Translating by exactly -50% lands on that seam. */
+.logo-marquee-viewport {
+    overflow: hidden;
+}
+
 .logo-marquee {
+    display: flex;
     width: max-content;
-    animation: logo-marquee 22s linear infinite;
+    animation: logo-marquee var(--logo-marquee-duration, 22s) linear infinite;
+}
+
+.logo-marquee-viewport:hover .logo-marquee,
+.logo-marquee-viewport:focus-within .logo-marquee {
+    animation-play-state: paused;
 }
 
 @keyframes logo-marquee {
-    0% {
-        transform: translateX(0);
+    from {
+        transform: translate3d(0, 0, 0);
     }
 
-    100% {
-        transform: translateX(-50%);
+    to {
+        transform: translate3d(-50%, 0, 0);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .logo-marquee {
         animation: none;
+        margin-inline: auto;
+    }
+
+    /* One static set, with the same edge-to-edge gap as the original row. */
+    .logo-marquee-set {
+        padding-right: 0;
+    }
+
+    .logo-marquee-set[data-clone="true"] {
+        display: none;
+    }
+
+    .logo-marquee-viewport {
+        overflow-x: auto;
+        overflow-y: hidden;
     }
 }
 
