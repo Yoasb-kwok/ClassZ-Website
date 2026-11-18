@@ -384,5 +384,5 @@ function enrollHref(
   const qs = new URLSearchParams({ course: String(courseId) });
   if (ids.length) qs.set("classes", ids.join(","));
   if (price != null) qs.set("price", String(price));
-  return `/payment?${qs.toString()}`;
+  return `/booking/confirm?${qs.toString()}`;
 }

@@ -34,7 +34,7 @@ async function switchToZhTw(page: Page) {
 test.describe('Block B — programs listing', () => {
   test('renders intro, search box and all seeded programs', async ({ page }) => {
     await page.goto('/programs')
-    await expect(page.getByRole('heading', { name: 'Find the right program for your child' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Browse programmes' })).toBeVisible()
     await expect(page.getByPlaceholder('Search')).toBeVisible()
     for (const name of [SEEDED.ballet.name, SEEDED.hiphop.name, SEEDED.jazz.name, SEEDED.kpop.name]) {
       await expect(page.getByRole('link', { name: new RegExp(name) })).toBeVisible()
@@ -106,9 +106,11 @@ test.describe('Block B — program detail', () => {
     await expect(page.getByText('Age 5-8')).toBeVisible()
   })
 
-  test('enroll entry navigates to login (booking funnel entry)', async ({ page }) => {
+  test('enroll entry opens confirm, then the existing checkout gate', async ({ page }) => {
     await page.goto(`/programs/${SEEDED.kpop.id}`)
     await page.getByRole('link', { name: 'Enroll' }).first().click()
+    await expect(page).toHaveURL(/\/booking\/confirm/)
+    await page.getByRole('link', { name: 'Continue to checkout' }).click()
     await expect(page).toHaveURL(/\/login/)
   })
 
@@ -129,7 +131,7 @@ test.describe('Block B — workshops variant', () => {
   test('renders workshops listing with empty state (no workshop-type courses seeded)', async ({ page }) => {
     await page.goto('/workshops')
     await expect(
-      page.getByRole('heading', { name: 'Find the right program for your child' })
+      page.getByRole('heading', { name: 'Find the right workshop for your child' })
     ).toBeVisible()
     // no seeded course has course_type != regular → empty state shows
     await expect(page.getByRole('link', { name: new RegExp(SEEDED.ballet.name) })).toHaveCount(0)

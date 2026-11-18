@@ -337,15 +337,22 @@ export function Navbar() {
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
-          ) : (
-            <button
-              type="button"
-              onClick={() => openAuth(surface === "info" ? "register" : "login")}
-              className="flex h-9 shrink-0 items-center rounded-full bg-[#0abab5] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-colors hover:bg-[#089591]"
-            >
-              {surface === "info" ? t("landing.joinEarly") : t("nav.login")}
-            </button>
-          )}
+          ) : surface === "info" ? (
+              <Link
+                href="/early-access"
+                className="flex h-9 shrink-0 items-center rounded-full bg-[#0abab5] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-colors hover:bg-[#089591]"
+              >
+                {t("landing.joinEarly")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openAuth("login")}
+                className="flex h-9 shrink-0 items-center rounded-full bg-[#0abab5] px-5 text-[16px] leading-[19px] font-[590] whitespace-nowrap text-white transition-colors hover:bg-[#089591]"
+              >
+                {t("nav.login")}
+              </button>
+            )}
           </div>
         </div>
       </div>

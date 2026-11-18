@@ -363,7 +363,7 @@ export function ProgramDetail({
               ) : null}
             </p>
             <Link
-              href={`/payment?${paymentQs}`}
+              href={`/booking/confirm?${paymentQs}`}
               data-testid="reservation-bar-enroll"
               className="flex h-[37px] shrink-0 items-center justify-center rounded-[8px] bg-[#222222] px-[24px] text-[14px] font-[weight:590] text-white transition-colors hover:bg-shade-600"
             >
