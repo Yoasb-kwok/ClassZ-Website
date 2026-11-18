@@ -116,11 +116,11 @@ export function CentreListing({ centres }: { centres: Centre[] }) {
       {/* Listing content capped at the 1440 design width & centered on wider
           viewports — same chrome as the trials/workshops listings. */}
       <div className="flex flex-col lg:mx-auto lg:max-w-[1440px]">
-        {/* Intro copy reuses programs.title + programs.workshopsSubtitle
-            (same-frame precedent — the workshops listing does the same). */}
+        {/* H1 is the Centres frame (WM26 / 6969:10626). Subtitle stays the
+            shared workshops line; this P0 only replaces the reused programs H1. */}
         <section className="flex flex-col items-center gap-5 px-6 py-8 text-center md:px-20">
           <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
-            {t("programs.title")}
+            {t("programs.centresTitle")}
           </h1>
           <p className="max-w-[884px] text-[18px] leading-[27px] text-ink">
             {t("programs.workshopsSubtitle")}
