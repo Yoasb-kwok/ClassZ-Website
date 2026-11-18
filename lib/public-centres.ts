@@ -133,6 +133,17 @@ export async function getCentreLocationHints(): Promise<Record<number, string[]>
   return hints
 }
 
+/** Live centre names only. An empty API does not fall back to the design mocks. */
+export async function getLiveCentreNames(): Promise<Record<number, string>> {
+  const rows = (await getJson<PublicCentre[]>("/api/centers")) ?? []
+  const names: Record<number, string> = {}
+  for (const row of rows) {
+    const name = displayCentreName(row.center_name)
+    if (name) names[Number(row.id)] = name
+  }
+  return names
+}
+
 export async function getPublicCentres(): Promise<Centre[]> {
   const rows = (await getJson<PublicCentre[]>("/api/centers")) ?? []
   if (rows.length) {

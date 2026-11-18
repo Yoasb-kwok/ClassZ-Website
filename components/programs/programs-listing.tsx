@@ -26,6 +26,8 @@ import {
 } from "@/lib/public-courses";
 import { CheckRow, ListingToolbar, type ToolbarPop } from "./listing-toolbar";
 import { formatTemplate } from "./format";
+import { MarketplaceProgramCard } from "./marketplace-cards";
+import { MarketplaceToggle } from "./marketplace-toggle";
 
 /**
  * /programs listing — user-directed redesign approved from the standalone
@@ -110,6 +112,7 @@ interface Row {
   district: District | undefined;
   /** mock-fallback rating ("4.91") — filter + card star block */
   rating: string;
+  nextStart: string | null;
 }
 
 const DAY_MS = 86_400_000;
@@ -162,6 +165,7 @@ export function ProgramsListing({
   prices,
   variant = "programs",
   centreHints = {},
+  centreNames = {},
 }: {
   courses: PublicCourse[];
   classes: PublicClass[];
@@ -170,8 +174,10 @@ export function ProgramsListing({
   variant?: ListingVariant;
   /** centre address / district used when the course location is a venue name */
   centreHints?: Record<number, string[]>;
+  /** live centre names; empty when the centres API is unavailable */
+  centreNames?: Record<number, string>;
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const isPrograms = variant === "programs";
 
@@ -228,6 +234,10 @@ export function ProgramsListing({
             ].filter((d): d is number => d != null && d >= 0 && d <= 6),
           ),
         ).sort((a, b) => a - b);
+        const earliest = dates.reduce<Date | null>(
+          (acc, date) => (!acc || date < acc ? date : acc),
+          null,
+        );
         return {
           course,
           price:
@@ -248,6 +258,7 @@ export function ProgramsListing({
             ...(centreHints[course.center_id] ?? []),
           ),
           rating: courseRating(course),
+          nextStart: earliest ? earliest.toISOString() : null,
         };
       });
   }, [courses, classes, prices, variant, centreHints]);
@@ -401,27 +412,34 @@ export function ProgramsListing({
     <main className="min-h-screen bg-white text-ink">
       <Navbar />
       <div className="flex flex-col lg:mx-auto lg:max-w-[1440px]">
-        {/* Intro — node #1626:16265 (unchanged from the previous listing) */}
-        <section className="flex flex-col items-center gap-5 px-6 py-8 text-center md:px-20">
-          <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
-            {t(
-              variant === "trials"
-                ? "programs.trialsTitle"
-                : variant === "workshops"
-                  ? "programs.workshopsTitle"
-                  : "programs.title",
-            )}
-          </h1>
-          <p className="max-w-[884px] text-[18px] leading-[27px] text-ink">
-            {t(
-              variant === "trials"
-                ? "programs.trialsSubtitle"
-                : variant === "workshops"
-                  ? "programs.workshopsSubtitle"
-                  : "programs.subtitle",
-            )}
-          </p>
-        </section>
+        {variant === "programs" ? (
+          <section className="flex flex-col items-start gap-3 px-6 py-8 text-left md:px-16 lg:px-20">
+            <h1 className="w-full text-[40px] font-medium leading-[1.1] text-ink md:text-[56px]">
+              {t("greenPages.market.programmesTitle")}
+            </h1>
+            <p className="max-w-[720px] text-[18px] leading-7 text-[#404040]">
+              {t("greenPages.market.programmesSub")}
+            </p>
+            <MarketplaceToggle active="programmes" />
+          </section>
+        ) : (
+          <section className="flex flex-col items-center gap-5 px-6 py-8 text-center md:px-20">
+            <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
+              {t(
+                variant === "trials"
+                  ? "programs.trialsTitle"
+                  : "programs.workshopsTitle",
+              )}
+            </h1>
+            <p className="max-w-[884px] text-[18px] leading-[27px] text-ink">
+              {t(
+                variant === "trials"
+                  ? "programs.trialsSubtitle"
+                  : "programs.workshopsSubtitle",
+              )}
+            </p>
+          </section>
+        )}
 
         {/* Filter + search — shared ListingToolbar; the third segment is
             Date Range on workshops/trials, Weekday on /programs. */}
@@ -641,21 +659,42 @@ export function ProgramsListing({
             </div>
           ) : (
             <ul
-              className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              className={
+                isPrograms
+                  ? "grid grid-cols-1 gap-6 pt-8 md:grid-cols-2 xl:grid-cols-3"
+                  : "grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              }
               data-testid="programs-list-panel"
             >
               {filtered.map((row) => (
                 <li key={row.course.id} className="min-w-0">
-                  <ListingCard
-                    row={row}
-                    href={
-                      variant === "trials"
-                        ? `/trials/${row.course.id}?dates=1`
-                        : variant === "workshops"
-                          ? `/workshops/${row.course.id}?dates=1`
-                          : `/programs/${row.course.id}?dates=1`
-                    }
-                  />
+                  {isPrograms ? (
+                    <MarketplaceProgramCard
+                      href={`/programs/${row.course.id}`}
+                      id={row.course.id}
+                      name={row.course.name}
+                      image={programImage(row.course.id, row.course.image_url)}
+                      meta={programMeta(row, centreNames, t, locale)}
+                      price={
+                        row.price != null
+                          ? formatTemplate(t, "greenPages.market.totalPrice", {
+                              amount: Number(row.price.toFixed(0)).toLocaleString("en-HK"),
+                            })
+                          : ""
+                      }
+                      sponsored={Boolean(row.course.boosted)}
+                      sponsoredLabel={t("greenPages.market.sponsored")}
+                    />
+                  ) : (
+                    <ListingCard
+                      row={row}
+                      href={
+                        variant === "trials"
+                          ? `/trials/${row.course.id}?dates=1`
+                          : `/workshops/${row.course.id}?dates=1`
+                      }
+                    />
+                  )}
                 </li>
               ))}
             </ul>
@@ -668,6 +707,38 @@ export function ProgramsListing({
       <Footer />
     </main>
   );
+}
+
+function programMeta(
+  row: Row,
+  centreNames: Record<number, string>,
+  t: (key: string) => string,
+  locale: "en" | "zh-TW",
+) {
+  const centre = centreNames[row.course.center_id] || "";
+  const age = ageRangeLabel(row.course, locale);
+  const schedule = scheduleStamp(row.nextStart, locale);
+  return [
+    centre,
+    age ? formatTemplate(t, "greenPages.market.age", { age }) : "",
+    schedule,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+const SCHEDULE_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+const SCHEDULE_ZH = ["日", "一", "二", "三", "四", "五", "六"] as const;
+
+function scheduleStamp(iso: string | null, locale: "en" | "zh-TW") {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  const day =
+    locale === "zh-TW" ? `週${SCHEDULE_ZH[date.getDay()]}` : SCHEDULE_EN[date.getDay()];
+  return `${day} ${hh}:${mm}`;
 }
 
 /** Compact vertical card for the responsive 1–5 column grid. */

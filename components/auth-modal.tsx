@@ -196,11 +196,14 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     if (pathname === "/login") {
       setView("login")
       setOpen(true)
+      return
     }
     if (pathname === "/register-center") {
       setView("register")
       setOpen(true)
+      return
     }
+    if (pathname === "/early-access") setOpen(false)
   }, [pathname])
 
   return (
@@ -394,6 +397,11 @@ function LoginPanel({
         <button type="button" className="font-semibold text-[#222] hover:underline" onClick={onSwitchToRegister}>
           {zh ? "註冊" : "Register"}
         </button>
+      </p>
+      <p className="text-center text-sm text-[#9A9A9A]">
+        <Link href="/early-access" className="font-semibold text-[#0ABAB5] hover:underline">
+          {zh ? "搶先加入" : "Join Early Access"}
+        </Link>
       </p>
     </form>
   )

@@ -60,12 +60,12 @@ export function Footer() {
           <div className="flex flex-col gap-5">
             <h4 className="text-lg font-semibold text-white">{t("footer.appsTitle")}</h4>
             <div className="flex flex-col gap-5">
-              <a href="#" className="text-sm text-white hover:opacity-70">
+              <Link href="/download" className="text-sm text-white hover:opacity-70">
                 {t("footer.downloadAndroid")}
-              </a>
-              <a href="#" className="text-sm text-white hover:opacity-70">
+              </Link>
+              <Link href="/download" className="text-sm text-white hover:opacity-70">
                 {t("footer.downloadIos")}
-              </a>
+              </Link>
             </div>
           </div>
 

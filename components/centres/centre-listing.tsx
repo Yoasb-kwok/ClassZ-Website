@@ -5,7 +5,7 @@ import { ChevronDown, Star } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { useLanguage } from "@/components/language-provider";
-import { findDistrict } from "@/lib/locations";
+import { findDistrict, districtLabel } from "@/lib/locations";
 import { CENTRE_CATEGORIES } from "@/lib/register-center-validation";
 import type { Centre } from "@/lib/centre-data";
 import { formatTemplate } from "@/components/programs/format";
@@ -13,7 +13,8 @@ import {
   ListingToolbar,
   type ToolbarPop,
 } from "@/components/programs/listing-toolbar";
-import { CentreCard } from "./centre-card";
+import { MarketplaceCentreCard } from "@/components/programs/marketplace-cards";
+import { MarketplaceToggle } from "@/components/programs/marketplace-toggle";
 
 /**
  * W8 /centres listing — migrated (user decision 2026-09-29) from the old
@@ -35,7 +36,21 @@ import { CentreCard } from "./centre-card";
  *   the future reviews feature — this filter reads whatever `Centre.rating`
  *   carries, so it needs no change when that lands.
  */
-export function CentreListing({ centres }: { centres: Centre[] }) {
+export type CentreMarketStats = {
+  programCount: number;
+  fromPrice: number | null;
+  sponsored: boolean;
+};
+
+export function CentreListing({
+  centres,
+  stats = {},
+  showProgramCounts = false,
+}: {
+  centres: Centre[];
+  stats?: Record<number, CentreMarketStats>;
+  showProgramCounts?: boolean;
+}) {
   const { t, locale } = useLanguage();
 
   const [query, setQuery] = useState("");
@@ -116,15 +131,18 @@ export function CentreListing({ centres }: { centres: Centre[] }) {
       {/* Listing content capped at the 1440 design width & centered on wider
           viewports — same chrome as the trials/workshops listings. */}
       <div className="flex flex-col lg:mx-auto lg:max-w-[1440px]">
-        {/* H1 is the Centres frame (WM26 / 6969:10626). Subtitle stays the
-            shared workshops line; this P0 only replaces the reused programs H1. */}
-        <section className="flex flex-col items-center gap-5 px-6 py-8 text-center md:px-20">
-          <h1 className="w-full text-[40px] font-[weight:590] leading-[48px] text-ink">
+        {/* P0 H1 stays “Find the right centre for your child”.
+            Marketplace 2026’s “Find a learning centre” is not applied.
+            The 2026 subtitle, Centres/Programmes toggle and card treatment
+            sit around that H1. */}
+        <section className="flex flex-col items-start gap-3 px-6 py-8 text-left md:px-16 lg:px-20">
+          <h1 className="w-full text-[40px] font-medium leading-[1.1] text-ink md:text-[56px]">
             {t("programs.centresTitle")}
           </h1>
-          <p className="max-w-[884px] text-[18px] leading-[27px] text-ink">
-            {t("programs.workshopsSubtitle")}
+          <p className="max-w-[720px] text-[18px] leading-7 text-[#404040]">
+            {t("greenPages.market.centresSub")}
           </p>
+          <MarketplaceToggle active="centres" />
         </section>
 
         <ListingToolbar
@@ -234,15 +252,43 @@ export function CentreListing({ centres }: { centres: Centre[] }) {
               </button>
             </div>
           ) : (
-            <ul className="flex flex-col gap-8 pt-8">
-              {/* 2408 live frame (MCP 2026-08-24): rows `3866:17741` — one
-                  wide card per row. Below lg the card stacks (spec-silent,
-                  see centre-card.tsx). */}
-              {filtered.map((centre) => (
-                <li key={centre.id} className="w-full">
-                  <CentreCard centre={centre} variant="listing" />
-                </li>
-              ))}
+            <ul className="grid grid-cols-1 gap-6 pt-8 md:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((centre) => {
+                const info = stats[centre.id];
+                const district = districtLabel(centre.districtSlug, locale);
+                const rating = Number.parseFloat(centre.rating);
+                const parts = [
+                  district,
+                  showProgramCounts
+                    ? formatTemplate(t, "greenPages.market.programCount", {
+                        count: info?.programCount ?? 0,
+                      })
+                    : "",
+                  Number.isFinite(rating) ? `★ ${centre.rating}` : "",
+                ].filter(Boolean);
+                const from =
+                  info?.fromPrice != null
+                    ? formatTemplate(t, "greenPages.market.fromPrice", {
+                        amount: info.fromPrice.toLocaleString("en-HK"),
+                      })
+                    : "";
+                return (
+                  <li key={centre.id} className="min-w-0">
+                    <MarketplaceCentreCard
+                      href={`/centres/${centre.id}`}
+                      id={centre.id}
+                      name={centre.name}
+                      image={centre.listingImage}
+                      meta={parts.join(" · ")}
+                      price={from}
+                      sponsored={Boolean(info?.sponsored)}
+                      feedback={centre.reviewCount > 0 && Number.isFinite(rating)}
+                      sponsoredLabel={t("greenPages.market.sponsored")}
+                      feedbackLabel={t("greenPages.market.feedback")}
+                    />
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
